@@ -1,0 +1,69 @@
+'use client';
+
+import { usePublishStore } from '@/stores/publishStore';
+import { PlatformId, PublishResponse } from '@/types';
+import { Send, Loader2 } from 'lucide-react';
+
+export default function PublishButton() {
+  const { title, content, platforms, overallStatus, setPublishing, setResults } =
+    usePublishStore();
+
+  const selectedPlatforms = (
+    Object.entries(platforms) as [PlatformId, boolean][]
+  )
+    .filter(([, enabled]) => enabled)
+    .map(([id]) => id);
+
+  const isDisabled =
+    !title.trim() ||
+    !content.trim() ||
+    selectedPlatforms.length === 0 ||
+    overallStatus === 'publishing';
+
+  async function handlePublish() {
+    if (isDisabled) return;
+    setPublishing();
+
+    try {
+      const response = await fetch('/api/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, platforms: selectedPlatforms }),
+      });
+      const data: PublishResponse = await response.json();
+      setResults(data.results);
+    } catch {
+      setResults(
+        selectedPlatforms.map((p) => ({
+          platform: p,
+          status: 'error' as const,
+          message: '网络错误，请重试',
+        }))
+      );
+    }
+  }
+
+  return (
+    <button
+      onClick={handlePublish}
+      disabled={isDisabled}
+      className={`flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg text-white font-medium text-sm transition-all ${
+        isDisabled
+          ? 'bg-gray-300 cursor-not-allowed'
+          : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg active:scale-[0.98]'
+      }`}
+    >
+      {overallStatus === 'publishing' ? (
+        <>
+          <Loader2 size={18} className="animate-spin" />
+          发布中...
+        </>
+      ) : (
+        <>
+          <Send size={18} />
+          一键发布到 {selectedPlatforms.length} 个平台
+        </>
+      )}
+    </button>
+  );
+}
