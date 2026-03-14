@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import '@uiw/react-md-editor/markdown-editor.css';
 import { usePublishStore } from '@/stores/publishStore';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });

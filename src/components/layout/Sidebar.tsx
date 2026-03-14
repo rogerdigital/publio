@@ -15,8 +15,10 @@ export default function Sidebar() {
   return (
     <aside className="w-56 h-screen bg-gray-50 border-r border-gray-200 flex flex-col shrink-0">
       <div className="p-5 border-b border-gray-200">
-        <h1 className="text-lg font-bold text-gray-900">多平台发布器</h1>
-        <p className="text-xs text-gray-500 mt-1">一次编辑，多平台发布</p>
+        <h1 className="text-lg font-bold text-gray-900">Publio</h1>
+        <p className="text-xs text-gray-500 mt-1">
+          Write once, publish everywhere.
+        </p>
       </div>
       <nav className="flex-1 p-3">
         {navItems.map((item) => {

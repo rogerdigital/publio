@@ -3,8 +3,9 @@ import './globals.css';
 import Sidebar from '@/components/layout/Sidebar';
 
 export const metadata: Metadata = {
-  title: '多平台发布器',
-  description: '一次编辑，多平台发布 - 微信公众号、小红书、知乎、X',
+  title: 'Publio',
+  description:
+    'Publish Markdown content to multiple platforms in one workflow.',
 };
 
 export default function RootLayout({
