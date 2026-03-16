@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PlatformId, PlatformPublishResult } from '@/types';
 import { Publisher, PublishInput } from '@/lib/publishers/types';
-import { markdownToHtml } from '@/lib/markdown';
+import { markdownToHtml, markdownToStyledHtml } from '@/lib/markdown';
 import { WechatPublisher } from '@/lib/publishers/wechat';
 import { XiaohongshuPublisher } from '@/lib/publishers/xiaohongshu';
 import { ZhihuPublisher } from '@/lib/publishers/zhihu';
@@ -33,15 +33,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert markdown to HTML
-    const htmlContent = markdownToHtml(content);
-
-    const input: PublishInput = {
-      title,
-      markdownContent: content,
-      htmlContent,
-    };
-
     // Execute all publishers concurrently
     const publishPromises = (platforms as PlatformId[]).map(
       async (platformId): Promise<PlatformPublishResult> => {
@@ -55,6 +46,15 @@ export async function POST(request: NextRequest) {
         }
 
         const publisher = createPublisher();
+        const htmlContent =
+          platformId === 'wechat' || platformId === 'zhihu'
+            ? markdownToStyledHtml(title, content, platformId)
+            : markdownToHtml(content);
+        const input: PublishInput = {
+          title,
+          markdownContent: content,
+          htmlContent,
+        };
         const result = await publisher.publish(input);
 
         return {

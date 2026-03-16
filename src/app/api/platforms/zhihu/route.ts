@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { markdownToHtml } from '@/lib/markdown';
+import { markdownToStyledHtml } from '@/lib/markdown';
 import { ZhihuPublisher } from '@/lib/publishers/zhihu';
 
 export async function POST(request: NextRequest) {
@@ -11,11 +11,11 @@ export async function POST(request: NextRequest) {
   }
 
   const publisher = new ZhihuPublisher();
-  const result = await publisher.publish({
-    title,
-    markdownContent: content,
-    htmlContent: markdownToHtml(content),
-  });
+    const result = await publisher.publish({
+      title,
+      markdownContent: content,
+      htmlContent: markdownToStyledHtml(title, content, 'zhihu'),
+    });
 
   return NextResponse.json(result);
 }

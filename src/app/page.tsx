@@ -1,13 +1,41 @@
 'use client';
 
+import { useEffect } from 'react';
 import { usePublishStore } from '@/stores/publishStore';
 import MarkdownEditor from '@/components/editor/MarkdownEditor';
 import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
+import {
+  NEWS_DRAFT_STORAGE_KEY,
+  type NewsDraftPayload,
+} from '@/lib/newsDraft';
 
 export default function HomePage() {
-  const { title, setTitle, reset, overallStatus } = usePublishStore();
+  const {
+    title,
+    setTitle,
+    setContent,
+    reset,
+    overallStatus,
+  } = usePublishStore();
+
+  useEffect(() => {
+    const rawDraft = window.localStorage.getItem(NEWS_DRAFT_STORAGE_KEY);
+    if (!rawDraft) {
+      return;
+    }
+
+    try {
+      const draft = JSON.parse(rawDraft) as NewsDraftPayload;
+      setTitle(draft.title || '');
+      setContent(draft.content || '');
+      reset();
+      window.localStorage.removeItem(NEWS_DRAFT_STORAGE_KEY);
+    } catch {
+      window.localStorage.removeItem(NEWS_DRAFT_STORAGE_KEY);
+    }
+  }, [reset, setContent, setTitle]);
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-8">

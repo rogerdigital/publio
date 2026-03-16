@@ -11,15 +11,18 @@ Write once, publish everywhere.
 ## 功能特性
 
 - **Markdown 编辑器** — 内置实时预览的 Markdown 编辑器，所见即所得
+- **AI 热点新闻页** — 聚合最近 12 小时内的中文 AI 行业新闻，生成快讯摘要与长文式新闻流
+- **一键转稿** — 从 AI 新闻页直接生成适合编辑器继续润色的公众号风格草稿
 - **多平台并发发布** — 一键将文章同步到多个平台，基于 `Promise.allSettled` 并发执行
 - **四大平台支持**
-  - 🟢 **微信公众号** — 通过 AppID/AppSecret 认证，自动创建草稿并发布
+  - 🟢 **微信公众号** — 通过 AppID/AppSecret 认证，自动创建草稿并发布，支持更接近公众号文章风格的 HTML 排版
   - 🔴 **小红书** — OAuth 认证，自动适配平台字数限制（标题 20 字，内容 1000 字）
-  - 🔵 **知乎** — 基于专栏 API，支持 HTML 富文本内容发布
+  - 🔵 **知乎** — 基于专栏 API，支持风格化 HTML 富文本内容发布
   - ✖️ **X (Twitter)** — OAuth 1.0a 认证，长文自动拆分为 Thread 并编号
 - **凭据管理** — 可视化设置页面，安全管理各平台 API 密钥，密钥脱敏显示
-- **内容自动转换** — Markdown → HTML（微信/知乎）、Markdown → 纯文本（小红书/X）
+- **内容自动转换** — Markdown → 风格化 HTML（微信/知乎）、Markdown → 纯文本（小红书/X）
 - **发布状态追踪** — 实时显示各平台发布进度与结果，支持跳转已发布内容
+- **稳定开发启动** — `pnpm dev` 会自动清理残留 dev 进程并清空 `.next/cache`
 
 ## 技术栈
 
@@ -42,9 +45,11 @@ src/
 ├── app/
 │   ├── layout.tsx                # 根布局（侧边栏 + 内容区）
 │   ├── page.tsx                  # 首页：编辑器 + 平台选择 + 发布
+│   ├── ai-news/page.tsx          # AI 新闻页入口
 │   ├── globals.css               # 全局样式
 │   ├── settings/page.tsx         # 设置页：各平台凭据管理
 │   └── api/
+│       ├── ai-news/route.ts      # AI 新闻聚合 API
 │       ├── publish/route.ts      # 批量发布 API
 │       ├── platforms/            # 各平台独立发布 API
 │       │   ├── wechat/route.ts
@@ -55,24 +60,40 @@ src/
 ├── components/
 │   ├── layout/Sidebar.tsx        # 侧边栏导航
 │   ├── editor/MarkdownEditor.tsx # Markdown 编辑器组件
+│   ├── news/                     # AI 新闻页组件
 │   └── publish/
 │       ├── PlatformSelector.tsx  # 平台选择器
 │       ├── PublishButton.tsx     # 发布按钮
 │       └── PublishStatusPanel.tsx # 发布状态面板
 ├── lib/
 │   ├── config.ts                 # 环境变量配置读取
-│   ├── markdown.ts               # Markdown 转换工具
+│   ├── markdown.ts               # Markdown / 风格化 HTML 转换工具
+│   ├── aiNews.ts                 # AI 新闻抓取、摘要、配图和转稿数据生成
+│   ├── newsDraft.ts              # AI 新闻转稿模板
 │   └── publishers/               # 各平台发布器实现
 │       ├── types.ts
 │       ├── wechat.ts
 │       ├── xiaohongshu.ts
 │       ├── zhihu.ts
 │       └── x.ts
+├── scripts/
+│   └── dev-safe.mjs              # 安全开发启动脚本
 ├── stores/
 │   └── publishStore.ts          # Zustand 状态管理
 └── types/
     └── index.ts                  # 类型定义
 ```
+
+## AI 新闻页
+
+访问 [http://localhost:3000/ai-news](http://localhost:3000/ai-news) 可以使用 AI 新闻聚合页。
+
+- 抓取最近 12 小时内的中文 AI 行业新闻
+- 自动生成快讯摘要、文章导语、正文点评和“值得关注”段落
+- 为每条新闻尽量抓取原文开放图并插入内容
+- 支持一键生成适合继续编辑和发布的长文草稿
+
+这个页面的视觉风格偏向“公众号长文快讯”，包括深色阅读背景、强调色标题、分节编号和更强的文章感排版。
 
 ## 快速开始
 
@@ -106,6 +127,12 @@ cp .env.example .env.local
 
 ```bash
 pnpm dev
+```
+
+`pnpm dev` 会先自动清理 `Publio` 自己残留的 Next.js 开发进程，并清空 `.next/cache`，用来降低开发态热更新卡死、端口被僵尸进程占用、构建产物错乱的问题。如果你需要原始启动方式，可以使用：
+
+```bash
+pnpm run dev:raw
 ```
 
 访问 [http://localhost:3000](http://localhost:3000) 即可使用。

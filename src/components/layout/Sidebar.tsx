@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { PenSquare, Settings } from 'lucide-react';
+import { Newspaper, PenSquare, Settings } from 'lucide-react';
 
 const navItems = [
   { href: '/', label: '编辑器', icon: PenSquare },
+  { href: '/ai-news', label: 'AI 新闻', icon: Newspaper },
   { href: '/settings', label: '设置', icon: Settings },
 ];
 

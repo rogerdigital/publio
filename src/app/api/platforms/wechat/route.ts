@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { markdownToHtml } from '@/lib/markdown';
+import { markdownToStyledHtml } from '@/lib/markdown';
 import { WechatPublisher } from '@/lib/publishers/wechat';
 
 export async function POST(request: NextRequest) {
@@ -11,11 +11,11 @@ export async function POST(request: NextRequest) {
   }
 
   const publisher = new WechatPublisher();
-  const result = await publisher.publish({
-    title,
-    markdownContent: content,
-    htmlContent: markdownToHtml(content),
-  });
+    const result = await publisher.publish({
+      title,
+      markdownContent: content,
+      htmlContent: markdownToStyledHtml(title, content, 'wechat'),
+    });
 
   return NextResponse.json(result);
 }
