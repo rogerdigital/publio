@@ -27,7 +27,7 @@ export default function PublishStatusPanel() {
 
   return (
     <div className="space-y-2 mt-4">
-      <h3 className="text-sm font-medium text-[#f0e6da]">发布结果</h3>
+      <h3 className="text-sm font-medium text-[#4b4037]">发布结果</h3>
       <div className="space-y-2">
         {results.length > 0
           ? results.map((result) => {
@@ -41,24 +41,24 @@ export default function PublishStatusPanel() {
                   key={result.platform}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${
                     result.status === 'success'
-                      ? 'bg-[rgba(31,157,85,0.12)] border-[rgba(31,157,85,0.28)]'
+                      ? 'bg-[#eefbf2] border-[#bfe8cb]'
                       : result.status === 'error'
-                      ? 'bg-[rgba(239,68,68,0.12)] border-[rgba(239,68,68,0.28)]'
-                      : 'bg-white/5 border-white/10'
+                      ? 'bg-[#fff1f1] border-[#f4c1c1]'
+                      : 'bg-[#fffdfb] border-[#e8ddd2]'
                   }`}
                 >
-                  <Icon size={18} className="text-[#cfc4b7] shrink-0" />
-                  <span className="text-sm font-medium text-[#f5ebdf] shrink-0">
+                  <Icon size={18} className="text-[#7d6f64] shrink-0" />
+                  <span className="text-sm font-medium text-[#3a3029] shrink-0">
                     {platform.name}
                   </span>
                   <div className="flex-1 min-w-0">
                     <span
                       className={`text-sm ${
                         result.status === 'success'
-                          ? 'text-[#7fe2a6]'
+                          ? 'text-[#247a4b]'
                           : result.status === 'error'
-                          ? 'text-[#ffb2b2]'
-                          : 'text-[#aba295]'
+                          ? 'text-[#bf4b4b]'
+                          : 'text-[#7d7065]'
                       }`}
                     >
                       {result.message}
@@ -67,16 +67,16 @@ export default function PublishStatusPanel() {
                   {result.status === 'success' && (
                     <CheckCircle2
                       size={18}
-                      className="text-[#7fe2a6] shrink-0"
+                      className="text-[#2b9d62] shrink-0"
                     />
                   )}
                   {result.status === 'error' && (
-                    <XCircle size={18} className="text-[#ff8f8f] shrink-0" />
+                    <XCircle size={18} className="text-[#de6a6a] shrink-0" />
                   )}
                   {result.status === 'publishing' && (
                     <Loader2
                       size={18}
-                      className="text-[#ff9a67] animate-spin shrink-0"
+                      className="text-[#ef6b38] animate-spin shrink-0"
                     />
                   )}
                   {result.url && (
@@ -84,7 +84,7 @@ export default function PublishStatusPanel() {
                       href={result.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#ffb08a] hover:text-[#ffd9c4] shrink-0"
+                      className="text-[#d77443] hover:text-[#9e4d27] shrink-0"
                     >
                       <ExternalLink size={16} />
                     </a>
@@ -94,12 +94,12 @@ export default function PublishStatusPanel() {
             })
           : // Show loading placeholders during publishing
             overallStatus === 'publishing' && (
-              <div className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-white/5 border-white/10">
+              <div className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-[#fffdfb] border-[#e8ddd2]">
                 <Loader2
                   size={18}
-                  className="text-[#ff9a67] animate-spin shrink-0"
+                  className="text-[#ef6b38] animate-spin shrink-0"
                 />
-                <span className="text-sm text-[#aba295]">
+                <span className="text-sm text-[#7d7065]">
                   正在发布到各平台...
                 </span>
               </div>

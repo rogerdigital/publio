@@ -43,25 +43,25 @@ export default function MarkdownEditor() {
           </div>
         </div>
 
-        <div className="min-w-0 bg-[linear-gradient(180deg,#191715_0%,#231f1b_100%)]">
-          <div className="flex items-center justify-between border-b border-white/8 px-5 py-3 text-white/90">
+        <div className="min-w-0 bg-[linear-gradient(180deg,#fff7f0_0%,#f5ede5_100%)]">
+          <div className="flex items-center justify-between border-b border-[#eadfd3] px-5 py-3 text-[#3f342c]">
             <div>
-              <p className="text-xs uppercase tracking-[0.28em] text-[#ff9a67]">
+              <p className="text-xs uppercase tracking-[0.28em] text-[#d77443]">
                 Preview
               </p>
-              <p className="mt-1 text-sm font-medium text-[#f5eadf]">
+              <p className="mt-1 text-sm font-medium text-[#3a3029]">
                 公众号风格预览
               </p>
             </div>
-            <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-[#cbbfb3]">
+            <div className="rounded-full border border-[#eadfd3] bg-white px-3 py-1 text-xs text-[#7d7065] shadow-sm">
               微信 / 知乎
             </div>
           </div>
 
           <div className="h-[760px] overflow-y-auto p-5">
-            <div className="rounded-[32px] border border-white/8 bg-[#100f0e] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.35)]">
-              <div className="mb-4 flex items-center gap-2 px-2 text-[11px] uppercase tracking-[0.3em] text-[#ff9a67]">
-                <span className="inline-block h-2 w-2 rounded-full bg-[#ff7a45]" />
+            <div className="rounded-[32px] border border-[#eadfd3] bg-[#fff8f2] p-4 shadow-[0_20px_50px_rgba(214,181,154,0.18)]">
+              <div className="mb-4 flex items-center gap-2 px-2 text-[11px] uppercase tracking-[0.3em] text-[#d77443]">
+                <span className="inline-block h-2 w-2 rounded-full bg-[#ef6b38]" />
                 最终排版参考
               </div>
               <div

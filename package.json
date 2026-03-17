@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "node scripts/dev-safe.mjs",
     "dev:raw": "next dev",
+    "preview": "next build && next start",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
