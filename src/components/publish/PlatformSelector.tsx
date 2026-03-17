@@ -23,10 +23,10 @@ export default function PlatformSelector() {
         return (
           <label
             key={platform.id}
-            className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg border cursor-pointer transition-all select-none ${
+            className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border cursor-pointer transition-all select-none ${
               checked
-                ? 'border-blue-300 bg-blue-50 text-blue-700 shadow-sm'
-                : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                ? 'border-[rgba(255,122,69,0.35)] bg-[rgba(255,122,69,0.12)] text-[#fff1e4] shadow-[0_10px_24px_rgba(0,0,0,0.14)]'
+                : 'border-white/10 bg-white/5 text-[#b7aea2] hover:border-white/16 hover:bg-white/7 hover:text-[#f6ede2]'
             }`}
           >
             <input
@@ -38,7 +38,7 @@ export default function PlatformSelector() {
             <Icon size={18} />
             <span className="text-sm font-medium">{platform.name}</span>
             {checked && (
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
+              <span className="h-2 w-2 rounded-full bg-[#ff7a45]" />
             )}
           </label>
         );

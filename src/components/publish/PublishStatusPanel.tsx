@@ -27,7 +27,7 @@ export default function PublishStatusPanel() {
 
   return (
     <div className="space-y-2 mt-4">
-      <h3 className="text-sm font-medium text-gray-700">发布结果</h3>
+      <h3 className="text-sm font-medium text-[#f0e6da]">发布结果</h3>
       <div className="space-y-2">
         {results.length > 0
           ? results.map((result) => {
@@ -41,24 +41,24 @@ export default function PublishStatusPanel() {
                   key={result.platform}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${
                     result.status === 'success'
-                      ? 'bg-green-50 border-green-200'
+                      ? 'bg-[rgba(31,157,85,0.12)] border-[rgba(31,157,85,0.28)]'
                       : result.status === 'error'
-                      ? 'bg-red-50 border-red-200'
-                      : 'bg-gray-50 border-gray-200'
+                      ? 'bg-[rgba(239,68,68,0.12)] border-[rgba(239,68,68,0.28)]'
+                      : 'bg-white/5 border-white/10'
                   }`}
                 >
-                  <Icon size={18} className="text-gray-600 shrink-0" />
-                  <span className="text-sm font-medium text-gray-800 shrink-0">
+                  <Icon size={18} className="text-[#cfc4b7] shrink-0" />
+                  <span className="text-sm font-medium text-[#f5ebdf] shrink-0">
                     {platform.name}
                   </span>
                   <div className="flex-1 min-w-0">
                     <span
                       className={`text-sm ${
                         result.status === 'success'
-                          ? 'text-green-700'
+                          ? 'text-[#7fe2a6]'
                           : result.status === 'error'
-                          ? 'text-red-700'
-                          : 'text-gray-500'
+                          ? 'text-[#ffb2b2]'
+                          : 'text-[#aba295]'
                       }`}
                     >
                       {result.message}
@@ -67,16 +67,16 @@ export default function PublishStatusPanel() {
                   {result.status === 'success' && (
                     <CheckCircle2
                       size={18}
-                      className="text-green-600 shrink-0"
+                      className="text-[#7fe2a6] shrink-0"
                     />
                   )}
                   {result.status === 'error' && (
-                    <XCircle size={18} className="text-red-600 shrink-0" />
+                    <XCircle size={18} className="text-[#ff8f8f] shrink-0" />
                   )}
                   {result.status === 'publishing' && (
                     <Loader2
                       size={18}
-                      className="text-blue-600 animate-spin shrink-0"
+                      className="text-[#ff9a67] animate-spin shrink-0"
                     />
                   )}
                   {result.url && (
@@ -84,7 +84,7 @@ export default function PublishStatusPanel() {
                       href={result.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 shrink-0"
+                      className="text-[#ffb08a] hover:text-[#ffd9c4] shrink-0"
                     >
                       <ExternalLink size={16} />
                     </a>
@@ -94,12 +94,12 @@ export default function PublishStatusPanel() {
             })
           : // Show loading placeholders during publishing
             overallStatus === 'publishing' && (
-              <div className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-gray-50 border-gray-200">
+              <div className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-white/5 border-white/10">
                 <Loader2
                   size={18}
-                  className="text-blue-600 animate-spin shrink-0"
+                  className="text-[#ff9a67] animate-spin shrink-0"
                 />
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-[#aba295]">
                   正在发布到各平台...
                 </span>
               </div>

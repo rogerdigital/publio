@@ -49,8 +49,8 @@ export default function PublishButton() {
       disabled={isDisabled}
       className={`flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg text-white font-medium text-sm transition-all ${
         isDisabled
-          ? 'bg-gray-300 cursor-not-allowed'
-          : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg active:scale-[0.98]'
+          ? 'bg-white/10 text-white/40 cursor-not-allowed'
+          : 'bg-[linear-gradient(90deg,#ef6b38_0%,#c45f35_100%)] hover:brightness-105 shadow-[0_14px_28px_rgba(0,0,0,0.25)] active:scale-[0.98]'
       }`}
     >
       {overallStatus === 'publishing' ? (

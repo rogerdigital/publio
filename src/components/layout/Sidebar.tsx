@@ -14,15 +14,20 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-56 h-screen bg-gray-50 border-r border-gray-200 flex flex-col shrink-0">
-      <div className="p-5 border-b border-gray-200">
+    <aside className="w-56 h-screen border-r border-white/8 bg-[linear-gradient(180deg,#181614_0%,#11100f_100%)] text-[#ece2d6] flex flex-col shrink-0">
+      <div className="p-5 border-b border-white/8">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#261b15_0%,#151311_100%)] shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#2f2118_0%,#171311_100%)] shadow-[0_8px_24px_rgba(0,0,0,0.28)]">
             <span className="text-lg">📰</span>
           </div>
-          <h1 className="text-lg font-bold text-gray-900">Publio</h1>
+          <div>
+            <h1 className="text-lg font-bold text-[#fff5e8]">Publio</h1>
+            <p className="mt-0.5 text-[11px] uppercase tracking-[0.28em] text-[#ff9a67]">
+              Daily Wire
+            </p>
+          </div>
         </div>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-[#9f978d] mt-3">
           Write once, publish everywhere.
         </p>
       </div>
@@ -33,10 +38,10 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors mb-1 ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-1 ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-[rgba(255,122,69,0.16)] text-[#fff2e8] border border-[rgba(255,122,69,0.22)]'
+                  : 'text-[#b8afa3] hover:bg-white/6 hover:text-[#fff2e8]'
               }`}
             >
               <item.icon size={18} />

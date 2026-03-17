@@ -95,13 +95,21 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8">
-      <h2 className="text-xl font-bold text-gray-900 mb-2">平台设置</h2>
-      <p className="text-sm text-gray-500 mb-6">
-        配置各平台的 API 凭证。凭证仅保存在服务器本地，不会上传到任何第三方。
-      </p>
+    <div className="min-h-screen bg-[#151515] px-4 py-6 text-[#ece2d6] sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-6 rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] px-6 py-6 shadow-[0_24px_70px_rgba(0,0,0,0.22)]">
+          <p className="text-xs uppercase tracking-[0.3em] text-[#ff9a67]">
+            Settings
+          </p>
+          <h2 className="mt-3 text-[34px] font-semibold leading-tight text-[#fff5e8]">
+            平台设置
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-[#a89f93]">
+            配置各平台的 API 凭证。凭证仅保存在服务器本地，不会上传到任何第三方。我们把这页也统一到和新闻页、编辑页相同的深色产品壳层。
+          </p>
+        </div>
 
-      <div className="space-y-3">
+        <div className="space-y-3">
         {platformConfigs.map((platform) => {
           const isExpanded = expandedPlatform === platform.id;
           const Icon = platform.icon;
@@ -109,28 +117,28 @@ export default function SettingsPage() {
           return (
             <div
               key={platform.id}
-              className="border border-gray-200 rounded-lg overflow-hidden"
+              className="overflow-hidden rounded-[22px] border border-white/10 bg-[#1b1a18]"
             >
               <button
                 onClick={() =>
                   setExpandedPlatform(isExpanded ? null : platform.id)
                 }
-                className="w-full flex items-center gap-3 px-4 py-3.5 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/4 hover:bg-white/6 transition-colors text-left"
               >
-                <Icon size={18} className="text-gray-600" />
-                <span className="text-sm font-medium text-gray-800">
+                <Icon size={18} className="text-[#c9bfb3]" />
+                <span className="text-sm font-medium text-[#fff2e8]">
                   {platform.name}
                 </span>
-                <span className="ml-auto text-gray-400 text-xs">
+                <span className="ml-auto text-[#8d857b] text-xs">
                   {isExpanded ? '收起' : '展开'}
                 </span>
               </button>
 
               {isExpanded && (
-                <div className="p-4 space-y-4 bg-white">
+                <div className="p-4 space-y-4 bg-[#171614]">
                   {platform.fields.map((field) => (
                     <div key={field.key}>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="mb-1 block text-sm font-medium text-[#ddd2c6]">
                         {field.label}
                       </label>
                       <div className="relative">
@@ -142,7 +150,7 @@ export default function SettingsPage() {
                             }
                             placeholder={field.placeholder}
                             rows={3}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+                            className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-[#fff2e8] outline-none placeholder:text-[#6f675e] focus:border-[rgba(255,122,69,0.35)]"
                           />
                         ) : (
                           <input
@@ -156,14 +164,14 @@ export default function SettingsPage() {
                               handleChange(field.key, e.target.value)
                             }
                             placeholder={field.placeholder}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none pr-10"
+                            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 pr-10 text-sm text-[#fff2e8] outline-none placeholder:text-[#6f675e] focus:border-[rgba(255,122,69,0.35)]"
                           />
                         )}
                         {field.type === 'password' && (
                           <button
                             type="button"
                             onClick={() => toggleSecret(field.key)}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8e857b] hover:text-[#fff0e2]"
                           >
                             {showSecrets[field.key] ? (
                               <EyeOff size={16} />
@@ -180,47 +188,48 @@ export default function SettingsPage() {
             </div>
           );
         })}
-      </div>
+        </div>
 
-      <div className="mt-6 flex items-center gap-3">
-        <button
-          onClick={handleSave}
-          className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-        >
-          <Save size={16} />
-          保存设置
-        </button>
-        {saved && (
-          <span className="flex items-center gap-1.5 text-sm text-green-600">
-            <CheckCircle2 size={16} />
-            已保存
-          </span>
-        )}
-      </div>
+        <div className="mt-6 flex items-center gap-3">
+          <button
+            onClick={handleSave}
+            className="flex items-center gap-2 rounded-xl bg-[linear-gradient(90deg,#ef6b38_0%,#c45f35_100%)] px-5 py-2.5 text-sm font-medium text-white shadow-[0_14px_28px_rgba(0,0,0,0.24)] transition hover:brightness-105"
+          >
+            <Save size={16} />
+            保存设置
+          </button>
+          {saved && (
+            <span className="flex items-center gap-1.5 text-sm text-[#88e0a8]">
+              <CheckCircle2 size={16} />
+              已保存
+            </span>
+          )}
+        </div>
 
-      <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-        <h3 className="text-sm font-medium text-amber-800 mb-2">
-          获取 API 凭证说明
-        </h3>
-        <ul className="text-xs text-amber-700 space-y-1.5">
-          <li>
-            <strong>微信公众号：</strong>前往{' '}
-            <code className="bg-amber-100 px-1 rounded">mp.weixin.qq.com</code>{' '}
-            → 开发 → 基本配置，获取 AppID 和 AppSecret
-          </li>
-          <li>
-            <strong>小红书：</strong>前往小红书开放平台注册开发者账号并创建应用
-          </li>
-          <li>
-            <strong>知乎：</strong>使用浏览器登录知乎后，在开发者工具的 Network 面板中复制
-            Cookie
-          </li>
-          <li>
-            <strong>X (Twitter)：</strong>前往{' '}
-            <code className="bg-amber-100 px-1 rounded">developer.x.com</code>{' '}
-            创建项目并生成 API Keys 和 Access Tokens
-          </li>
-        </ul>
+        <div className="mt-8 rounded-[24px] border border-[rgba(255,122,69,0.18)] bg-[rgba(255,122,69,0.06)] p-5">
+          <h3 className="mb-2 text-sm font-medium text-[#ffd7c4]">
+            获取 API 凭证说明
+          </h3>
+          <ul className="space-y-1.5 text-xs leading-6 text-[#d4b9a9]">
+            <li>
+              <strong className="text-[#fff0e4]">微信公众号：</strong>前往{' '}
+              <code className="rounded bg-black/20 px-1 py-0.5">mp.weixin.qq.com</code>{' '}
+              → 开发 → 基本配置，获取 AppID 和 AppSecret
+            </li>
+            <li>
+              <strong className="text-[#fff0e4]">小红书：</strong>前往小红书开放平台注册开发者账号并创建应用
+            </li>
+            <li>
+              <strong className="text-[#fff0e4]">知乎：</strong>使用浏览器登录知乎后，在开发者工具的 Network 面板中复制
+              Cookie
+            </li>
+            <li>
+              <strong className="text-[#fff0e4]">X (Twitter)：</strong>前往{' '}
+              <code className="rounded bg-black/20 px-1 py-0.5">developer.x.com</code>{' '}
+              创建项目并生成 API Keys 和 Access Tokens
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   );

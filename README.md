@@ -131,7 +131,7 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-`pnpm dev` 会先自动清理 `Publio` 自己残留的 Next.js 开发进程，并清空 `.next/cache`，用来降低开发态热更新卡死、端口被僵尸进程占用、构建产物错乱的问题。如果你需要原始启动方式，可以使用：
+`pnpm dev` 会先自动清理 `Publio` 自己残留的 Next.js 开发进程，并清空 `.next/cache`，用来降低开发态热更新卡死、端口被僵尸进程占用、构建产物错乱的问题。它还会在启动后自动检查首页引用的 CSS 资源是否可访问；如果检测到样式资源异常，会自动重启一次开发服务自愈。如果你需要原始启动方式，可以使用：
 
 ```bash
 pnpm run dev:raw
