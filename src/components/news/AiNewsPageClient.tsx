@@ -94,6 +94,8 @@ export default function AiNewsPageClient() {
       sections: [
         {
           title: item.title,
+          emoji: item.emoji,
+          deck: item.deck,
           summary: item.summary || '原始来源未提供摘要，请结合原文补充细节。',
           body: item.body,
           takeaway: item.takeaway,
@@ -123,6 +125,8 @@ export default function AiNewsPageClient() {
       intro,
       sections: topItems.map((item) => ({
         title: item.title,
+        emoji: item.emoji,
+        deck: item.deck,
         summary: item.summary || '原始来源未提供摘要，请结合原文补充细节。',
         body: item.body,
         takeaway: item.takeaway,

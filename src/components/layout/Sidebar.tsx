@@ -16,7 +16,12 @@ export default function Sidebar() {
   return (
     <aside className="w-56 h-screen bg-gray-50 border-r border-gray-200 flex flex-col shrink-0">
       <div className="p-5 border-b border-gray-200">
-        <h1 className="text-lg font-bold text-gray-900">Publio</h1>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#261b15_0%,#151311_100%)] shadow-sm">
+            <span className="text-lg">📰</span>
+          </div>
+          <h1 className="text-lg font-bold text-gray-900">Publio</h1>
+        </div>
         <p className="text-xs text-gray-500 mt-1">
           Write once, publish everywhere.
         </p>
