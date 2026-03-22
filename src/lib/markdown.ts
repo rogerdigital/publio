@@ -22,25 +22,25 @@ const ARTICLE_THEME: Record<
 > = {
   wechat: {
     article:
-      'max-width:720px;margin:0 auto;padding:0 6px;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#2a2927;line-height:1.9;letter-spacing:0.02em;',
+      'max-width:580px;margin:0 auto;padding:0 10px 48px;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#e8ddd2;line-height:1.95;letter-spacing:0.02em;',
     lead:
-      'margin:0 0 26px;padding:20px 22px;border-radius:18px;background:linear-gradient(180deg,#fff7f2 0%,#fff 100%);border:1px solid #f1d7c7;font-size:17px;line-height:1.95;color:#4b4036;',
-    paragraph: 'margin:18px 0;font-size:16px;line-height:1.95;color:#35312d;',
+      'margin:0 0 24px;padding:18px 18px 0;border-radius:0;background:transparent;border:none;font-size:17px;line-height:1.95;color:#f2e9df;',
+    paragraph: 'margin:16px 0;font-size:16px;line-height:1.95;color:#ddd0c4;',
     heading2:
-      'margin:40px 0 16px;font-size:28px;line-height:1.45;font-weight:800;color:#1f1c19;',
+      'margin:38px 0 16px;font-size:27px;line-height:1.45;font-weight:800;color:#fff4ea;',
     heading3:
-      'margin:28px 0 12px;padding-left:14px;border-left:4px solid #ef6b38;font-size:22px;line-height:1.6;font-weight:700;color:#28231f;',
+      'margin:28px 0 12px;padding-left:14px;border-left:3px solid #d46f3d;font-size:21px;line-height:1.6;font-weight:700;color:#fff0e3;',
     blockquote:
-      'margin:20px 0;padding:16px 18px;border-radius:16px;background:#fff5ef;border:1px solid #f4d8ca;color:#6e5648;font-size:15px;line-height:1.9;',
-    list: 'margin:18px 0 18px 1.2em;padding:0;color:#35312d;',
+      'margin:18px 0;padding:16px 18px;border-radius:16px;background:#211d1a;border:1px solid #3a312c;color:#f0dfd0;font-size:15px;line-height:1.9;',
+    list: 'margin:16px 0 16px 1.15em;padding:0;color:#f0dfd0;',
     listItem: 'margin:8px 0;font-size:15px;line-height:1.9;',
     image:
-      'display:block;width:100%;margin:24px auto;border-radius:22px;overflow:hidden;border:1px solid #eee3da;',
+      'display:block;width:100%;margin:24px auto;border-radius:18px;overflow:hidden;border:1px solid #433831;',
     divider:
-      'margin:34px auto;border:none;border-top:1px dashed #d8c8bc;max-width:100%;',
-    meta: 'margin:12px 0;font-size:14px;line-height:1.9;color:#857668;',
-    link: 'color:#d95e2f;text-decoration:none;border-bottom:1px solid rgba(217,94,47,0.25);',
-    code: 'padding:2px 6px;border-radius:8px;background:#f5eee9;color:#8a4a2f;font-size:0.92em;',
+      'margin:30px auto;border:none;border-top:1px dashed #4b4038;max-width:100%;',
+    meta: 'margin:12px 0;font-size:14px;line-height:1.9;color:#b8a799;',
+    link: 'color:#ff9160;text-decoration:none;border-bottom:1px solid rgba(255,145,96,0.28);',
+    code: 'padding:2px 6px;border-radius:8px;background:#2a221e;color:#ffb089;font-size:0.92em;',
   },
   zhihu: {
     article:
@@ -215,11 +215,13 @@ export function markdownToStyledHtml(
       : contentTokens;
 
   const hero = `
-    <section style="position:relative;overflow:hidden;margin:0 0 30px;padding:34px 28px;border-radius:28px;background:linear-gradient(135deg,#1b1a18 0%,#2b211b 48%,#151515 100%);">
-      <div style="position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(255,122,69,0.35),transparent 32%),radial-gradient(circle at bottom right,rgba(255,255,255,0.08),transparent 28%);"></div>
+    <section style="position:relative;overflow:hidden;margin:0 0 28px;padding:18px;border-radius:26px;background:linear-gradient(180deg,#1b1a19 0%,#181715 100%);border:1px solid #2d2926;box-shadow:0 22px 48px rgba(10,10,10,0.26);">
+      <div style="position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(201,102,53,0.26),transparent 32%),radial-gradient(circle at bottom right,rgba(255,255,255,0.05),transparent 26%);"></div>
+      <div style="position:relative;padding:34px 30px;border-radius:22px;background:linear-gradient(135deg,#5a3427 0%,#2b221d 54%,#181716 100%);">
       <div style="position:relative;">
         <p style="margin:0 0 12px;font-size:12px;letter-spacing:0.32em;text-transform:uppercase;color:#ff9a67;">AI Daily Wire</p>
         <h1 style="margin:0;font-size:38px;line-height:1.32;font-weight:800;color:#fff4e8;">${escapeHtml(title)}</h1>
+      </div>
       </div>
     </section>
   `;

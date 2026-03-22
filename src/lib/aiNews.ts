@@ -74,6 +74,7 @@ const AI_KEYWORDS = [
 function decodeHtmlEntities(value: string) {
   return value
     .replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1')
+    .replace(/&nbsp;|&#160;/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
@@ -86,6 +87,23 @@ function stripHtml(value: string) {
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function cleanNewsText(value: string, source?: string) {
+  let text = stripHtml(value)
+    .replace(/\s*[|｜丨]\s*[^|｜丨]+$/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+
+  if (source) {
+    const escapedSource = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    text = text
+      .replace(new RegExp(`\\s*-?\\s*${escapedSource}$`, 'i'), '')
+      .replace(new RegExp(`\\s+${escapedSource}$`, 'i'), '')
+      .trim();
+  }
+
+  return text;
 }
 
 function hasChinese(text: string) {
@@ -192,7 +210,7 @@ function topicEmoji(topic: string) {
 }
 
 function trimSummary(summary: string, maxLength = 72) {
-  const normalized = summary.replace(/\s+/g, ' ').trim();
+  const normalized = cleanNewsText(summary).replace(/\s+/g, ' ').trim();
   if (!normalized) {
     return '';
   }
@@ -207,15 +225,15 @@ function buildDeck(title: string, summary: string, topic: string) {
 
   switch (topic) {
     case '模型与产品发布':
-      return `新一轮模型或产品动作出现，核心看点是：${trimmed}`;
+      return `这一轮产品与模型更新的核心看点是：${trimmed}`;
     case '资本与商业化':
-      return `商业化信号继续释放，这条新闻的重点在于：${trimmed}`;
+      return `商业化信号还在前移，这条消息最值得注意的是：${trimmed}`;
     case '算力与芯片':
       return `算力基础设施仍是底层主线，当前变化集中在：${trimmed}`;
     case '监管与治理':
-      return `政策与治理层面的新变化，正在影响行业节奏：${trimmed}`;
+      return `政策与治理层面的变化，正在继续影响行业节奏：${trimmed}`;
     default:
-      return `过去 12 小时内出现的新动态，重点在于：${trimmed}`;
+      return `过去 12 小时内出现的新动态里，重点落在：${trimmed}`;
   }
 }
 
@@ -224,15 +242,15 @@ function buildBody(item: Pick<AiNewsItem, 'title' | 'summary' | 'source'> & { to
 
   switch (item.topic) {
     case '模型与产品发布':
-      return `从这条消息来看，AI 行业的热度依然集中在模型与产品层面。${summaryText}。这类动态往往最先影响的是开发者采用速度，以及新一轮应用场景的扩展节奏。`;
+      return `这条消息放回最近 12 小时的新闻流里看，最直接的信号还是模型与产品层面的竞争在加速。${summaryText}。这类动作通常会最先传导到开发者采用速度、产品体验迭代，以及新场景落地的节奏。`;
     case '资本与商业化':
-      return `这条新闻释放出的更重要信号，不只是事件本身，而是商业化正在继续前移。${summaryText}。对行业来说，收入兑现、客户付费和平台扩张的节奏，会比单纯的热度更关键。`;
+      return `这条新闻真正值得关注的，不只是事件本身，而是商业化正在继续前移。${summaryText}。对行业来说，收入兑现、客户付费和平台扩张的节奏，往往比一时的技术热度更关键。`;
     case '算力与芯片':
-      return `算力与芯片相关的消息通常没有产品发布那么“热闹”，但对行业影响更深。${summaryText}。无论是训练成本、推理效率还是供应节奏，都会直接决定 AI 公司下一阶段的动作空间。`;
+      return `算力与芯片相关的消息，通常没有产品发布那么显眼，但它决定的是更底层的行业空间。${summaryText}。无论是训练成本、推理效率还是供应节奏，都会直接影响 AI 公司下一阶段的动作幅度。`;
     case '监管与治理':
-      return `监管话题再次升温，说明行业开始进入“增长与边界并行”的阶段。${summaryText}。这类变化对平台规则、内容分发以及企业级客户决策，都会产生持续影响。`;
+      return `监管话题再次升温，说明行业已经进入“增长与边界并行”的阶段。${summaryText}。这类变化会持续影响平台规则、内容分发以及企业客户的决策方式。`;
     default:
-      return `${summaryText}。如果把它放回过去 12 小时的整体新闻流里看，这类变化更多反映的是 AI 行业仍在快速推进，且市场关注点正在不断转移。`;
+      return `${summaryText}。如果把它放回过去 12 小时的整体新闻流里看，这类变化更像是在提醒我们，AI 行业仍在持续推进，而且市场关注点还在快速切换。`;
   }
 }
 
@@ -247,7 +265,7 @@ function buildTakeaway(item: Pick<AiNewsItem, 'topic'>) {
     case '监管与治理':
       return '值得关注的是，规则变化一旦落地，影响范围往往会比单条新闻本身更大。';
     default:
-      return '值得关注的是，这条新闻背后反映出的行业趋势，可能比事件本身更重要。';
+      return '值得关注的是，这条新闻背后反映出的行业趋势，往往比事件本身更重要。';
   }
 }
 
@@ -292,15 +310,15 @@ function buildBriefSummary(item: AiNewsItem) {
 
   switch (topic) {
     case '算力与芯片':
-      return `AI 快讯：算力与芯片赛道再有新消息。${trimmedSummary}，市场关注点仍集中在训练成本、供应节奏与基础设施投入。`;
+      return `今天值得看的底层变量，仍然来自算力与芯片。${trimmedSummary}，市场关注点依然集中在训练成本、供应节奏与基础设施投入。`;
     case '资本与商业化':
-      return `AI 快讯：商业化进展持续升温。${trimmedSummary}，相关动作也让行业对收入兑现与落地节奏有了更多预期。`;
+      return `商业化进展还在持续升温。${trimmedSummary}，这类动作会进一步影响行业对收入兑现和落地节奏的判断。`;
     case '模型与产品发布':
-      return `AI 快讯：模型与产品层面继续上新。${trimmedSummary}，这类动态通常会直接影响新一轮应用落地和用户渗透。`;
+      return `模型与产品层面继续上新。${trimmedSummary}，这类动态往往会直接影响新一轮应用落地和用户渗透。`;
     case '监管与治理':
-      return `AI 快讯：监管与治理话题升温。${trimmedSummary}，后续值得继续关注政策边界与平台响应。`;
+      return `监管与治理话题再次升温。${trimmedSummary}，后续值得继续关注政策边界与平台响应。`;
     default:
-      return `AI 快讯：行业又有新动态。${trimmedSummary}，相关进展正在持续影响市场情绪与业务节奏。`;
+      return `过去半天里，行业又冒出了新的观察点。${trimmedSummary}，这些进展还会继续影响市场情绪与业务节奏。`;
   }
 }
 
@@ -331,8 +349,10 @@ async function fetchSource(source: NewsSource, cutoffTime: number) {
     .map((block) => {
       const rawTitle = extractTagValue(block, 'title');
       const title = normalizeNewsTitle(rawTitle);
-      const summary = stripHtml(
+      const sourceLabel = parseSourceLabel(rawTitle, source.name);
+      const summary = cleanNewsText(
         extractTagValue(block, 'description') || extractTagValue(block, 'summary'),
+        sourceLabel,
       );
       const publishedAt =
         extractTagValue(block, 'pubDate') ||
@@ -345,7 +365,7 @@ async function fetchSource(source: NewsSource, cutoffTime: number) {
         summary,
         publishedAt,
         link,
-        source: parseSourceLabel(rawTitle, source.name),
+        source: sourceLabel,
       };
     })
     .filter((item) => {

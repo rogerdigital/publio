@@ -43,29 +43,29 @@ export default function MarkdownEditor() {
           </div>
         </div>
 
-        <div className="min-w-0 bg-[linear-gradient(180deg,#fff7f0_0%,#f5ede5_100%)]">
-          <div className="flex items-center justify-between border-b border-[#eadfd3] px-5 py-3 text-[#3f342c]">
+        <div className="min-w-0 bg-[linear-gradient(180deg,#191817_0%,#151413_100%)]">
+          <div className="flex items-center justify-between border-b border-[#302b27] px-5 py-3 text-[#f2e6db]">
             <div>
               <p className="text-xs uppercase tracking-[0.28em] text-[#d77443]">
                 Preview
               </p>
-              <p className="mt-1 text-sm font-medium text-[#3a3029]">
-                公众号风格预览
+              <p className="mt-1 text-sm font-medium text-[#f7ede5]">
+                发布态长文预览
               </p>
             </div>
-            <div className="rounded-full border border-[#eadfd3] bg-white px-3 py-1 text-xs text-[#7d7065] shadow-sm">
+            <div className="rounded-full border border-[#3a322d] bg-[#201c19] px-3 py-1 text-xs text-[#d8c5b7] shadow-sm">
               微信 / 知乎
             </div>
           </div>
 
-          <div className="h-[760px] overflow-y-auto p-5">
-            <div className="rounded-[32px] border border-[#eadfd3] bg-[#fff8f2] p-4 shadow-[0_20px_50px_rgba(214,181,154,0.18)]">
-              <div className="mb-4 flex items-center gap-2 px-2 text-[11px] uppercase tracking-[0.3em] text-[#d77443]">
+          <div className="h-[760px] overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(201,102,53,0.12),transparent_26%),linear-gradient(180deg,#191817_0%,#141311_100%)] p-5">
+            <div className="mx-auto max-w-[680px] rounded-[30px] border border-[#2f2925] bg-[linear-gradient(180deg,#1d1b1a_0%,#171614_100%)] p-4 shadow-[0_28px_70px_rgba(0,0,0,0.35)]">
+              <div className="mb-4 flex items-center gap-2 px-2 text-[11px] uppercase tracking-[0.3em] text-[#ff9a67]">
                 <span className="inline-block h-2 w-2 rounded-full bg-[#ef6b38]" />
-                最终排版参考
+                最终发布预览
               </div>
               <div
-                className="rounded-[28px] bg-white px-5 py-6"
+                className="rounded-[24px] bg-[linear-gradient(180deg,#1f1d1b_0%,#161514_100%)] px-5 py-6"
                 dangerouslySetInnerHTML={{ __html: previewHtml }}
               />
             </div>

@@ -46,16 +46,39 @@ interface AiNewsResponse {
   message?: string;
 }
 
+const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+});
+
+function parseDateValue(value: string) {
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
 function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat('zh-CN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value));
+  const timestamp = parseDateValue(value);
+
+  if (timestamp === null) {
+    return '时间待确认';
+  }
+
+  return dateFormatter.format(timestamp);
 }
 
 function formatRelativeHours(value: string) {
-  const diffMs = Date.now() - new Date(value).getTime();
+  const timestamp = parseDateValue(value);
+
+  if (timestamp === null) {
+    return '时间待确认';
+  }
+
+  const diffMs = Date.now() - timestamp;
   const diffHours = diffMs / (1000 * 60 * 60);
+
+  if (diffMs < 0) {
+    return '刚刚更新';
+  }
 
   if (diffHours < 1) {
     const minutes = Math.max(1, Math.round(diffMs / (1000 * 60)));
@@ -67,6 +90,40 @@ function formatRelativeHours(value: string) {
 
 function buildSectionLabel(index: number) {
   return String(index + 1).padStart(2, '0');
+}
+
+function normalizeItem(item: Partial<AiNewsItem>): AiNewsItem | null {
+  if (!item.link || !item.title) {
+    return null;
+  }
+
+  return {
+    title: item.title,
+    link: item.link,
+    source: item.source || '来源待确认',
+    publishedAt: item.publishedAt || '',
+    summary: item.summary || '',
+    score: typeof item.score === 'number' ? item.score : 0,
+    topic: item.topic || '行业动态',
+    emoji: item.emoji || '📰',
+    deck: item.deck || item.summary || item.title,
+    body: item.body || item.summary || '原始来源未提供更多正文，请结合原文补充细节。',
+    takeaway:
+      item.takeaway || '这条新闻值得继续跟进，后续可以结合原文补充更具体的行业判断。',
+    imageUrl: item.imageUrl,
+  };
+}
+
+function normalizeBrief(brief: Partial<AiNewsBrief>): AiNewsBrief | null {
+  if (!brief.title) {
+    return null;
+  }
+
+  return {
+    title: brief.title,
+    summary: brief.summary || '该热点已进入近 12 小时新闻窗口，建议结合原文继续补充判断。',
+    relatedTitles: Array.isArray(brief.relatedTitles) ? brief.relatedTitles : [brief.title],
+  };
 }
 
 export default function AiNewsPageClient() {
@@ -158,8 +215,16 @@ export default function AiNewsPageClient() {
         throw new Error(data.message || '新闻抓取失败，请稍后重试。');
       }
 
-      setItems(data.items);
-      setBriefs(data.briefs || []);
+      const normalizedItems = data.items
+        .map((item) => normalizeItem(item))
+        .filter((item): item is AiNewsItem => item !== null);
+
+      const normalizedBriefs = (data.briefs || [])
+        .map((brief) => normalizeBrief(brief))
+        .filter((brief): brief is AiNewsBrief => brief !== null);
+
+      setItems(normalizedItems);
+      setBriefs(normalizedBriefs);
       setGeneratedAt(data.generatedAt || '');
     } catch (err) {
       setError(err instanceof Error ? err.message : '新闻抓取失败，请稍后重试。');

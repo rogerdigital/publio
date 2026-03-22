@@ -21,62 +21,61 @@ export function buildNewsArticleMarkdown(params: {
     imageUrl?: string;
   }>;
 }) {
+  const highlights = params.sections
+    .slice(0, 3)
+    .map((section, index) => `${index + 1}. ${section.title}`)
+    .join('\n');
+
   const lines = [
     `# ${params.headline}`,
-    '',
-    '> AI Daily Wire',
     '',
     params.intro,
     '',
     '---',
     '',
-    '## 开篇导读',
+    '## 今晚值得关注的几件事',
     '',
-    '过去 12 小时里，AI 行业的信息密度依然很高。从模型更新、商业化推进，到算力与平台生态变化，几条主线都在同步演进。下面这份内容已经整理成接近公众号快讯长文的结构，你可以直接在此基础上补充观点和判断。',
+    '过去 12 小时里，AI 行业的信息密度依然很高。从模型更新、商业化推进，到算力与平台生态变化，几条主线都在同步演进。把这些消息放在一起看，短期热度之外，真正值得看的仍然是行业节奏正在怎么变。',
+    '',
+    highlights,
     '',
   ];
 
   params.sections.forEach((section, index) => {
-    const sectionTitle = `${section.emoji ? `${section.emoji} ` : ''}${index + 1}. ${section.title}`;
+    const sectionTitle = `${section.emoji ? `${section.emoji} ` : ''}${String(index + 1).padStart(2, '0')}｜${section.title}`;
 
     lines.push(`## ${sectionTitle}`);
     lines.push('');
     if (section.deck) {
-      lines.push(`**一句话看点：** ${section.deck}`);
+      lines.push(`${section.deck}`);
       lines.push('');
     }
+    lines.push(section.summary || '原始来源未提供摘要，请结合原文补充细节。');
+    lines.push('');
     if (section.imageUrl) {
       lines.push(`![${section.title}](${section.imageUrl})`);
       lines.push('');
     }
-    lines.push(section.summary);
-    lines.push('');
     if (section.body) {
       lines.push(section.body);
       lines.push('');
     }
     if (section.takeaway) {
-      lines.push(`> 编辑点评：${section.takeaway}`);
+      lines.push(`> 这条消息更值得注意的是：${section.takeaway}`);
       lines.push('');
     }
-    lines.push(`- 来源：${section.source}`);
-    lines.push(`- 时间：${section.publishedAt}`);
-    lines.push(`- 原文：${section.link}`);
+    lines.push(`来源：${section.source}｜时间：${section.publishedAt}`);
+    lines.push('');
+    lines.push(`原文链接：${section.link}`);
     lines.push('');
     lines.push('---');
     lines.push('');
   });
 
-  lines.push('## 值得关注');
+  lines.push('## 最后说几句');
   lines.push('');
   lines.push(
-    '从这组消息来看，过去 12 小时里 AI 行业的变化依旧集中在产品上新、商业化推进与算力基础设施几条主线。对内容团队来说，这些动态既适合整理成公众号快讯，也适合继续延展成深度选题。',
-  );
-  lines.push('');
-  lines.push('## 结语');
-  lines.push('');
-  lines.push(
-    '如果你准备把这篇内容发到公众号或知乎，建议继续补上一段总判断：这些变化会如何影响行业竞争格局、用户心智与下一阶段的市场机会。这样整篇内容会更像一篇完整的行业快讯，而不只是新闻摘录。',
+    '整体来看，过去 12 小时里的 AI 新闻，仍然围绕产品更新、商业化推进与底层基础设施三条主线展开。短期看，行业节奏还会继续加快；中期看，真正决定分化的，依旧是落地效率、收入能力和基础设施成本。如果继续跟下去，接下来最值得看的，还是谁能更快把能力变成真正可用、可付费、可持续的产品。',
   );
 
   return lines.join('\n');
