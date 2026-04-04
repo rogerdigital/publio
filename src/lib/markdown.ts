@@ -81,6 +81,34 @@ function cleanInlineText(value: string) {
 
 type TokensList = any[];
 
+function sanitizeUrl(value: string | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  if (trimmed.startsWith('#') || trimmed.startsWith('/')) {
+    return trimmed;
+  }
+
+  try {
+    const url = new URL(trimmed);
+    const protocol = url.protocol.toLowerCase();
+
+    if (protocol === 'http:' || protocol === 'https:' || protocol === 'mailto:') {
+      return url.toString();
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function renderInline(
   tokens: any[] | undefined,
   platform?: StyledPlatform,
@@ -98,19 +126,26 @@ function renderInline(
         case 'escape':
           return escapeHtml(token.raw);
         case 'strong':
-          return `<strong style="font-weight:700;color:${platform === 'wechat' ? '#1f1c19' : '#111827'};">${renderInline(token.tokens, platform)}</strong>`;
+          return `<strong style="font-weight:700;color:${platform === 'wechat' ? '#fff4ea' : '#111827'};">${renderInline(token.tokens, platform)}</strong>`;
         case 'em':
           return `<em style="font-style:italic;">${renderInline(token.tokens, platform)}</em>`;
         case 'codespan':
           return `<code style="${theme?.code ?? ''}">${escapeHtml(token.text)}</code>`;
         case 'del':
           return `<span style="text-decoration:line-through;opacity:0.75;">${renderInline(token.tokens, platform)}</span>`;
-        case 'link':
-          return `<a href="${escapeHtml(token.href)}" style="${theme?.link ?? ''}" target="_blank" rel="noreferrer">${renderInline(token.tokens, platform) || escapeHtml(token.text)}</a>`;
-        case 'image':
-          return token.href
-            ? `<span style="${theme?.image ?? ''}"><img src="${escapeHtml(token.href)}" alt="${escapeHtml(token.text || '')}" style="display:block;width:100%;height:auto;" /></span>`
+        case 'link': {
+          const safeHref = sanitizeUrl(token.href);
+          const inner = renderInline(token.tokens, platform) || escapeHtml(token.text);
+          return safeHref
+            ? `<a href="${escapeHtml(safeHref)}" style="${theme?.link ?? ''}" target="_blank" rel="noreferrer">${inner}</a>`
+            : inner;
+        }
+        case 'image': {
+          const safeSrc = sanitizeUrl(token.href);
+          return safeSrc
+            ? `<span style="${theme?.image ?? ''}"><img src="${escapeHtml(safeSrc)}" alt="${escapeHtml(token.text || '')}" style="display:block;width:100%;height:auto;" /></span>`
             : '';
+        }
         case 'br':
           return '<br />';
         default:
@@ -175,7 +210,7 @@ function tokensToHtml(
         case 'code':
           return `<pre style="margin:22px 0;padding:16px 18px;border-radius:16px;background:#111827;color:#f9fafb;overflow:auto;"><code>${escapeHtml(token.text)}</code></pre>`;
         case 'html':
-          return token.text;
+          return escapeHtml(token.text);
         default:
           return '';
       }
@@ -188,7 +223,7 @@ function tokenize(markdown: string) {
 }
 
 export function markdownToHtml(markdown: string): string {
-  return marked.parse(markdown, { async: false }) as string;
+  return tokensToHtml(tokenize(markdown));
 }
 
 export function markdownToStyledHtml(

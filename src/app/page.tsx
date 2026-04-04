@@ -2,7 +2,11 @@
 
 import { useEffect } from 'react';
 import { usePublishStore } from '@/stores/publishStore';
+import WritingDeskHeader from '@/components/editor/WritingDeskHeader';
+import EditorialContextCard from '@/components/editor/EditorialContextCard';
 import MarkdownEditor from '@/components/editor/MarkdownEditor';
+import PageSection from '@/components/layout/PageSection';
+import SurfaceCard from '@/components/layout/SurfaceCard';
 import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
@@ -13,7 +17,6 @@ import {
 
 export default function HomePage() {
   const {
-    title,
     setTitle,
     setContent,
     reset,
@@ -38,48 +41,58 @@ export default function HomePage() {
   }, [reset, setContent, setTitle]);
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#fffdf9_0%,#f8f1ea_100%)] px-4 py-6 text-[#3a3029] sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-6 rounded-[28px] border border-[#eadfd3] bg-[linear-gradient(180deg,#fff8f3_0%,#ffffff_100%)] px-6 py-6 shadow-[0_18px_50px_rgba(214,181,154,0.22)]">
-          <p className="text-xs uppercase tracking-[0.3em] text-[#d77443]">
-            Editorial Studio
-          </p>
-          <input
-            type="text"
-            placeholder="输入文章标题..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="mt-3 w-full border-none bg-transparent text-[42px] font-semibold leading-tight text-[#241b16] outline-none placeholder:text-[#a29082]"
-          />
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-[#7d7065]">
-            在这里继续打磨你的长文稿、行业快讯或平台分发内容。左侧保持编辑效率，右侧尽量贴近微信与知乎最终排版。
-          </p>
-        </div>
+    <div className="space-y-6">
+      <WritingDeskHeader />
 
-        <div className="mb-6">
-          <MarkdownEditor />
-        </div>
-
-        <div className="rounded-[28px] border border-[#eadfd3] bg-white p-6 shadow-[0_18px_50px_rgba(214,181,154,0.18)]">
-          <h3 className="mb-3 text-sm font-medium uppercase tracking-[0.24em] text-[#d77443]">
-            选择发布平台
-          </h3>
-          <PlatformSelector />
-
-          <div className="mt-6">
-            <PublishButton />
-            <PublishStatusPanel />
-            {overallStatus !== 'idle' && overallStatus !== 'publishing' && (
-              <button
-                onClick={reset}
-                className="mt-4 text-sm text-[#7d7065] underline transition hover:text-[#2b221d]"
-              >
-                清除发布结果
-              </button>
-            )}
+      <PageSection
+        eyebrow="Editorial workbench"
+        title="写作、研究与分发的并行桌面"
+        description="左侧保持连续写作和稿件判断，右侧保留发布分发和状态回收。页面结构更像一个活跃的编辑台，而不是单一编辑器。"
+        className="space-y-0"
+      >
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(24rem,0.9fr)]">
+          <div className="space-y-4">
+            <EditorialContextCard />
+            <MarkdownEditor />
           </div>
+
+          <SurfaceCard className="px-5 py-5 sm:px-6">
+            <div className="flex flex-col gap-4">
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
+                  Distribution deck
+                </p>
+                <h2
+                  className="mt-2 text-[22px] leading-tight text-[color:var(--wb-text)]"
+                  style={{ fontFamily: 'var(--wb-font-serif)' }}
+                >
+                  发布分发台
+                </h2>
+                <p className="mt-3 text-sm leading-7 text-[color:var(--wb-text-muted)]">
+                  这里保留平台勾选、发布按钮和结果面板，方便在稿件定稿后直接进入分发。
+                </p>
+              </div>
+
+              <div className="rounded-[24px] border border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.86)] px-4 py-4 shadow-[var(--wb-shadow-tight)]">
+                <PlatformSelector />
+              </div>
+
+              <div className="space-y-4">
+                <PublishButton />
+                <PublishStatusPanel />
+                {overallStatus !== 'idle' && overallStatus !== 'publishing' && (
+                  <button
+                    onClick={reset}
+                    className="text-sm text-[color:var(--wb-text-muted)] underline transition hover:text-[color:var(--wb-text)]"
+                  >
+                    清除发布结果
+                  </button>
+                )}
+              </div>
+            </div>
+          </SurfaceCard>
         </div>
-      </div>
+      </PageSection>
     </div>
   );
 }
