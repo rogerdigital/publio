@@ -5,8 +5,9 @@ import SurfaceCard from '@/components/layout/SurfaceCard';
 
 interface TopicDeskHeaderProps {
   generatedAt: string;
-  itemCount: number;
-  briefCount: number;
+  signalCount: number;
+  todayCount: number;
+  followCount: number;
   onRefresh: () => void;
   onBuildDigest: () => void;
   loading: boolean;
@@ -19,8 +20,9 @@ function formatSourceState(count: number) {
 
 export default function TopicDeskHeader({
   generatedAt,
-  itemCount,
-  briefCount,
+  signalCount,
+  todayCount,
+  followCount,
   onRefresh,
   onBuildDigest,
   loading,
@@ -31,7 +33,7 @@ export default function TopicDeskHeader({
       <AppShellHeader
         kicker="Today’s AI Topics"
         title="今日 AI 话题工作台"
-        description="把最近 12 小时的 AI 信息整理成一张可继续编辑的选题桌：中间是候选信号，右侧是研究笔记，适合继续补写为可发布稿件。"
+        description="把最近 3 天的 AI 信息整理成一张可继续编辑的选题桌：中间是候选题，右侧是研究底稿，先判断值不值得写，再进入写作台。"
       />
 
       <SurfaceCard tone="soft" className="px-5 py-5 sm:px-6">
@@ -42,23 +44,23 @@ export default function TopicDeskHeader({
                 选题状态
               </p>
               <p className="mt-2 text-[18px] leading-none text-[color:var(--wb-ink)]">
-                {formatSourceState(itemCount)}
+                {formatSourceState(todayCount + followCount)}
               </p>
             </div>
             <div className="rounded-[22px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.58)] px-4 py-3">
               <p className="text-[11px] uppercase tracking-[0.26em] text-[color:var(--wb-muted)]">
-                研究提要
+                抓取信号
               </p>
               <p className="mt-2 text-[18px] leading-none text-[color:var(--wb-ink)]">
-                {briefCount > 0 ? `${briefCount} 条聚焦` : '暂无提要'}
+                {signalCount > 0 ? `${signalCount} 条原始资讯` : '暂无信号'}
               </p>
             </div>
             <div className="rounded-[22px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.58)] px-4 py-3">
               <p className="text-[11px] uppercase tracking-[0.26em] text-[color:var(--wb-muted)]">
-                最新抓取
+                分层结果
               </p>
               <p className="mt-2 text-[18px] leading-none text-[color:var(--wb-ink)]">
-                {generatedAt || '准备中'}
+                {todayCount} / {followCount}
               </p>
             </div>
           </div>
@@ -67,11 +69,11 @@ export default function TopicDeskHeader({
             <button
               type="button"
               onClick={onBuildDigest}
-              disabled={loading || refreshing || itemCount === 0}
+              disabled={loading || refreshing || todayCount + followCount === 0}
               className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border-strong)] bg-[color:var(--wb-accent)] px-4 py-2 text-sm font-medium text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <FileUp size={16} />
-              生成候选稿
+              生成研究底稿
             </button>
             <button
               type="button"
@@ -95,6 +97,9 @@ export default function TopicDeskHeader({
           </span>
           <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.62)] px-3 py-1.5">
             候选排序
+          </span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.62)] px-3 py-1.5">
+            {generatedAt || '等待刷新'}
           </span>
         </div>
       </SurfaceCard>

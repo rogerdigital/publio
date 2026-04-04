@@ -3,6 +3,25 @@ export interface NewsDraftPayload {
   content: string;
 }
 
+export interface ResearchDraftSection {
+  title: string;
+  whyNow: string;
+  whatHappened: string;
+  whyItMatters: string;
+  whoIsAffected: string[];
+  recommendedAngles: Array<{
+    label: string;
+    reason: string;
+  }>;
+  background: string[];
+  evidence: Array<{
+    label: string;
+    sourceName: string;
+    link: string;
+    publishedAt: string;
+  }>;
+}
+
 export const NEWS_DRAFT_STORAGE_KEY = 'publio-ai-news-draft';
 
 export function buildNewsArticleMarkdown(params: {
@@ -76,6 +95,74 @@ export function buildNewsArticleMarkdown(params: {
   lines.push('');
   lines.push(
     '整体来看，过去 12 小时里的 AI 新闻，仍然围绕产品更新、商业化推进与底层基础设施三条主线展开。短期看，行业节奏还会继续加快；中期看，真正决定分化的，依旧是落地效率、收入能力和基础设施成本。如果继续跟下去，接下来最值得看的，还是谁能更快把能力变成真正可用、可付费、可持续的产品。',
+  );
+
+  return lines.join('\n');
+}
+
+export function buildResearchDraftMarkdown(params: {
+  headline: string;
+  intro: string;
+  sections: ResearchDraftSection[];
+}) {
+  const lines = [
+    `# ${params.headline}`,
+    '',
+    params.intro,
+    '',
+    '---',
+    '',
+  ];
+
+  params.sections.forEach((section, index) => {
+    lines.push(`## ${String(index + 1).padStart(2, '0')}｜${section.title}`);
+    lines.push('');
+    lines.push('### 这件事是什么');
+    lines.push('');
+    lines.push(section.whatHappened);
+    lines.push('');
+    lines.push('### 为什么重要');
+    lines.push('');
+    lines.push(section.whyItMatters);
+    lines.push('');
+    lines.push('### 影响了谁');
+    lines.push('');
+    section.whoIsAffected.forEach((audience) => {
+      lines.push(`- ${audience}`);
+    });
+    lines.push('');
+    lines.push('### 推荐写法');
+    lines.push('');
+    section.recommendedAngles.forEach((angle) => {
+      lines.push(`- **${angle.label}**：${angle.reason}`);
+    });
+    lines.push('');
+    lines.push('### 延展背景');
+    lines.push('');
+    section.background.forEach((entry) => {
+      lines.push(`- ${entry}`);
+    });
+    lines.push('');
+    lines.push('### 编辑判断');
+    lines.push('');
+    lines.push(`> ${section.whyNow}`);
+    lines.push('');
+    lines.push('### 原始依据');
+    lines.push('');
+    section.evidence.forEach((entry) => {
+      lines.push(`- ${entry.label}`);
+      lines.push(`  来源：${entry.sourceName}｜时间：${entry.publishedAt}`);
+      lines.push(`  链接：${entry.link}`);
+    });
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+  });
+
+  lines.push('## 写作提示');
+  lines.push('');
+  lines.push(
+    '这份底稿优先服务选题判断与二次创作，不要直接原样发布。建议先确认主角度，再补充你的观点、读者问题意识和具体案例。',
   );
 
   return lines.join('\n');

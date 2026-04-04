@@ -1,22 +1,16 @@
 'use client';
-
-import { useState } from 'react';
-
 import { BookOpenText, Clock3, ListChecks, Target } from 'lucide-react';
 
 import SurfaceCard from '@/components/layout/SurfaceCard';
-
-interface ResearchNoteBrief {
-  title: string;
-  summary: string;
-}
+import type { ResearchBrief } from '@/lib/aiNews';
 
 interface ResearchNotesPanelProps {
-  briefs: ResearchNoteBrief[];
+  research: ResearchBrief | null;
   generatedAt: string;
-  itemCount: number;
-  briefCount: number;
-  windowHours: number;
+  signalCount: number;
+  candidateCount: number;
+  todayCount: number;
+  followCount: number;
 }
 
 function formatDeskTime(value: string) {
@@ -24,16 +18,13 @@ function formatDeskTime(value: string) {
 }
 
 export default function ResearchNotesPanel({
-  briefs,
+  research,
   generatedAt,
-  itemCount,
-  briefCount,
-  windowHours,
+  signalCount,
+  candidateCount,
+  todayCount,
+  followCount,
 }: ResearchNotesPanelProps) {
-  const [showAllBriefs, setShowAllBriefs] = useState(false);
-  const visibleBriefs = showAllBriefs ? briefs : briefs.slice(0, 4);
-  const hasMoreBriefs = briefs.length > 4;
-
   return (
     <aside className="self-start">
       <SurfaceCard tone="soft" className="sticky top-6 overflow-hidden px-5 py-5 sm:px-6">
@@ -57,18 +48,18 @@ export default function ResearchNotesPanel({
         <div className="mt-5 grid grid-cols-2 gap-3">
           <div className="rounded-[22px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.66)] px-4 py-3">
             <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-muted)]">
-              窗口
+              信号
             </p>
             <p className="mt-2 text-[16px] text-[color:var(--wb-ink)]">
-              最近 {windowHours} 小时
+              {signalCount} 条原始资讯
             </p>
           </div>
           <div className="rounded-[22px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.66)] px-4 py-3">
             <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-muted)]">
-              信号
+              候选
             </p>
             <p className="mt-2 text-[16px] text-[color:var(--wb-ink)]">
-              {itemCount} 条候选
+              {candidateCount} 条题簇
             </p>
           </div>
         </div>
@@ -82,9 +73,7 @@ export default function ResearchNotesPanel({
             {formatDeskTime(generatedAt)}
           </p>
           <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
-            {briefCount > 0
-              ? `本轮已整理出 ${briefCount} 条研究提要，适合从标题进入更深的编辑判断。`
-              : '本轮暂未形成研究提要，先以候选列表和原文为准。'}
+            今天能发 {todayCount} 条，还能追 {followCount} 条。右侧固定显示当前选中候选的研究底稿。
           </p>
         </div>
 
@@ -100,7 +89,7 @@ export default function ResearchNotesPanel({
                   1
                 </span>
                 <p className="text-sm leading-7 text-[color:var(--wb-ink)]">
-                  优先看标题、时间和来源，把最像商业媒体头条的信号放在前面。
+                    优先看标题、时间和来源，把最像商业媒体头条的信号放在前面。
                 </p>
               </div>
             </div>
@@ -110,7 +99,7 @@ export default function ResearchNotesPanel({
                   2
                 </span>
                 <p className="text-sm leading-7 text-[color:var(--wb-ink)]">
-                  右侧笔记保留主题结论，左侧卡片保留原文定位，方便继续扩写成稿。
+                    右侧笔记保留主题结论，左侧卡片保留原文定位，方便继续扩写成稿。
                 </p>
               </div>
             </div>
@@ -120,7 +109,8 @@ export default function ResearchNotesPanel({
                   3
                 </span>
                 <p className="text-sm leading-7 text-[color:var(--wb-ink)]">
-                  如果要直接发稿，先生成长文草稿，再补一句判断和读者视角。
+                    如果要直接发稿，先生成长文草稿，再补一句判断和读者视角。
+                    如果要进入写作台，优先带着底稿走，而不是直接抄摘要。
                 </p>
               </div>
             </div>
@@ -130,37 +120,102 @@ export default function ResearchNotesPanel({
         <div className="mt-5 rounded-[24px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.66)] p-4">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-muted)]">
             <ListChecks size={12} />
-            提要索引
+            研究底稿
           </div>
 
-          {briefs.length > 0 ? (
+          {research ? (
             <div className="mt-4 space-y-4">
-              {visibleBriefs.map((brief, index) => (
-                <div key={`${brief.title}-${index}`} className="border-l-2 border-[color:var(--wb-accent)] pl-4">
-                  <p className="text-sm font-medium leading-6 text-[color:var(--wb-ink)]">
-                    {brief.title}
-                  </p>
-                  <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
-                    {brief.summary}
-                  </p>
+              <div className="border-l-2 border-[color:var(--wb-accent)] pl-4">
+                <p className="text-sm font-medium leading-6 text-[color:var(--wb-ink)]">
+                  {research.title}
+                </p>
+                <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
+                  {research.whatHappened}
+                </p>
+              </div>
+
+              <div className="rounded-[20px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.68)] px-4 py-4">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
+                  为什么重要
+                </p>
+                <p className="mt-2 text-sm leading-7 text-[color:var(--wb-ink)]">
+                  {research.whyItMatters}
+                </p>
+              </div>
+
+              <div className="rounded-[20px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.68)] px-4 py-4">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
+                  影响了谁
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {research.whoIsAffected.map((audience) => (
+                    <span
+                      key={audience}
+                      className="inline-flex rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.78)] px-3 py-1.5 text-xs text-[color:var(--wb-ink)]"
+                    >
+                      {audience}
+                    </span>
+                  ))}
                 </div>
-              ))}
-              {hasMoreBriefs ? (
-                <button
-                  type="button"
-                  onClick={() => setShowAllBriefs((value) => !value)}
-                  aria-expanded={showAllBriefs}
-                  className="inline-flex items-center rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.68)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[rgba(255,255,255,0.95)]"
-                >
-                  {showAllBriefs
-                    ? '收起提要'
-                    : `显示全部 ${briefs.length} 条提要`}
-                </button>
-              ) : null}
+              </div>
+
+              <div className="rounded-[20px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.68)] px-4 py-4">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
+                  推荐写法
+                </p>
+                <div className="mt-3 space-y-3">
+                  {research.recommendedAngles.map((angle) => (
+                    <div key={angle.label}>
+                      <p className="text-sm font-medium leading-6 text-[color:var(--wb-ink)]">
+                        {angle.label}
+                      </p>
+                      <p className="text-sm leading-7 text-[color:var(--wb-muted)]">
+                        {angle.reason}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-[20px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.68)] px-4 py-4">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
+                  延展背景
+                </p>
+                <div className="mt-3 space-y-2">
+                  {research.background.map((entry) => (
+                    <p key={entry} className="text-sm leading-7 text-[color:var(--wb-muted)]">
+                      {entry}
+                    </p>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-[20px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.68)] px-4 py-4">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
+                  原始依据
+                </p>
+                <div className="mt-3 space-y-3">
+                  {research.evidence.map((entry) => (
+                    <div key={entry.link}>
+                      <p className="text-sm font-medium leading-6 text-[color:var(--wb-ink)]">
+                        {entry.label}
+                      </p>
+                      <a
+                        href={entry.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm leading-7 text-[color:var(--wb-muted)] underline decoration-[rgba(120,91,66,0.32)] underline-offset-4"
+                      >
+                        {entry.link}
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : (
             <p className="mt-4 text-sm leading-7 text-[color:var(--wb-muted)]">
-              暂无提要，先基于候选卡片直接判断主题方向。
+              暂无底稿，先基于候选卡片直接判断主题方向。
             </p>
           )}
         </div>

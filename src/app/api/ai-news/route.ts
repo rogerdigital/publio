@@ -1,20 +1,20 @@
 import { NextResponse } from 'next/server';
-import { fetchAiNews, generateAiNewsBriefs } from '@/lib/aiNews';
+import { buildAiNewsDesk } from '@/lib/aiNews';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const items = await fetchAiNews(12);
-    const briefs = generateAiNewsBriefs(items);
+    const desk = await buildAiNewsDesk(72);
 
     return NextResponse.json({
       success: true,
-      generatedAt: new Date().toISOString(),
-      windowHours: 12,
-      total: items.length,
-      briefs,
-      items,
+      generatedAt: desk.generatedAt,
+      totalSignals: desk.totalSignals,
+      totalCandidates: desk.totalCandidates,
+      todayCandidates: desk.todayCandidates,
+      followCandidates: desk.followCandidates,
+      selectedResearch: desk.selectedResearch,
     });
   } catch (error) {
     const message =

@@ -6,27 +6,21 @@ import { useRouter } from 'next/navigation';
 import PageSection from '@/components/layout/PageSection';
 import ResearchNotesPanel from '@/components/news/ResearchNotesPanel';
 import TopicDeskHeader from '@/components/news/TopicDeskHeader';
-import TopicSignalCard, {
-  type TopicSignalItem,
-} from '@/components/news/TopicSignalCard';
+import TopicSignalCard from '@/components/news/TopicSignalCard';
+import type { AiNewsDeskCandidate, ResearchBrief } from '@/lib/aiNews';
 import {
-  buildNewsArticleMarkdown,
+  buildResearchDraftMarkdown,
   NEWS_DRAFT_STORAGE_KEY,
 } from '@/lib/newsDraft';
-
-interface AiNewsBrief {
-  title: string;
-  summary: string;
-  relatedTitles: string[];
-}
 
 interface AiNewsResponse {
   success: boolean;
   generatedAt?: string;
-  windowHours?: number;
-  total?: number;
-  briefs?: AiNewsBrief[];
-  items?: TopicSignalItem[];
+  totalSignals?: number;
+  totalCandidates?: number;
+  todayCandidates?: AiNewsDeskCandidate[];
+  followCandidates?: AiNewsDeskCandidate[];
+  selectedResearch?: ResearchBrief | null;
   message?: string;
 }
 
@@ -76,60 +70,36 @@ function buildSectionLabel(index: number) {
   return String(index + 1).padStart(2, '0');
 }
 
-function normalizeItem(item: Partial<TopicSignalItem>): TopicSignalItem | null {
-  if (!item.link || !item.title) {
+function normalizeCandidate(candidate: AiNewsDeskCandidate | null | undefined) {
+  if (!candidate?.clusterId || !candidate.title || !candidate.primarySignal?.link) {
     return null;
   }
 
-  return {
-    title: item.title,
-    link: item.link,
-    source: item.source || '来源待确认',
-    publishedAt: item.publishedAt || '',
-    summary: item.summary || '',
-    score: typeof item.score === 'number' ? item.score : 0,
-    topic: item.topic || '行业动态',
-    emoji: item.emoji || '📰',
-    deck: item.deck || item.summary || item.title,
-    body: item.body || item.summary || '原始来源未提供更多正文，请结合原文补充细节。',
-    takeaway:
-      item.takeaway || '这条新闻值得继续跟进，后续可以结合原文补充更具体的行业判断。',
-    imageUrl: item.imageUrl,
-  };
+  return candidate;
 }
 
-function normalizeBrief(brief: Partial<AiNewsBrief>): AiNewsBrief | null {
-  if (!brief.title) {
-    return null;
-  }
-
-  return {
-    title: brief.title,
-    summary: brief.summary || '该热点已进入近 12 小时新闻窗口，建议结合原文继续补充判断。',
-    relatedTitles: Array.isArray(brief.relatedTitles) ? brief.relatedTitles : [brief.title],
-  };
-}
-
-function buildDeskIntro(items: TopicSignalItem[], briefs: AiNewsBrief[]) {
-  const highlights = briefs.slice(0, 3).map((brief) => brief.title);
+function buildDeskIntro(candidates: AiNewsDeskCandidate[]) {
+  const highlights = candidates.slice(0, 3).map((candidate) => candidate.title);
 
   if (highlights.length > 0) {
-    return `过去 12 小时，AI 话题主要集中在 ${highlights.join('、')}。这里把这些信号整理成可继续编辑的候选列表。`;
+    return `这一轮更值得继续判断的 AI 题，主要集中在 ${highlights.join('、')}。这份底稿合集优先保留“为什么重要、影响了谁、可以怎么写”。`;
   }
 
-  if (items.length > 0) {
-    return '过去 12 小时内的 AI 候选信号已经汇入选题桌，可以从标题、来源、评分和时间戳继续判断优先级。';
+  if (candidates.length > 0) {
+    return 'AI 候选题已经汇入选题桌，可以从标题、来源、评分和研究底稿继续判断优先级。';
   }
 
-  return '过去 12 小时内暂未抓取到符合条件的 AI 话题，保持桌面空置，等待下一次抓取。';
+  return '当前暂未抓取到符合条件的 AI 话题，保持桌面空置，等待下一次抓取。';
 }
 
 export default function AiNewsPageClient() {
   const router = useRouter();
-  const [items, setItems] = useState<TopicSignalItem[]>([]);
-  const [briefs, setBriefs] = useState<AiNewsBrief[]>([]);
+  const [todayCandidates, setTodayCandidates] = useState<AiNewsDeskCandidate[]>([]);
+  const [followCandidates, setFollowCandidates] = useState<AiNewsDeskCandidate[]>([]);
+  const [selectedResearch, setSelectedResearch] = useState<ResearchBrief | null>(null);
   const [generatedAt, setGeneratedAt] = useState('');
-  const [windowHours, setWindowHours] = useState(12);
+  const [totalSignals, setTotalSignals] = useState(0);
+  const [totalCandidates, setTotalCandidates] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -144,23 +114,26 @@ export default function AiNewsPageClient() {
     router.push('/');
   };
 
-  const createSingleNewsDraft = (item: TopicSignalItem) => {
-    const content = buildNewsArticleMarkdown({
+  const allCandidates = [...todayCandidates, ...followCandidates];
+
+  const createSingleNewsDraft = (item: AiNewsDeskCandidate) => {
+    const content = buildResearchDraftMarkdown({
       headline: item.title,
       intro:
-        '这里是一则基于最近 12 小时 AI 热点新闻整理的中文快讯草稿，你可以直接补充判断、背景和面向读者的解读后发布。',
+        '这里是一份基于 AI 选题工作台生成的研究底稿草稿。先保留编辑判断，再补充你的观点、案例和面向读者的切入角度。',
       sections: [
         {
           title: item.title,
-          emoji: item.emoji,
-          deck: item.deck,
-          summary: item.summary || '原始来源未提供摘要，请结合原文补充细节。',
-          body: item.body,
-          takeaway: item.takeaway,
-          source: item.source,
-          publishedAt: formatDateTime(item.publishedAt),
-          link: item.link,
-          imageUrl: item.imageUrl,
+          whyNow: item.whyNow,
+          whatHappened: item.researchBrief.whatHappened,
+          whyItMatters: item.researchBrief.whyItMatters,
+          whoIsAffected: item.researchBrief.whoIsAffected,
+          recommendedAngles: item.researchBrief.recommendedAngles,
+          background: item.researchBrief.background,
+          evidence: item.researchBrief.evidence.map((entry) => ({
+            ...entry,
+            publishedAt: formatDateTime(entry.publishedAt),
+          })),
         },
       ],
     });
@@ -169,24 +142,25 @@ export default function AiNewsPageClient() {
   };
 
   const createDigestDraft = () => {
-    const topItems = items.slice(0, 5);
-    const title = 'AI 行业 12 小时热点速览';
-    const intro = buildDeskIntro(items, briefs);
+    const topCandidates = allCandidates.slice(0, 5);
+    const title = 'AI 选题研究底稿合集';
+    const intro = buildDeskIntro(allCandidates);
 
-    const content = buildNewsArticleMarkdown({
+    const content = buildResearchDraftMarkdown({
       headline: title,
       intro,
-      sections: topItems.map((item) => ({
+      sections: topCandidates.map((item) => ({
         title: item.title,
-        emoji: item.emoji,
-        deck: item.deck,
-        summary: item.summary || '原始来源未提供摘要，请结合原文补充细节。',
-        body: item.body,
-        takeaway: item.takeaway,
-        source: item.source,
-        publishedAt: formatDateTime(item.publishedAt),
-        link: item.link,
-        imageUrl: item.imageUrl,
+        whyNow: item.whyNow,
+        whatHappened: item.researchBrief.whatHappened,
+        whyItMatters: item.researchBrief.whyItMatters,
+        whoIsAffected: item.researchBrief.whoIsAffected,
+        recommendedAngles: item.researchBrief.recommendedAngles,
+        background: item.researchBrief.background,
+        evidence: item.researchBrief.evidence.map((entry) => ({
+          ...entry,
+          publishedAt: formatDateTime(entry.publishedAt),
+        })),
       })),
     });
 
@@ -208,23 +182,37 @@ export default function AiNewsPageClient() {
       });
       const data: AiNewsResponse = await response.json();
 
-      if (!response.ok || !data.success || !data.items) {
+      if (
+        !response.ok ||
+        !data.success ||
+        !data.todayCandidates ||
+        !data.followCandidates
+      ) {
         throw new Error(data.message || '新闻抓取失败，请稍后重试。');
       }
 
-      const normalizedItems = data.items
-        .map((item) => normalizeItem(item))
-        .filter((item): item is TopicSignalItem => item !== null);
+      const nextTodayCandidates = data.todayCandidates
+        .map((candidate) => normalizeCandidate(candidate))
+        .filter((candidate): candidate is AiNewsDeskCandidate => candidate !== null);
 
-      const normalizedBriefs = (data.briefs || [])
-        .map((brief) => normalizeBrief(brief))
-        .filter((brief): brief is AiNewsBrief => brief !== null);
+      const nextFollowCandidates = data.followCandidates
+        .map((candidate) => normalizeCandidate(candidate))
+        .filter((candidate): candidate is AiNewsDeskCandidate => candidate !== null);
 
-      setItems(normalizedItems);
-      setBriefs(normalizedBriefs);
+      const nextSelectedResearch =
+        data.selectedResearch ||
+        nextTodayCandidates[0]?.researchBrief ||
+        nextFollowCandidates[0]?.researchBrief ||
+        null;
+
+      setTodayCandidates(nextTodayCandidates);
+      setFollowCandidates(nextFollowCandidates);
+      setSelectedResearch(nextSelectedResearch);
       setGeneratedAt(data.generatedAt || '');
-      setWindowHours(data.windowHours || 12);
-      hasDeskDataRef.current = normalizedItems.length > 0 || normalizedBriefs.length > 0;
+      setTotalSignals(data.totalSignals || 0);
+      setTotalCandidates(data.totalCandidates || 0);
+      hasDeskDataRef.current =
+        nextTodayCandidates.length > 0 || nextFollowCandidates.length > 0;
     } catch (err) {
       const message =
         err instanceof Error ? err.message : '新闻抓取失败，请稍后重试。';
@@ -249,8 +237,9 @@ export default function AiNewsPageClient() {
       <PageSection className="space-y-6">
         <TopicDeskHeader
           generatedAt={formatDeskTime(generatedAt)}
-          itemCount={items.length}
-          briefCount={briefs.length}
+          signalCount={totalSignals}
+          todayCount={todayCandidates.length}
+          followCount={followCandidates.length}
           onRefresh={() => void loadNews(true)}
           onBuildDigest={createDigestDraft}
           loading={loading}
@@ -269,11 +258,11 @@ export default function AiNewsPageClient() {
                     className="mt-2 text-[22px] leading-tight text-[color:var(--wb-ink)]"
                     style={{ fontFamily: 'var(--wb-font-serif)' }}
                   >
-                    候选信号列表
+                    候选题列表
                   </h2>
                 </div>
                 <p className="max-w-[28rem] text-sm leading-7 text-[color:var(--wb-muted)]">
-                  中间栏按选题强度往下排，保留标题、来源、时间和编辑判断，适合继续筛选或直接转成稿件。
+                  中间栏按选题强度往下排，先看今天能发，再看还能追。点开卡片可查看研究底稿，确认后再加入写作台。
                 </p>
               </div>
             </div>
@@ -314,15 +303,15 @@ export default function AiNewsPageClient() {
                   </div>
                 </div>
               </div>
-            ) : error && items.length === 0 ? (
+            ) : error && allCandidates.length === 0 ? (
               <div className="rounded-[var(--wb-radius-xl)] border border-[rgba(171,84,84,0.25)] bg-[rgba(255,245,245,0.92)] p-8 text-[color:#964646] shadow-[var(--wb-shadow-tight)]">
                 <p className="text-lg font-medium text-[color:#7f3636]">新闻抓取失败</p>
                 <p className="mt-3 text-sm leading-7">{error}</p>
               </div>
-            ) : items.length === 0 ? (
+            ) : allCandidates.length === 0 ? (
               <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.64)] p-8 text-center shadow-[var(--wb-shadow-tight)]">
                 <p className="text-lg font-medium text-[color:var(--wb-ink)]">
-                  过去 12 小时内暂未抓取到符合条件的 AI 话题
+                  当前暂未抓取到符合条件的 AI 话题
                 </p>
                 <p className="mt-3 text-sm leading-7 text-[color:var(--wb-muted)]">
                   可以稍后刷新，或继续扩展新闻源与筛选规则。
@@ -330,26 +319,35 @@ export default function AiNewsPageClient() {
               </div>
             ) : (
               <div className="space-y-5">
-                {items.map((item, index) => (
-                  <TopicSignalCard
-                    key={`${item.link}-${index}`}
-                    item={item}
-                    indexLabel={buildSectionLabel(index)}
-                    relativeLabel={formatRelativeHours(item.publishedAt)}
-                    formattedDate={formatDateTime(item.publishedAt)}
-                    onCreateDraft={createSingleNewsDraft}
-                  />
-                ))}
+                <CandidateSection
+                  title="今天能发"
+                  description="优先看过去 24 小时内既有行业影响、又适合直接切入中文内容传播的题。"
+                  items={todayCandidates}
+                  offset={0}
+                  activeCandidateId={selectedResearch?.candidateId || ''}
+                  onSelect={(item) => setSelectedResearch(item.researchBrief)}
+                  onCreateDraft={createSingleNewsDraft}
+                />
+                <CandidateSection
+                  title="还能追"
+                  description="这些题不一定是最新，但仍在发酵，更适合做背景、竞争格局和影响分析。"
+                  items={followCandidates}
+                  offset={todayCandidates.length}
+                  activeCandidateId={selectedResearch?.candidateId || ''}
+                  onSelect={(item) => setSelectedResearch(item.researchBrief)}
+                  onCreateDraft={createSingleNewsDraft}
+                />
               </div>
             )}
           </main>
 
           <ResearchNotesPanel
-            briefs={briefs}
+            research={selectedResearch}
             generatedAt={formatDeskTime(generatedAt)}
-            itemCount={items.length}
-            briefCount={briefs.length}
-            windowHours={windowHours}
+            signalCount={totalSignals}
+            candidateCount={totalCandidates}
+            todayCount={todayCandidates.length}
+            followCount={followCandidates.length}
           />
         </div>
       </PageSection>
@@ -359,4 +357,53 @@ export default function AiNewsPageClient() {
 
 function formatDeskTime(value: string) {
   return value ? formatDateTime(value) : '准备中';
+}
+
+function CandidateSection({
+  title,
+  description,
+  items,
+  offset,
+  activeCandidateId,
+  onSelect,
+  onCreateDraft,
+}: {
+  title: string;
+  description: string;
+  items: AiNewsDeskCandidate[];
+  offset: number;
+  activeCandidateId: string;
+  onSelect: (item: AiNewsDeskCandidate) => void;
+  onCreateDraft: (item: AiNewsDeskCandidate) => void;
+}) {
+  if (items.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="space-y-4">
+      <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.58)] px-5 py-4 shadow-[var(--wb-shadow-tight)]">
+        <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
+          {title}
+        </p>
+        <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
+          {description}
+        </p>
+      </div>
+      <div className="space-y-5">
+        {items.map((item, index) => (
+          <TopicSignalCard
+            key={item.clusterId}
+            item={item}
+            indexLabel={buildSectionLabel(offset + index)}
+            relativeLabel={formatRelativeHours(item.latestPublishedAt)}
+            formattedDate={formatDateTime(item.latestPublishedAt)}
+            isActive={activeCandidateId === item.clusterId}
+            onSelect={onSelect}
+            onCreateDraft={onCreateDraft}
+          />
+        ))}
+      </div>
+    </section>
+  );
 }
