@@ -1,34 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  RefreshCw,
-  ExternalLink,
-  Clock3,
-  Newspaper,
-  Sparkles,
-  FileUp,
-} from 'lucide-react';
+
+import PageSection from '@/components/layout/PageSection';
+import ResearchNotesPanel from '@/components/news/ResearchNotesPanel';
+import TopicDeskHeader from '@/components/news/TopicDeskHeader';
+import TopicSignalCard, {
+  type TopicSignalItem,
+} from '@/components/news/TopicSignalCard';
 import {
   buildNewsArticleMarkdown,
   NEWS_DRAFT_STORAGE_KEY,
 } from '@/lib/newsDraft';
-
-interface AiNewsItem {
-  title: string;
-  link: string;
-  source: string;
-  publishedAt: string;
-  summary: string;
-  score: number;
-  topic: string;
-  emoji: string;
-  deck: string;
-  body: string;
-  takeaway: string;
-  imageUrl?: string;
-}
 
 interface AiNewsBrief {
   title: string;
@@ -42,7 +26,7 @@ interface AiNewsResponse {
   windowHours?: number;
   total?: number;
   briefs?: AiNewsBrief[];
-  items?: AiNewsItem[];
+  items?: TopicSignalItem[];
   message?: string;
 }
 
@@ -92,7 +76,7 @@ function buildSectionLabel(index: number) {
   return String(index + 1).padStart(2, '0');
 }
 
-function normalizeItem(item: Partial<AiNewsItem>): AiNewsItem | null {
+function normalizeItem(item: Partial<TopicSignalItem>): TopicSignalItem | null {
   if (!item.link || !item.title) {
     return null;
   }
@@ -126,14 +110,31 @@ function normalizeBrief(brief: Partial<AiNewsBrief>): AiNewsBrief | null {
   };
 }
 
+function buildDeskIntro(items: TopicSignalItem[], briefs: AiNewsBrief[]) {
+  const highlights = briefs.slice(0, 3).map((brief) => brief.title);
+
+  if (highlights.length > 0) {
+    return `过去 12 小时，AI 话题主要集中在 ${highlights.join('、')}。这里把这些信号整理成可继续编辑的候选列表。`;
+  }
+
+  if (items.length > 0) {
+    return '过去 12 小时内的 AI 候选信号已经汇入选题桌，可以从标题、来源、评分和时间戳继续判断优先级。';
+  }
+
+  return '过去 12 小时内暂未抓取到符合条件的 AI 话题，保持桌面空置，等待下一次抓取。';
+}
+
 export default function AiNewsPageClient() {
   const router = useRouter();
-  const [items, setItems] = useState<AiNewsItem[]>([]);
+  const [items, setItems] = useState<TopicSignalItem[]>([]);
   const [briefs, setBriefs] = useState<AiNewsBrief[]>([]);
   const [generatedAt, setGeneratedAt] = useState('');
+  const [windowHours, setWindowHours] = useState(12);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
+  const [refreshError, setRefreshError] = useState('');
+  const hasDeskDataRef = useRef(false);
 
   const writeDraftAndOpenEditor = (title: string, content: string) => {
     window.localStorage.setItem(
@@ -143,7 +144,7 @@ export default function AiNewsPageClient() {
     router.push('/');
   };
 
-  const createSingleNewsDraft = (item: AiNewsItem) => {
+  const createSingleNewsDraft = (item: TopicSignalItem) => {
     const content = buildNewsArticleMarkdown({
       headline: item.title,
       intro:
@@ -170,12 +171,7 @@ export default function AiNewsPageClient() {
   const createDigestDraft = () => {
     const topItems = items.slice(0, 5);
     const title = 'AI 行业 12 小时热点速览';
-    const intro = briefs.length
-      ? `过去 12 小时，AI 行业值得关注的焦点主要集中在：${briefs
-          .slice(0, 3)
-          .map((brief) => brief.title)
-          .join('、')}。下面这份快讯，适合直接作为公众号行业简报的初稿。`
-      : '以下为过去 12 小时内值得关注的 AI 行业中文热点快讯汇总。';
+    const intro = buildDeskIntro(items, briefs);
 
     const content = buildNewsArticleMarkdown({
       headline: title,
@@ -200,6 +196,7 @@ export default function AiNewsPageClient() {
   const loadNews = async (isManualRefresh = false) => {
     try {
       setError('');
+      setRefreshError('');
       if (isManualRefresh) {
         setRefreshing(true);
       } else {
@@ -217,7 +214,7 @@ export default function AiNewsPageClient() {
 
       const normalizedItems = data.items
         .map((item) => normalizeItem(item))
-        .filter((item): item is AiNewsItem => item !== null);
+        .filter((item): item is TopicSignalItem => item !== null);
 
       const normalizedBriefs = (data.briefs || [])
         .map((brief) => normalizeBrief(brief))
@@ -226,8 +223,17 @@ export default function AiNewsPageClient() {
       setItems(normalizedItems);
       setBriefs(normalizedBriefs);
       setGeneratedAt(data.generatedAt || '');
+      setWindowHours(data.windowHours || 12);
+      hasDeskDataRef.current = normalizedItems.length > 0 || normalizedBriefs.length > 0;
     } catch (err) {
-      setError(err instanceof Error ? err.message : '新闻抓取失败，请稍后重试。');
+      const message =
+        err instanceof Error ? err.message : '新闻抓取失败，请稍后重试。';
+
+      if (isManualRefresh && hasDeskDataRef.current) {
+        setRefreshError(message);
+      } else {
+        setError(message);
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -239,269 +245,118 @@ export default function AiNewsPageClient() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#fffdf9_0%,#f8f1ea_100%)] px-4 py-6 text-[#3a3029] sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-[28px] border border-[#eadfd3] bg-[linear-gradient(180deg,#fff8f3_0%,#ffffff_100%)] px-5 py-4 shadow-[0_18px_50px_rgba(214,181,154,0.22)]">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fff0e6] text-[#ef6b38]">
-              <Newspaper size={18} />
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-[#d77443]">
-                AI Daily Wire
-              </p>
-              <p className="mt-1 text-sm text-[#7d7065]">
-                仿公众号长文快讯版式的新闻生成页
-              </p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[linear-gradient(180deg,var(--wb-bg-elevated)_0%,#f1e6d8_100%)] px-4 py-6 sm:px-6 lg:px-8">
+      <PageSection className="space-y-6">
+        <TopicDeskHeader
+          generatedAt={formatDeskTime(generatedAt)}
+          itemCount={items.length}
+          briefCount={briefs.length}
+          onRefresh={() => void loadNews(true)}
+          onBuildDigest={createDigestDraft}
+          loading={loading}
+          refreshing={refreshing}
+        />
 
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={createDigestDraft}
-              disabled={loading || refreshing || items.length === 0}
-              className="inline-flex items-center gap-2 rounded-full border border-[#efc6af] bg-[#ef6b38] px-4 py-2 text-sm font-medium text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <FileUp size={16} />
-              生成长文稿
-            </button>
-            <button
-              type="button"
-              onClick={() => void loadNews(true)}
-              disabled={loading || refreshing}
-              className="inline-flex items-center gap-2 rounded-full border border-[#eadfd3] bg-white px-4 py-2 text-sm font-medium text-[#5f534a] transition hover:bg-[#fff7f1] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <RefreshCw size={16} className={refreshing ? 'animate-spin' : undefined} />
-              {refreshing ? '刷新中...' : '刷新新闻'}
-            </button>
-          </div>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,320px)_minmax(0,760px)] lg:items-start">
-          <aside className="space-y-5 lg:sticky lg:top-6">
-            <section className="rounded-[30px] border border-[#eadfd3] bg-white p-5 shadow-[0_18px_50px_rgba(214,181,154,0.18)]">
-              <div className="mb-4 flex items-center gap-2 text-[#d77443]">
-                <Sparkles size={16} />
-                <p className="text-xs uppercase tracking-[0.28em]">今日导读</p>
-              </div>
-              <h1 className="text-[28px] font-semibold leading-tight text-[#241b16]">
-                过去 12 小时 AI 行业热点快讯
-              </h1>
-              <p className="mt-4 text-sm leading-7 text-[#7d7065]">
-                把最近半天内最值得关注的 AI 新闻，整理成接近公众号深夜快讯的阅读节奏。
-                白天模式下依然保留窄栏排版、重点句前置和强节奏阅读体验，方便你一边筛新闻，一边直接出稿。
-              </p>
-
-              <div className="mt-5 space-y-3 border-t border-[#eee4da] pt-4 text-sm text-[#66584d]">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[#9b8d81]">新闻窗口</span>
-                  <span>最近 12 小时</span>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.18fr)_minmax(320px,392px)] lg:items-start xl:grid-cols-[minmax(0,1.24fr)_392px]">
+          <main className="min-w-0 space-y-5">
+            <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.6)] px-5 py-4 shadow-[var(--wb-shadow-tight)]">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
+                    Editorial Queue
+                  </p>
+                  <h2
+                    className="mt-2 text-[22px] leading-tight text-[color:var(--wb-ink)]"
+                    style={{ fontFamily: 'var(--wb-font-serif)' }}
+                  >
+                    候选信号列表
+                  </h2>
                 </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[#9b8d81]">中文优先</span>
-                  <span>已开启</span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[#9b8d81]">最近抓取</span>
-                  <span>{generatedAt ? formatDateTime(generatedAt) : '准备中'}</span>
-                </div>
-              </div>
-            </section>
-
-            {briefs.length > 0 && (
-              <section className="rounded-[30px] border border-[#f1d7c7] bg-[linear-gradient(180deg,#fff6ef,rgba(255,255,255,0.96))] p-5">
-                <p className="text-xs uppercase tracking-[0.28em] text-[#d77443]">
-                  快讯提要
+                <p className="max-w-[28rem] text-sm leading-7 text-[color:var(--wb-muted)]">
+                  中间栏按选题强度往下排，保留标题、来源、时间和编辑判断，适合继续筛选或直接转成稿件。
                 </p>
-                <div className="mt-4 space-y-4">
-                  {briefs.slice(0, 4).map((brief, index) => (
-                    <div key={`${brief.title}-${index}`} className="border-l-2 border-[#ef6b38] pl-4">
-                      <p className="text-sm font-medium leading-6 text-[#241b16]">
-                        {brief.title}
-                      </p>
-                      <p className="mt-2 text-sm leading-7 text-[#7d7065]">
-                        {brief.summary}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </aside>
+              </div>
+            </div>
 
-          <main>
+            {refreshError ? (
+              <div
+                className="rounded-[var(--wb-radius-xl)] border border-[rgba(185,124,68,0.28)] bg-[rgba(255,247,238,0.9)] px-5 py-4 text-[color:var(--wb-ink)] shadow-[var(--wb-shadow-tight)]"
+                role="status"
+                aria-live="polite"
+              >
+                <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
+                  刷新未更新
+                </p>
+                <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
+                  {refreshError} 下面保留的是上一次成功加载的内容。
+                </p>
+              </div>
+            ) : null}
+
             {loading ? (
-              <div className="rounded-[34px] border border-[#eadfd3] bg-white p-6 sm:p-8">
-                <div className="mx-auto max-w-2xl animate-pulse space-y-6">
-                  <div className="h-3 w-28 rounded bg-[#efe6dd]" />
-                  <div className="h-10 w-4/5 rounded bg-[#efe6dd]" />
-                  <div className="h-4 w-full rounded bg-[#f4ece4]" />
-                  <div className="h-4 w-full rounded bg-[#f4ece4]" />
-                  <div className="h-4 w-2/3 rounded bg-[#f4ece4]" />
-                  <div className="h-px w-full bg-[#eee4da]" />
-                  <div className="h-6 w-32 rounded bg-[#efe6dd]" />
-                  <div className="h-4 w-full rounded bg-[#f4ece4]" />
-                  <div className="h-4 w-11/12 rounded bg-[#f4ece4]" />
-                  <div className="h-4 w-3/4 rounded bg-[#f4ece4]" />
+              <div className="space-y-5">
+                <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.62)] p-6 shadow-[var(--wb-shadow-tight)]">
+                  <div className="mx-auto max-w-3xl animate-pulse space-y-4">
+                    <div className="h-3 w-24 rounded bg-[rgba(210,192,178,0.75)]" />
+                    <div className="h-9 w-4/5 rounded bg-[rgba(210,192,178,0.55)]" />
+                    <div className="h-4 w-full rounded bg-[rgba(210,192,178,0.4)]" />
+                    <div className="h-4 w-full rounded bg-[rgba(210,192,178,0.4)]" />
+                    <div className="h-4 w-2/3 rounded bg-[rgba(210,192,178,0.4)]" />
+                  </div>
+                </div>
+                <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.62)] p-6 shadow-[var(--wb-shadow-tight)]">
+                  <div className="mx-auto max-w-3xl animate-pulse space-y-4">
+                    <div className="h-3 w-20 rounded bg-[rgba(210,192,178,0.75)]" />
+                    <div className="h-8 w-3/4 rounded bg-[rgba(210,192,178,0.55)]" />
+                    <div className="h-4 w-full rounded bg-[rgba(210,192,178,0.4)]" />
+                    <div className="h-4 w-11/12 rounded bg-[rgba(210,192,178,0.4)]" />
+                    <div className="h-4 w-5/6 rounded bg-[rgba(210,192,178,0.4)]" />
+                  </div>
                 </div>
               </div>
-            ) : error ? (
-              <div className="rounded-[34px] border border-[#f1c3c3] bg-[#fff4f4] p-8 text-[#9d4b4b]">
-                <p className="text-lg font-medium text-[#8e3838]">新闻抓取失败</p>
+            ) : error && items.length === 0 ? (
+              <div className="rounded-[var(--wb-radius-xl)] border border-[rgba(171,84,84,0.25)] bg-[rgba(255,245,245,0.92)] p-8 text-[color:#964646] shadow-[var(--wb-shadow-tight)]">
+                <p className="text-lg font-medium text-[color:#7f3636]">新闻抓取失败</p>
                 <p className="mt-3 text-sm leading-7">{error}</p>
               </div>
             ) : items.length === 0 ? (
-              <div className="rounded-[34px] border border-[#eadfd3] bg-white p-8 text-center">
-                <p className="text-lg font-medium text-[#241b16]">
-                  过去 12 小时内暂未抓取到符合条件的 AI 新闻
+              <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.64)] p-8 text-center shadow-[var(--wb-shadow-tight)]">
+                <p className="text-lg font-medium text-[color:var(--wb-ink)]">
+                  过去 12 小时内暂未抓取到符合条件的 AI 话题
                 </p>
-                <p className="mt-3 text-sm leading-7 text-[#7d7065]">
-                  可以稍后刷新，或者继续扩展新闻源与筛选规则。
+                <p className="mt-3 text-sm leading-7 text-[color:var(--wb-muted)]">
+                  可以稍后刷新，或继续扩展新闻源与筛选规则。
                 </p>
               </div>
             ) : (
-              <article className="rounded-[36px] border border-[#eadfd3] bg-white shadow-[0_20px_70px_rgba(214,181,154,0.22)]">
-                <div className="relative overflow-hidden border-b border-[#eee4da] px-6 py-6 sm:px-10">
-                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(239,107,56,0.16),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(240,211,190,0.22),transparent_32%)]" />
-                  {items[0]?.imageUrl && (
-                    <div className="absolute inset-0 opacity-20">
-                      <img
-                        src={items[0].imageUrl}
-                        alt={items[0].title}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-[#fff8f2]/75 to-white" />
-                  <div className="relative">
-                  <p className="text-xs uppercase tracking-[0.32em] text-[#d77443]">
-                    AI 行业长文快讯
-                  </p>
-                  <h2 className="mt-4 text-[34px] font-semibold leading-tight text-[#241b16] sm:text-[42px]">
-                    今夜 AI 行业有哪些新变化？
-                  </h2>
-                  <p className="mt-5 max-w-2xl text-[15px] leading-8 text-[#6f6258]">
-                    我们把过去 12 小时内的 AI 热点新闻重新整理成一篇更适合公众号阅读的长文结构。
-                    先给结论，再分主题展开，方便你快速浏览，也方便你直接改造成可发布内容。
-                  </p>
-                  </div>
-                </div>
-
-                <div className="px-6 py-8 sm:px-10">
-                  {briefs.length > 0 && (
-                    <section className="mb-10 rounded-[28px] border border-[#f1d7c7] bg-[#fff6ef] p-5 sm:p-6">
-                      <p className="text-xs uppercase tracking-[0.28em] text-[#d77443]">
-                        开篇摘要
-                      </p>
-                      <div className="mt-5 space-y-4">
-                        {briefs.slice(0, 3).map((brief, index) => (
-                          <p
-                            key={`${brief.title}-lead-${index}`}
-                            className="border-l-2 border-[#ef6b38] pl-4 text-[15px] leading-8 text-[#5a4d43]"
-                          >
-                              <span className="font-medium text-[#241b16]">
-                              {index + 1}. {brief.title}
-                            </span>
-                            <span className="text-[#7d7065]"> {brief.summary}</span>
-                          </p>
-                        ))}
-                      </div>
-                    </section>
-                  )}
-
-                  <div className="space-y-10">
-                    {items.map((item, index) => (
-                      <section
-                        key={`${item.link}-${index}`}
-                        className="border-b border-dashed border-[#eee4da] pb-10 last:border-b-0 last:pb-0"
-                      >
-                        <div className="flex items-start gap-4">
-                          <div className="mt-1 min-w-12 text-[24px] font-semibold leading-none text-[#ef6b38]">
-                            {buildSectionLabel(index)}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-[#8f8277]">
-                              <span className="rounded-full border border-[#efc6af] bg-[#fff1e7] px-3 py-1 text-[#c96535]">
-                                {item.source}
-                              </span>
-                              <span className="inline-flex items-center gap-1">
-                                <Clock3 size={13} />
-                                {formatRelativeHours(item.publishedAt)}
-                              </span>
-                              <span>{formatDateTime(item.publishedAt)}</span>
-                            </div>
-
-                            <h3 className="text-[26px] font-semibold leading-[1.45] text-[#241b16]">
-                              <span className="mr-2 align-middle text-[28px]">
-                                {item.emoji}
-                              </span>
-                              {item.title}
-                            </h3>
-
-                            <p className="mt-4 text-[17px] leading-8 text-[#4b4037]">
-                              {item.deck}
-                            </p>
-
-                            {item.imageUrl && (
-                              <div className="mt-5 overflow-hidden rounded-[26px] border border-[#eadfd3] bg-[#fff8f2]">
-                                <img
-                                  src={item.imageUrl}
-                                  alt={item.title}
-                                  className="h-[260px] w-full object-cover"
-                                />
-                              </div>
-                            )}
-
-                            <p className="mt-5 text-[15px] leading-8 text-[#6f6258]">
-                              {item.body}
-                            </p>
-
-                            <div className="mt-5 rounded-[22px] border border-[#f1d7c7] bg-[#fff6ef] p-4">
-                              <p className="text-xs uppercase tracking-[0.24em] text-[#d77443]">
-                                值得关注
-                              </p>
-                              <p className="mt-2 text-sm leading-7 text-[#735f50]">
-                                {item.takeaway}
-                              </p>
-                            </div>
-
-                            {item.summary && (
-                              <p className="mt-5 border-l-2 border-[#eadfd3] pl-4 text-[14px] leading-7 text-[#8e8074]">
-                                {item.summary}
-                              </p>
-                            )}
-
-                            <div className="mt-5 flex flex-wrap gap-3">
-                              <button
-                                type="button"
-                                onClick={() => createSingleNewsDraft(item)}
-                                className="inline-flex items-center gap-2 rounded-full border border-[#efc6af] bg-[#fff1e7] px-4 py-2 text-sm font-medium text-[#c96535] transition hover:bg-[#ffe8db]"
-                              >
-                                <FileUp size={16} />
-                                转成长文稿件
-                              </button>
-                              <a
-                                href={item.link}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-2 rounded-full border border-[#eadfd3] bg-white px-4 py-2 text-sm font-medium text-[#5c5046] transition hover:bg-[#fff7f1]"
-                              >
-                                <ExternalLink size={16} />
-                                查看原文
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      </section>
-                    ))}
-                  </div>
-                </div>
-              </article>
+              <div className="space-y-5">
+                {items.map((item, index) => (
+                  <TopicSignalCard
+                    key={`${item.link}-${index}`}
+                    item={item}
+                    indexLabel={buildSectionLabel(index)}
+                    relativeLabel={formatRelativeHours(item.publishedAt)}
+                    formattedDate={formatDateTime(item.publishedAt)}
+                    onCreateDraft={createSingleNewsDraft}
+                  />
+                ))}
+              </div>
             )}
           </main>
+
+          <ResearchNotesPanel
+            briefs={briefs}
+            generatedAt={formatDeskTime(generatedAt)}
+            itemCount={items.length}
+            briefCount={briefs.length}
+            windowHours={windowHours}
+          />
         </div>
-      </div>
+      </PageSection>
     </div>
   );
+}
+
+function formatDeskTime(value: string) {
+  return value ? formatDateTime(value) : '准备中';
 }
