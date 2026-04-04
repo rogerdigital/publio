@@ -1,7 +1,7 @@
 'use client';
 
 import { usePublishStore } from '@/stores/publishStore';
-import { PLATFORMS, PlatformId } from '@/types';
+import { PLATFORMS } from '@/types';
 import {
   MessageSquare,
   BookOpen,
@@ -22,13 +22,47 @@ const iconMap = {
 
 export default function PublishStatusPanel() {
   const { results, overallStatus } = usePublishStore();
+  const successCount = results.filter((result) => result.status === 'success').length;
+  const errorCount = results.filter((result) => result.status === 'error').length;
+  const inFlightCount = results.filter(
+    (result) => result.status === 'publishing',
+  ).length;
+  const totalCount = results.length;
 
   if (overallStatus === 'idle') return null;
 
   return (
-    <div className="space-y-2 mt-4">
-      <h3 className="text-sm font-medium text-[#4b4037]">发布结果</h3>
-      <div className="space-y-2">
+    <div className="mt-4 space-y-4 rounded-[24px] border border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.82)] px-4 py-4 shadow-[var(--wb-shadow-tight)]">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
+            Case board
+          </p>
+          <h3
+            className="mt-1 text-[18px] leading-tight text-[color:var(--wb-text)]"
+            style={{ fontFamily: 'var(--wb-font-serif)' }}
+          >
+            发布回执跟踪板
+          </h3>
+        </div>
+
+        <div className="flex flex-wrap gap-2 text-xs text-[color:var(--wb-text-muted)]">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-white/80 px-3 py-1.5">
+            <CheckCircle2 size={12} className="text-[#2b9d62]" />
+            {successCount} 已完成
+          </span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-white/80 px-3 py-1.5">
+            <XCircle size={12} className="text-[#de6a6a]" />
+            {errorCount} 异常
+          </span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-white/80 px-3 py-1.5">
+            <Loader2 size={12} className={inFlightCount > 0 ? 'animate-spin text-[color:var(--wb-accent)]' : 'text-[color:var(--wb-text-muted)]'} />
+            {totalCount > 0 ? `${totalCount} 张回执` : '等待回执'}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-3">
         {results.length > 0
           ? results.map((result) => {
               const platform = PLATFORMS.find((p) => p.id === result.platform);
@@ -39,69 +73,94 @@ export default function PublishStatusPanel() {
               return (
                 <div
                   key={result.platform}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${
+                  className={`grid gap-3 rounded-[22px] border px-4 py-4 shadow-[var(--wb-shadow-tight)] sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center ${
                     result.status === 'success'
-                      ? 'bg-[#eefbf2] border-[#bfe8cb]'
+                      ? 'border-[#bfe8cb] bg-[linear-gradient(180deg,rgba(238,251,242,0.98)_0%,rgba(226,247,233,0.96)_100%)]'
                       : result.status === 'error'
-                      ? 'bg-[#fff1f1] border-[#f4c1c1]'
+                      ? 'border-[#f4c1c1] bg-[linear-gradient(180deg,rgba(255,241,241,0.98)_0%,rgba(255,232,232,0.96)_100%)]'
                       : 'bg-[#fffdfb] border-[#e8ddd2]'
                   }`}
                 >
-                  <Icon size={18} className="text-[#7d6f64] shrink-0" />
-                  <span className="text-sm font-medium text-[#3a3029] shrink-0">
-                    {platform.name}
-                  </span>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[color:var(--wb-border)] bg-white/85">
+                      <Icon size={18} className="text-[color:var(--wb-text-muted)]" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-[color:var(--wb-text)]">
+                        {platform.name}
+                      </span>
+                      <div className="mt-1 text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-text-muted)]">
+                        {result.status === 'success'
+                          ? 'Completed case'
+                          : result.status === 'error'
+                          ? 'Needs attention'
+                          : 'In flight'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="min-w-0">
                     <span
-                      className={`text-sm ${
+                      className={`text-sm leading-6 ${
                         result.status === 'success'
                           ? 'text-[#247a4b]'
                           : result.status === 'error'
                           ? 'text-[#bf4b4b]'
-                          : 'text-[#7d7065]'
+                          : 'text-[color:var(--wb-text-muted)]'
                       }`}
                     >
                       {result.message}
                     </span>
                   </div>
-                  {result.status === 'success' && (
-                    <CheckCircle2
-                      size={18}
-                      className="text-[#2b9d62] shrink-0"
-                    />
-                  )}
-                  {result.status === 'error' && (
-                    <XCircle size={18} className="text-[#de6a6a] shrink-0" />
-                  )}
-                  {result.status === 'publishing' && (
-                    <Loader2
-                      size={18}
-                      className="text-[#ef6b38] animate-spin shrink-0"
-                    />
-                  )}
-                  {result.url && (
-                    <a
-                      href={result.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#d77443] hover:text-[#9e4d27] shrink-0"
+
+                  <div className="flex items-center justify-between gap-3 sm:justify-end">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.22em] ${
+                        result.status === 'success'
+                          ? 'border-[#bfe8cb] bg-white text-[#247a4b]'
+                          : result.status === 'error'
+                          ? 'border-[#f4c1c1] bg-white text-[#bf4b4b]'
+                          : 'border-[color:var(--wb-border)] bg-white text-[color:var(--wb-text-muted)]'
+                      }`}
                     >
-                      <ExternalLink size={16} />
-                    </a>
-                  )}
+                      {result.status === 'success' && <CheckCircle2 size={12} />}
+                      {result.status === 'error' && <XCircle size={12} />}
+                      {result.status === 'publishing' && (
+                        <Loader2 size={12} className="animate-spin" />
+                      )}
+                      {result.status}
+                    </span>
+
+                    {result.url ? (
+                      <a
+                        href={result.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`打开 ${platform.name} 发布结果`}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[color:var(--wb-border)] bg-white/80 text-[color:var(--wb-accent)] transition hover:border-[color:var(--wb-border-strong)] hover:bg-white"
+                      >
+                        <ExternalLink size={15} />
+                      </a>
+                    ) : null}
+                  </div>
                 </div>
               );
             })
           : // Show loading placeholders during publishing
             overallStatus === 'publishing' && (
-              <div className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-[#fffdfb] border-[#e8ddd2]">
-                <Loader2
-                  size={18}
-                  className="text-[#ef6b38] animate-spin shrink-0"
-                />
-                <span className="text-sm text-[#7d7065]">
-                  正在发布到各平台...
-                </span>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="flex items-center gap-3 rounded-[22px] border border-[color:var(--wb-border)] bg-white/75 px-4 py-3">
+                  <Loader2
+                    size={18}
+                    className="shrink-0 animate-spin text-[color:var(--wb-accent)]"
+                  />
+                  <span className="text-sm text-[color:var(--wb-text-muted)]">
+                    正在向已选平台送达稿件...
+                  </span>
+                </div>
+                <div className="rounded-[22px] border border-dashed border-[color:var(--wb-border-strong)] bg-white/60 px-4 py-3 text-sm leading-6 text-[color:var(--wb-text-muted)]">
+                  回执到达后，这里会自动变成每个平台的案例卡片。
+                </div>
               </div>
             )}
       </div>
