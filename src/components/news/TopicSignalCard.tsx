@@ -34,6 +34,20 @@ function MetaChip({ label, value }: { label: string; value: string }) {
   );
 }
 
+function formatArticleMetrics(wordCount?: number, imageCount?: number) {
+  const parts: string[] = [];
+
+  if (typeof wordCount === 'number' && wordCount > 0) {
+    parts.push(`原文约 ${wordCount.toLocaleString('zh-CN')} 字`);
+  }
+
+  if (typeof imageCount === 'number' && imageCount >= 0) {
+    parts.push(`配图 ${imageCount} 张`);
+  }
+
+  return parts.join('，') || '原文字数与配图数量待补充';
+}
+
 export default function TopicSignalCard({
   item,
   indexLabel,
@@ -111,6 +125,12 @@ export default function TopicSignalCard({
               </p>
               <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
                 {item.coverageCount} 条相关报道，官方源 {item.officialSourceCount} 条，媒体源 {item.mediaSourceCount} 条。
+              </p>
+              <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
+                {formatArticleMetrics(
+                  item.primarySignal.articleWordCount,
+                  item.primarySignal.articleImageCount,
+                )}
               </p>
               <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
                 原文：{formatHostname(item.primarySignal.link)}

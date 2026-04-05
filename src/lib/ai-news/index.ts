@@ -56,7 +56,60 @@ function extractMetaImage(html: string, pageUrl: string) {
   return '';
 }
 
-async function fetchArticleLeadImage(link: string) {
+interface ArticleSnapshot {
+  imageUrl: string;
+  wordCount?: number;
+  imageCount?: number;
+}
+
+function stripHtml(value: string) {
+  return value
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;|&#160;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function countArticleWords(html: string) {
+  const mainMatch =
+    html.match(/<article\b[\s\S]*?<\/article>/i) ||
+    html.match(/<main\b[\s\S]*?<\/main>/i) ||
+    html.match(/<body\b[\s\S]*?<\/body>/i);
+  const text = stripHtml(mainMatch?.[0] || html);
+
+  if (!text) {
+    return undefined;
+  }
+
+  const chineseChars = (text.match(/[\u4e00-\u9fff]/g) || []).length;
+  const latinTokens = text
+    .replace(/[\u4e00-\u9fff]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean).length;
+  const total = chineseChars + latinTokens;
+
+  return total > 0 ? total : undefined;
+}
+
+function countArticleImages(html: string) {
+  const mainMatch =
+    html.match(/<article\b[\s\S]*?<\/article>/i) ||
+    html.match(/<main\b[\s\S]*?<\/main>/i) ||
+    html.match(/<body\b[\s\S]*?<\/body>/i);
+  const scope = mainMatch?.[0] || html;
+  const imageMatches = scope.match(/<img\b[^>]*>/gi) || [];
+
+  return imageMatches.length > 0 ? imageMatches.length : undefined;
+}
+
+async function fetchArticleSnapshot(link: string): Promise<ArticleSnapshot> {
   try {
     const response = await fetch(link, {
       headers: {
@@ -67,13 +120,21 @@ async function fetchArticleLeadImage(link: string) {
     });
 
     if (!response.ok) {
-      return '';
+      return {
+        imageUrl: '',
+      };
     }
 
     const html = await response.text();
-    return extractMetaImage(html, link);
+    return {
+      imageUrl: extractMetaImage(html, link),
+      wordCount: countArticleWords(html),
+      imageCount: countArticleImages(html),
+    };
   } catch {
-    return '';
+    return {
+      imageUrl: '',
+    };
   }
 }
 
@@ -151,23 +212,35 @@ function sortCandidates(left: AiNewsDeskCandidate, right: AiNewsDeskCandidate) {
 }
 
 async function hydrateCandidateImages(candidates: AiNewsDeskCandidate[]) {
-  const imageCache = new Map<string, Promise<string>>();
+  const snapshotCache = new Map<string, Promise<ArticleSnapshot>>();
 
   return Promise.all(
     candidates.map(async (candidate) => {
-      if (candidate.researchBrief.imageUrl || candidate.primarySignal.imageUrl) {
+      const hasImage = candidate.researchBrief.imageUrl || candidate.primarySignal.imageUrl;
+      const hasMetrics =
+        typeof candidate.primarySignal.articleWordCount === 'number' ||
+        typeof candidate.primarySignal.articleImageCount === 'number';
+
+      if (hasImage && hasMetrics) {
         return candidate;
       }
 
       const articleLink = candidate.primarySignal.link;
-      let imagePromise = imageCache.get(articleLink);
-      if (!imagePromise) {
-        imagePromise = fetchArticleLeadImage(articleLink);
-        imageCache.set(articleLink, imagePromise);
+      let snapshotPromise = snapshotCache.get(articleLink);
+      if (!snapshotPromise) {
+        snapshotPromise = fetchArticleSnapshot(articleLink);
+        snapshotCache.set(articleLink, snapshotPromise);
       }
 
-      const imageUrl = await imagePromise;
-      if (!imageUrl) {
+      const snapshot = await snapshotPromise;
+      const imageUrl = snapshot.imageUrl || candidate.researchBrief.imageUrl || candidate.primarySignal.imageUrl;
+      const articleWordCount = snapshot.wordCount ?? candidate.primarySignal.articleWordCount;
+      const articleImageCount =
+        snapshot.imageCount ??
+        candidate.primarySignal.articleImageCount ??
+        (imageUrl ? 1 : undefined);
+
+      if (!imageUrl && typeof articleWordCount !== 'number' && typeof articleImageCount !== 'number') {
         return candidate;
       }
 
@@ -176,12 +249,19 @@ async function hydrateCandidateImages(candidates: AiNewsDeskCandidate[]) {
         primarySignal: {
           ...candidate.primarySignal,
           imageUrl,
+          articleWordCount,
+          articleImageCount,
         },
         signals: candidate.signals.map((signal) =>
-          signal.link === articleLink && !signal.imageUrl
+          signal.link === articleLink &&
+          (!signal.imageUrl ||
+            typeof signal.articleWordCount !== 'number' ||
+            typeof signal.articleImageCount !== 'number')
             ? {
                 ...signal,
                 imageUrl,
+                articleWordCount,
+                articleImageCount,
               }
             : signal,
         ),
