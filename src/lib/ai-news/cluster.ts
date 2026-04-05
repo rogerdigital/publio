@@ -58,6 +58,7 @@ function buildCluster(signals: NormalizedAiNewsSignal[]): AiNewsCluster {
     coverageCount: sortedSignals.length,
     officialSourceCount: sortedSignals.filter((signal) => signal.isOfficialSource).length,
     mediaSourceCount: sortedSignals.filter((signal) => signal.sourceType === 'media').length,
+    creatorSourceCount: sortedSignals.filter((signal) => signal.creatorWeight > 0).length,
   };
 }
 

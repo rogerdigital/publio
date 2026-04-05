@@ -210,6 +210,8 @@ export function normalizeAiNewsSignal(params: {
   summary: string;
   link: string;
   imageUrl?: string;
+  sourceWeight: number;
+  creatorWeight?: number;
   publishedAt: string;
   fetchedAt: string;
   sourceName: string;
@@ -239,6 +241,8 @@ export function normalizeAiNewsSignal(params: {
     link: params.link,
     imageUrl: params.imageUrl,
     sourceName: params.sourceName,
+    sourceWeight: params.sourceWeight,
+    creatorWeight: params.creatorWeight ?? 0,
     sourceType: params.sourceType,
     sourceDomain: readSourceDomain(params.link),
     publishedAt,

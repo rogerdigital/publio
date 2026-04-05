@@ -47,8 +47,12 @@ function scoreImpact(cluster: AiNewsCluster) {
 
   const entityBoost = Math.min(cluster.entityTokens.length * 3, 18);
   const coverageBoost = Math.min(cluster.coverageCount * 6, 18);
+  const sourceWeightBoost = Math.min(
+    cluster.signals.reduce((sum, signal) => sum + signal.sourceWeight, 0) * 2,
+    16,
+  );
 
-  return clamp(topicBoost + entityBoost + coverageBoost);
+  return clamp(topicBoost + entityBoost + coverageBoost + sourceWeightBoost);
 }
 
 function scoreMomentum(cluster: AiNewsCluster) {
@@ -64,8 +68,36 @@ function scoreCredibility(cluster: AiNewsCluster) {
   const mediaBoost = Math.min(cluster.mediaSourceCount * 18, 36);
   const sourceDiversityBoost =
     new Set(cluster.signals.map((signal) => signal.sourceDomain)).size >= 2 ? 12 : 4;
+  const sourceWeightBoost = Math.min(
+    cluster.signals.reduce((sum, signal) => sum + signal.sourceWeight, 0) * 2,
+    12,
+  );
 
-  return clamp(24 + officialBoost + mediaBoost + sourceDiversityBoost);
+  return clamp(24 + officialBoost + mediaBoost + sourceDiversityBoost + sourceWeightBoost);
+}
+
+function scoreCreatorFit(cluster: AiNewsCluster) {
+  const creatorSourceBoost = Math.min(cluster.creatorSourceCount * 20, 40);
+  const creatorWeightBoost = Math.min(
+    cluster.signals.reduce((sum, signal) => sum + signal.creatorWeight, 0) * 6,
+    32,
+  );
+  const topicBoost = cluster.topicTags.some((topic) =>
+    ['模型与产品发布', '资本与商业化', '算力与芯片'].includes(topic),
+  )
+    ? 16
+    : 8;
+
+  return clamp(10 + creatorSourceBoost + creatorWeightBoost + topicBoost);
+}
+
+function scoreVisualReadiness(cluster: AiNewsCluster) {
+  const imageSignalCount = cluster.signals.filter((signal) => signal.imageUrl).length;
+  const imageCoverageBoost = Math.min(imageSignalCount * 18, 36);
+  const leadImageBoost = cluster.primarySignal.imageUrl ? 26 : 0;
+  const imageCountBoost = Math.min(cluster.primarySignal.articleImageCount ?? 0, 4) * 6;
+
+  return clamp(8 + imageCoverageBoost + leadImageBoost + imageCountBoost);
 }
 
 function resolveBucket(freshness: number): AiNewsBucket {
@@ -78,13 +110,17 @@ export function scoreAiNewsCluster(cluster: AiNewsCluster, now = new Date()): Sc
     impact: scoreImpact(cluster),
     momentum: scoreMomentum(cluster),
     credibility: scoreCredibility(cluster),
+    creatorFit: scoreCreatorFit(cluster),
+    visualReadiness: scoreVisualReadiness(cluster),
   };
 
   const totalScore = clamp(
-    scores.freshness * 0.3 +
-      scores.impact * 0.3 +
-      scores.momentum * 0.2 +
-      scores.credibility * 0.2,
+    scores.freshness * 0.24 +
+      scores.impact * 0.22 +
+      scores.momentum * 0.16 +
+      scores.credibility * 0.16 +
+      scores.creatorFit * 0.14 +
+      scores.visualReadiness * 0.08,
   );
 
   return {

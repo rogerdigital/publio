@@ -172,6 +172,8 @@ async function fetchSourceSignals(source: AiNewsSource, cutoffTime: number) {
         summary,
         link,
         imageUrl,
+        sourceWeight: source.weight,
+        creatorWeight: source.creatorWeight,
         publishedAt,
         fetchedAt,
         sourceName,
@@ -319,10 +321,16 @@ export function buildAiNewsDeskFromSignals(
 export async function buildAiNewsDesk(hours = 72) {
   const signals = await fetchAiNewsSignals(hours);
   const desk = buildAiNewsDeskFromSignals(signals);
-  const candidates = await hydrateCandidateImages([
+  const hydratedCandidates = await hydrateCandidateImages([
     ...desk.todayCandidates,
     ...desk.followCandidates,
   ]);
+  const generatedAt = new Date(desk.generatedAt);
+  const candidates = hydratedCandidates
+    .map((candidate) => scoreAiNewsCluster(candidate, generatedAt))
+    .map((candidate) => buildCandidate(candidate))
+    .sort(sortCandidates)
+    .slice(0, 16);
   const todayCandidates = candidates.filter((candidate) => candidate.bucket === 'today');
   const followCandidates = candidates.filter((candidate) => candidate.bucket === 'follow');
   const selectedResearch =

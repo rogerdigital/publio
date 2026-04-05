@@ -12,6 +12,8 @@ function createSignal(overrides: Partial<NormalizedAiNewsSignal>): NormalizedAiN
     canonicalTitle: overrides.canonicalTitle ?? 'openai 发布 新 模型',
     summary: overrides.summary ?? '官方公布新模型并开放 API。',
     link: overrides.link ?? 'https://example.com/news',
+    sourceWeight: overrides.sourceWeight ?? 1,
+    creatorWeight: overrides.creatorWeight ?? 0,
     sourceName: overrides.sourceName ?? 'Example News',
     sourceType: overrides.sourceType ?? 'media',
     sourceDomain: overrides.sourceDomain ?? 'example.com',
@@ -53,6 +55,7 @@ describe('clusterAiNewsSignals', () => {
     expect(clusters[0].signals).toHaveLength(2);
     expect(clusters[0].primarySignal.id).toBe('official');
     expect(clusters[0].coverageCount).toBe(2);
+    expect(clusters[0].creatorSourceCount).toBe(0);
   });
 
   test('会把不同事件保留为独立候选题', () => {

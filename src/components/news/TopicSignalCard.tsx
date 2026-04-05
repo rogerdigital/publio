@@ -175,6 +175,8 @@ export default function TopicSignalCard({
             <span>影响 {item.scores.impact}</span>
             <span>势能 {item.scores.momentum}</span>
             <span>可信 {item.scores.credibility}</span>
+            <span>选题贴合 {item.scores.creatorFit}</span>
+            <span>配图完成度 {item.scores.visualReadiness}</span>
           </div>
         </div>
       </article>
