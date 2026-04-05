@@ -11,6 +11,7 @@ interface ResearchNotesPanelProps {
   candidateCount: number;
   todayCount: number;
   followCount: number;
+  selectedTitle?: string;
 }
 
 function formatDeskTime(value: string) {
@@ -24,10 +25,11 @@ export default function ResearchNotesPanel({
   candidateCount,
   todayCount,
   followCount,
+  selectedTitle,
 }: ResearchNotesPanelProps) {
   return (
-    <aside className="self-start">
-      <SurfaceCard tone="soft" className="sticky top-6 overflow-hidden px-5 py-5 sm:px-6">
+    <section id="research-brief-panel">
+      <SurfaceCard tone="soft" className="overflow-hidden px-5 py-5 sm:px-6">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-[22px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.78)] text-[color:var(--wb-accent-strong)]">
             <BookOpenText size={18} />
@@ -73,8 +75,13 @@ export default function ResearchNotesPanel({
             {formatDeskTime(generatedAt)}
           </p>
           <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
-            今天能发 {todayCount} 条，还能追 {followCount} 条。右侧固定显示当前选中候选的研究底稿。
+            今天能发 {todayCount} 条，还能追 {followCount} 条。底稿区改为完整宽度，更适合连续阅读和判断。
           </p>
+          {selectedTitle ? (
+            <div className="mt-3 inline-flex rounded-full border border-[color:var(--wb-border-strong)] bg-[rgba(255,247,240,0.92)] px-3 py-1.5 text-xs text-[color:var(--wb-accent-strong)]">
+              当前查看：{selectedTitle}
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-5 space-y-3">
@@ -220,6 +227,6 @@ export default function ResearchNotesPanel({
           )}
         </div>
       </SurfaceCard>
-    </aside>
+    </section>
   );
 }

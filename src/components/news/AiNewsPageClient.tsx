@@ -105,6 +105,7 @@ export default function AiNewsPageClient() {
   const [error, setError] = useState('');
   const [refreshError, setRefreshError] = useState('');
   const hasDeskDataRef = useRef(false);
+  const researchPanelRef = useRef<HTMLElement | null>(null);
 
   const writeDraftAndOpenEditor = (title: string, content: string) => {
     window.localStorage.setItem(
@@ -232,6 +233,21 @@ export default function AiNewsPageClient() {
     void loadNews();
   }, []);
 
+  useEffect(() => {
+    researchPanelRef.current = document.getElementById('research-brief-panel');
+  }, [selectedResearch]);
+
+  const selectCandidate = (item: AiNewsDeskCandidate) => {
+    setSelectedResearch(item.researchBrief);
+
+    window.requestAnimationFrame(() => {
+      researchPanelRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+  };
+
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,var(--wb-bg-elevated)_0%,#f1e6d8_100%)] px-4 py-6 sm:px-6 lg:px-8">
       <PageSection className="space-y-6">
@@ -246,7 +262,7 @@ export default function AiNewsPageClient() {
           refreshing={refreshing}
         />
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.18fr)_minmax(320px,392px)] lg:items-start xl:grid-cols-[minmax(0,1.24fr)_392px]">
+        <div className="space-y-6">
           <main className="min-w-0 space-y-5">
             <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.6)] px-5 py-4 shadow-[var(--wb-shadow-tight)]">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -325,7 +341,7 @@ export default function AiNewsPageClient() {
                   items={todayCandidates}
                   offset={0}
                   activeCandidateId={selectedResearch?.candidateId || ''}
-                  onSelect={(item) => setSelectedResearch(item.researchBrief)}
+                  onSelect={selectCandidate}
                   onCreateDraft={createSingleNewsDraft}
                 />
                 <CandidateSection
@@ -334,7 +350,7 @@ export default function AiNewsPageClient() {
                   items={followCandidates}
                   offset={todayCandidates.length}
                   activeCandidateId={selectedResearch?.candidateId || ''}
-                  onSelect={(item) => setSelectedResearch(item.researchBrief)}
+                  onSelect={selectCandidate}
                   onCreateDraft={createSingleNewsDraft}
                 />
               </div>
@@ -348,6 +364,7 @@ export default function AiNewsPageClient() {
             candidateCount={totalCandidates}
             todayCount={todayCandidates.length}
             followCount={followCandidates.length}
+            selectedTitle={selectedResearch?.title}
           />
         </div>
       </PageSection>

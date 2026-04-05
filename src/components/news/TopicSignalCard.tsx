@@ -45,7 +45,11 @@ export default function TopicSignalCard({
   return (
     <SurfaceCard
       tone="accent"
-      className={`overflow-hidden transition ${isActive ? 'ring-1 ring-[color:var(--wb-accent)]' : ''}`}
+      className={`overflow-hidden transition ${
+        isActive
+          ? 'ring-2 ring-[color:var(--wb-accent)] shadow-[0_18px_36px_rgba(200,106,61,0.16)]'
+          : ''
+      }`}
     >
       <article className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div className="p-5 sm:p-6">
@@ -64,6 +68,11 @@ export default function TopicSignalCard({
               <Clock3 size={12} />
               {relativeLabel}
             </span>
+            {isActive ? (
+              <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border-strong)] bg-[rgba(255,247,240,0.94)] px-3 py-1.5 text-[color:var(--wb-accent-strong)]">
+                当前查看中
+              </span>
+            ) : null}
           </div>
 
           <h3
@@ -109,9 +118,14 @@ export default function TopicSignalCard({
             <button
               type="button"
               onClick={() => onSelect(item)}
-              className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.64)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[rgba(255,255,255,0.96)]"
+              aria-pressed={isActive}
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
+                isActive
+                  ? 'border-[color:var(--wb-border-strong)] bg-[rgba(255,247,240,0.94)] text-[color:var(--wb-accent-strong)]'
+                  : 'border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.64)] text-[color:var(--wb-ink)] hover:bg-[rgba(255,255,255,0.96)]'
+              }`}
             >
-              查看底稿
+              {isActive ? '当前底稿' : '查看底稿'}
             </button>
             <button
               type="button"
