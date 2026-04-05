@@ -14,6 +14,7 @@ export interface NormalizedAiNewsSignal {
   canonicalTitle: string;
   summary: string;
   link: string;
+  imageUrl?: string;
   sourceName: string;
   sourceType: AiNewsSourceType;
   sourceDomain: string;
@@ -63,6 +64,7 @@ export interface ResearchEvidence {
   label: string;
   sourceName: string;
   link: string;
+  imageUrl?: string;
   publishedAt: string;
   sourceType: AiNewsSourceType;
 }
@@ -71,6 +73,7 @@ export interface ResearchBrief {
   candidateId: string;
   title: string;
   bucket: AiNewsBucket;
+  imageUrl?: string;
   whatHappened: string;
   whyItMatters: string;
   whoIsAffected: string[];

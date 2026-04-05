@@ -75,4 +75,48 @@ describe('buildResearchBrief', () => {
     expect(brief.recommendedAngles.length).toBeGreaterThan(1);
     expect(brief.evidence[0].label).toContain('OpenAI');
   });
+
+  test('优先继承主信号中的原文配图到研究底稿', () => {
+    const brief = buildResearchBrief(
+      createScoredCluster({
+        signals: [
+          {
+            id: 'official',
+            title: 'OpenAI 发布新模型 GPT-X',
+            canonicalTitle: 'openai 发布 新 模型 gpt x',
+            summary: 'OpenAI 官方公布 GPT-X 并开放企业接入。',
+            link: 'https://openai.com/blog/gpt-x',
+            imageUrl: 'https://openai.com/images/gpt-x-cover.jpg',
+            sourceName: 'OpenAI',
+            sourceType: 'official',
+            sourceDomain: 'openai.com',
+            publishedAt: '2026-04-05T08:00:00.000Z',
+            fetchedAt: '2026-04-05T08:20:00.000Z',
+            entityTokens: ['openai', 'gpt-x', '模型'],
+            topicTags: ['模型与产品发布'],
+            isOfficialSource: true,
+          },
+        ],
+        primarySignal: {
+          id: 'official',
+          title: 'OpenAI 发布新模型 GPT-X',
+          canonicalTitle: 'openai 发布 新 模型 gpt x',
+          summary: 'OpenAI 官方公布 GPT-X 并开放企业接入。',
+          link: 'https://openai.com/blog/gpt-x',
+          imageUrl: 'https://openai.com/images/gpt-x-cover.jpg',
+          sourceName: 'OpenAI',
+          sourceType: 'official',
+          sourceDomain: 'openai.com',
+          publishedAt: '2026-04-05T08:00:00.000Z',
+          fetchedAt: '2026-04-05T08:20:00.000Z',
+          entityTokens: ['openai', 'gpt-x', '模型'],
+          topicTags: ['模型与产品发布'],
+          isOfficialSource: true,
+        },
+      }),
+    );
+
+    expect(brief.imageUrl).toBe('https://openai.com/images/gpt-x-cover.jpg');
+    expect(brief.evidence[0].imageUrl).toBe('https://openai.com/images/gpt-x-cover.jpg');
+  });
 });

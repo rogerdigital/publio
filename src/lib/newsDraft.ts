@@ -5,6 +5,7 @@ export interface NewsDraftPayload {
 
 export interface ResearchDraftSection {
   title: string;
+  imageUrl?: string;
   whyNow: string;
   whatHappened: string;
   whyItMatters: string;
@@ -117,6 +118,10 @@ export function buildResearchDraftMarkdown(params: {
   params.sections.forEach((section, index) => {
     lines.push(`## ${String(index + 1).padStart(2, '0')}｜${section.title}`);
     lines.push('');
+    if (section.imageUrl) {
+      lines.push(`![${section.title}](${section.imageUrl})`);
+      lines.push('');
+    }
     lines.push('### 这件事是什么');
     lines.push('');
     lines.push(section.whatHappened);

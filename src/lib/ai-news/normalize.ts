@@ -81,6 +81,49 @@ export function extractLink(block: string) {
   return hrefMatch ? decodeHtmlEntities(hrefMatch[1]) : '';
 }
 
+function resolveUrl(rawUrl: string, baseUrl?: string) {
+  const normalized = decodeHtmlEntities(rawUrl).trim();
+
+  if (!normalized) {
+    return '';
+  }
+
+  try {
+    return new URL(normalized, baseUrl).toString();
+  } catch {
+    return '';
+  }
+}
+
+function extractImageFromDescription(block: string, pageUrl?: string) {
+  const description = extractTagValue(block, 'description');
+  const imgMatch = description.match(/<img[^>]+src="([^"]+)"/i);
+  return imgMatch ? resolveUrl(imgMatch[1], pageUrl) : '';
+}
+
+export function extractContentImage(block: string, pageUrl?: string) {
+  const mediaContentMatch = block.match(
+    /<media:content[^>]+url="([^"]+)"[^>]*?(?:type="image\/[^"]+")?[^>]*\/?>/i,
+  );
+  if (mediaContentMatch) {
+    return resolveUrl(mediaContentMatch[1], pageUrl);
+  }
+
+  const mediaThumbnailMatch = block.match(/<media:thumbnail[^>]+url="([^"]+)"/i);
+  if (mediaThumbnailMatch) {
+    return resolveUrl(mediaThumbnailMatch[1], pageUrl);
+  }
+
+  const enclosureMatch = block.match(
+    /<enclosure[^>]+url="([^"]+)"[^>]+type="image\/[^"]+"/i,
+  );
+  if (enclosureMatch) {
+    return resolveUrl(enclosureMatch[1], pageUrl);
+  }
+
+  return extractImageFromDescription(block, pageUrl);
+}
+
 export function extractItems(xml: string) {
   const itemMatches = xml.match(/<item\b[\s\S]*?<\/item>/gi);
   if (itemMatches && itemMatches.length > 0) {
@@ -166,6 +209,7 @@ export function normalizeAiNewsSignal(params: {
   title: string;
   summary: string;
   link: string;
+  imageUrl?: string;
   publishedAt: string;
   fetchedAt: string;
   sourceName: string;
@@ -193,6 +237,7 @@ export function normalizeAiNewsSignal(params: {
     canonicalTitle: normalizeCanonicalTitle(title),
     summary,
     link: params.link,
+    imageUrl: params.imageUrl,
     sourceName: params.sourceName,
     sourceType: params.sourceType,
     sourceDomain: readSourceDomain(params.link),

@@ -125,6 +125,7 @@ export default function AiNewsPageClient() {
       sections: [
         {
           title: item.title,
+          imageUrl: item.researchBrief.imageUrl,
           whyNow: item.whyNow,
           whatHappened: item.researchBrief.whatHappened,
           whyItMatters: item.researchBrief.whyItMatters,
@@ -152,6 +153,7 @@ export default function AiNewsPageClient() {
       intro,
       sections: topCandidates.map((item) => ({
         title: item.title,
+        imageUrl: item.researchBrief.imageUrl,
         whyNow: item.whyNow,
         whatHappened: item.researchBrief.whatHappened,
         whyItMatters: item.researchBrief.whyItMatters,

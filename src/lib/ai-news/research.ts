@@ -110,6 +110,7 @@ function buildEvidence(cluster: ScoredAiNewsCluster): ResearchEvidence[] {
     label: `${signal.sourceName}｜${signal.title}`,
     sourceName: signal.sourceName,
     link: signal.link,
+    imageUrl: signal.imageUrl,
     publishedAt: signal.publishedAt,
     sourceType: signal.sourceType,
   }));
@@ -117,11 +118,14 @@ function buildEvidence(cluster: ScoredAiNewsCluster): ResearchEvidence[] {
 
 export function buildResearchBrief(cluster: ScoredAiNewsCluster): ResearchBrief {
   const primary = cluster.primarySignal;
+  const leadImageUrl =
+    primary.imageUrl || cluster.signals.find((signal) => signal.imageUrl)?.imageUrl;
 
   return {
     candidateId: cluster.clusterId,
     title: cluster.title,
     bucket: cluster.bucket,
+    imageUrl: leadImageUrl,
     whatHappened: `${primary.sourceName} 指向的核心事件是：${primary.title}。当前候选窗口内共聚合 ${cluster.coverageCount} 条相关报道，最新更新发生在 ${new Date(cluster.latestPublishedAt).toLocaleString('zh-CN')}。`,
     whyItMatters: buildWhyItMatters(cluster),
     whoIsAffected: buildAffectedAudience(cluster),

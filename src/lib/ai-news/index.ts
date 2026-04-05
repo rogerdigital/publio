@@ -4,6 +4,7 @@ import {
 } from '@/lib/ai-news/cluster';
 import {
   extractItems,
+  extractContentImage,
   extractLink,
   extractTagValue,
   normalizeAiNewsSignal,
@@ -18,6 +19,63 @@ import type {
   AiNewsSource,
   ResearchBrief,
 } from '@/lib/ai-news/types';
+
+function resolveUrl(rawUrl: string, baseUrl?: string) {
+  const normalized = rawUrl.trim();
+
+  if (!normalized) {
+    return '';
+  }
+
+  try {
+    return new URL(normalized, baseUrl).toString();
+  } catch {
+    return '';
+  }
+}
+
+function extractMetaImage(html: string, pageUrl: string) {
+  const patterns = [
+    /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["'][^>]*>/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["'][^>]*>/i,
+    /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["'][^>]*>/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["'][^>]*>/i,
+    /<link[^>]+rel=["']image_src["'][^>]+href=["']([^"']+)["'][^>]*>/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (match?.[1]) {
+      const imageUrl = resolveUrl(match[1], pageUrl);
+      if (imageUrl) {
+        return imageUrl;
+      }
+    }
+  }
+
+  return '';
+}
+
+async function fetchArticleLeadImage(link: string) {
+  try {
+    const response = await fetch(link, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; PublioBot/1.0)',
+        Accept: 'text/html,application/xhtml+xml',
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      return '';
+    }
+
+    const html = await response.text();
+    return extractMetaImage(html, link);
+  } catch {
+    return '';
+  }
+}
 
 async function fetchSourceSignals(source: AiNewsSource, cutoffTime: number) {
   const response = await fetch(source.url, {
@@ -40,6 +98,7 @@ async function fetchSourceSignals(source: AiNewsSource, cutoffTime: number) {
       const rawTitle = extractTagValue(block, 'title');
       const sourceName = parseSourceLabel(rawTitle, source.name);
       const link = extractLink(block);
+      const imageUrl = extractContentImage(block, link);
       const publishedAt =
         extractTagValue(block, 'pubDate') ||
         extractTagValue(block, 'published') ||
@@ -51,6 +110,7 @@ async function fetchSourceSignals(source: AiNewsSource, cutoffTime: number) {
         title: rawTitle,
         summary,
         link,
+        imageUrl,
         publishedAt,
         fetchedAt,
         sourceName,
@@ -90,6 +150,58 @@ function sortCandidates(left: AiNewsDeskCandidate, right: AiNewsDeskCandidate) {
   return Date.parse(right.latestPublishedAt) - Date.parse(left.latestPublishedAt);
 }
 
+async function hydrateCandidateImages(candidates: AiNewsDeskCandidate[]) {
+  const imageCache = new Map<string, Promise<string>>();
+
+  return Promise.all(
+    candidates.map(async (candidate) => {
+      if (candidate.researchBrief.imageUrl || candidate.primarySignal.imageUrl) {
+        return candidate;
+      }
+
+      const articleLink = candidate.primarySignal.link;
+      let imagePromise = imageCache.get(articleLink);
+      if (!imagePromise) {
+        imagePromise = fetchArticleLeadImage(articleLink);
+        imageCache.set(articleLink, imagePromise);
+      }
+
+      const imageUrl = await imagePromise;
+      if (!imageUrl) {
+        return candidate;
+      }
+
+      return {
+        ...candidate,
+        primarySignal: {
+          ...candidate.primarySignal,
+          imageUrl,
+        },
+        signals: candidate.signals.map((signal) =>
+          signal.link === articleLink && !signal.imageUrl
+            ? {
+                ...signal,
+                imageUrl,
+              }
+            : signal,
+        ),
+        researchBrief: {
+          ...candidate.researchBrief,
+          imageUrl,
+          evidence: candidate.researchBrief.evidence.map((entry) =>
+            entry.link === articleLink && !entry.imageUrl
+              ? {
+                  ...entry,
+                  imageUrl,
+                }
+              : entry,
+          ),
+        },
+      };
+    }),
+  );
+}
+
 export async function fetchAiNewsSignals(hours = 72) {
   const cutoffTime = Date.now() - hours * 60 * 60 * 1000;
   const results = await Promise.allSettled(
@@ -126,7 +238,29 @@ export function buildAiNewsDeskFromSignals(
 
 export async function buildAiNewsDesk(hours = 72) {
   const signals = await fetchAiNewsSignals(hours);
-  return buildAiNewsDeskFromSignals(signals);
+  const desk = buildAiNewsDeskFromSignals(signals);
+  const candidates = await hydrateCandidateImages([
+    ...desk.todayCandidates,
+    ...desk.followCandidates,
+  ]);
+  const todayCandidates = candidates.filter((candidate) => candidate.bucket === 'today');
+  const followCandidates = candidates.filter((candidate) => candidate.bucket === 'follow');
+  const selectedResearch =
+    (desk.selectedResearch
+      ? candidates.find(
+          (candidate) => candidate.researchBrief.candidateId === desk.selectedResearch?.candidateId,
+        )?.researchBrief
+      : null) ??
+    todayCandidates[0]?.researchBrief ??
+    followCandidates[0]?.researchBrief ??
+    null;
+
+  return {
+    ...desk,
+    todayCandidates,
+    followCandidates,
+    selectedResearch,
+  };
 }
 
 export function buildResearchBriefIndex(candidates: AiNewsDeskCandidate[]): ResearchBrief[] {
