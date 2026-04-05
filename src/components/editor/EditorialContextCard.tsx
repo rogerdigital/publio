@@ -52,7 +52,7 @@ interface StatPillProps {
 
 function StatPill({ label, value }: StatPillProps) {
   return (
-    <div className="rounded-[18px] border border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.9)] px-3 py-2 shadow-[var(--wb-shadow-tight)]">
+    <div className="rounded-[16px] border border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.82)] px-3 py-2">
       <div className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--wb-text-muted)]">
         {label}
       </div>
@@ -74,42 +74,42 @@ export default function EditorialContextCard() {
   const readTime = estimateReadTime(cleanContent);
 
   return (
-    <SurfaceCard tone="accent" className="px-4 py-4 sm:px-5">
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-3xl">
+    <SurfaceCard tone="accent" className="px-4 py-3 sm:px-5">
+      <div className="space-y-3">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-2xl">
             <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
               Editorial context
             </p>
             <p className="mt-2 text-sm leading-7 text-[color:var(--wb-text-muted)]">
-              当前稿件的标题、密度和结构信号会在这里被快速识别，方便在正式分发前确认内容是否已经足够成稿。
+              这里保留最必要的结构信号，帮助你判断稿件是否已经进入可发布状态。
             </p>
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <span className="rounded-full border border-[color:var(--wb-border)] bg-white/80 px-3 py-1 text-xs text-[color:var(--wb-text-muted)] shadow-[var(--wb-shadow-tight)]">
+            <span className="rounded-full border border-[color:var(--wb-border)] bg-white/80 px-3 py-1 text-xs text-[color:var(--wb-text-muted)]">
               {cleanTitle ? '标题已写入' : '标题待补全'}
             </span>
-            <span className="rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,246,237,0.92)] px-3 py-1 text-xs text-[color:var(--wb-accent)] shadow-[var(--wb-shadow-tight)]">
+            <span className="rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,246,237,0.92)] px-3 py-1 text-xs text-[color:var(--wb-accent)]">
               研究-aware editing
             </span>
           </div>
         </div>
 
         {cleanTitle ? (
-          <div className="rounded-[22px] border border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.9)] px-4 py-3 shadow-[var(--wb-shadow-tight)]">
+          <div className="rounded-[18px] border border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.86)] px-4 py-3">
             <div className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--wb-text-muted)]">
               当前标题
             </div>
             <div
-              className="mt-2 text-[18px] leading-snug text-[color:var(--wb-text)]"
+              className="mt-2 text-[16px] leading-snug text-[color:var(--wb-text)]"
               style={{ fontFamily: 'var(--wb-font-serif)' }}
             >
               {cleanTitle}
             </div>
           </div>
         ) : (
-          <div className="rounded-[22px] border border-dashed border-[color:var(--wb-border-strong)] bg-[rgba(255,252,247,0.68)] px-4 py-3 text-sm leading-7 text-[color:var(--wb-text-muted)]">
+          <div className="rounded-[18px] border border-dashed border-[color:var(--wb-border-strong)] bg-[rgba(255,252,247,0.68)] px-4 py-3 text-sm leading-7 text-[color:var(--wb-text-muted)]">
             先补一个明确标题，后续的结构判断、导语节奏和发布预览会更容易对齐。
           </div>
         )}

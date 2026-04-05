@@ -29,14 +29,14 @@ export default function TopicDeskHeader({
   refreshing,
 }: TopicDeskHeaderProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <AppShellHeader
         kicker="Today’s AI Topics"
         title="今日 AI 话题工作台"
-        description="把最近 3 天的 AI 信息整理成一张可继续编辑的选题桌：中间是候选题，右侧是研究底稿，先判断值不值得写，再进入写作台。"
+        description="把最近 3 天的 AI 信息压成可判断的选题列表，先选题，再看底稿，再决定是否进入写作台。"
       />
 
-      <SurfaceCard tone="soft" className="px-5 py-5 sm:px-6">
+      <SurfaceCard tone="soft" className="px-5 py-4 sm:px-6">
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-[22px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.58)] px-4 py-3">
@@ -87,7 +87,7 @@ export default function TopicDeskHeader({
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.26em] text-[color:var(--wb-muted)]">
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.26em] text-[color:var(--wb-muted)]">
           <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.62)] px-3 py-1.5">
             <Sparkles size={12} />
             编辑模式

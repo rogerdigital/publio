@@ -41,18 +41,18 @@ export default function MarkdownEditor() {
 
   return (
     <div className="overflow-hidden rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[linear-gradient(180deg,rgba(255,251,246,0.98)_0%,rgba(249,242,234,0.96)_100%)] shadow-[var(--wb-shadow-lg)]">
-      <div className="border-b border-[color:var(--wb-border)] bg-[rgba(255,250,244,0.94)] px-4 py-3 sm:px-5">
+      <div className="border-b border-[color:var(--wb-border)] bg-[rgba(255,250,244,0.94)] px-4 py-2.5 sm:px-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-[11px] uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
               Writing console
             </p>
-            <p className="mt-1 text-sm font-medium text-[color:var(--wb-text)]">
+            <p className="mt-1 text-sm text-[color:var(--wb-text-muted)]">
               主写作区与纸张预览切换查看
             </p>
           </div>
 
-          <div className="inline-flex w-full rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.72)] p-1 shadow-[var(--wb-shadow-tight)] sm:w-auto">
+          <div className="inline-flex w-full rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.72)] p-1 sm:w-auto">
             <button
               type="button"
               onClick={() => setActiveTab('edit')}
@@ -105,7 +105,7 @@ export default function MarkdownEditor() {
         </div>
       ) : (
         <div className="bg-[linear-gradient(180deg,rgba(248,242,234,0.98)_0%,rgba(243,234,223,0.96)_100%)] p-4 sm:p-5 lg:min-h-[760px]">
-          <div className="mx-auto max-w-[840px] rounded-[28px] border border-[color:var(--wb-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(251,247,242,0.96)_100%)] px-5 py-6 shadow-[var(--wb-shadow-lg)]">
+          <div className="mx-auto max-w-[860px] rounded-[28px] border border-[color:var(--wb-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(251,247,242,0.96)_100%)] px-5 py-6 shadow-[var(--wb-shadow-lg)]">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-[color:var(--wb-accent)]">
