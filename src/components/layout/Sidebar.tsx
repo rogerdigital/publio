@@ -43,9 +43,9 @@ export default function Sidebar() {
   return (
     <aside className="w-full border-b border-[color:var(--wb-border)] bg-[linear-gradient(180deg,rgba(252,247,240,0.96)_0%,rgba(244,234,222,0.92)_100%)] text-[color:var(--wb-text)] backdrop-blur-md lg:sticky lg:top-0 lg:h-dvh lg:w-[19rem] lg:shrink-0 lg:border-b-0 lg:border-r lg:overflow-y-auto lg:overscroll-contain">
       <div className="flex flex-col gap-5 p-4 lg:min-h-full">
-        <SurfaceCard className="px-5 py-5">
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[linear-gradient(180deg,rgba(255,245,237,0.98)_0%,rgba(239,214,196,0.92)_100%)] text-[color:var(--wb-accent)] shadow-[var(--wb-shadow-tight)]">
+        <SurfaceCard className="px-4 py-4 sm:px-5 sm:py-5">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[linear-gradient(180deg,rgba(255,245,237,0.98)_0%,rgba(239,214,196,0.92)_100%)] text-[color:var(--wb-accent)] shadow-[var(--wb-shadow-tight)]">
               <Sparkles size={18} />
             </div>
 
@@ -54,12 +54,12 @@ export default function Sidebar() {
                 Publio
               </p>
               <h2
-                className="mt-1 text-[22px] leading-tight text-[color:var(--wb-ink)]"
+                className="mt-1 text-[18px] leading-[1.28] text-[color:var(--wb-ink)] sm:text-[20px]"
                 style={{ fontFamily: 'var(--wb-font-serif)' }}
               >
                 商业媒体情报工作台
               </h2>
-              <p className="mt-2 text-sm leading-6 text-[color:var(--wb-muted)]">
+              <p className="mt-2 max-w-[14rem] text-sm leading-6 text-[color:var(--wb-muted)]">
                 Write once, publish everywhere.
               </p>
             </div>

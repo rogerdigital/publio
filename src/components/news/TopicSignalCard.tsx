@@ -109,35 +109,37 @@ export default function TopicSignalCard({
             </div>
           </div>
 
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(14rem,0.85fr)_auto] lg:items-start">
-            <div className="rounded-[18px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.64)] px-4 py-3">
-              <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
-                编辑判断
-              </p>
-              <p className="mt-2 text-sm leading-7 text-[color:var(--wb-ink)]">
-                影响对象：{item.affectedSummary || '仍需补充核验'}。推荐切口：{item.angleSummary}。
-              </p>
+          <div className="space-y-3">
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)]">
+              <div className="rounded-[18px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.64)] px-4 py-3">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
+                  编辑判断
+                </p>
+                <p className="mt-2 text-sm leading-7 text-[color:var(--wb-ink)]">
+                  影响对象：{item.affectedSummary || '仍需补充核验'}。推荐切口：{item.angleSummary}。
+                </p>
+              </div>
+
+              <div className="rounded-[18px] border border-dashed border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.44)] px-4 py-3">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-muted)]">
+                  候选概况
+                </p>
+                <div className="mt-2 space-y-1.5 text-sm leading-7 text-[color:var(--wb-muted)]">
+                  <p>
+                    {item.coverageCount} 条相关报道，官方源 {item.officialSourceCount} 条，媒体源 {item.mediaSourceCount} 条。
+                  </p>
+                  <p>
+                    {formatArticleMetrics(
+                      item.primarySignal.articleWordCount,
+                      item.primarySignal.articleImageCount,
+                    )}
+                  </p>
+                  <p>原文：{formatHostname(item.primarySignal.link)}</p>
+                </div>
+              </div>
             </div>
 
-            <div className="rounded-[18px] border border-dashed border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.44)] px-4 py-3">
-              <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-muted)]">
-                候选概况
-              </p>
-              <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
-                {item.coverageCount} 条相关报道，官方源 {item.officialSourceCount} 条，媒体源 {item.mediaSourceCount} 条。
-              </p>
-              <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
-                {formatArticleMetrics(
-                  item.primarySignal.articleWordCount,
-                  item.primarySignal.articleImageCount,
-                )}
-              </p>
-              <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
-                原文：{formatHostname(item.primarySignal.link)}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2 lg:justify-end">
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={() => onSelect(item)}

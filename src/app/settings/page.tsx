@@ -233,7 +233,7 @@ export default function SettingsPage() {
         description="统一管理各平台 API 凭证与登录态。界面保持安静、克制，适合在发布前逐项核对。"
       />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.45fr)]">
         <div className="space-y-3">
           {platformConfigs.map((platform) => {
             const isExpanded = expandedPlatform === platform.id;
@@ -371,7 +371,7 @@ export default function SettingsPage() {
           })}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 xl:sticky xl:top-6 self-start">
           <SurfaceCard tone="soft" className="px-5 py-5 sm:px-6">
             <div className="flex items-start gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[color:var(--wb-border)] bg-white/85 text-[color:var(--wb-accent)] shadow-[var(--wb-shadow-tight)]">
@@ -383,7 +383,7 @@ export default function SettingsPage() {
                   Operational memo
                 </p>
                 <h2
-                  className="mt-2 text-[20px] leading-tight text-[color:var(--wb-text)]"
+                  className="mt-2 max-w-[15rem] text-[18px] leading-[1.35] text-[color:var(--wb-text)]"
                   style={{ fontFamily: 'var(--wb-font-serif)' }}
                 >
                   保存前，请把凭证当作文档核对
