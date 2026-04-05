@@ -233,7 +233,79 @@ export default function SettingsPage() {
         description="统一管理各平台 API 凭证与登录态。界面保持安静、克制，适合在发布前逐项核对。"
       />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.45fr)]">
+      <div className="space-y-5">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)]">
+          <SurfaceCard tone="soft" className="px-5 py-5 sm:px-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0 max-w-3xl">
+                <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
+                  Operational memo
+                </p>
+                <h2
+                  className="mt-2 text-[18px] leading-[1.35] text-[color:var(--wb-text)] sm:text-[20px]"
+                  style={{ fontFamily: 'var(--wb-font-serif)' }}
+                >
+                  保存前，请把凭证当作文档核对
+                </h2>
+                <p className="mt-3 text-sm leading-7 text-[color:var(--wb-text-muted)]">
+                  这里不是一次性表单，而是给发布系统做最后签发前检查的控制备忘。
+                </p>
+              </div>
+
+              <div className="shrink-0 rounded-[22px] border border-[color:var(--wb-border)] bg-[linear-gradient(180deg,rgba(255,246,239,0.96)_0%,rgba(248,237,226,0.96)_100%)] px-5 py-5 shadow-[var(--wb-shadow-tight)] lg:w-[22rem]">
+                <h3 className="flex items-center gap-2 text-sm font-medium text-[color:var(--wb-text)]">
+                  <ShieldCheck size={16} className="text-[color:var(--wb-accent)]" />
+                  Save / status
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-[color:var(--wb-text-muted)]">
+                  点击保存后，当前输入会提交到设置接口。状态会在保存成功后短暂回显。
+                </p>
+
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={handleSave}
+                    type="button"
+                    disabled={loading}
+                    className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border-strong)] bg-[color:var(--wb-accent)] px-5 py-2.5 text-sm font-medium text-white shadow-[0_14px_28px_rgba(215,120,67,0.22)] transition hover:brightness-105"
+                  >
+                    <Save size={16} />
+                    {loading ? '正在读取设置...' : '保存设置'}
+                  </button>
+                  {saved ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#bfe8cb] bg-white px-3 py-2 text-sm text-[#2b9d62]">
+                      <CheckCircle2 size={16} />
+                      已保存
+                    </span>
+                  ) : errorMessage ? (
+                    <span className="text-sm text-[#b44d4d]">{errorMessage}</span>
+                  ) : (
+                    <span className="text-sm text-[color:var(--wb-text-muted)]">
+                      {loading ? '正在载入当前凭证状态。' : '未保存更改会保留在当前页面。'}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </SurfaceCard>
+
+          <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+            {memoNotes.map((note) => (
+              <div
+                key={note.title}
+                className="rounded-[22px] border border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.82)] px-4 py-3 shadow-[var(--wb-shadow-tight)]"
+              >
+                <div className="flex items-center gap-2 text-sm font-medium text-[color:var(--wb-text)]">
+                  <NotebookPen size={14} className="text-[color:var(--wb-accent)]" />
+                  {note.title}
+                </div>
+                <p className="mt-2 text-sm leading-6 text-[color:var(--wb-text-muted)]">
+                  {note.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="space-y-3">
           {platformConfigs.map((platform) => {
             const isExpanded = expandedPlatform === platform.id;
@@ -371,117 +443,41 @@ export default function SettingsPage() {
           })}
         </div>
 
-        <div className="space-y-4 xl:sticky xl:top-6 self-start">
-          <SurfaceCard tone="soft" className="px-5 py-5 sm:px-6">
-            <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[color:var(--wb-border)] bg-white/85 text-[color:var(--wb-accent)] shadow-[var(--wb-shadow-tight)]">
-                <Save size={18} />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
-                  Operational memo
-                </p>
-                <h2
-                  className="mt-2 max-w-[15rem] text-[18px] leading-[1.35] text-[color:var(--wb-text)]"
-                  style={{ fontFamily: 'var(--wb-font-serif)' }}
-                >
-                  保存前，请把凭证当作文档核对
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-[color:var(--wb-text-muted)]">
-                  这里不是一次性表单，而是给发布系统做最后签发前检查的控制备忘。
-                </p>
-              </div>
+        <SurfaceCard tone="soft" className="px-5 py-5 sm:px-6">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[color:var(--wb-border)] bg-white/85 text-[color:var(--wb-accent)] shadow-[var(--wb-shadow-tight)]">
+              <KeyRound size={16} />
             </div>
-
-            <div className="mt-4 space-y-3">
-              {memoNotes.map((note) => (
-                <div
-                  key={note.title}
-                  className="rounded-[22px] border border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.82)] px-4 py-3 shadow-[var(--wb-shadow-tight)]"
-                >
-                  <div className="flex items-center gap-2 text-sm font-medium text-[color:var(--wb-text)]">
-                    <NotebookPen size={14} className="text-[color:var(--wb-accent)]" />
-                    {note.title}
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-[color:var(--wb-text-muted)]">
-                    {note.body}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </SurfaceCard>
-
-          <div className="rounded-[24px] border border-[color:var(--wb-border)] bg-[linear-gradient(180deg,rgba(255,246,239,0.96)_0%,rgba(248,237,226,0.96)_100%)] px-5 py-5 shadow-[var(--wb-shadow-tight)]">
-            <h3 className="flex items-center gap-2 text-sm font-medium text-[color:var(--wb-text)]">
-              <ShieldCheck size={16} className="text-[color:var(--wb-accent)]" />
-              Save / status
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-[color:var(--wb-text-muted)]">
-              点击保存后，当前输入会提交到设置接口。状态会在保存成功后短暂回显。
-            </p>
-
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <button
-                onClick={handleSave}
-                type="button"
-                disabled={loading}
-                className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border-strong)] bg-[color:var(--wb-accent)] px-5 py-2.5 text-sm font-medium text-white shadow-[0_14px_28px_rgba(215,120,67,0.22)] transition hover:brightness-105"
-              >
-                <Save size={16} />
-                {loading ? '正在读取设置...' : '保存设置'}
-              </button>
-              {saved ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#bfe8cb] bg-white px-3 py-2 text-sm text-[#2b9d62]">
-                  <CheckCircle2 size={16} />
-                  已保存
-                </span>
-              ) : errorMessage ? (
-                <span className="text-sm text-[#b44d4d]">{errorMessage}</span>
-              ) : (
-                <span className="text-sm text-[color:var(--wb-text-muted)]">
-                  {loading ? '正在载入当前凭证状态。' : '未保存更改会保留在当前页面。'}
-                </span>
-              )}
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
+                Credential guide
+              </p>
+              <p className="mt-2 text-sm leading-7 text-[color:var(--wb-text-muted)]">
+                如果你需要重新获取凭证，优先从平台后台或浏览器登录态里补齐字段，再回到对应文档面板继续填写。
+              </p>
             </div>
           </div>
 
-          <SurfaceCard tone="soft" className="px-5 py-5 sm:px-6">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[color:var(--wb-border)] bg-white/85 text-[color:var(--wb-accent)] shadow-[var(--wb-shadow-tight)]">
-                <KeyRound size={16} />
-              </div>
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
-                  Credential guide
-                </p>
-                <p className="mt-2 text-sm leading-7 text-[color:var(--wb-text-muted)]">
-                  如果你需要重新获取凭证，优先从平台后台或浏览器登录态里补齐字段，再回到对应文档面板继续填写。
-                </p>
-              </div>
-            </div>
-
-            <ul className="mt-4 space-y-3 text-sm leading-6 text-[color:var(--wb-text-muted)]">
-              <li>
-                <strong className="text-[color:var(--wb-text)]">微信公众号：</strong>
-                前往 <code className="rounded bg-white/80 px-1 py-0.5">mp.weixin.qq.com</code> →
-                开发 → 基本配置，获取 AppID 和 AppSecret
-              </li>
-              <li>
-                <strong className="text-[color:var(--wb-text)]">小红书：</strong>
-                前往小红书开放平台注册开发者账号并创建应用
-              </li>
-              <li>
-                <strong className="text-[color:var(--wb-text)]">知乎：</strong>
-                使用浏览器登录知乎后，在开发者工具的 Network 面板中复制 Cookie
-              </li>
-              <li>
-                <strong className="text-[color:var(--wb-text)]">X (Twitter)：</strong>
-                前往 <code className="rounded bg-white/80 px-1 py-0.5">developer.x.com</code> 创建项目并生成 API Keys 和 Access Tokens
-              </li>
-            </ul>
-          </SurfaceCard>
-        </div>
+          <ul className="mt-4 space-y-3 text-sm leading-6 text-[color:var(--wb-text-muted)]">
+            <li>
+              <strong className="text-[color:var(--wb-text)]">微信公众号：</strong>
+              前往 <code className="rounded bg-white/80 px-1 py-0.5">mp.weixin.qq.com</code> →
+              开发 → 基本配置，获取 AppID 和 AppSecret
+            </li>
+            <li>
+              <strong className="text-[color:var(--wb-text)]">小红书：</strong>
+              前往小红书开放平台注册开发者账号并创建应用
+            </li>
+            <li>
+              <strong className="text-[color:var(--wb-text)]">知乎：</strong>
+              使用浏览器登录知乎后，在开发者工具的 Network 面板中复制 Cookie
+            </li>
+            <li>
+              <strong className="text-[color:var(--wb-text)]">X (Twitter)：</strong>
+              前往 <code className="rounded bg-white/80 px-1 py-0.5">developer.x.com</code> 创建项目并生成 API Keys 和 Access Tokens
+            </li>
+          </ul>
+        </SurfaceCard>
       </div>
     </div>
   );

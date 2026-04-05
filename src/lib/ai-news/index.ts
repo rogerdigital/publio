@@ -2,6 +2,8 @@ import {
   clusterAiNewsSignals,
   type NormalizedAiNewsSignal,
 } from '@/lib/ai-news/cluster';
+import { fetchArticleSnapshot, type ArticleSnapshot } from '@/lib/ai-news/articleSnapshot';
+import { fetchTextWithTimeout } from '@/lib/ai-news/requestTimeout';
 import {
   extractItems,
   extractContentImage,
@@ -20,139 +22,15 @@ import type {
   ResearchBrief,
 } from '@/lib/ai-news/types';
 
-function resolveUrl(rawUrl: string, baseUrl?: string) {
-  const normalized = rawUrl.trim();
-
-  if (!normalized) {
-    return '';
-  }
-
-  try {
-    return new URL(normalized, baseUrl).toString();
-  } catch {
-    return '';
-  }
-}
-
-function extractMetaImage(html: string, pageUrl: string) {
-  const patterns = [
-    /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["'][^>]*>/i,
-    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["'][^>]*>/i,
-    /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["'][^>]*>/i,
-    /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["'][^>]*>/i,
-    /<link[^>]+rel=["']image_src["'][^>]+href=["']([^"']+)["'][^>]*>/i,
-  ];
-
-  for (const pattern of patterns) {
-    const match = html.match(pattern);
-    if (match?.[1]) {
-      const imageUrl = resolveUrl(match[1], pageUrl);
-      if (imageUrl) {
-        return imageUrl;
-      }
-    }
-  }
-
-  return '';
-}
-
-interface ArticleSnapshot {
-  imageUrl: string;
-  wordCount?: number;
-  imageCount?: number;
-}
-
-function stripHtml(value: string) {
-  return value
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;|&#160;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function countArticleWords(html: string) {
-  const mainMatch =
-    html.match(/<article\b[\s\S]*?<\/article>/i) ||
-    html.match(/<main\b[\s\S]*?<\/main>/i) ||
-    html.match(/<body\b[\s\S]*?<\/body>/i);
-  const text = stripHtml(mainMatch?.[0] || html);
-
-  if (!text) {
-    return undefined;
-  }
-
-  const chineseChars = (text.match(/[\u4e00-\u9fff]/g) || []).length;
-  const latinTokens = text
-    .replace(/[\u4e00-\u9fff]/g, ' ')
-    .split(/\s+/)
-    .filter(Boolean).length;
-  const total = chineseChars + latinTokens;
-
-  return total > 0 ? total : undefined;
-}
-
-function countArticleImages(html: string) {
-  const mainMatch =
-    html.match(/<article\b[\s\S]*?<\/article>/i) ||
-    html.match(/<main\b[\s\S]*?<\/main>/i) ||
-    html.match(/<body\b[\s\S]*?<\/body>/i);
-  const scope = mainMatch?.[0] || html;
-  const imageMatches = scope.match(/<img\b[^>]*>/gi) || [];
-
-  return imageMatches.length > 0 ? imageMatches.length : undefined;
-}
-
-async function fetchArticleSnapshot(link: string): Promise<ArticleSnapshot> {
-  try {
-    const response = await fetch(link, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; PublioBot/1.0)',
-        Accept: 'text/html,application/xhtml+xml',
-      },
-      cache: 'no-store',
-    });
-
-    if (!response.ok) {
-      return {
-        imageUrl: '',
-      };
-    }
-
-    const html = await response.text();
-    return {
-      imageUrl: extractMetaImage(html, link),
-      wordCount: countArticleWords(html),
-      imageCount: countArticleImages(html),
-    };
-  } catch {
-    return {
-      imageUrl: '',
-    };
-  }
-}
-
 async function fetchSourceSignals(source: AiNewsSource, cutoffTime: number) {
-  const response = await fetch(source.url, {
+  const fetchedAt = new Date().toISOString();
+  const xml = await fetchTextWithTimeout(source.url, {
+    timeoutMs: 8000,
     headers: {
       'User-Agent': 'Mozilla/5.0 (compatible; PublioBot/1.0)',
       Accept: 'application/rss+xml, application/xml, text/xml',
     },
-    cache: 'no-store',
   });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${source.name}: ${response.status}`);
-  }
-
-  const fetchedAt = new Date().toISOString();
-  const xml = await response.text();
 
   return extractItems(xml)
     .map((block) => {
@@ -238,9 +116,7 @@ async function hydrateCandidateImages(candidates: AiNewsDeskCandidate[]) {
       const imageUrl = snapshot.imageUrl || candidate.researchBrief.imageUrl || candidate.primarySignal.imageUrl;
       const articleWordCount = snapshot.wordCount ?? candidate.primarySignal.articleWordCount;
       const articleImageCount =
-        snapshot.imageCount ??
-        candidate.primarySignal.articleImageCount ??
-        (imageUrl ? 1 : undefined);
+        snapshot.imageCount ?? candidate.primarySignal.articleImageCount;
 
       if (!imageUrl && typeof articleWordCount !== 'number' && typeof articleImageCount !== 'number') {
         return candidate;
