@@ -97,7 +97,6 @@ function diversifyCandidates(
 ): AiNewsDeskCandidate[] {
   const sourceCounts = new Map<string, number>();
   const selected: AiNewsDeskCandidate[] = [];
-  const deferred: AiNewsDeskCandidate[] = [];
 
   for (const candidate of sorted) {
     const domain = candidate.primarySignal.sourceDomain;
@@ -105,15 +104,8 @@ function diversifyCandidates(
     if (count < maxPerSource) {
       selected.push(candidate);
       sourceCounts.set(domain, count + 1);
-    } else {
-      deferred.push(candidate);
     }
     if (selected.length >= total) break;
-  }
-
-  // 多样性过滤后若仍不足，从剩余候选中补齐
-  if (selected.length < total) {
-    selected.push(...deferred.slice(0, total - selected.length));
   }
 
   return selected;
