@@ -51,12 +51,11 @@ async function fetchSourceSignals(source: AiNewsSource, cutoffTime: number) {
         link,
         imageUrl,
         sourceWeight: source.weight,
-        creatorWeight: source.creatorWeight,
         publishedAt,
         fetchedAt,
         sourceName,
         sourceType: source.sourceType,
-        isOfficialSource: source.isOfficialSource ?? source.sourceType === 'official',
+        isOfficialSource: source.sourceType === 'official',
       });
 
       return normalized;
@@ -91,8 +90,36 @@ function sortCandidates(left: AiNewsDeskCandidate, right: AiNewsDeskCandidate) {
   return Date.parse(right.latestPublishedAt) - Date.parse(left.latestPublishedAt);
 }
 
-async function hydrateCandidateImages(candidates: AiNewsDeskCandidate[]) {
-  const snapshotCache = new Map<string, Promise<ArticleSnapshot>>();
+function diversifyCandidates(
+  sorted: AiNewsDeskCandidate[],
+  total: number,
+  maxPerSource = 2,
+): AiNewsDeskCandidate[] {
+  const sourceCounts = new Map<string, number>();
+  const selected: AiNewsDeskCandidate[] = [];
+  const deferred: AiNewsDeskCandidate[] = [];
+
+  for (const candidate of sorted) {
+    const domain = candidate.primarySignal.sourceDomain;
+    const count = sourceCounts.get(domain) ?? 0;
+    if (count < maxPerSource) {
+      selected.push(candidate);
+      sourceCounts.set(domain, count + 1);
+    } else {
+      deferred.push(candidate);
+    }
+    if (selected.length >= total) break;
+  }
+
+  // 多样性过滤后若仍不足，从剩余候选中补齐
+  if (selected.length < total) {
+    selected.push(...deferred.slice(0, total - selected.length));
+  }
+
+  return selected;
+}
+
+async function hydrateCandidateImages(candidates: AiNewsDeskCandidate[]) {  const snapshotCache = new Map<string, Promise<ArticleSnapshot>>();
 
   return Promise.all(
     candidates.map(async (candidate) => {
@@ -203,11 +230,13 @@ export async function buildAiNewsDesk(hours = 72, poolSize = 40) {
     ...desk.followCandidates,
   ]);
   const generatedAt = new Date(desk.generatedAt);
-  const candidates = hydratedCandidates
-    .map((candidate) => scoreAiNewsCluster(candidate, generatedAt))
-    .map((candidate) => buildCandidate(candidate))
-    .sort(sortCandidates)
-    .slice(0, poolSize);
+  const candidates = diversifyCandidates(
+    hydratedCandidates
+      .map((candidate) => scoreAiNewsCluster(candidate, generatedAt))
+      .map((candidate) => buildCandidate(candidate))
+      .sort(sortCandidates),
+    poolSize,
+  );
   const todayCandidates = candidates.filter((candidate) => candidate.bucket === 'today');
   const followCandidates = candidates.filter((candidate) => candidate.bucket === 'follow');
   const selectedResearch =

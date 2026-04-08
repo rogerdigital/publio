@@ -5,8 +5,6 @@ export interface AiNewsSource {
   url: string;
   sourceType: AiNewsSourceType;
   weight: number;
-  creatorWeight?: number;
-  isOfficialSource?: boolean;
 }
 
 export interface NormalizedAiNewsSignal {
@@ -19,7 +17,6 @@ export interface NormalizedAiNewsSignal {
   articleWordCount?: number;
   articleImageCount?: number;
   sourceWeight: number;
-  creatorWeight: number;
   sourceName: string;
   sourceType: AiNewsSourceType;
   sourceDomain: string;
@@ -43,7 +40,6 @@ export interface AiNewsCluster {
   coverageCount: number;
   officialSourceCount: number;
   mediaSourceCount: number;
-  creatorSourceCount: number;
 }
 
 export interface AiNewsScores {
@@ -51,7 +47,6 @@ export interface AiNewsScores {
   impact: number;
   momentum: number;
   credibility: number;
-  creatorFit: number;
   visualReadiness: number;
 }
 
