@@ -12,8 +12,8 @@ Write once, publish everywhere.
 
 - **Markdown 编辑器** — 内置实时预览的 Markdown 编辑器，所见即所得
 - **终稿风格预览** — 编辑器右侧提供更接近微信/知乎最终排版的公众号风格预览
-- **AI 热点新闻页** — 聚合最近 12 小时内的中文 AI 行业新闻，生成快讯摘要与长文式新闻流
-- **一键转稿** — 从 AI 新闻页直接生成适合编辑器继续润色的公众号风格草稿
+- **AI 话题工作台** — 手动触发抓取最近 3 天的中文 AI 行业动态，经评分聚类后生成选题列表与研究底稿
+- **一键转稿** — 从选题工作台直接将研究底稿导入编辑器，继续润色后发布
 - **多平台并发发布** — 一键将文章同步到多个平台，基于 `Promise.allSettled` 并发执行
 - **四大平台支持**
   - 🟢 **微信公众号** — 通过 AppID/AppSecret 认证，自动创建草稿并发布，支持更接近公众号文章风格的 HTML 排版
@@ -24,7 +24,6 @@ Write once, publish everywhere.
 - **内容自动转换** — Markdown → 风格化 HTML（微信/知乎）、Markdown → 纯文本（小红书/X）
 - **发布状态追踪** — 实时显示各平台发布进度与结果，支持跳转已发布内容
 - **稳定开发启动** — `pnpm dev` 会自动清理残留 dev 进程并清空 `.next/cache`
-- **站点图标** — 内置浏览器标签页 favicon 与产品标题图标
 
 ## 技术栈
 
@@ -47,11 +46,11 @@ src/
 ├── app/
 │   ├── layout.tsx                # 根布局（侧边栏 + 内容区）
 │   ├── page.tsx                  # 首页：编辑器 + 平台选择 + 发布
-│   ├── ai-news/page.tsx          # AI 新闻页入口
+│   ├── ai-news/page.tsx          # AI 话题工作台入口
 │   ├── globals.css               # 全局样式
 │   ├── settings/page.tsx         # 设置页：各平台凭据管理
 │   └── api/
-│       ├── ai-news/route.ts      # AI 新闻聚合 API
+│       ├── ai-news/route.ts      # AI 新闻聚合 API（每次实时抓取，返回 10 条）
 │       ├── publish/route.ts      # 批量发布 API
 │       ├── platforms/            # 各平台独立发布 API
 │       │   ├── wechat/route.ts
@@ -62,7 +61,11 @@ src/
 ├── components/
 │   ├── layout/Sidebar.tsx        # 侧边栏导航
 │   ├── editor/MarkdownEditor.tsx # Markdown 编辑器组件
-│   ├── news/                     # AI 新闻页组件
+│   ├── news/
+│   │   ├── AiNewsPageClient.tsx  # 工作台主客户端组件
+│   │   ├── TopicDeskHeader.tsx   # 工作台顶部状态栏
+│   │   ├── TopicSignalCard.tsx   # 单条选题卡片
+│   │   └── ResearchNotesPanel.tsx # 研究底稿面板
 │   └── publish/
 │       ├── PlatformSelector.tsx  # 平台选择器
 │       ├── PublishButton.tsx     # 发布按钮
@@ -70,8 +73,16 @@ src/
 ├── lib/
 │   ├── config.ts                 # 环境变量配置读取
 │   ├── markdown.ts               # Markdown / 风格化 HTML 转换工具
-│   ├── aiNews.ts                 # AI 新闻抓取、摘要、配图和转稿数据生成
-│   ├── newsDraft.ts              # AI 新闻转稿模板
+│   ├── aiNews.ts                 # AI 新闻模块入口（re-export）
+│   ├── newsDraft.ts              # 选题转稿模板与 localStorage 桥接
+│   ├── ai-news/                  # AI 新闻核心模块
+│   │   ├── sources.ts            # RSS 数据源配置
+│   │   ├── normalize.ts          # 原始信号标准化
+│   │   ├── cluster.ts            # 话题聚类算法
+│   │   ├── score.ts              # 多维度评分模型
+│   │   ├── research.ts           # 研究底稿生成
+│   │   ├── articleSnapshot.ts    # 原文快照抓取
+│   │   └── index.ts              # 公开 API
 │   └── publishers/               # 各平台发布器实现
 │       ├── types.ts
 │       ├── wechat.ts
@@ -86,16 +97,41 @@ src/
     └── index.ts                  # 类型定义
 ```
 
-## AI 新闻页
+## AI 话题工作台
 
-访问 [http://localhost:3000/ai-news](http://localhost:3000/ai-news) 可以使用 AI 新闻聚合页。
+访问 [http://localhost:3000/ai-news](http://localhost:3000/ai-news) 可以使用 AI 话题工作台。
 
-- 抓取最近 12 小时内的中文 AI 行业新闻
-- 自动生成快讯摘要、文章导语、正文点评和“值得关注”段落
-- 为每条新闻尽量抓取原文开放图并插入内容
-- 支持一键生成适合继续编辑和发布的长文草稿
+**工作流程：**
 
-这个页面的视觉风格偏向“公众号长文快讯”，包括深色阅读背景、强调色标题、分节编号和更强的文章感排版。
+1. 点击「抓取选题」手动触发抓取（首次进入页面自动执行一次）
+2. 系统从 9 个 RSS 数据源抓取最近 **3 天**的 AI 行业动态
+3. 经过标准化、话题聚类、多维评分后，按多来源多样性过滤输出 **10 条**候选题
+4. 每条候选题附带研究底稿（事件背景、重要性、受影响方、写作角度建议）
+5. 确认选题后一键导入写作台继续润色
+
+**评分维度（5 项）：**
+
+| 维度 | 权重 | 说明 |
+|------|------|------|
+| 新鲜度 | 28% | 文章距今发布时间 |
+| 影响力 | 26% | 话题类型 + 实体丰富度 + 多来源覆盖 |
+| 势头 | 18% | 覆盖量 + 多来源 + 发酵速度 |
+| 可信度 | 18% | 官方来源 + 媒体来源数 + 域名多样性 |
+| 视觉就绪 | 10% | 配图数量与质量 |
+
+**数据源（9 个）：**
+
+| 来源 | 类型 |
+|------|------|
+| 36氪文章 | 媒体 |
+| 36氪快讯 | 媒体 |
+| 爱范儿 | 媒体 |
+| 爱范儿快讯 | 社区 |
+| 钛媒体 | 媒体 |
+| 极客公园 | 媒体 |
+| InfoQ 中文 | 社区 |
+| 量子位 | 媒体 |
+| Import AI | 社区 |
 
 ## 快速开始
 
