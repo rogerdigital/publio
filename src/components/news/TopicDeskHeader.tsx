@@ -59,9 +59,17 @@ export default function TopicDeskHeader({
               <p className="text-[11px] uppercase tracking-[0.26em] text-[color:var(--wb-muted)]">
                 分层结果
               </p>
-              <p className="mt-2 text-[18px] leading-none text-[color:var(--wb-ink)]">
-                {todayCount} / {followCount}
-              </p>
+              <div className="mt-2 flex items-baseline gap-3">
+                <span>
+                  <span className="text-[18px] leading-none text-[color:var(--wb-ink)]">{todayCount}</span>
+                  <span className="ml-1 text-[11px] text-[color:var(--wb-muted)]">今天能发</span>
+                </span>
+                <span className="text-[color:var(--wb-muted)]">/</span>
+                <span>
+                  <span className="text-[18px] leading-none text-[color:var(--wb-ink)]">{followCount}</span>
+                  <span className="ml-1 text-[11px] text-[color:var(--wb-muted)]">还能追</span>
+                </span>
+              </div>
             </div>
           </div>
 
@@ -82,7 +90,7 @@ export default function TopicDeskHeader({
               className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.72)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[rgba(255,255,255,0.95)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <RefreshCw size={16} className={refreshing ? 'animate-spin' : undefined} />
-              {refreshing ? '刷新中' : '刷新信号'}
+              {refreshing ? '抓取中' : '抓取选题'}
             </button>
           </div>
         </div>

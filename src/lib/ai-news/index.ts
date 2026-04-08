@@ -172,12 +172,13 @@ export async function fetchAiNewsSignals(hours = 72) {
 export function buildAiNewsDeskFromSignals(
   signals: NormalizedAiNewsSignal[],
   now = new Date(),
+  poolSize = 16,
 ): AiNewsDesk {
   const candidates = clusterAiNewsSignals(signals)
     .map((cluster) => scoreAiNewsCluster(cluster, now))
     .map((cluster) => buildCandidate(cluster))
     .sort(sortCandidates)
-    .slice(0, 16);
+    .slice(0, poolSize);
 
   const todayCandidates = candidates.filter((candidate) => candidate.bucket === 'today');
   const followCandidates = candidates.filter((candidate) => candidate.bucket === 'follow');
@@ -194,9 +195,9 @@ export function buildAiNewsDeskFromSignals(
   };
 }
 
-export async function buildAiNewsDesk(hours = 72) {
+export async function buildAiNewsDesk(hours = 72, poolSize = 40) {
   const signals = await fetchAiNewsSignals(hours);
-  const desk = buildAiNewsDeskFromSignals(signals);
+  const desk = buildAiNewsDeskFromSignals(signals, new Date(), poolSize);
   const hydratedCandidates = await hydrateCandidateImages([
     ...desk.todayCandidates,
     ...desk.followCandidates,
@@ -206,7 +207,7 @@ export async function buildAiNewsDesk(hours = 72) {
     .map((candidate) => scoreAiNewsCluster(candidate, generatedAt))
     .map((candidate) => buildCandidate(candidate))
     .sort(sortCandidates)
-    .slice(0, 16);
+    .slice(0, poolSize);
   const todayCandidates = candidates.filter((candidate) => candidate.bucket === 'today');
   const followCandidates = candidates.filter((candidate) => candidate.bucket === 'follow');
   const selectedResearch =

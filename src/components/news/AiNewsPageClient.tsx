@@ -92,6 +92,17 @@ function buildDeskIntro(candidates: AiNewsDeskCandidate[]) {
   return '当前暂未抓取到符合条件的 AI 话题，保持桌面空置，等待下一次抓取。';
 }
 
+// 模块级缓存：tab 切换回来时直接复用，不重复抓取；整页刷新后清空重新抓取
+interface NewsState {
+  todayCandidates: AiNewsDeskCandidate[];
+  followCandidates: AiNewsDeskCandidate[];
+  selectedResearch: ResearchBrief | null;
+  generatedAt: string;
+  totalSignals: number;
+  totalCandidates: number;
+}
+let cachedNewsState: NewsState | null = null;
+
 export default function AiNewsPageClient() {
   const router = useRouter();
   const [todayCandidates, setTodayCandidates] = useState<AiNewsDeskCandidate[]>([]);
@@ -100,7 +111,7 @@ export default function AiNewsPageClient() {
   const [generatedAt, setGeneratedAt] = useState('');
   const [totalSignals, setTotalSignals] = useState(0);
   const [totalCandidates, setTotalCandidates] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [refreshError, setRefreshError] = useState('');
@@ -216,6 +227,14 @@ export default function AiNewsPageClient() {
       setTotalCandidates(data.totalCandidates || 0);
       hasDeskDataRef.current =
         nextTodayCandidates.length > 0 || nextFollowCandidates.length > 0;
+      cachedNewsState = {
+        todayCandidates: nextTodayCandidates,
+        followCandidates: nextFollowCandidates,
+        selectedResearch: nextSelectedResearch,
+        generatedAt: data.generatedAt || '',
+        totalSignals: data.totalSignals || 0,
+        totalCandidates: data.totalCandidates || 0,
+      };
     } catch (err) {
       const message =
         err instanceof Error ? err.message : '新闻抓取失败，请稍后重试。';
@@ -232,7 +251,19 @@ export default function AiNewsPageClient() {
   };
 
   useEffect(() => {
-    void loadNews();
+    if (cachedNewsState) {
+      setTodayCandidates(cachedNewsState.todayCandidates);
+      setFollowCandidates(cachedNewsState.followCandidates);
+      setSelectedResearch(cachedNewsState.selectedResearch);
+      setGeneratedAt(cachedNewsState.generatedAt);
+      setTotalSignals(cachedNewsState.totalSignals);
+      setTotalCandidates(cachedNewsState.totalCandidates);
+      hasDeskDataRef.current =
+        cachedNewsState.todayCandidates.length > 0 || cachedNewsState.followCandidates.length > 0;
+    } else {
+      void loadNews();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -329,10 +360,10 @@ export default function AiNewsPageClient() {
             ) : allCandidates.length === 0 ? (
               <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.64)] p-8 text-center shadow-[var(--wb-shadow-tight)]">
                 <p className="text-lg font-medium text-[color:var(--wb-ink)]">
-                  当前暂未抓取到符合条件的 AI 话题
+                  选题桌暂无内容
                 </p>
                 <p className="mt-3 text-sm leading-7 text-[color:var(--wb-muted)]">
-                  可以稍后刷新，或继续扩展新闻源与筛选规则。
+                  点击右上角「抓取选题」开始抓取最新 AI 话题信号。
                 </p>
               </div>
             ) : (

@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const desk = await buildAiNewsDesk(72);
+    const desk = await buildAiNewsDesk(72, 10);
 
     return NextResponse.json({
       success: true,
