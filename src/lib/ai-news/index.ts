@@ -188,7 +188,7 @@ async function hydrateCandidateImages(candidates: AiNewsDeskCandidate[]) {  cons
   );
 }
 
-export async function fetchAiNewsSignals(hours = 72) {
+export async function fetchAiNewsSignals(hours = 24) {
   const cutoffTime = Date.now() - hours * 60 * 60 * 1000;
   const results = await Promise.allSettled(
     AI_NEWS_SOURCES.map((source) => fetchSourceSignals(source, cutoffTime)),
@@ -223,7 +223,7 @@ export function buildAiNewsDeskFromSignals(
   };
 }
 
-export async function buildAiNewsDesk(hours = 72, poolSize = 40) {
+export async function buildAiNewsDesk(hours = 24, poolSize = 40) {
   const signals = await fetchAiNewsSignals(hours);
   const desk = buildAiNewsDeskFromSignals(signals, new Date(), poolSize);
   const hydratedCandidates = await hydrateCandidateImages([

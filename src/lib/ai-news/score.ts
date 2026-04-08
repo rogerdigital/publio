@@ -19,12 +19,6 @@ function scoreFreshness(cluster: AiNewsCluster, now: Date) {
   if (ageHours <= 24) {
     return 76;
   }
-  if (ageHours <= 48) {
-    return 54;
-  }
-  if (ageHours <= 72) {
-    return 38;
-  }
 
   return 18;
 }

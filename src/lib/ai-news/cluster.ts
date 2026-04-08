@@ -23,7 +23,7 @@ function similarity(left: NormalizedAiNewsSignal, right: NormalizedAiNewsSignal)
   );
   const entityOverlap = overlapRatio(left.entityTokens, right.entityTokens);
   const topicOverlap = overlapRatio(left.topicTags, right.topicTags);
-  const timePenalty = hoursBetween(left.publishedAt, right.publishedAt) <= 72 ? 0 : 0.25;
+  const timePenalty = hoursBetween(left.publishedAt, right.publishedAt) <= 24 ? 0 : 0.25;
 
   return titleOverlap * 0.5 + entityOverlap * 0.35 + topicOverlap * 0.15 - timePenalty;
 }

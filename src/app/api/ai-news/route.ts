@@ -7,7 +7,7 @@ const DISPLAY_SIZE = 10;
 
 export async function GET() {
   try {
-    const desk = await buildAiNewsDesk(72, 40);
+    const desk = await buildAiNewsDesk(24, 40);
 
     const allCandidates = [...desk.todayCandidates, ...desk.followCandidates].slice(0, DISPLAY_SIZE);
     const todayCandidates = allCandidates.filter((c) => c.bucket === 'today');
