@@ -33,7 +33,7 @@ export default function TopicDeskHeader({
       <AppShellHeader
         kicker="Today’s AI Topics"
         title="今日 AI 话题工作台"
-        description="把最近 3 天的 AI 信息压成可判断的选题列表，先选题，再看底稿，再决定是否进入写作台。"
+        description="把最近 24 小时的 AI 信息压成可判断的选题列表，先选题，再看底稿，再决定是否进入写作台。"
       />
 
       <SurfaceCard tone="soft" className="px-5 py-4 sm:px-6">

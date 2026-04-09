@@ -102,28 +102,33 @@ function shuffleCandidates(candidates: AiNewsDeskCandidate[]): AiNewsDeskCandida
 function diversifyCandidates(
   sorted: AiNewsDeskCandidate[],
   total: number,
-  maxPerSource = 2,
 ): AiNewsDeskCandidate[] {
-  const sourceCounts = new Map<string, number>();
-  const selected: AiNewsDeskCandidate[] = [];
-  const deferred: AiNewsDeskCandidate[] = [];
-
+  // 按域名分组（保留组内原有分数顺序）
+  const byDomain = new Map<string, AiNewsDeskCandidate[]>();
   for (const candidate of sorted) {
     const domain = candidate.primarySignal.sourceDomain;
-    const count = sourceCounts.get(domain) ?? 0;
-    if (count < maxPerSource) {
-      selected.push(candidate);
-      sourceCounts.set(domain, count + 1);
-    } else {
-      deferred.push(candidate);
-    }
-    if (selected.length >= total) break;
+    const group = byDomain.get(domain) ?? [];
+    group.push(candidate);
+    byDomain.set(domain, group);
   }
 
-  // 多样性过滤后仍不足时，从剩余候选按分数补齐
-  // 输入池为 40 条，deferred 此时是真正低分备选而非单一来源堆积
-  if (selected.length < total) {
-    selected.push(...deferred.slice(0, total - selected.length));
+  // 轮询：每轮从各域名各取一条，直到凑够 total
+  // 保证任意域名的数量最多比其他域名多 1 条
+  const selected: AiNewsDeskCandidate[] = [];
+  const queues = Array.from(byDomain.values());
+  let pass = 0;
+
+  while (selected.length < total) {
+    let added = false;
+    for (const queue of queues) {
+      if (selected.length >= total) break;
+      if (queue[pass]) {
+        selected.push(queue[pass]);
+        added = true;
+      }
+    }
+    if (!added) break;
+    pass++;
   }
 
   return selected;
@@ -232,7 +237,7 @@ export function buildAiNewsDeskFromSignals(
   };
 }
 
-export async function buildAiNewsDesk(hours = 24, poolSize = 40) {
+export async function buildAiNewsDesk(hours = 24, poolSize = 40, displaySize = 10) {
   const signals = await fetchAiNewsSignals(hours);
   const desk = buildAiNewsDeskFromSignals(signals, new Date(), poolSize);
   const hydratedCandidates = await hydrateCandidateImages([
@@ -246,7 +251,7 @@ export async function buildAiNewsDesk(hours = 24, poolSize = 40) {
         .map((candidate) => scoreAiNewsCluster(candidate, generatedAt))
         .map((candidate) => buildCandidate(candidate))
         .sort(sortCandidates),
-      poolSize,
+      displaySize,
     ),
   );
   const todayCandidates = candidates.filter((candidate) => candidate.bucket === 'today');
