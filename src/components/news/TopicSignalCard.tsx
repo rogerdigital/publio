@@ -96,7 +96,7 @@ export default function TopicSignalCard({
           </div>
 
           {/* 编辑判断 + 候选概况 */}
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)]">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-3">
               <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
                 编辑判断
@@ -119,8 +119,17 @@ export default function TopicSignalCard({
             </div>
           </div>
 
-          {/* 操作按钮 */}
+          {/* 操作按钮：查看原文 → 查看底稿 → 加入写作台 */}
           <div className="flex flex-wrap gap-2">
+            <a
+              href={item.primarySignal.link}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[color:var(--wb-surface)]"
+            >
+              <ExternalLink size={16} />
+              查看原文
+            </a>
             <button
               type="button"
               onClick={() => setShowBrief((v) => !v)}
@@ -140,15 +149,6 @@ export default function TopicSignalCard({
               <FileUp size={16} />
               加入写作台
             </button>
-            <a
-              href={item.primarySignal.link}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[color:var(--wb-surface)]"
-            >
-              <ExternalLink size={16} />
-              查看原文
-            </a>
           </div>
 
           {/* 内联研究底稿 */}

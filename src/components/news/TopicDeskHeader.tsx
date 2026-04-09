@@ -29,7 +29,7 @@ export default function TopicDeskHeader({
           type="button"
           onClick={onRefresh}
           disabled={loading || refreshing}
-          className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:border-[color:var(--wb-border-strong)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-transparent bg-[color:var(--wb-accent)] px-4 py-2 text-sm font-medium text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <RefreshCw size={16} className={refreshing ? 'animate-spin' : undefined} />
           {refreshing ? '抓取中' : '抓取选题'}
