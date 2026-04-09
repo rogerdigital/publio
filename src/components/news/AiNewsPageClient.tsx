@@ -199,10 +199,6 @@ export default function AiNewsPageClient() {
       />
 
       <div className="space-y-5">
-        <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-[color:var(--wb-accent)]">
-          Signal Board
-        </p>
-
         {refreshError ? (
           <div
             className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-5 py-4"

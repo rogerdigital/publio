@@ -15,7 +15,7 @@ export default function AppShellHeader({
 }: AppShellHeaderProps) {
   return (
     <header className="w-full py-2">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-end justify-between gap-4">
         <div className="max-w-4xl">
           <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-[color:var(--wb-accent)]">
             {kicker}
@@ -33,7 +33,7 @@ export default function AppShellHeader({
           ) : null}
         </div>
         {action ? (
-          <div className="shrink-0 pt-1">{action}</div>
+          <div className="shrink-0">{action}</div>
         ) : null}
       </div>
     </header>

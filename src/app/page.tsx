@@ -38,14 +38,7 @@ export default function HomePage() {
         kicker="Writing desk"
         title="写作台"
         description="先定标题，再写正文，再检查排版和分发。"
-      />
-
-      <div className="space-y-4">
-        {/* Writing console kicker + tab 切换 */}
-        <div className="flex items-center justify-between">
-          <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-[color:var(--wb-accent)]">
-            Writing console
-          </p>
+        action={
           <div className="inline-flex rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] p-0.5">
             <button
               type="button"
@@ -72,8 +65,10 @@ export default function HomePage() {
               预览
             </button>
           </div>
-        </div>
+        }
+      />
 
+      <div className="space-y-4">
         <div className="overflow-hidden rounded-[var(--wb-radius-xl)] bg-[color:var(--wb-surface)]">
           <MarkdownEditor activeTab={activeTab} />
         </div>

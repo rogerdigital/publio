@@ -147,29 +147,21 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
       ) : (
         <div className="bg-[color:var(--wb-bg)] p-4 sm:p-5 lg:min-h-[760px]">
           <div className="mx-auto max-w-[860px] rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] px-5 py-6">
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-[color:var(--wb-accent)]">
-                  成稿预览
-                </p>
-                <h3
-                  className="mt-2 text-[28px] leading-tight text-[color:var(--wb-text)]"
-                  style={{ fontFamily: 'var(--wb-font-serif)' }}
-                >
-                  {title || '未命名稿件'}
-                </h3>
-              </div>
-              <div className="rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-1 text-xs text-[color:var(--wb-text-muted)]">
-                发布前排版
-              </div>
+          <div className="mb-5">
+              <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-[color:var(--wb-accent)]">
+                成稿预览
+              </p>
+              <h3
+                className="mt-2 text-[28px] leading-tight text-[color:var(--wb-text)]"
+                style={{ fontFamily: 'var(--wb-font-serif)' }}
+              >
+                {title || '未命名稿件'}
+              </h3>
             </div>
             <div
               className="space-y-5 text-[color:var(--wb-text)] [&_blockquote]:my-5 [&_blockquote]:rounded-[18px] [&_blockquote]:border [&_blockquote]:border-[color:var(--wb-border)] [&_blockquote]:bg-[rgba(250,244,237,0.9)] [&_blockquote]:px-5 [&_blockquote]:py-4 [&_blockquote]:text-[color:var(--wb-text-muted)] [&_code]:rounded-[8px] [&_code]:bg-[rgba(238,223,208,0.55)] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-[0.94em] [&_h1]:mb-3 [&_h1]:text-[30px] [&_h1]:leading-tight [&_h1]:font-semibold [&_h1]:text-[color:var(--wb-text)] [&_h2]:mt-10 [&_h2]:mb-4 [&_h2]:text-[22px] [&_h2]:leading-tight [&_h2]:font-semibold [&_h2]:text-[color:var(--wb-text)] [&_h3]:mt-8 [&_h3]:mb-3 [&_h3]:pl-3 [&_h3]:border-l-4 [&_h3]:border-[color:var(--wb-accent)] [&_h3]:text-[19px] [&_h3]:leading-snug [&_h3]:font-semibold [&_h3]:text-[color:var(--wb-text)] [&_hr]:my-8 [&_hr]:border-[color:var(--wb-border)] [&_img]:my-6 [&_img]:max-w-full [&_img]:rounded-[18px] [&_img]:border [&_img]:border-[color:var(--wb-border)] [&_li]:my-2 [&_ol]:my-4 [&_ol]:pl-6 [&_p]:my-4 [&_p]:text-[16px] [&_p]:leading-8 [&_p]:text-[color:var(--wb-text)] [&_ul]:my-4 [&_ul]:pl-6 [&_a]:text-[color:var(--wb-accent)] [&_a]:underline [&_a]:decoration-[color:var(--wb-accent-soft)] [&_a]:underline-offset-4"
               dangerouslySetInnerHTML={{ __html: previewHtml }}
             />
-            <div className="mt-6 border-t border-[color:var(--wb-border)] pt-4 text-xs leading-6 text-[color:var(--wb-text-muted)]">
-              纸张预览单独占据完整工作区，更适合检查长文节奏、段落密度和发布前阅读感。
-            </div>
           </div>
         </div>
       )}
