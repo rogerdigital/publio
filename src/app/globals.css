@@ -55,9 +55,15 @@ body {
   background: rgba(217, 119, 87, 0.18);
 }
 
-:focus-visible {
+:focus-visible:not(input):not(textarea):not(select) {
   outline: 2px solid rgba(217, 119, 87, 0.55);
   outline-offset: 2px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
 }
 
 * {
