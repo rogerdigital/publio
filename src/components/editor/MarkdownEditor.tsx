@@ -2,8 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import '@uiw/react-md-editor/markdown-editor.css';
-import { useEffect, useState } from 'react';
-import { Eye, SquarePen } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { usePublishStore } from '@/stores/publishStore';
 import { markdownToHtml } from '@/lib/markdown';
 
@@ -49,11 +48,16 @@ function estimateReadTime(content: string) {
   return `${minutes} 分钟`;
 }
 
-export default function MarkdownEditor() {
+interface MarkdownEditorProps {
+  activeTab: 'edit' | 'preview';
+}
+
+export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
   const { title, setTitle, content, setContent } = usePublishStore();
   const [editorHeight, setEditorHeight] = useState<number | undefined>(undefined);
   const [isDesktop, setIsDesktop] = useState(false);
-  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editorWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function syncHeight() {
@@ -78,58 +82,35 @@ export default function MarkdownEditor() {
   );
 
   return (
-    <div className="overflow-hidden rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)]">
-      {/* 顶栏：tab 切换 */}
-      <div className="border-b border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2.5 sm:px-5">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
-            Writing console
-          </p>
-          <div className="inline-flex rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg)] p-0.5">
-            <button
-              type="button"
-              onClick={() => setActiveTab('edit')}
-              className={`inline-flex items-center gap-2 rounded-[6px] px-3 py-1.5 text-sm transition ${
-                activeTab === 'edit'
-                  ? 'bg-[color:var(--wb-accent)] text-white'
-                  : 'text-[color:var(--wb-text-muted)] hover:text-[color:var(--wb-text)]'
-              }`}
-            >
-              <SquarePen size={15} />
-              写作
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('preview')}
-              className={`inline-flex items-center gap-2 rounded-[6px] px-3 py-1.5 text-sm transition ${
-                activeTab === 'preview'
-                  ? 'bg-[color:var(--wb-accent)] text-white'
-                  : 'text-[color:var(--wb-text-muted)] hover:text-[color:var(--wb-text)]'
-              }`}
-            >
-              <Eye size={15} />
-              预览
-            </button>
-          </div>
-        </div>
-      </div>
-
+    <div className="overflow-hidden bg-[color:var(--wb-surface)]">
       {activeTab === 'edit' ? (
         <>
           {/* 标题输入区 */}
-          <div className="border-b border-[color:var(--wb-border)] px-4 py-4 sm:px-5">
+          <div className="border-b border-[color:var(--wb-border-faint)] px-4 py-4 transition-colors focus-within:border-[color:var(--wb-accent)] sm:px-5">
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="输入文章标题..."
+              placeholder="给文章起个标题"
               className="w-full border-0 bg-transparent text-[24px] leading-tight text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] sm:text-[28px]"
               style={{ fontFamily: 'var(--wb-font-serif)' }}
             />
           </div>
 
           {/* 正文编辑区 */}
-          <div className="[&_.w-md-editor]:bg-transparent [&_.w-md-editor]:text-[color:var(--wb-text)] [&_.w-md-editor-toolbar]:border-[color:var(--wb-border)] [&_.w-md-editor-toolbar]:bg-[color:var(--wb-bg-elevated)] [&_.w-md-editor-toolbar]:px-3 [&_.w-md-editor-toolbar]:py-2 [&_.w-md-editor-toolbar-divider]:bg-[color:var(--wb-border)] [&_.w-md-editor-bar]:hidden [&_.w-md-editor-text-input]:font-[family-name:var(--wb-font-sans)] [&_.w-md-editor-text-input]:bg-transparent [&_.w-md-editor-text-input]:text-[color:var(--wb-text)] [&_.w-md-editor-text-input]:placeholder:text-[color:var(--wb-text-muted)] [&_.wmde-markdown]:bg-transparent [&_.wmde-markdown]:text-[color:var(--wb-text)] [&_.w-md-editor-area]:bg-transparent"
+          <div
+            ref={editorWrapRef}
+            className="[&_.w-md-editor]:border-0 [&_.w-md-editor]:rounded-none [&_.w-md-editor]:bg-transparent [&_.w-md-editor]:text-[color:var(--wb-text)] [&_.w-md-editor-toolbar]:border-b [&_.w-md-editor-toolbar]:border-[color:var(--wb-border-faint)] [&_.w-md-editor-toolbar]:border-t-0 [&_.w-md-editor-toolbar]:bg-[color:var(--wb-surface)] [&_.w-md-editor-toolbar]:px-3 [&_.w-md-editor-toolbar]:py-1.5 [&_.w-md-editor-toolbar-divider]:bg-[color:var(--wb-border-faint)] [&_.w-md-editor-bar]:hidden [&_.w-md-editor-text-input]:font-[family-name:var(--wb-font-sans)] [&_.w-md-editor-text-input]:bg-transparent [&_.w-md-editor-text-input]:text-[color:var(--wb-text)] [&_.w-md-editor-text-input]:placeholder:text-[color:var(--wb-text-muted)] [&_.wmde-markdown]:bg-transparent [&_.wmde-markdown]:text-[color:var(--wb-text)] [&_.w-md-editor-area]:bg-transparent"
+            onClick={(e) => {
+              const target = e.target as HTMLElement;
+              if (target.closest('.w-md-editor-toolbar')) return;
+              if (isDesktop) {
+                const textarea = editorWrapRef.current?.querySelector<HTMLTextAreaElement>('textarea.w-md-editor-text-input');
+                textarea?.focus();
+              } else {
+                textareaRef.current?.focus();
+              }
+            }}
           >
             {isDesktop ? (
               <MDEditor
@@ -141,23 +122,24 @@ export default function MarkdownEditor() {
               />
             ) : (
               <textarea
+                ref={textareaRef}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="输入文章内容..."
+                placeholder="开始写作，支持 Markdown 语法..."
                 className="min-h-[18rem] w-full resize-y border-0 bg-transparent px-4 py-4 text-[15px] leading-7 text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] sm:min-h-[22rem] sm:px-5 sm:py-5"
               />
             )}
           </div>
 
           {/* 底部数据栏 */}
-          <div className="border-t border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2.5 sm:px-5">
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-[color:var(--wb-text-muted)]">
+          <div className="px-4 pb-3 pt-2 sm:px-5">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[color:var(--wb-text-muted)]">
               <span>{countCharacters(cleanContent)} 字符</span>
-              <span className="h-3 w-px bg-[color:var(--wb-border)]" />
+              <span className="text-[color:var(--wb-border-strong)]">·</span>
               <span>{countParagraphs(cleanContent)} 段落</span>
-              <span className="h-3 w-px bg-[color:var(--wb-border)]" />
+              <span className="text-[color:var(--wb-border-strong)]">·</span>
               <span>{countHeadings(cleanContent)} 标题</span>
-              <span className="h-3 w-px bg-[color:var(--wb-border)]" />
+              <span className="text-[color:var(--wb-border-strong)]">·</span>
               <span>约 {cleanContent ? estimateReadTime(cleanContent) : '1 分钟'} 阅读</span>
             </div>
           </div>

@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Eye, SquarePen } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import AppShellHeader from '@/components/layout/AppShellHeader';
 import MarkdownEditor from '@/components/editor/MarkdownEditor';
-import SurfaceCard from '@/components/layout/SurfaceCard';
 import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
@@ -15,6 +15,7 @@ import {
 
 export default function HomePage() {
   const { setTitle, setContent, reset, overallStatus } = usePublishStore();
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
 
   useEffect(() => {
     const rawDraft = window.localStorage.getItem(NEWS_DRAFT_STORAGE_KEY);
@@ -40,9 +41,44 @@ export default function HomePage() {
       />
 
       <div className="space-y-4">
-        <MarkdownEditor />
+        {/* Writing console kicker + tab 切换 */}
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-[color:var(--wb-accent)]">
+            Writing console
+          </p>
+          <div className="inline-flex rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] p-0.5">
+            <button
+              type="button"
+              onClick={() => setActiveTab('edit')}
+              className={`inline-flex items-center gap-2 rounded-[6px] px-3 py-1.5 text-sm transition ${
+                activeTab === 'edit'
+                  ? 'bg-[color:var(--wb-accent)] text-white'
+                  : 'text-[color:var(--wb-text-muted)] hover:text-[color:var(--wb-text)]'
+              }`}
+            >
+              <SquarePen size={15} />
+              写作
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('preview')}
+              className={`inline-flex items-center gap-2 rounded-[6px] px-3 py-1.5 text-sm transition ${
+                activeTab === 'preview'
+                  ? 'bg-[color:var(--wb-accent)] text-white'
+                  : 'text-[color:var(--wb-text-muted)] hover:text-[color:var(--wb-text)]'
+              }`}
+            >
+              <Eye size={15} />
+              预览
+            </button>
+          </div>
+        </div>
 
-        <SurfaceCard className="px-5 py-5 sm:px-6">
+        <div className="overflow-hidden rounded-[var(--wb-radius-xl)] bg-[color:var(--wb-surface)]">
+          <MarkdownEditor activeTab={activeTab} />
+        </div>
+
+        <div className="px-1 py-1">
           <div className="space-y-4">
             <PlatformSelector />
 
@@ -63,8 +99,9 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </SurfaceCard>
+        </div>
       </div>
     </div>
   );
 }
+
