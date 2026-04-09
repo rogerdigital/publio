@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import PageSection from '@/components/layout/PageSection';
 import ResearchNotesPanel from '@/components/news/ResearchNotesPanel';
 import TopicDeskHeader from '@/components/news/TopicDeskHeader';
 import TopicSignalCard from '@/components/news/TopicSignalCard';
@@ -282,125 +281,99 @@ export default function AiNewsPageClient() {
   };
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,var(--wb-bg-elevated)_0%,#f1e6d8_100%)] px-4 py-6 sm:px-6 lg:px-8">
-      <PageSection className="space-y-6">
-        <TopicDeskHeader
-          generatedAt={formatDeskTime(generatedAt)}
-          signalCount={totalSignals}
-          todayCount={todayCandidates.length}
-          followCount={followCandidates.length}
-          onRefresh={() => void loadNews(true)}
-          onBuildDigest={createDigestDraft}
-          loading={loading}
-          refreshing={refreshing}
-        />
+    <div className="space-y-6">
+      <TopicDeskHeader
+        generatedAt={formatDeskTime(generatedAt)}
+        todayCount={todayCandidates.length}
+        followCount={followCandidates.length}
+        onRefresh={() => void loadNews(true)}
+        onBuildDigest={createDigestDraft}
+        loading={loading}
+        refreshing={refreshing}
+      />
 
-        <div className="space-y-6">
-          <main className="min-w-0 space-y-5">
-            <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.6)] px-5 py-4 shadow-[var(--wb-shadow-tight)]">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
-                    Editorial Queue
-                  </p>
-                  <h2
-                    className="mt-2 text-[22px] leading-tight text-[color:var(--wb-ink)]"
-                    style={{ fontFamily: 'var(--wb-font-serif)' }}
-                  >
-                    候选题列表
-                  </h2>
-                </div>
-                <p className="max-w-[28rem] text-sm leading-7 text-[color:var(--wb-muted)]">
-                  中间栏按选题强度往下排，先看今天能发，再看还能追。点开卡片可查看研究底稿，确认后再加入写作台。
-                </p>
+      <div className="space-y-5">
+        {refreshError ? (
+          <div
+            className="rounded-[var(--wb-radius-xl)] border border-[rgba(185,124,68,0.28)] bg-[rgba(255,247,238,0.9)] px-5 py-4 text-[color:var(--wb-ink)] shadow-[var(--wb-shadow-tight)]"
+            role="status"
+            aria-live="polite"
+          >
+            <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
+              刷新未更新
+            </p>
+            <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
+              {refreshError} 下面保留的是上一次成功加载的内容。
+            </p>
+          </div>
+        ) : null}
+
+        {loading ? (
+          <div className="space-y-5">
+            <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.62)] p-6 shadow-[var(--wb-shadow-tight)]">
+              <div className="mx-auto max-w-3xl animate-pulse space-y-4">
+                <div className="h-3 w-24 rounded bg-[rgba(210,192,178,0.75)]" />
+                <div className="h-9 w-4/5 rounded bg-[rgba(210,192,178,0.55)]" />
+                <div className="h-4 w-full rounded bg-[rgba(210,192,178,0.4)]" />
+                <div className="h-4 w-full rounded bg-[rgba(210,192,178,0.4)]" />
+                <div className="h-4 w-2/3 rounded bg-[rgba(210,192,178,0.4)]" />
               </div>
             </div>
+            <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.62)] p-6 shadow-[var(--wb-shadow-tight)]">
+              <div className="mx-auto max-w-3xl animate-pulse space-y-4">
+                <div className="h-3 w-20 rounded bg-[rgba(210,192,178,0.75)]" />
+                <div className="h-8 w-3/4 rounded bg-[rgba(210,192,178,0.55)]" />
+                <div className="h-4 w-full rounded bg-[rgba(210,192,178,0.4)]" />
+                <div className="h-4 w-11/12 rounded bg-[rgba(210,192,178,0.4)]" />
+                <div className="h-4 w-5/6 rounded bg-[rgba(210,192,178,0.4)]" />
+              </div>
+            </div>
+          </div>
+        ) : error && allCandidates.length === 0 ? (
+          <div className="rounded-[var(--wb-radius-xl)] border border-[rgba(171,84,84,0.25)] bg-[rgba(255,245,245,0.92)] p-8 text-[color:#964646] shadow-[var(--wb-shadow-tight)]">
+            <p className="text-lg font-medium text-[color:#7f3636]">新闻抓取失败</p>
+            <p className="mt-3 text-sm leading-7">{error}</p>
+          </div>
+        ) : allCandidates.length === 0 ? (
+          <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.64)] p-8 text-center shadow-[var(--wb-shadow-tight)]">
+            <p className="text-lg font-medium text-[color:var(--wb-ink)]">
+              选题桌暂无内容
+            </p>
+            <p className="mt-3 text-sm leading-7 text-[color:var(--wb-muted)]">
+              点击右上角「抓取选题」开始抓取最新 AI 话题信号。
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-5">
+            <CandidateSection
+              title="今天能发"
+              items={todayCandidates}
+              offset={0}
+              activeCandidateId={selectedResearch?.candidateId || ''}
+              onSelect={selectCandidate}
+              onCreateDraft={createSingleNewsDraft}
+            />
+            <CandidateSection
+              title="还能追"
+              items={followCandidates}
+              offset={todayCandidates.length}
+              activeCandidateId={selectedResearch?.candidateId || ''}
+              onSelect={selectCandidate}
+              onCreateDraft={createSingleNewsDraft}
+            />
+          </div>
+        )}
 
-            {refreshError ? (
-              <div
-                className="rounded-[var(--wb-radius-xl)] border border-[rgba(185,124,68,0.28)] bg-[rgba(255,247,238,0.9)] px-5 py-4 text-[color:var(--wb-ink)] shadow-[var(--wb-shadow-tight)]"
-                role="status"
-                aria-live="polite"
-              >
-                <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
-                  刷新未更新
-                </p>
-                <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
-                  {refreshError} 下面保留的是上一次成功加载的内容。
-                </p>
-              </div>
-            ) : null}
-
-            {loading ? (
-              <div className="space-y-5">
-                <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.62)] p-6 shadow-[var(--wb-shadow-tight)]">
-                  <div className="mx-auto max-w-3xl animate-pulse space-y-4">
-                    <div className="h-3 w-24 rounded bg-[rgba(210,192,178,0.75)]" />
-                    <div className="h-9 w-4/5 rounded bg-[rgba(210,192,178,0.55)]" />
-                    <div className="h-4 w-full rounded bg-[rgba(210,192,178,0.4)]" />
-                    <div className="h-4 w-full rounded bg-[rgba(210,192,178,0.4)]" />
-                    <div className="h-4 w-2/3 rounded bg-[rgba(210,192,178,0.4)]" />
-                  </div>
-                </div>
-                <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.62)] p-6 shadow-[var(--wb-shadow-tight)]">
-                  <div className="mx-auto max-w-3xl animate-pulse space-y-4">
-                    <div className="h-3 w-20 rounded bg-[rgba(210,192,178,0.75)]" />
-                    <div className="h-8 w-3/4 rounded bg-[rgba(210,192,178,0.55)]" />
-                    <div className="h-4 w-full rounded bg-[rgba(210,192,178,0.4)]" />
-                    <div className="h-4 w-11/12 rounded bg-[rgba(210,192,178,0.4)]" />
-                    <div className="h-4 w-5/6 rounded bg-[rgba(210,192,178,0.4)]" />
-                  </div>
-                </div>
-              </div>
-            ) : error && allCandidates.length === 0 ? (
-              <div className="rounded-[var(--wb-radius-xl)] border border-[rgba(171,84,84,0.25)] bg-[rgba(255,245,245,0.92)] p-8 text-[color:#964646] shadow-[var(--wb-shadow-tight)]">
-                <p className="text-lg font-medium text-[color:#7f3636]">新闻抓取失败</p>
-                <p className="mt-3 text-sm leading-7">{error}</p>
-              </div>
-            ) : allCandidates.length === 0 ? (
-              <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.64)] p-8 text-center shadow-[var(--wb-shadow-tight)]">
-                <p className="text-lg font-medium text-[color:var(--wb-ink)]">
-                  选题桌暂无内容
-                </p>
-                <p className="mt-3 text-sm leading-7 text-[color:var(--wb-muted)]">
-                  点击右上角「抓取选题」开始抓取最新 AI 话题信号。
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-5">
-                <CandidateSection
-                  title="今天能发"
-                  description="优先看过去 24 小时内既有行业影响、又适合直接切入中文内容传播的题。"
-                  items={todayCandidates}
-                  offset={0}
-                  activeCandidateId={selectedResearch?.candidateId || ''}
-                  onSelect={selectCandidate}
-                  onCreateDraft={createSingleNewsDraft}
-                />
-                <CandidateSection
-                  title="还能追"
-                  description="这些题不一定是最新，但仍在发酵，更适合做背景、竞争格局和影响分析。"
-                  items={followCandidates}
-                  offset={todayCandidates.length}
-                  activeCandidateId={selectedResearch?.candidateId || ''}
-                  onSelect={selectCandidate}
-                  onCreateDraft={createSingleNewsDraft}
-                />
-              </div>
-            )}
-          </main>
-
-          <ResearchNotesPanel
-            research={selectedResearch}
-            generatedAt={formatDeskTime(generatedAt)}
-            signalCount={totalSignals}
-            candidateCount={totalCandidates}
-            todayCount={todayCandidates.length}
-            followCount={followCandidates.length}
-            selectedTitle={selectedResearch?.title}
-          />
-        </div>
-      </PageSection>
+        <ResearchNotesPanel
+          research={selectedResearch}
+          generatedAt={formatDeskTime(generatedAt)}
+          signalCount={totalSignals}
+          candidateCount={totalCandidates}
+          todayCount={todayCandidates.length}
+          followCount={followCandidates.length}
+          selectedTitle={selectedResearch?.title}
+        />
+      </div>
     </div>
   );
 }
@@ -411,7 +384,6 @@ function formatDeskTime(value: string) {
 
 function CandidateSection({
   title,
-  description,
   items,
   offset,
   activeCandidateId,
@@ -419,7 +391,6 @@ function CandidateSection({
   onCreateDraft,
 }: {
   title: string;
-  description: string;
   items: AiNewsDeskCandidate[];
   offset: number;
   activeCandidateId: string;
@@ -432,14 +403,9 @@ function CandidateSection({
 
   return (
     <section className="space-y-4">
-      <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.58)] px-5 py-4 shadow-[var(--wb-shadow-tight)]">
-        <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
-          {title}
-        </p>
-        <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
-          {description}
-        </p>
-      </div>
+      <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)] px-1">
+        {title}
+      </p>
       <div className="space-y-5">
         {items.map((item, index) => (
           <TopicSignalCard
