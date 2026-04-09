@@ -228,7 +228,14 @@ export function normalizeAiNewsSignal(params: {
   const publishedAt = new Date(publishedTimestamp).toISOString();
 
   const combined = `${title} ${summary}`;
-  if (!hasChinese(combined) && !/\b(ai|openai|anthropic|nvidia|deepmind|meta)\b/i.test(combined)) {
+
+  // 必须与 AI/大模型领域直接相关，否则过滤掉
+  const isAiRelated =
+    /(ai|人工智能|大模型|llm|gpt|claude|gemini|deepseek|openai|anthropic|nvidia|deepmind|机器学习|神经网络|智能体|agent|自动驾驶|生成式|多模态|推理|训练|fine.?tun|预训练|向量|embedding|diffusion|stable.?diffusion|midjourney|sora|transformer|算力|gpu|芯片|大语言|语言模型|视觉模型|音频模型)/i.test(
+      combined,
+    );
+
+  if (!isAiRelated) {
     return null;
   }
 
