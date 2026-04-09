@@ -125,7 +125,7 @@ export default function TopicSignalCard({
               href={item.primarySignal.link}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[color:var(--wb-surface)]"
+              className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[color:var(--wb-surface)]"
             >
               <ExternalLink size={16} />
               查看原文
@@ -133,7 +133,7 @@ export default function TopicSignalCard({
             <button
               type="button"
               onClick={() => setShowBrief((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[color:var(--wb-surface)]"
+              className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[color:var(--wb-surface)]"
             >
               <ChevronDown
                 size={15}
@@ -144,7 +144,7 @@ export default function TopicSignalCard({
             <button
               type="button"
               onClick={() => onCreateDraft(item)}
-              className="inline-flex items-center gap-2 rounded-full border border-transparent bg-[color:var(--wb-accent)] px-4 py-2 text-sm font-medium text-white transition hover:brightness-105"
+              className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-transparent bg-[color:var(--wb-accent)] px-4 py-2 text-sm font-medium text-white transition hover:brightness-105"
             >
               <FileUp size={16} />
               加入写作台
