@@ -278,10 +278,11 @@ function CandidateSection({
   if (items.length === 0) return null;
 
   return (
-    <section className="space-y-4">
-      <p className="px-1 text-[11px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
-        {title}
-      </p>
+    <section className="space-y-3">
+      <div className="flex items-center gap-3 px-1">
+        <h2 className="text-[15px] font-semibold text-[color:var(--wb-ink)]">{title}</h2>
+        <span className="text-[13px] text-[color:var(--wb-muted)]">{items.length} 条</span>
+      </div>
       <div className="space-y-5">
         {items.map((item, index) => (
           <TopicSignalCard
