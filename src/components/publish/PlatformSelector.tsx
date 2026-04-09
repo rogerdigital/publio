@@ -28,10 +28,10 @@ export default function PlatformSelector() {
         return (
           <label
             key={platform.id}
-            className={`group flex cursor-pointer select-none items-center gap-3 rounded-[20px] border px-4 py-3 transition-all ${
+            className={`group flex cursor-pointer select-none items-center gap-3 rounded-[var(--wb-radius-xl)] border px-4 py-3 transition-colors ${
               checked
-                ? 'border-[color:var(--wb-border-strong)] bg-[linear-gradient(180deg,rgba(255,248,241,0.98)_0%,rgba(255,242,232,0.96)_100%)] shadow-[0_10px_24px_rgba(215,120,67,0.12)]'
-                : 'border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.72)] hover:border-[color:var(--wb-border-strong)] hover:bg-white hover:shadow-[var(--wb-shadow-tight)]'
+                ? 'border-[color:var(--wb-border-strong)] bg-[color:var(--wb-surface)]'
+                : 'border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] hover:border-[color:var(--wb-border-strong)]'
             }`}
           >
             <input
@@ -41,10 +41,10 @@ export default function PlatformSelector() {
               className="sr-only"
             />
             <div
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors ${
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--wb-radius-lg)] border transition-colors ${
                 checked
-                  ? 'border-[color:var(--wb-border-strong)] bg-white text-[color:var(--wb-accent)]'
-                  : 'border-[color:var(--wb-border)] bg-white/80 text-[color:var(--wb-text-muted)] group-hover:text-[color:var(--wb-accent)]'
+                  ? 'border-[color:var(--wb-accent-soft)] bg-[color:var(--wb-accent-soft)] text-[color:var(--wb-accent)]'
+                  : 'border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] text-[color:var(--wb-text-muted)] group-hover:text-[color:var(--wb-accent)]'
               }`}
             >
               <Icon size={16} />

@@ -14,9 +14,9 @@ function joinClasses(...classes: Array<string | undefined | false>) {
 function toneClasses(tone: SurfaceTone) {
   switch (tone) {
     case 'soft':
-      return 'bg-[linear-gradient(180deg,rgba(255,252,247,0.94)_0%,rgba(246,238,229,0.92)_100%)]';
+      return 'bg-[color:var(--wb-bg-elevated)]';
     case 'accent':
-      return 'bg-[linear-gradient(180deg,rgba(255,248,241,0.96)_0%,rgba(245,231,219,0.95)_100%)] border-[color:var(--wb-border-strong)]';
+      return 'bg-[color:var(--wb-surface)]';
     default:
       return 'bg-[color:var(--wb-surface)]';
   }
@@ -32,7 +32,7 @@ export default function SurfaceCard({
     <div
       {...props}
       className={joinClasses(
-        'rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] text-[color:var(--wb-text)] shadow-[var(--wb-shadow-lg)] backdrop-blur-sm',
+        'rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] text-[color:var(--wb-text)]',
         toneClasses(tone),
         className,
       )}

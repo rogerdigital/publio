@@ -23,7 +23,7 @@ function formatHostname(link: string) {
 
 function MetaChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[16px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.58)] px-3 py-3">
+    <div className="rounded-[16px] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-3">
       <p className="text-[11px] uppercase tracking-[0.22em] text-[color:var(--wb-muted)]">
         {label}
       </p>
@@ -59,32 +59,32 @@ export default function TopicSignalCard({
 }: TopicSignalCardProps) {
   return (
     <SurfaceCard
-      tone="accent"
+      tone="default"
       className={`overflow-hidden transition ${
         isActive
-          ? 'ring-2 ring-[color:var(--wb-accent)] shadow-[0_14px_28px_rgba(200,106,61,0.12)]'
+          ? 'ring-2 ring-[color:var(--wb-accent)]'
           : ''
       }`}
     >
       <article className="px-5 py-5 sm:px-6">
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-muted)]">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.74)] px-3 py-1.5 text-[color:var(--wb-accent-strong)]">
+            <span className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-1.5 text-[color:var(--wb-accent-strong)]">
               <Landmark size={12} />
               {indexLabel}
             </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.74)] px-3 py-1.5 text-[color:var(--wb-ink)]">
+            <span className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-1.5 text-[color:var(--wb-ink)]">
               {item.topicTags[0] || '行业动态'}
             </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.74)] px-3 py-1.5">
+            <span className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-1.5">
               {item.primarySignal.sourceName}
             </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.74)] px-3 py-1.5">
+            <span className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-1.5">
               <Clock3 size={12} />
               {relativeLabel}
             </span>
             {isActive ? (
-              <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border-strong)] bg-[rgba(255,247,240,0.94)] px-3 py-1.5 text-[color:var(--wb-accent-strong)]">
+              <span className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border-strong)] bg-[color:var(--wb-accent-soft)] px-3 py-1.5 text-[color:var(--wb-accent-strong)]">
                 当前查看中
               </span>
             ) : null}
@@ -111,7 +111,7 @@ export default function TopicSignalCard({
 
           <div className="space-y-3">
             <div className="grid gap-3 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)]">
-              <div className="rounded-[18px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.64)] px-4 py-3">
+              <div className="rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-3">
                 <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
                   编辑判断
                 </p>
@@ -120,7 +120,7 @@ export default function TopicSignalCard({
                 </p>
               </div>
 
-              <div className="rounded-[18px] border border-dashed border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.44)] px-4 py-3">
+              <div className="rounded-[var(--wb-radius-lg)] border border-dashed border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-3">
                 <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-muted)]">
                   候选概况
                 </p>
@@ -146,8 +146,8 @@ export default function TopicSignalCard({
                 aria-pressed={isActive}
                 className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
                   isActive
-                    ? 'border-[color:var(--wb-border-strong)] bg-[rgba(255,247,240,0.94)] text-[color:var(--wb-accent-strong)]'
-                    : 'border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.64)] text-[color:var(--wb-ink)] hover:bg-[rgba(255,255,255,0.96)]'
+                    ? 'border-[color:var(--wb-border-strong)] bg-[color:var(--wb-accent-soft)] text-[color:var(--wb-accent-strong)]'
+                    : 'border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] text-[color:var(--wb-ink)] hover:bg-[color:var(--wb-surface)]'
                 }`}
               >
                 {isActive ? '当前底稿' : '查看底稿'}
@@ -155,7 +155,7 @@ export default function TopicSignalCard({
               <button
                 type="button"
                 onClick={() => onCreateDraft(item)}
-                className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border-strong)] bg-[rgba(255,255,255,0.8)] px-4 py-2 text-sm font-medium text-[color:var(--wb-accent-strong)] transition hover:bg-[rgba(255,255,255,0.98)]"
+                className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border-strong)] bg-[color:var(--wb-accent)] px-4 py-2 text-sm font-medium text-white transition hover:brightness-105"
               >
                 <FileUp size={16} />
                 加入写作台
@@ -164,7 +164,7 @@ export default function TopicSignalCard({
                 href={item.primarySignal.link}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.64)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[rgba(255,255,255,0.96)]"
+                className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[color:var(--wb-surface)]"
               >
                 <ExternalLink size={16} />
                 查看原文

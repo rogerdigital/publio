@@ -150,7 +150,7 @@ export default function SettingsPage() {
               onClick={handleSave}
               type="button"
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border-strong)] bg-[color:var(--wb-accent)] px-5 py-2.5 text-sm font-medium text-white shadow-[0_14px_28px_rgba(215,120,67,0.22)] transition hover:brightness-105 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-transparent bg-[color:var(--wb-accent)] px-5 py-2.5 text-sm font-medium text-white transition hover:brightness-105 disabled:opacity-50"
             >
               <Save size={16} />
               {loading ? '正在读取...' : '保存设置'}
@@ -180,15 +180,15 @@ export default function SettingsPage() {
                   aria-expanded={isExpanded}
                   aria-controls={`${platform.id}-panel`}
                   onClick={() => setExpandedPlatform(isExpanded ? null : platform.id)}
-                  className="flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-white/45 sm:px-6"
+                  className="flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-[color:var(--wb-surface)] sm:px-6"
                 >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[color:var(--wb-border)] bg-white/85 text-[color:var(--wb-accent)] shadow-[var(--wb-shadow-tight)]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] text-[color:var(--wb-accent)]">
                     <Icon size={18} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-[15px] font-medium text-[color:var(--wb-text)]">{platform.name}</span>
-                      <span className="rounded-full border border-[color:var(--wb-border)] bg-white/75 px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-[color:var(--wb-text-muted)]">
+                      <span className="rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg)] px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-[color:var(--wb-text-muted)]">
                         Document panel
                       </span>
                     </div>
@@ -203,11 +203,11 @@ export default function SettingsPage() {
                 {isExpanded ? (
                   <div id={`${platform.id}-panel`} className="border-t border-[color:var(--wb-border)] px-5 py-5 sm:px-6">
                     <div className="mb-4 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-[20px] border border-[color:var(--wb-border)] bg-white/75 px-4 py-3 shadow-[var(--wb-shadow-tight)]">
+                      <div className="rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg)] px-4 py-3">
                         <p className="text-[11px] uppercase tracking-[0.26em] text-[color:var(--wb-text-muted)]">Document type</p>
                         <p className="mt-2 text-sm text-[color:var(--wb-text)]">{platform.name} 凭证表</p>
                       </div>
-                      <div className="rounded-[20px] border border-[color:var(--wb-border)] bg-white/75 px-4 py-3 shadow-[var(--wb-shadow-tight)]">
+                      <div className="rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg)] px-4 py-3">
                         <p className="text-[11px] uppercase tracking-[0.26em] text-[color:var(--wb-text-muted)]">Field count</p>
                         <p className="mt-2 text-sm text-[color:var(--wb-text)]">{platform.fields.length} 个输入项</p>
                       </div>
@@ -231,7 +231,7 @@ export default function SettingsPage() {
                                 onChange={(event) => handleChange(field.key, event.target.value)}
                                 placeholder={field.placeholder}
                                 rows={4}
-                                className="w-full resize-none rounded-[20px] border border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.9)] px-4 py-3 text-sm text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] transition focus:border-[color:var(--wb-border-strong)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(200,106,61,0.08)]"
+                                className="w-full resize-none rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] px-4 py-3 text-sm text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] transition focus:border-[color:var(--wb-accent)] focus:ring-2 focus:ring-[color:var(--wb-accent-soft)]"
                               />
                             ) : (
                               <input
@@ -240,7 +240,7 @@ export default function SettingsPage() {
                                 value={values[field.key] || ''}
                                 onChange={(event) => handleChange(field.key, event.target.value)}
                                 placeholder={field.placeholder}
-                                className="w-full rounded-[20px] border border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.9)] px-4 py-3 pr-12 text-sm text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] transition focus:border-[color:var(--wb-border-strong)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(200,106,61,0.08)]"
+                                className="w-full rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] px-4 py-3 pr-12 text-sm text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] transition focus:border-[color:var(--wb-accent)] focus:ring-2 focus:ring-[color:var(--wb-accent-soft)]"
                               />
                             )}
                             {field.type === 'password' ? (
@@ -248,7 +248,7 @@ export default function SettingsPage() {
                                 type="button"
                                 onClick={() => toggleSecret(field.key)}
                                 aria-label={`${showSecrets[field.key] ? '隐藏' : '显示'} ${field.label}`}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-[color:var(--wb-text-muted)] transition hover:bg-white hover:text-[color:var(--wb-text)]"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-[var(--wb-radius-lg)] p-1 text-[color:var(--wb-text-muted)] transition hover:bg-[color:var(--wb-bg-elevated)] hover:text-[color:var(--wb-text)]"
                               >
                                 {showSecrets[field.key] ? <EyeOff size={16} /> : <Eye size={16} />}
                               </button>
@@ -266,7 +266,7 @@ export default function SettingsPage() {
 
         <SurfaceCard tone="soft" className="px-5 py-5 sm:px-6">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[color:var(--wb-border)] bg-white/85 text-[color:var(--wb-accent)] shadow-[var(--wb-shadow-tight)]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] text-[color:var(--wb-accent)]">
               <KeyRound size={16} />
             </div>
             <div>
@@ -281,7 +281,7 @@ export default function SettingsPage() {
           <ul className="mt-4 space-y-3 text-sm leading-6 text-[color:var(--wb-text-muted)]">
             <li>
               <strong className="text-[color:var(--wb-text)]">微信公众号：</strong>
-              前往 <code className="rounded bg-white/80 px-1 py-0.5">mp.weixin.qq.com</code> → 开发 → 基本配置，获取 AppID 和 AppSecret
+              前往 <code className="rounded-[4px] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg)] px-1 py-0.5">mp.weixin.qq.com</code> → 开发 → 基本配置，获取 AppID 和 AppSecret
             </li>
             <li>
               <strong className="text-[color:var(--wb-text)]">小红书：</strong>
@@ -293,7 +293,7 @@ export default function SettingsPage() {
             </li>
             <li>
               <strong className="text-[color:var(--wb-text)]">X (Twitter)：</strong>
-              前往 <code className="rounded bg-white/80 px-1 py-0.5">developer.x.com</code> 创建项目并生成 API Keys 和 Access Tokens
+              前往 <code className="rounded-[4px] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg)] px-1 py-0.5">developer.x.com</code> 创建项目并生成 API Keys 和 Access Tokens
             </li>
           </ul>
         </SurfaceCard>

@@ -38,9 +38,9 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-full border-b border-[color:var(--wb-border)] bg-[linear-gradient(180deg,rgba(252,247,240,0.96)_0%,rgba(244,234,222,0.92)_100%)] text-[color:var(--wb-text)] backdrop-blur-md lg:sticky lg:top-0 lg:h-dvh lg:w-[18rem] lg:shrink-0 lg:border-b-0 lg:border-r lg:overflow-y-auto lg:overscroll-contain">
+    <aside className="w-full border-b border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] text-[color:var(--wb-text)] lg:sticky lg:top-0 lg:h-dvh lg:w-[18rem] lg:shrink-0 lg:border-b-0 lg:border-r lg:overflow-y-auto lg:overscroll-contain">
       <div className="flex flex-col gap-4 p-4 lg:min-h-full">
-        <nav className="space-y-1.5">
+        <nav className="space-y-1">
           {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
@@ -52,40 +52,40 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={joinClasses(
-                  'group block rounded-[22px] border px-4 py-3.5 transition-all duration-200',
+                  'group block rounded-[var(--wb-radius-xl)] border px-4 py-3.5 transition-colors duration-150',
                   isActive
-                    ? 'border-[color:var(--wb-border-strong)] bg-[linear-gradient(180deg,rgba(255,252,247,0.98)_0%,rgba(246,235,225,0.92)_100%)] shadow-[var(--wb-shadow-tight)]'
-                    : 'border-transparent bg-transparent hover:border-[color:var(--wb-border)] hover:bg-[rgba(255,252,247,0.66)]',
+                    ? 'border-[color:var(--wb-border-strong)] bg-[color:var(--wb-surface)]'
+                    : 'border-transparent bg-transparent hover:border-[color:var(--wb-border)] hover:bg-[color:var(--wb-surface)]',
                 )}
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={joinClasses(
-                      'mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-colors',
+                      'mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--wb-radius-lg)] border transition-colors',
                       isActive
-                        ? 'border-[color:var(--wb-accent-soft)] bg-[rgba(255,244,235,0.95)] text-[color:var(--wb-accent)]'
-                        : 'border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.36)] text-[color:var(--wb-text-muted)] group-hover:text-[color:var(--wb-accent)]',
+                        ? 'border-[color:var(--wb-accent-soft)] bg-[color:var(--wb-accent-soft)] text-[color:var(--wb-accent)]'
+                        : 'border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] text-[color:var(--wb-text-muted)] group-hover:text-[color:var(--wb-accent)]',
                     )}
                   >
-                    <Icon size={18} />
+                    <Icon size={16} />
                   </div>
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-[14px] font-medium text-[color:var(--wb-text)]">
+                      <p className="text-[13px] font-medium text-[color:var(--wb-text)]">
                         {item.label}
                       </p>
                       <ArrowRight
-                        size={14}
+                        size={13}
                         className={joinClasses(
-                          'shrink-0 transition-transform duration-200',
+                          'shrink-0 transition-transform duration-150',
                           isActive
-                            ? 'translate-x-0 text-[color:var(--wb-accent)]'
+                            ? 'text-[color:var(--wb-accent)]'
                             : 'text-[color:var(--wb-text-muted)] group-hover:translate-x-0.5 group-hover:text-[color:var(--wb-accent)]',
                         )}
                       />
                     </div>
-                    <p className="mt-1 text-[13px] leading-5 text-[color:var(--wb-text-muted)]">
+                    <p className="mt-0.5 text-[12px] leading-5 text-[color:var(--wb-text-muted)]">
                       {item.description}
                     </p>
                   </div>
@@ -97,15 +97,15 @@ export default function Sidebar() {
 
         <div className="mt-auto px-1 pb-1">
           <p
-            className="text-[22px] leading-none text-[color:var(--wb-ink)]"
+            className="text-[20px] leading-none text-[color:var(--wb-ink)]"
             style={{ fontFamily: 'var(--wb-font-serif)' }}
           >
             Publio
           </p>
-          <p className="mt-2 text-[12px] leading-5 text-[color:var(--wb-text-muted)]">
+          <p className="mt-1.5 text-[11px] leading-5 text-[color:var(--wb-text-muted)]">
             Write once, publish everywhere.
           </p>
-          <p className="mt-3 text-right text-[10px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
+          <p className="mt-2 text-right text-[10px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
             v0.1.0
           </p>
         </div>

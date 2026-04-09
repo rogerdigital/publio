@@ -32,7 +32,7 @@ export default function PublishStatusPanel() {
   if (overallStatus === 'idle') return null;
 
   return (
-    <div className="mt-4 space-y-4 rounded-[24px] border border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.82)] px-4 py-4 shadow-[var(--wb-shadow-tight)]">
+    <div className="mt-4 space-y-4 rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] px-4 py-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
@@ -47,15 +47,15 @@ export default function PublishStatusPanel() {
         </div>
 
         <div className="flex flex-wrap gap-2 text-xs text-[color:var(--wb-text-muted)]">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-white/80 px-3 py-1.5">
+          <span className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-1.5">
             <CheckCircle2 size={12} className="text-[#2b9d62]" />
             {successCount} 已完成
           </span>
-          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-white/80 px-3 py-1.5">
+          <span className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-1.5">
             <XCircle size={12} className="text-[#de6a6a]" />
             {errorCount} 异常
           </span>
-          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--wb-border)] bg-white/80 px-3 py-1.5">
+          <span className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-1.5">
             <Loader2 size={12} className={inFlightCount > 0 ? 'animate-spin text-[color:var(--wb-accent)]' : 'text-[color:var(--wb-text-muted)]'} />
             {totalCount > 0 ? `${totalCount} 张回执` : '等待回执'}
           </span>
@@ -73,16 +73,16 @@ export default function PublishStatusPanel() {
               return (
                 <div
                   key={result.platform}
-                  className={`grid gap-3 rounded-[22px] border px-4 py-4 shadow-[var(--wb-shadow-tight)] sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center ${
+                  className={`grid gap-3 rounded-[var(--wb-radius-xl)] border px-4 py-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center ${
                     result.status === 'success'
-                      ? 'border-[#bfe8cb] bg-[linear-gradient(180deg,rgba(238,251,242,0.98)_0%,rgba(226,247,233,0.96)_100%)]'
+                      ? 'border-[#bfe8cb] bg-[#f4fbf6]'
                       : result.status === 'error'
-                      ? 'border-[#f4c1c1] bg-[linear-gradient(180deg,rgba(255,241,241,0.98)_0%,rgba(255,232,232,0.96)_100%)]'
-                      : 'bg-[#fffdfb] border-[#e8ddd2]'
+                      ? 'border-[#f4c1c1] bg-[#fff4f4]'
+                      : 'bg-[color:var(--wb-bg-elevated)] border-[color:var(--wb-border)]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[color:var(--wb-border)] bg-white/85">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)]">
                       <Icon size={18} className="text-[color:var(--wb-text-muted)]" />
                     </div>
                     <div>
@@ -115,7 +115,7 @@ export default function PublishStatusPanel() {
 
                   <div className="flex items-center justify-between gap-3 sm:justify-end">
                     <span
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.22em] ${
+                      className={`inline-flex items-center gap-1.5 rounded-[var(--wb-radius-lg)] border px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.22em] ${
                         result.status === 'success'
                           ? 'border-[#bfe8cb] bg-white text-[#247a4b]'
                           : result.status === 'error'
@@ -137,7 +137,7 @@ export default function PublishStatusPanel() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`打开 ${platform.name} 发布结果`}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[color:var(--wb-border)] bg-white/80 text-[color:var(--wb-accent)] transition hover:border-[color:var(--wb-border-strong)] hover:bg-white"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] text-[color:var(--wb-accent)] transition hover:border-[color:var(--wb-border-strong)] hover:bg-[color:var(--wb-surface)]"
                       >
                         <ExternalLink size={15} />
                       </a>
@@ -149,7 +149,7 @@ export default function PublishStatusPanel() {
           : // Show loading placeholders during publishing
             overallStatus === 'publishing' && (
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="flex items-center gap-3 rounded-[22px] border border-[color:var(--wb-border)] bg-white/75 px-4 py-3">
+                <div className="flex items-center gap-3 rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-3">
                   <Loader2
                     size={18}
                     className="shrink-0 animate-spin text-[color:var(--wb-accent)]"
@@ -158,7 +158,7 @@ export default function PublishStatusPanel() {
                     正在向已选平台送达稿件...
                   </span>
                 </div>
-                <div className="rounded-[22px] border border-dashed border-[color:var(--wb-border-strong)] bg-white/60 px-4 py-3 text-sm leading-6 text-[color:var(--wb-text-muted)]">
+                <div className="rounded-[var(--wb-radius-xl)] border border-dashed border-[color:var(--wb-border-strong)] bg-[color:var(--wb-bg-elevated)] px-4 py-3 text-sm leading-6 text-[color:var(--wb-text-muted)]">
                   回执到达后，这里会自动变成每个平台的案例卡片。
                 </div>
               </div>

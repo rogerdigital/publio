@@ -36,13 +36,13 @@ export default function ResearchNotesPanel({
             <span>今天能发 {todayCount} 条，还能追 {followCount} 条</span>
           </div>
           {selectedTitle ? (
-            <div className="inline-flex rounded-full border border-[color:var(--wb-border-strong)] bg-[rgba(255,247,240,0.92)] px-3 py-1.5 text-xs text-[color:var(--wb-accent-strong)]">
+            <div className="inline-flex rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border-strong)] bg-[color:var(--wb-accent-soft)] px-3 py-1.5 text-xs text-[color:var(--wb-accent-strong)]">
               当前查看：{selectedTitle}
             </div>
           ) : null}
         </div>
 
-        <div className="mt-5 rounded-[24px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.66)] p-4">
+        <div className="mt-5 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg)] p-4">
           <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-muted)]">
             研究底稿
           </p>
@@ -58,7 +58,7 @@ export default function ResearchNotesPanel({
                 </p>
               </div>
 
-              <div className="rounded-[20px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.68)] px-4 py-4">
+              <div className="rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] px-4 py-4">
                 <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
                   为什么重要
                 </p>
@@ -67,7 +67,7 @@ export default function ResearchNotesPanel({
                 </p>
               </div>
 
-              <div className="rounded-[20px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.68)] px-4 py-4">
+              <div className="rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] px-4 py-4">
                 <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
                   影响了谁
                 </p>
@@ -75,7 +75,7 @@ export default function ResearchNotesPanel({
                   {research.whoIsAffected.map((audience) => (
                     <span
                       key={audience}
-                      className="inline-flex rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.78)] px-3 py-1.5 text-xs text-[color:var(--wb-ink)]"
+                      className="inline-flex rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-1.5 text-xs text-[color:var(--wb-ink)]"
                     >
                       {audience}
                     </span>
@@ -83,7 +83,7 @@ export default function ResearchNotesPanel({
                 </div>
               </div>
 
-              <div className="rounded-[20px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.68)] px-4 py-4">
+              <div className="rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] px-4 py-4">
                 <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
                   推荐写法
                 </p>
@@ -101,7 +101,7 @@ export default function ResearchNotesPanel({
                 </div>
               </div>
 
-              <div className="rounded-[20px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.68)] px-4 py-4">
+              <div className="rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] px-4 py-4">
                 <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
                   延展背景
                 </p>
@@ -114,7 +114,7 @@ export default function ResearchNotesPanel({
                 </div>
               </div>
 
-              <div className="rounded-[20px] border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.68)] px-4 py-4">
+              <div className="rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] px-4 py-4">
                 <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
                   原始依据
                 </p>

@@ -62,10 +62,10 @@ export default function PublishButton() {
     <button
       onClick={handlePublish}
       disabled={isDisabled}
-      className={`inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium transition-all ${
+      className={`inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border px-5 py-2.5 text-sm font-medium transition-colors ${
         isDisabled
-          ? 'cursor-not-allowed border-[color:var(--wb-border)] bg-[rgba(255,252,247,0.72)] text-[color:var(--wb-text-muted)]'
-          : 'border-[color:var(--wb-border-strong)] bg-[color:var(--wb-accent)] text-white shadow-[0_14px_28px_rgba(215,120,67,0.22)] hover:brightness-105'
+          ? 'cursor-not-allowed border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] text-[color:var(--wb-text-muted)]'
+          : 'border-transparent bg-[color:var(--wb-accent)] text-white hover:brightness-105'
       }`}
     >
       {overallStatus === 'publishing' ? (

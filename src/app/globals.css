@@ -2,34 +2,34 @@
 @source "../**/*.{js,ts,jsx,tsx,mdx}";
 
 :root {
-  --wb-bg: #f3eadf;
-  --wb-bg-elevated: #fbf6ef;
-  --wb-surface: rgba(255, 251, 245, 0.88);
-  --wb-surface-strong: #fffdf9;
-  --wb-border: rgba(101, 78, 60, 0.14);
-  --wb-border-strong: rgba(101, 78, 60, 0.22);
-  --wb-text: #2d241e;
-  --wb-text-muted: #72675e;
-  --wb-accent: #c86a3d;
-  --wb-accent-soft: #efd4c0;
-  --wb-signal: #9a4520;
-  --wb-shadow-lg: 0 28px 68px rgba(80, 59, 45, 0.11);
-  --wb-radius-xl: 28px;
-  --wb-radius-lg: 20px;
+  --wb-bg:           #F5F4F0;
+  --wb-bg-elevated:  #FAFAF7;
+  --wb-surface:      #FFFFFF;
+  --wb-surface-strong: #FFFFFF;
+  --wb-border:       rgba(19, 19, 20, 0.10);
+  --wb-border-strong: rgba(19, 19, 20, 0.18);
+  --wb-text:         #131314;
+  --wb-text-muted:   #6B6860;
+  --wb-accent:       #D97757;
+  --wb-accent-soft:  #F5DDD3;
+  --wb-signal:       #B85C36;
+  --wb-radius-xl:    12px;
+  --wb-radius-lg:    8px;
 
   --background: var(--wb-bg);
   --foreground: var(--wb-text);
-  --wb-canvas: var(--wb-bg);
-  --wb-canvas-deep: #e8dccf;
-  --wb-paper: var(--wb-surface);
+  --wb-canvas:       var(--wb-bg);
+  --wb-canvas-deep:  #ECEAE4;
+  --wb-paper:        var(--wb-surface);
   --wb-paper-strong: var(--wb-surface-strong);
-  --wb-line: var(--wb-border);
-  --wb-line-strong: var(--wb-border-strong);
-  --wb-ink: var(--wb-text);
-  --wb-muted: var(--wb-text-muted);
+  --wb-line:         var(--wb-border);
+  --wb-line-strong:  var(--wb-border-strong);
+  --wb-ink:          var(--wb-text);
+  --wb-muted:        var(--wb-text-muted);
   --wb-accent-strong: var(--wb-signal);
-  --wb-shadow: var(--wb-shadow-lg);
-  --wb-shadow-tight: 0 14px 30px rgba(80, 59, 45, 0.08);
+  --wb-shadow:       none;
+  --wb-shadow-lg:    none;
+  --wb-shadow-tight: none;
   --wb-font-sans: "Source Han Sans SC", "PingFang SC", "Hiragino Sans GB",
     "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
   --wb-font-serif: "Source Han Serif SC", "Songti SC", "Iowan Old Style",
@@ -46,43 +46,16 @@ body {
   min-height: 100vh;
   color: var(--wb-text);
   font-family: var(--wb-font-sans);
-  background:
-    radial-gradient(circle at 12% 10%, rgba(235, 173, 133, 0.24), transparent 26%),
-    radial-gradient(circle at 88% 8%, rgba(163, 151, 136, 0.14), transparent 24%),
-    radial-gradient(circle at 16% 86%, rgba(111, 99, 90, 0.08), transparent 30%),
-    linear-gradient(180deg, var(--wb-bg-elevated) 0%, #f6efe6 48%, #efe4d7 100%);
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 1px 1px, rgba(60, 47, 38, 0.05) 1px, transparent 0)
-      0 0 / 18px 18px,
-    linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 40%);
-  opacity: 0.5;
-  mix-blend-mode: multiply;
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.34), transparent 18%),
-    linear-gradient(180deg, transparent 72%, rgba(79, 60, 48, 0.05));
+  background: var(--wb-bg);
 }
 
 ::selection {
   color: var(--wb-text);
-  background: rgba(201, 107, 63, 0.18);
+  background: rgba(217, 119, 87, 0.18);
 }
 
 :focus-visible {
-  outline: 2px solid rgba(201, 107, 63, 0.55);
+  outline: 2px solid rgba(217, 119, 87, 0.55);
   outline-offset: 2px;
 }
 
