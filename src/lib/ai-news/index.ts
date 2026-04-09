@@ -90,6 +90,15 @@ function sortCandidates(left: AiNewsDeskCandidate, right: AiNewsDeskCandidate) {
   return Date.parse(right.latestPublishedAt) - Date.parse(left.latestPublishedAt);
 }
 
+function shuffleCandidates(candidates: AiNewsDeskCandidate[]): AiNewsDeskCandidate[] {
+  const result = [...candidates];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
 function diversifyCandidates(
   sorted: AiNewsDeskCandidate[],
   total: number,
@@ -231,12 +240,14 @@ export async function buildAiNewsDesk(hours = 24, poolSize = 40) {
     ...desk.followCandidates,
   ]);
   const generatedAt = new Date(desk.generatedAt);
-  const candidates = diversifyCandidates(
-    hydratedCandidates
-      .map((candidate) => scoreAiNewsCluster(candidate, generatedAt))
-      .map((candidate) => buildCandidate(candidate))
-      .sort(sortCandidates),
-    poolSize,
+  const candidates = shuffleCandidates(
+    diversifyCandidates(
+      hydratedCandidates
+        .map((candidate) => scoreAiNewsCluster(candidate, generatedAt))
+        .map((candidate) => buildCandidate(candidate))
+        .sort(sortCandidates),
+      poolSize,
+    ),
   );
   const todayCandidates = candidates.filter((candidate) => candidate.bucket === 'today');
   const followCandidates = candidates.filter((candidate) => candidate.bucket === 'follow');
