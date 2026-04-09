@@ -80,6 +80,9 @@ export default function HomePage() {
 
         <div className="px-1 py-1">
           <div className="space-y-4">
+            <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-[color:var(--wb-accent)]">
+              Publish to
+            </p>
             <PlatformSelector />
 
             <div className="flex flex-wrap items-start justify-end gap-3">
