@@ -73,12 +73,17 @@ export default function TopicSignalCard({
 
           {/* 标题 + 评分/时间（无框，纯文字） */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-            <h3
-              className="min-w-0 text-[20px] font-semibold leading-[1.4] text-[color:var(--wb-ink)] sm:text-[22px]"
-              style={{ fontFamily: 'var(--wb-font-serif)' }}
-            >
-              {item.title}
-            </h3>
+            <div className="min-w-0">
+              <h3
+                className="text-[20px] font-semibold leading-[1.4] text-[color:var(--wb-ink)] sm:text-[22px]"
+                style={{ fontFamily: 'var(--wb-font-serif)' }}
+              >
+                {item.title}
+              </h3>
+              <p className="mt-2 max-w-3xl text-[15px] leading-7 text-[color:var(--wb-muted)]">
+                {item.whyNow}
+              </p>
+            </div>
             <div className="flex shrink-0 gap-5 sm:flex-col sm:items-end sm:gap-1 sm:pt-1">
               <div>
                 <p className="text-[10px] uppercase tracking-[0.22em] text-[color:var(--wb-muted)]">综合评分</p>
@@ -93,11 +98,6 @@ export default function TopicSignalCard({
               </div>
             </div>
           </div>
-
-          {/* whyNow */}
-          <p className="max-w-3xl text-[15px] leading-7 text-[color:var(--wb-muted)]">
-            {item.whyNow}
-          </p>
 
           {/* 编辑判断 — 左侧竖线，无内框 */}
           <div className="border-l-2 border-[color:var(--wb-accent)] pl-4">
@@ -142,6 +142,13 @@ export default function TopicSignalCard({
 
           {/* 操作按钮 */}
           <div className="flex flex-wrap items-center gap-2 border-t border-[color:var(--wb-border)] pt-3">
+            {/* 评分维度 — 左侧 */}
+            <span className="mr-auto hidden items-center gap-3 text-[12px] text-[color:var(--wb-muted)] sm:flex">
+              <span>新鲜度 {item.scores.freshness}</span>
+              <span>影响力 {item.scores.impact}</span>
+              <span>势能 {item.scores.momentum}</span>
+              <span>可信度 {item.scores.credibility}</span>
+            </span>
             <a
               href={item.primarySignal.link}
               target="_blank"
@@ -170,13 +177,6 @@ export default function TopicSignalCard({
               <FileUp size={15} />
               加入写作台
             </button>
-            {/* 评分维度 — 降权展示，放在按钮行右侧 */}
-            <span className="ml-auto hidden items-center gap-3 text-[12px] text-[color:var(--wb-muted)] sm:flex">
-              <span>鲜 {item.scores.freshness}</span>
-              <span>影 {item.scores.impact}</span>
-              <span>势 {item.scores.momentum}</span>
-              <span>信 {item.scores.credibility}</span>
-            </span>
           </div>
 
           {/* 内联研究底稿 */}
