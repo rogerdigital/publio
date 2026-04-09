@@ -73,31 +73,24 @@ export default function HomePage() {
           <MarkdownEditor activeTab={activeTab} />
         </div>
 
-        <div className="px-1 py-1">
-          <div className="space-y-4">
-            <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-[color:var(--wb-accent)]">
-              Publish to
-            </p>
-            <PlatformSelector />
-
-            <div className="flex flex-wrap items-start justify-end gap-3">
-              <div className="flex-1">
-                <PublishStatusPanel />
-              </div>
-              <div className="flex shrink-0 items-center gap-3">
-                {overallStatus !== 'idle' && overallStatus !== 'publishing' && (
-                  <button
-                    onClick={reset}
-                    className="text-sm text-[color:var(--wb-text-muted)] underline transition hover:text-[color:var(--wb-text)]"
-                  >
-                    清除结果
-                  </button>
-                )}
-                <PublishButton />
-              </div>
-            </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <PlatformSelector />
+          <div className="flex shrink-0 items-center gap-3">
+            {overallStatus !== 'idle' && overallStatus !== 'publishing' && (
+              <button
+                onClick={reset}
+                className="text-sm text-[color:var(--wb-text-muted)] underline transition hover:text-[color:var(--wb-text)]"
+              >
+                清除结果
+              </button>
+            )}
+            <PublishButton />
           </div>
         </div>
+
+        {overallStatus !== 'idle' && (
+          <PublishStatusPanel />
+        )}
       </div>
     </div>
   );
