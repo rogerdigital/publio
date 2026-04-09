@@ -96,17 +96,19 @@ export default function Sidebar() {
         </nav>
 
         <div className="mt-auto px-1 pb-1">
-          <p
-            className="text-[22px] leading-none text-[color:var(--wb-ink)]"
-            style={{ fontFamily: 'var(--wb-font-serif)' }}
-          >
-            Publio
-          </p>
+          <div className="flex items-end justify-between">
+            <p
+              className="text-[22px] leading-none text-[color:var(--wb-ink)]"
+              style={{ fontFamily: 'var(--wb-font-serif)' }}
+            >
+              Publio
+            </p>
+            <p className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
+              v0.1.0
+            </p>
+          </div>
           <p className="mt-2 text-[12px] leading-5 text-[color:var(--wb-text-muted)]">
             Write once, publish everywhere.
-          </p>
-          <p className="mt-3 text-[10px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
-            v0.1.0
           </p>
         </div>
       </div>
