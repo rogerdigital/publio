@@ -9,8 +9,48 @@ import { markdownToHtml } from '@/lib/markdown';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
+function countCharacters(content: string) {
+  return content.replace(/\s/g, '').length;
+}
+
+function countParagraphs(content: string) {
+  return content
+    .split(/\n{2,}/)
+    .map((s) => s.trim())
+    .filter(Boolean).length;
+}
+
+function countHeadings(content: string) {
+  return (content.match(/^#{1,6}\s+/gm) || []).length;
+}
+
+function countCjkCharacters(content: string) {
+  return (
+    content.match(
+      /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\u3040-\u30ff\u31f0-\u31ff\uac00-\ud7af]/g,
+    ) || []
+  ).length;
+}
+
+function countLatinWords(content: string) {
+  return content
+    .replace(
+      /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\u3040-\u30ff\u31f0-\u31ff\uac00-\ud7af]/g,
+      ' ',
+    )
+    .split(/\s+/)
+    .filter(Boolean).length;
+}
+
+function estimateReadTime(content: string) {
+  const cjk = countCjkCharacters(content);
+  const latin = countLatinWords(content);
+  const minutes = Math.max(1, Math.ceil(cjk / 380 + latin / 220));
+  return `${minutes} 分钟`;
+}
+
 export default function MarkdownEditor() {
-  const { title, content, setContent } = usePublishStore();
+  const { title, setTitle, content, setContent } = usePublishStore();
   const [editorHeight, setEditorHeight] = useState<number | undefined>(undefined);
   const [isDesktop, setIsDesktop] = useState(false);
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
@@ -18,45 +58,38 @@ export default function MarkdownEditor() {
   useEffect(() => {
     function syncHeight() {
       const width = window.innerWidth;
-
       if (width >= 1024) {
         setIsDesktop(true);
-        setEditorHeight(760);
+        setEditorHeight(420);
         return;
       }
-
       setIsDesktop(false);
       setEditorHeight(undefined);
     }
 
     syncHeight();
     window.addEventListener('resize', syncHeight);
-
     return () => window.removeEventListener('resize', syncHeight);
   }, []);
 
+  const cleanContent = content.trim();
   const previewHtml = markdownToHtml(
-    content || '在这里开始撰写你的稿件内容，通过上方标签切换查看纸张预览。',
+    cleanContent || '在这里开始撰写你的稿件内容，通过上方标签切换查看纸张预览。',
   );
 
   return (
     <div className="overflow-hidden rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[linear-gradient(180deg,rgba(255,251,246,0.98)_0%,rgba(249,242,234,0.96)_100%)] shadow-[var(--wb-shadow-lg)]">
+      {/* 顶栏：tab 切换 */}
       <div className="border-b border-[color:var(--wb-border)] bg-[rgba(255,250,244,0.94)] px-4 py-2.5 sm:px-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
-              Writing console
-            </p>
-            <p className="mt-1 text-sm text-[color:var(--wb-text-muted)]">
-              主写作区与纸张预览切换查看
-            </p>
-          </div>
-
-          <div className="inline-flex w-full rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.72)] p-1 sm:w-auto">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[11px] uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
+            Writing console
+          </p>
+          <div className="inline-flex rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,255,255,0.72)] p-1">
             <button
               type="button"
               onClick={() => setActiveTab('edit')}
-              className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm transition sm:flex-none ${
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition ${
                 activeTab === 'edit'
                   ? 'bg-[color:var(--wb-accent)] text-white'
                   : 'text-[color:var(--wb-text-muted)] hover:text-[color:var(--wb-text)]'
@@ -68,7 +101,7 @@ export default function MarkdownEditor() {
             <button
               type="button"
               onClick={() => setActiveTab('preview')}
-              className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm transition sm:flex-none ${
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition ${
                 activeTab === 'preview'
                   ? 'bg-[color:var(--wb-accent)] text-white'
                   : 'text-[color:var(--wb-text-muted)] hover:text-[color:var(--wb-text)]'
@@ -82,27 +115,55 @@ export default function MarkdownEditor() {
       </div>
 
       {activeTab === 'edit' ? (
-        <div
-          data-color-mode="light"
-          className="[&_.w-md-editor]:bg-transparent [&_.w-md-editor]:text-[color:var(--wb-text)] [&_.w-md-editor-toolbar]:border-[color:var(--wb-border)] [&_.w-md-editor-toolbar]:bg-[rgba(255,252,247,0.96)] [&_.w-md-editor-toolbar]:px-3 [&_.w-md-editor-toolbar]:py-2 [&_.w-md-editor-toolbar-divider]:bg-[color:var(--wb-border)] [&_.w-md-editor-bar]:hidden [&_.w-md-editor-text-input]:font-[family-name:var(--wb-font-sans)] [&_.w-md-editor-text-input]:bg-transparent [&_.w-md-editor-text-input]:text-[color:var(--wb-text)] [&_.w-md-editor-text-input]:placeholder:text-[color:var(--wb-text-muted)] [&_.wmde-markdown]:bg-transparent [&_.wmde-markdown]:text-[color:var(--wb-text)] [&_.w-md-editor-area]:bg-transparent"
-        >
-          {isDesktop ? (
-            <MDEditor
-              value={content}
-              onChange={(val) => setContent(val || '')}
-              height={editorHeight}
-              preview="edit"
-              visibleDragbar={false}
+        <>
+          {/* 标题输入区 */}
+          <div className="border-b border-[color:var(--wb-border)] px-4 py-4 sm:px-5">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="输入文章标题..."
+              className="w-full border-0 bg-transparent text-[24px] leading-tight text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] sm:text-[28px]"
+              style={{ fontFamily: 'var(--wb-font-serif)' }}
             />
-          ) : (
-            <textarea
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
-              placeholder="在这里开始撰写你的稿件内容，预览可以通过上方标签切换查看。"
-              className="min-h-[18rem] w-full resize-y border-0 bg-transparent px-4 py-4 text-[15px] leading-7 text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] sm:min-h-[22rem] sm:px-5 sm:py-5"
-            />
-          )}
-        </div>
+          </div>
+
+          {/* 正文编辑区 */}
+          <div
+            data-color-mode="light"
+            className="[&_.w-md-editor]:bg-transparent [&_.w-md-editor]:text-[color:var(--wb-text)] [&_.w-md-editor-toolbar]:border-[color:var(--wb-border)] [&_.w-md-editor-toolbar]:bg-[rgba(255,252,247,0.96)] [&_.w-md-editor-toolbar]:px-3 [&_.w-md-editor-toolbar]:py-2 [&_.w-md-editor-toolbar-divider]:bg-[color:var(--wb-border)] [&_.w-md-editor-bar]:hidden [&_.w-md-editor-text-input]:font-[family-name:var(--wb-font-sans)] [&_.w-md-editor-text-input]:bg-transparent [&_.w-md-editor-text-input]:text-[color:var(--wb-text)] [&_.w-md-editor-text-input]:placeholder:text-[color:var(--wb-text-muted)] [&_.wmde-markdown]:bg-transparent [&_.wmde-markdown]:text-[color:var(--wb-text)] [&_.w-md-editor-area]:bg-transparent"
+          >
+            {isDesktop ? (
+              <MDEditor
+                value={content}
+                onChange={(val) => setContent(val || '')}
+                height={editorHeight}
+                preview="edit"
+                visibleDragbar={false}
+              />
+            ) : (
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="输入文章内容..."
+                className="min-h-[18rem] w-full resize-y border-0 bg-transparent px-4 py-4 text-[15px] leading-7 text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] sm:min-h-[22rem] sm:px-5 sm:py-5"
+              />
+            )}
+          </div>
+
+          {/* 底部数据栏 */}
+          <div className="border-t border-[color:var(--wb-border)] bg-[rgba(255,250,244,0.94)] px-4 py-2.5 sm:px-5">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-[color:var(--wb-text-muted)]">
+              <span>{countCharacters(cleanContent)} 字符</span>
+              <span className="h-3 w-px bg-[color:var(--wb-border)]" />
+              <span>{countParagraphs(cleanContent)} 段落</span>
+              <span className="h-3 w-px bg-[color:var(--wb-border)]" />
+              <span>{countHeadings(cleanContent)} 标题</span>
+              <span className="h-3 w-px bg-[color:var(--wb-border)]" />
+              <span>约 {cleanContent ? estimateReadTime(cleanContent) : '1 分钟'} 阅读</span>
+            </div>
+          </div>
+        </>
       ) : (
         <div className="bg-[linear-gradient(180deg,rgba(248,242,234,0.98)_0%,rgba(243,234,223,0.96)_100%)] p-4 sm:p-5 lg:min-h-[760px]">
           <div className="mx-auto max-w-[860px] rounded-[28px] border border-[color:var(--wb-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(251,247,242,0.96)_100%)] px-5 py-6 shadow-[var(--wb-shadow-lg)]">
