@@ -146,7 +146,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <AppShellHeader
         kicker="Operational control"
-        title="平台设置台"
+        title="平台设置"
         description="统一管理各平台 API 凭证与登录态。界面保持安静、克制，适合在发布前逐项核对。"
         action={
           <div className="flex flex-col items-end gap-2">
