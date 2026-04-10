@@ -21,7 +21,7 @@ export default function TopicDeskHeader({
 }: TopicDeskHeaderProps) {
   return (
     <AppShellHeader
-      kicker="Today's AI Topics"
+      kicker="Topic desk"
       title="今日 AI 话题工作台"
       description={`把最近 24 小时的 AI 信息压成可判断的选题列表。${generatedAt ? `最近更新：${generatedAt}。` : ''}今天能发 ${todayCount} 条，还能追 ${followCount} 条。`}
       action={

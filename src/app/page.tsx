@@ -35,7 +35,7 @@ export default function HomePage() {
   return (
     <div className="space-y-6">
       <AppShellHeader
-        kicker="Writing desk"
+        kicker="Compose & publish"
         title="写作台"
         description="先定标题，再写正文，再检查排版和分发。"
         action={
