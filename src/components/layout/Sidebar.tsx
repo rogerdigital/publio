@@ -95,19 +95,25 @@ export default function Sidebar() {
           })}
         </nav>
 
-        <div className="mt-auto px-1 pb-1">
-          <p
-            className="text-[20px] leading-none text-[color:var(--wb-ink)]"
-            style={{ fontFamily: 'var(--wb-font-serif)' }}
-          >
-            Publio
-          </p>
-          <p className="mt-1.5 text-[11px] leading-5 text-[color:var(--wb-text-muted)]">
-            Write once, publish everywhere.
-          </p>
-          <p className="mt-2 text-right text-[10px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
-            v0.1.0
-          </p>
+        <div className="mt-auto">
+          <div className="mx-1 mb-1 overflow-hidden rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border-faint)] bg-gradient-to-br from-[#fdf8f4] to-[color:var(--wb-bg-elevated)] px-4 py-4">
+            <div className="flex items-end justify-between gap-2">
+              <div>
+                <p
+                  className="text-[18px] leading-none tracking-tight text-[color:var(--wb-ink)]"
+                  style={{ fontFamily: 'var(--wb-font-serif)' }}
+                >
+                  Publio
+                </p>
+                <p className="mt-1.5 text-[11px] leading-4 text-[color:var(--wb-text-muted)]">
+                  Write once,<br />publish everywhere.
+                </p>
+              </div>
+              <span className="shrink-0 rounded-full border border-[color:var(--wb-accent-soft)] bg-[color:var(--wb-accent-soft)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.2em] text-[color:var(--wb-accent)]">
+                v0.1.0
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </aside>
