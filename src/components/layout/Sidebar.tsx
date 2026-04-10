@@ -16,7 +16,7 @@ const handwriting = Dancing_Script({ subsets: ['latin'], weight: ['700'] });
 const navItems = [
   {
     href: '/ai-news',
-    label: '选题台',
+    label: '选题工作台',
     description: '聚合 AI 热点，提炼可转化的内容线索。',
     icon: Newspaper,
   },
