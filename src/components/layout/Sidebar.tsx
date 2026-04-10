@@ -9,6 +9,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { Dancing_Script } from 'next/font/google';
+import { cn } from '@/lib/cn';
 
 const handwriting = Dancing_Script({ subsets: ['latin'], weight: ['700'] });
 
@@ -33,10 +34,6 @@ const navItems = [
   },
 ];
 
-function joinClasses(...classes: Array<string | undefined | false>) {
-  return classes.filter(Boolean).join(' ');
-}
-
 export default function Sidebar() {
   const pathname = usePathname();
 
@@ -54,7 +51,7 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={joinClasses(
+                className={cn(
                   'group relative flex items-start gap-3 rounded-[var(--wb-radius-xl)] px-3 py-3 transition-colors duration-150',
                   isActive
                     ? 'bg-[color:var(--wb-surface)]'
@@ -63,7 +60,7 @@ export default function Sidebar() {
               >
                 {/* 选中左侧竖条 */}
                 <span
-                  className={joinClasses(
+                  className={cn(
                     'absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full transition-opacity duration-150',
                     isActive ? 'opacity-100' : 'opacity-0',
                   )}
@@ -72,7 +69,7 @@ export default function Sidebar() {
 
                 {/* 图标 */}
                 <div
-                  className={joinClasses(
+                  className={cn(
                     'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--wb-radius-lg)] transition-colors duration-150',
                     isActive
                       ? 'bg-[color:var(--wb-accent)] text-white'
@@ -86,7 +83,7 @@ export default function Sidebar() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <p
-                      className={joinClasses(
+                      className={cn(
                         'text-[13px] leading-5 transition-colors duration-150',
                         isActive
                           ? 'font-semibold text-[color:var(--wb-text)]'
@@ -97,7 +94,7 @@ export default function Sidebar() {
                     </p>
                     <ArrowRight
                       size={13}
-                      className={joinClasses(
+                      className={cn(
                         'shrink-0 transition-all duration-150',
                         isActive
                           ? 'text-[color:var(--wb-accent)]'

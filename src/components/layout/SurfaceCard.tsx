@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/lib/cn';
 
 type SurfaceTone = 'default' | 'soft' | 'accent';
 
@@ -7,16 +8,12 @@ interface SurfaceCardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
 }
 
-function joinClasses(...classes: Array<string | undefined | false>) {
-  return classes.filter(Boolean).join(' ');
-}
-
 function toneClasses(tone: SurfaceTone) {
   switch (tone) {
     case 'soft':
       return 'bg-[color:var(--wb-bg-elevated)]';
     case 'accent':
-      return 'bg-[color:var(--wb-surface)]';
+      return 'bg-[rgba(255,246,237,0.92)]';
     default:
       return 'bg-[color:var(--wb-surface)]';
   }
@@ -31,7 +28,7 @@ export default function SurfaceCard({
   return (
     <div
       {...props}
-      className={joinClasses(
+      className={cn(
         'rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] text-[color:var(--wb-text)]',
         toneClasses(tone),
         className,

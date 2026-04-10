@@ -1,6 +1,7 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 
 import SurfaceCard from '@/components/layout/SurfaceCard';
+import { cn } from '@/lib/cn';
 
 interface PageSectionProps extends HTMLAttributes<HTMLElement> {
   eyebrow?: string;
@@ -8,10 +9,6 @@ interface PageSectionProps extends HTMLAttributes<HTMLElement> {
   description?: string;
   actions?: ReactNode;
   children: ReactNode;
-}
-
-function joinClasses(...classes: Array<string | undefined | false>) {
-  return classes.filter(Boolean).join(' ');
 }
 
 export default function PageSection({
@@ -26,7 +23,7 @@ export default function PageSection({
   return (
     <section
       {...props}
-      className={joinClasses(
+      className={cn(
         'mx-auto w-full max-w-[1520px] px-0 py-0',
         className,
       )}
