@@ -48,11 +48,11 @@ export default function PublishStatusPanel() {
 
         <div className="flex flex-wrap gap-2 text-xs text-[color:var(--wb-text-muted)]">
           <span className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-1.5">
-            <CheckCircle2 size={12} className="text-[#2b9d62]" />
+            <CheckCircle2 size={12} className="text-[color:var(--wb-success-text)]" />
             {successCount} 已完成
           </span>
           <span className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-1.5">
-            <XCircle size={12} className="text-[#de6a6a]" />
+            <XCircle size={12} className="text-[color:var(--wb-error-text)]" />
             {errorCount} 异常
           </span>
           <span className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-3 py-1.5">
@@ -75,9 +75,9 @@ export default function PublishStatusPanel() {
                   key={result.platform}
                   className={`grid gap-3 rounded-[var(--wb-radius-xl)] border px-4 py-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center ${
                     result.status === 'success'
-                      ? 'border-[#bfe8cb] bg-[#f4fbf6]'
+                      ? 'border-[color:var(--wb-success-border)] bg-[color:var(--wb-success-bg)]'
                       : result.status === 'error'
-                      ? 'border-[#f4c1c1] bg-[#fff4f4]'
+                      ? 'border-[color:var(--wb-error-border)] bg-[color:var(--wb-error-bg)]'
                       : 'bg-[color:var(--wb-bg-elevated)] border-[color:var(--wb-border)]'
                   }`}
                 >
@@ -103,9 +103,9 @@ export default function PublishStatusPanel() {
                     <span
                       className={`text-sm leading-6 ${
                         result.status === 'success'
-                          ? 'text-[#247a4b]'
+                          ? 'text-[color:var(--wb-success-text)]'
                           : result.status === 'error'
-                          ? 'text-[#bf4b4b]'
+                          ? 'text-[color:var(--wb-error-text)]'
                           : 'text-[color:var(--wb-text-muted)]'
                       }`}
                     >
@@ -117,9 +117,9 @@ export default function PublishStatusPanel() {
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-[var(--wb-radius-lg)] border px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.22em] ${
                         result.status === 'success'
-                          ? 'border-[#bfe8cb] bg-white text-[#247a4b]'
+                          ? 'border-[color:var(--wb-success-border)] bg-white text-[color:var(--wb-success-text)]'
                           : result.status === 'error'
-                          ? 'border-[#f4c1c1] bg-white text-[#bf4b4b]'
+                          ? 'border-[color:var(--wb-error-border)] bg-white text-[color:var(--wb-error-text)]'
                           : 'border-[color:var(--wb-border)] bg-white text-[color:var(--wb-text-muted)]'
                       }`}
                     >

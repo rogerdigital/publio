@@ -160,12 +160,12 @@ export default function SettingsPage() {
               {loading ? '正在读取...' : '保存设置'}
             </button>
             {saved ? (
-              <span className="inline-flex items-center gap-1.5 text-sm text-[#2b9d62]">
+              <span className="inline-flex items-center gap-1.5 text-sm text-[color:var(--wb-success-text)]">
                 <CheckCircle2 size={14} />
                 已保存
               </span>
             ) : errorMessage ? (
-              <span className="max-w-[14rem] text-right text-sm text-[#b44d4d]">{errorMessage}</span>
+              <span className="max-w-[14rem] text-right text-sm text-[color:var(--wb-error-text)]">{errorMessage}</span>
             ) : null}
           </div>
         }

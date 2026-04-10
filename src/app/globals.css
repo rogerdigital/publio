@@ -17,6 +17,14 @@
   --wb-radius-xl:    12px;
   --wb-radius-lg:    8px;
 
+  /* 语义状态色 */
+  --wb-success-bg:     #f4fbf6;
+  --wb-success-border: #bfe8cb;
+  --wb-success-text:   #247a4b;
+  --wb-error-bg:       #fff4f4;
+  --wb-error-border:   #f4c1c1;
+  --wb-error-text:     #bf4b4b;
+
   --background: var(--wb-bg);
   --foreground: var(--wb-text);
   --wb-canvas:       var(--wb-bg);
