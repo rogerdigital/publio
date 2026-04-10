@@ -42,8 +42,8 @@ export default function Sidebar() {
 
   return (
     <aside className="w-full border-b border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] text-[color:var(--wb-text)] lg:sticky lg:top-0 lg:h-dvh lg:w-[18rem] lg:shrink-0 lg:border-b-0 lg:border-r lg:overflow-y-auto lg:overscroll-contain">
-      <div className="flex flex-col gap-4 p-4 lg:min-h-full">
-        <nav className="space-y-1">
+      <div className="flex flex-col p-3 lg:min-h-full">
+        <nav className="space-y-0.5">
           {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
@@ -55,43 +55,59 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={joinClasses(
-                  'group block rounded-[var(--wb-radius-xl)] border px-4 py-3.5 transition-colors duration-150',
+                  'group relative flex items-start gap-3 rounded-[var(--wb-radius-xl)] px-3 py-3 transition-colors duration-150',
                   isActive
-                    ? 'border-[color:var(--wb-border-strong)] bg-[color:var(--wb-surface)]'
-                    : 'border-transparent bg-transparent hover:border-[color:var(--wb-border)] hover:bg-[color:var(--wb-surface)]',
+                    ? 'bg-[color:var(--wb-surface)]'
+                    : 'hover:bg-[color:var(--wb-surface)]',
                 )}
               >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={joinClasses(
-                      'mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--wb-radius-lg)] border transition-colors',
-                      isActive
-                        ? 'border-[color:var(--wb-accent-soft)] bg-[color:var(--wb-accent-soft)] text-[color:var(--wb-accent)]'
-                        : 'border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] text-[color:var(--wb-text-muted)] group-hover:text-[color:var(--wb-accent)]',
-                    )}
-                  >
-                    <Icon size={16} />
-                  </div>
+                {/* 选中左侧竖条 */}
+                <span
+                  className={joinClasses(
+                    'absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full transition-opacity duration-150',
+                    isActive ? 'opacity-100' : 'opacity-0',
+                  )}
+                  style={{ background: 'var(--wb-accent)' }}
+                />
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-[13px] font-medium text-[color:var(--wb-text)]">
-                        {item.label}
-                      </p>
-                      <ArrowRight
-                        size={13}
-                        className={joinClasses(
-                          'shrink-0 transition-transform duration-150',
-                          isActive
-                            ? 'text-[color:var(--wb-accent)]'
-                            : 'text-[color:var(--wb-text-muted)] group-hover:translate-x-0.5 group-hover:text-[color:var(--wb-accent)]',
-                        )}
-                      />
-                    </div>
-                    <p className="mt-0.5 text-[12px] leading-5 text-[color:var(--wb-text-muted)]">
-                      {item.description}
+                {/* 图标 */}
+                <div
+                  className={joinClasses(
+                    'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--wb-radius-lg)] transition-colors duration-150',
+                    isActive
+                      ? 'bg-[color:var(--wb-accent)] text-white'
+                      : 'bg-[color:var(--wb-canvas-deep)] text-[color:var(--wb-text-muted)] group-hover:bg-[color:var(--wb-accent-soft)] group-hover:text-[color:var(--wb-accent)]',
+                  )}
+                >
+                  <Icon size={15} />
+                </div>
+
+                {/* 文字 */}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <p
+                      className={joinClasses(
+                        'text-[13px] leading-5 transition-colors duration-150',
+                        isActive
+                          ? 'font-semibold text-[color:var(--wb-text)]'
+                          : 'font-medium text-[color:var(--wb-text-muted)] group-hover:text-[color:var(--wb-text)]',
+                      )}
+                    >
+                      {item.label}
                     </p>
+                    <ArrowRight
+                      size={13}
+                      className={joinClasses(
+                        'shrink-0 transition-all duration-150',
+                        isActive
+                          ? 'text-[color:var(--wb-accent)]'
+                          : 'translate-x-1 text-transparent group-hover:translate-x-0 group-hover:text-[color:var(--wb-text-muted)]',
+                      )}
+                    />
                   </div>
+                  <p className="mt-0.5 text-[11px] leading-[1.55] text-[color:var(--wb-text-muted)]">
+                    {item.description}
+                  </p>
                 </div>
               </Link>
             );
