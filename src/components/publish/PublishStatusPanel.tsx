@@ -36,7 +36,7 @@ export default function PublishStatusPanel() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-[color:var(--wb-accent)]">
-            Case board
+            Dispatch board
           </p>
           <h3
             className="font-serif-brand mt-1 text-[18px] leading-tight text-[color:var(--wb-text)]"
@@ -114,7 +114,7 @@ export default function PublishStatusPanel() {
 
                   <div className="flex items-center justify-between gap-3 sm:justify-end">
                     <span
-                      className={`inline-flex items-center gap-1.5 rounded-[var(--wb-radius-lg)] border px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.22em] ${
+                      className={`inline-flex items-center gap-1.5 rounded-[var(--wb-radius-lg)] border px-2.5 py-1 text-[11px] font-medium ${
                         result.status === 'success'
                           ? 'border-[color:var(--wb-success-border)] bg-white text-[color:var(--wb-success-text)]'
                           : result.status === 'error'
@@ -127,7 +127,7 @@ export default function PublishStatusPanel() {
                       {result.status === 'publishing' && (
                         <Loader2 size={12} className="animate-spin" />
                       )}
-                      {result.status}
+                      {result.status === 'success' ? '已发布' : result.status === 'error' ? '发布失败' : '发布中'}
                     </span>
 
                     {result.url ? (

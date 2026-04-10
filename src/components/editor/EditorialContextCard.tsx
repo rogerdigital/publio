@@ -55,7 +55,7 @@ export default function EditorialContextCard() {
               {cleanTitle ? '标题已写入' : '标题待补全'}
             </span>
             <span className="rounded-full border border-[color:var(--wb-border)] bg-[rgba(255,246,237,0.92)] px-3 py-1 text-xs text-[color:var(--wb-accent)]">
-              研究-aware editing
+              Research-aware
             </span>
           </div>
         </div>
