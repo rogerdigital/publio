@@ -158,10 +158,11 @@ function renderInline(
 function tokensToHtml(
   tokens: TokensList,
   platform?: StyledPlatform,
-  options?: { skipFirstH1?: boolean },
+  options?: { skipFirstH1?: boolean; inBlockquote?: boolean },
 ): string {
   const theme = platform ? ARTICLE_THEME[platform] : null;
   const skipFirstH1 = options?.skipFirstH1 ?? false;
+  const inBlockquote = options?.inBlockquote ?? false;
   let firstH1Skipped = false;
 
   return tokens
@@ -187,18 +188,21 @@ function tokensToHtml(
         }
         case 'paragraph': {
           const inner = renderInline(token.tokens, platform);
+          if (inBlockquote) {
+            return inner;
+          }
           return `<p style="${theme?.paragraph ?? ''}">${inner}</p>`;
         }
         case 'space':
           return '';
         case 'blockquote': {
-          const inner = tokensToHtml(token.tokens, platform);
+          const inner = tokensToHtml(token.tokens, platform, { inBlockquote: true });
           return `<blockquote style="${theme?.blockquote ?? ''}">${inner}</blockquote>`;
         }
         case 'list': {
           const items = token.items
             .map((item: Tokens.ListItem) => {
-              const body = tokensToHtml(item.tokens, platform);
+              const body = tokensToHtml(item.tokens, platform, { inBlockquote: true });
               return `<li style="${theme?.listItem ?? ''}">${body}</li>`;
             })
             .join('');
