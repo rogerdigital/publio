@@ -58,7 +58,7 @@ export default function Sidebar() {
                 <span className={styles.navIndicator[state]} />
 
                 <div className={cn(styles.navIconBase, styles.navIconVariants[state])}>
-                  <Icon size={15} />
+                  <Icon size={14} />
                 </div>
 
                 <div className={styles.navText}>

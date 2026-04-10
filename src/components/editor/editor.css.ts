@@ -143,7 +143,7 @@ export const previewWrap = style({
       padding: '32px',
     },
     'screen and (min-width: 1024px)': {
-      minHeight: '760px',
+      minHeight: '420px',
     },
   },
 });

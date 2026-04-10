@@ -91,7 +91,6 @@ export const publishButton = recipe({
 
 // PublishStatusPanel styles
 export const panel = style({
-  marginTop: '16px',
   display: 'flex',
   flexDirection: 'column',
   gap: '16px',

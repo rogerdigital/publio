@@ -149,7 +149,7 @@ export const stateText = style({
 export const candidateSections = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '20px',
+  gap: '32px',
 });
 
 export const candidateSection = style({
@@ -273,6 +273,8 @@ export const whyNow = style({
 export const editorialBar = style({
   borderLeft: `2px solid ${vars.color.accent}`,
   paddingLeft: '16px',
+  paddingTop: '4px',
+  paddingBottom: '4px',
 });
 
 export const editorialKicker = style({
@@ -295,7 +297,7 @@ export const actionsRow = style({
   alignItems: 'center',
   gap: '8px',
   borderTop: `1px solid ${vars.color.borderFaint}`,
-  paddingTop: '12px',
+  paddingTop: '16px',
 });
 
 export const scoreRow = style({
@@ -358,18 +360,21 @@ export const briefSection = style({
   display: 'flex',
   flexDirection: 'column',
   gap: '20px',
-  borderTop: `1px solid ${vars.color.borderFaint}`,
-  paddingTop: '20px',
+  paddingTop: '4px',
 });
 
 export const briefBlock = style({
   borderLeft: `2px solid ${vars.color.borderStrong}`,
   paddingLeft: '16px',
+  paddingTop: '2px',
+  paddingBottom: '2px',
 });
 
 export const briefBlockAccent = style({
   borderLeft: `2px solid ${vars.color.accent}`,
   paddingLeft: '16px',
+  paddingTop: '2px',
+  paddingBottom: '2px',
 });
 
 export const briefBlockPlain = style({

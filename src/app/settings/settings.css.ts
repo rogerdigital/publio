@@ -68,7 +68,7 @@ export const accordionTrigger = style({
   width: '100%',
   alignItems: 'center',
   gap: '16px',
-  padding: '16px 20px',
+  padding: '14px 20px',
   border: 'none',
   background: 'transparent',
   textAlign: 'left',
@@ -78,7 +78,7 @@ export const accordionTrigger = style({
   },
   '@media': {
     'screen and (min-width: 640px)': {
-      padding: '16px 24px',
+      padding: '14px 24px',
     },
   },
 });
@@ -98,12 +98,14 @@ export const accordionBody = style({
 });
 
 export const accordionTitle = style({
+  margin: 0,
   fontSize: '15px',
   fontWeight: 500,
   color: vars.color.text,
 });
 
 export const accordionSummary = style({
+  margin: 0,
   marginTop: '2px',
   fontSize: '14px',
   color: vars.color.textMuted,
@@ -194,6 +196,8 @@ export const eyeButton = style({
   right: '12px',
   top: '50%',
   transform: 'translateY(-50%)',
+  border: 'none',
+  background: 'transparent',
   borderRadius: vars.radius.lg,
   padding: '4px',
   color: vars.color.textMuted,

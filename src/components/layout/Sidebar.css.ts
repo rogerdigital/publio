@@ -4,7 +4,7 @@ import { vars } from '@/styles/tokens.css';
 export const sidebar = style({
   width: '100%',
   borderBottom: `1px solid ${vars.color.border}`,
-  background: vars.color.bgElevated,
+  background: vars.color.bg,
   color: vars.color.text,
   '@media': {
     'screen and (min-width: 1024px)': {
@@ -24,7 +24,8 @@ export const sidebar = style({
 export const inner = style({
   display: 'flex',
   flexDirection: 'column',
-  padding: '8px',
+  padding: '16px',
+  gap: '4px',
   '@media': {
     'screen and (min-width: 1024px)': {
       minHeight: '100%',
@@ -44,12 +45,9 @@ export const navItemBase = style({
   alignItems: 'flex-start',
   gap: '12px',
   borderRadius: vars.radius.xl,
-  padding: '10px',
+  padding: '10px 12px',
   textDecoration: 'none',
   transition: 'background-color 150ms',
-  ':hover': {
-    background: vars.color.surface,
-  },
 });
 
 export const navItemVariants = styleVariants({
@@ -63,7 +61,7 @@ export const navIndicator = styleVariants({
   active: {
     position: 'absolute',
     left: 0,
-    top: '50%',
+    top: '26px',
     height: '20px',
     width: '3px',
     transform: 'translateY(-50%)',
@@ -76,7 +74,7 @@ export const navIndicator = styleVariants({
   inactive: {
     position: 'absolute',
     left: 0,
-    top: '50%',
+    top: '26px',
     height: '20px',
     width: '3px',
     transform: 'translateY(-50%)',
@@ -89,7 +87,6 @@ export const navIndicator = styleVariants({
 });
 
 export const navIconBase = style({
-  marginTop: '2px',
   display: 'flex',
   height: '32px',
   width: '32px',
@@ -118,6 +115,7 @@ export const navIconVariants = styleVariants({
 export const navText = style({
   minWidth: 0,
   flex: 1,
+  paddingTop: '2px',
 });
 
 export const navLabelRow = style({
@@ -129,14 +127,16 @@ export const navLabelRow = style({
 
 export const navLabelVariants = styleVariants({
   active: {
-    fontSize: '13px',
+    margin: 0,
+    fontSize: '14px',
     lineHeight: '20px',
     fontWeight: 600,
     color: vars.color.text,
     transition: 'color 150ms',
   },
   inactive: {
-    fontSize: '13px',
+    margin: 0,
+    fontSize: '14px',
     lineHeight: '20px',
     fontWeight: 500,
     color: vars.color.textMuted,
@@ -166,18 +166,17 @@ export const navArrowVariants = styleVariants({
 });
 
 export const navDescription = style({
-  marginTop: '2px',
-  fontSize: '11px',
-  lineHeight: 1.55,
+  margin: 0,
+  marginTop: '3px',
+  fontSize: '12px',
+  lineHeight: 1.6,
   color: vars.color.textMuted,
 });
 
 export const brandFooter = style({
   marginTop: 'auto',
-  paddingLeft: '8px',
-  paddingRight: '8px',
-  paddingBottom: '8px',
-  paddingTop: '16px',
+  paddingTop: '24px',
+  paddingBottom: '16px',
 });
 
 export const brandName = style({
@@ -194,7 +193,7 @@ export const brandSlogan = style({
 });
 
 export const version = style({
-  marginTop: '8px',
+  marginTop: '10px',
   fontSize: '10px',
   textTransform: 'uppercase',
   letterSpacing: '0.28em',
