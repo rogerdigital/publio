@@ -193,6 +193,13 @@ function tokensToHtml(
           }
           return `<p style="${theme?.paragraph ?? ''}">${inner}</p>`;
         }
+        case 'text': {
+          // tight list items produce block-level 'text' tokens with inline children
+          const inner = token.tokens
+            ? renderInline(token.tokens, platform)
+            : escapeHtml(token.raw ?? token.text ?? '');
+          return inBlockquote ? inner : `<p style="${theme?.paragraph ?? ''}">${inner}</p>`;
+        }
         case 'space':
           return '';
         case 'blockquote': {
