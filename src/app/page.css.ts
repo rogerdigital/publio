@@ -60,6 +60,7 @@ export const tabButton = recipe({
     alignItems: 'center',
     gap: '8px',
     borderRadius: '6px',
+    border: 'none',
     padding: '6px 12px',
     fontSize: '14px',
     transition: 'background-color 150ms, color 150ms',

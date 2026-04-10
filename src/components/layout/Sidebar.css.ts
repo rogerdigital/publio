@@ -24,7 +24,7 @@ export const sidebar = style({
 export const inner = style({
   display: 'flex',
   flexDirection: 'column',
-  padding: '12px',
+  padding: '8px',
   '@media': {
     'screen and (min-width: 1024px)': {
       minHeight: '100%',
@@ -44,7 +44,7 @@ export const navItemBase = style({
   alignItems: 'flex-start',
   gap: '12px',
   borderRadius: vars.radius.xl,
-  padding: '12px',
+  padding: '10px',
   textDecoration: 'none',
   transition: 'background-color 150ms',
   ':hover': {

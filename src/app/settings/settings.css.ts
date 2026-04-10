@@ -69,6 +69,8 @@ export const accordionTrigger = style({
   alignItems: 'center',
   gap: '16px',
   padding: '16px 20px',
+  border: 'none',
+  background: 'transparent',
   textAlign: 'left',
   transition: 'background-color 150ms',
   ':hover': {
