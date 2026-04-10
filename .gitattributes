@@ -1,0 +1,2 @@
+# Tell GitHub Linguist to ignore non-code assets
+src/app/icon.svg linguist-detectable=false
