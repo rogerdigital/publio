@@ -2,48 +2,12 @@
 
 import { usePublishStore } from '@/stores/publishStore';
 import SurfaceCard from '@/components/layout/SurfaceCard';
-
-function countParagraphs(content: string) {
-  return content
-    .split(/\n{2,}/)
-    .map((segment) => segment.trim())
-    .filter(Boolean).length;
-}
-
-function countHeadings(content: string) {
-  return (content.match(/^#{1,6}\s+/gm) || []).length;
-}
-
-function countCharacters(content: string) {
-  return content.replace(/\s/g, '').length;
-}
-
-function countCjkCharacters(content: string) {
-  return (
-    content.match(
-      /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\u3040-\u30ff\u31f0-\u31ff\uac00-\ud7af]/g,
-    ) || []
-  ).length;
-}
-
-function countLatinWords(content: string) {
-  return content
-    .replace(
-      /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\u3040-\u30ff\u31f0-\u31ff\uac00-\ud7af]/g,
-      ' ',
-    )
-    .split(/\s+/)
-    .filter(Boolean).length;
-}
-
-function estimateReadTime(content: string) {
-  const cjkCharacters = countCjkCharacters(content);
-  const latinWords = countLatinWords(content);
-  const cjkMinutes = cjkCharacters > 0 ? cjkCharacters / 380 : 0;
-  const latinMinutes = latinWords > 0 ? latinWords / 220 : 0;
-  const minutes = Math.max(1, Math.ceil(cjkMinutes + latinMinutes));
-  return `${minutes} 分钟`;
-}
+import {
+  countCharacters,
+  countParagraphs,
+  countHeadings,
+  estimateReadTime,
+} from '@/lib/contentStats';
 
 interface StatPillProps {
   label: string;
