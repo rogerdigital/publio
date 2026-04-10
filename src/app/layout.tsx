@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import './globals.css';
 import '@/styles/globals.css';
 import Sidebar from '@/components/layout/Sidebar';
+import * as styles from './layout.css';
 
 export const metadata: Metadata = {
   title: 'Publio',
@@ -18,10 +19,10 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className="antialiased">
-        <div className="flex min-h-dvh flex-col text-[color:var(--wb-text)] lg:flex-row">
+        <div className={styles.shell}>
           <Sidebar />
 
-          <main className="min-w-0 flex-1 px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
+          <main className={styles.main}>
             {children}
           </main>
         </div>

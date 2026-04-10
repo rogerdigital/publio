@@ -12,6 +12,7 @@ import {
   NEWS_DRAFT_STORAGE_KEY,
   type NewsDraftPayload,
 } from '@/lib/newsDraft';
+import * as styles from './page.css';
 
 export default function HomePage() {
   const { setTitle, setContent, reset, overallStatus } = usePublishStore();
@@ -33,21 +34,17 @@ export default function HomePage() {
   }, [reset, setContent, setTitle]);
 
   return (
-    <div className="space-y-6">
+    <div className={styles.pageWrap}>
       <AppShellHeader
         kicker="Compose & publish"
         title="写作台"
         description="在一个界面里完成写作、排版预览与多平台分发。"
         action={
-          <div className="inline-flex rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] p-0.5">
+          <div className={styles.tabSwitcher}>
             <button
               type="button"
               onClick={() => setActiveTab('edit')}
-              className={`inline-flex items-center gap-2 rounded-[6px] px-3 py-1.5 text-sm transition ${
-                activeTab === 'edit'
-                  ? 'bg-[color:var(--wb-accent)] text-white'
-                  : 'text-[color:var(--wb-text-muted)] hover:text-[color:var(--wb-text)]'
-              }`}
+              className={styles.tabButton({ active: activeTab === 'edit' })}
             >
               <SquarePen size={15} />
               写作
@@ -55,11 +52,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setActiveTab('preview')}
-              className={`inline-flex items-center gap-2 rounded-[6px] px-3 py-1.5 text-sm transition ${
-                activeTab === 'preview'
-                  ? 'bg-[color:var(--wb-accent)] text-white'
-                  : 'text-[color:var(--wb-text-muted)] hover:text-[color:var(--wb-text)]'
-              }`}
+              className={styles.tabButton({ active: activeTab === 'preview' })}
             >
               <Eye size={15} />
               预览
@@ -68,18 +61,18 @@ export default function HomePage() {
         }
       />
 
-      <div className="space-y-4">
-        <div className="overflow-hidden rounded-[var(--wb-radius-xl)] bg-[color:var(--wb-surface)]">
+      <div className={styles.editorSection}>
+        <div className={styles.editorCard}>
           <MarkdownEditor activeTab={activeTab} />
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className={styles.publishBar}>
           <PlatformSelector />
-          <div className="flex shrink-0 items-center gap-3">
+          <div className={styles.publishRight}>
             {overallStatus !== 'idle' && overallStatus !== 'publishing' && (
               <button
                 onClick={reset}
-                className="text-sm text-[color:var(--wb-text-muted)] underline transition hover:text-[color:var(--wb-text)]"
+                className={styles.resetLink}
               >
                 清除结果
               </button>
@@ -95,4 +88,3 @@ export default function HomePage() {
     </div>
   );
 }
-
