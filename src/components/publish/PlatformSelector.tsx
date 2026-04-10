@@ -8,6 +8,7 @@ import {
   ZhihuIcon,
   XIcon,
 } from '@/components/icons/PlatformIcons';
+import { selectorWrap, platformLabel, srOnly } from './publish.css';
 
 const platformIconMap: Record<PlatformId, React.ComponentType<{ size?: number }>> = {
   wechat: WechatIcon,
@@ -20,7 +21,7 @@ export default function PlatformSelector() {
   const { platforms, togglePlatform } = usePublishStore();
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className={selectorWrap}>
       {PLATFORMS.map((platform) => {
         const Icon = platformIconMap[platform.id as PlatformId];
         const checked = platforms[platform.id as PlatformId];
@@ -28,17 +29,13 @@ export default function PlatformSelector() {
         return (
           <label
             key={platform.id}
-            className={`inline-flex cursor-pointer select-none items-center gap-2 rounded-[var(--wb-radius-lg)] px-3 py-2 text-sm transition-colors ${
-              checked
-                ? 'bg-[color:var(--wb-accent-soft)] font-medium text-[color:var(--wb-accent-strong)]'
-                : 'bg-[color:var(--wb-bg-elevated)] text-[color:var(--wb-text-muted)] hover:bg-[color:var(--wb-surface)] hover:text-[color:var(--wb-text)]'
-            }`}
+            className={platformLabel({ checked })}
           >
             <input
               type="checkbox"
               checked={checked}
               onChange={() => togglePlatform(platform.id as PlatformId)}
-              className="sr-only"
+              className={srOnly}
             />
             <Icon size={16} />
             {platform.name}

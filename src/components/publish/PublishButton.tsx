@@ -3,6 +3,7 @@
 import { usePublishStore } from '@/stores/publishStore';
 import { PlatformId, PublishResponse } from '@/types';
 import { SendHorizonal, Loader2 } from 'lucide-react';
+import { publishButton } from './publish.css';
 
 export default function PublishButton() {
   const { title, content, platforms, overallStatus, setPublishing, setResults } =
@@ -62,11 +63,7 @@ export default function PublishButton() {
     <button
       onClick={handlePublish}
       disabled={isDisabled}
-      className={`inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border px-5 py-2.5 text-sm font-medium transition-colors ${
-        isDisabled
-          ? 'cursor-not-allowed border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] text-[color:var(--wb-text-muted)]'
-          : 'border-transparent bg-[color:var(--wb-accent)] text-white hover:brightness-105'
-      }`}
+      className={publishButton({ disabled: isDisabled })}
     >
       {overallStatus === 'publishing' ? (
         <Loader2 size={15} className="animate-spin" />
