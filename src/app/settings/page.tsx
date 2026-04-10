@@ -147,7 +147,7 @@ export default function SettingsPage() {
       <AppShellHeader
         kicker="Operational control"
         title="平台设置"
-        description="统一管理各平台 API 凭证与登录态。界面保持安静、克制，适合在发布前逐项核对。"
+        description="统一管理各平台 API 凭证与登录态。"
         action={
           <div className="flex flex-col items-end gap-2">
             <button

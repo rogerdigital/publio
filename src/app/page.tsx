@@ -37,7 +37,7 @@ export default function HomePage() {
       <AppShellHeader
         kicker="Compose & publish"
         title="写作台"
-        description="先定标题，再写正文，再检查排版和分发。"
+        description="在一个界面里完成写作、排版预览与多平台分发。"
         action={
           <div className="inline-flex rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] p-0.5">
             <button
