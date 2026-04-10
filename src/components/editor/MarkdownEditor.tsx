@@ -82,7 +82,7 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
   );
 
   return (
-    <div className="overflow-hidden bg-[color:var(--wb-surface)]">
+    <div data-color-mode="light" className="overflow-hidden bg-[color:var(--wb-surface)]">
       {activeTab === 'edit' ? (
         <>
           {/* 标题输入区 */}
@@ -100,8 +100,7 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
           {/* 正文编辑区 */}
           <div
             ref={editorWrapRef}
-            data-color-mode="light"
-            className="[&_.w-md-editor]:border-0 [&_.w-md-editor]:rounded-none [&_.w-md-editor]:bg-transparent [&_.w-md-editor]:text-[color:var(--wb-text)] [&_.w-md-editor-toolbar]:border-b [&_.w-md-editor-toolbar]:border-[color:var(--wb-border-faint)] [&_.w-md-editor-toolbar]:border-t-0 [&_.w-md-editor-toolbar]:bg-[color:var(--wb-surface)] [&_.w-md-editor-toolbar]:px-3 [&_.w-md-editor-toolbar]:py-1.5 [&_.w-md-editor-toolbar-divider]:bg-[color:var(--wb-border-faint)] [&_.w-md-editor-bar]:hidden [&_.w-md-editor-text-input]:font-[family-name:var(--wb-font-sans)] [&_.w-md-editor-text-input]:bg-transparent [&_.w-md-editor-text-input]:text-[color:var(--wb-text)] [&_.w-md-editor-text-input]:placeholder:text-[color:var(--wb-text-muted)] [&_.wmde-markdown]:bg-transparent [&_.wmde-markdown]:text-[color:var(--wb-text)] [&_.w-md-editor-area]:bg-transparent"
+            className="bg-[color:var(--wb-surface)] [&_.w-md-editor]:border-0 [&_.w-md-editor]:rounded-none [&_.w-md-editor]:bg-transparent [&_.w-md-editor]:text-[color:var(--wb-text)] [&_.w-md-editor-toolbar]:border-b [&_.w-md-editor-toolbar]:border-[color:var(--wb-border-faint)] [&_.w-md-editor-toolbar]:border-t-0 [&_.w-md-editor-toolbar]:bg-[color:var(--wb-surface)] [&_.w-md-editor-toolbar]:px-3 [&_.w-md-editor-toolbar]:py-1.5 [&_.w-md-editor-toolbar-divider]:bg-[color:var(--wb-border-faint)] [&_.w-md-editor-bar]:hidden [&_.w-md-editor-text-input]:font-[family-name:var(--wb-font-sans)] [&_.w-md-editor-text-input]:bg-transparent [&_.w-md-editor-text-input]:text-[color:var(--wb-text)] [&_.w-md-editor-text-input]:placeholder:text-[color:var(--wb-text-muted)] [&_.wmde-markdown]:bg-transparent [&_.wmde-markdown]:text-[color:var(--wb-text)] [&_.w-md-editor-area]:bg-transparent"
             onClick={(e) => {
               const target = e.target as HTMLElement;
               if (target.closest('.w-md-editor-toolbar')) return;
