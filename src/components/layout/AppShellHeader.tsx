@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import * as styles from './AppShellHeader.css';
 
 interface AppShellHeaderProps {
   kicker: string;
@@ -14,25 +15,17 @@ export default function AppShellHeader({
   action,
 }: AppShellHeaderProps) {
   return (
-    <header className="w-full py-2">
-      <div className="flex items-end justify-between gap-4">
-        <div className="max-w-4xl">
-          <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-[color:var(--wb-accent)]">
-            {kicker}
-          </p>
-          <h1
-            className="font-serif-brand mt-2 text-[26px] leading-tight text-[color:var(--wb-text)] sm:text-[32px]"
-          >
-            {title}
-          </h1>
+    <header className={styles.header}>
+      <div className={styles.inner}>
+        <div className={styles.textBlock}>
+          <p className={styles.kicker}>{kicker}</p>
+          <h1 className={styles.title}>{title}</h1>
           {description ? (
-            <p className="mt-2 max-w-3xl text-sm leading-7 text-[color:var(--wb-text-muted)]">
-              {description}
-            </p>
+            <p className={styles.description}>{description}</p>
           ) : null}
         </div>
         {action ? (
-          <div className="shrink-0">{action}</div>
+          <div className={styles.action}>{action}</div>
         ) : null}
       </div>
     </header>
