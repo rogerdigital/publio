@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import './globals.css';
 import '@/styles/globals.css';
 import Sidebar from '@/components/layout/Sidebar';
 import * as styles from './layout.css';
