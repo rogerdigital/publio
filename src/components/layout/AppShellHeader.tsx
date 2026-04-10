@@ -21,8 +21,7 @@ export default function AppShellHeader({
             {kicker}
           </p>
           <h1
-            className="mt-2 text-[26px] leading-tight text-[color:var(--wb-text)] sm:text-[32px]"
-            style={{ fontFamily: 'var(--wb-font-serif)' }}
+            className="font-serif-brand mt-2 text-[26px] leading-tight text-[color:var(--wb-text)] sm:text-[32px]"
           >
             {title}
           </h1>

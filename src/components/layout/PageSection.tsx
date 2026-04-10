@@ -42,8 +42,7 @@ export default function PageSection({
               ) : null}
               {title ? (
                 <h2
-                  className="mt-2 text-[28px] leading-tight text-[color:var(--wb-text)] sm:text-[34px]"
-                  style={{ fontFamily: 'var(--wb-font-serif)' }}
+                  className="font-serif-brand mt-2 text-[28px] leading-tight text-[color:var(--wb-text)] sm:text-[34px]"
                 >
                   {title}
                 </h2>

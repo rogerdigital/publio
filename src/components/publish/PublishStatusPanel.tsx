@@ -39,8 +39,7 @@ export default function PublishStatusPanel() {
             Case board
           </p>
           <h3
-            className="mt-1 text-[18px] leading-tight text-[color:var(--wb-text)]"
-            style={{ fontFamily: 'var(--wb-font-serif)' }}
+            className="font-serif-brand mt-1 text-[18px] leading-tight text-[color:var(--wb-text)]"
           >
             发布回执跟踪板
           </h3>

@@ -43,6 +43,9 @@
     "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
   --wb-font-serif: "Source Han Serif SC", "Songti SC", "Iowan Old Style",
     "Palatino Linotype", serif;
+
+  /* 统一眉题 letter-spacing */
+  --wb-tracking-kicker: 0.30em;
 }
 
 html {
@@ -101,4 +104,18 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+/* 衬线字体 utility，替代内联 style={{ fontFamily: 'var(--wb-font-serif)' }} */
+.font-serif-brand {
+  font-family: var(--wb-font-serif);
+}
+
+/* 眉题 kicker 统一样式 */
+.kicker {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: var(--wb-tracking-kicker);
+  color: var(--wb-accent);
 }

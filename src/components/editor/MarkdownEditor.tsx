@@ -58,8 +58,7 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="给文章起个标题"
-            className="w-full border-0 bg-transparent text-[24px] leading-tight text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] sm:text-[28px]"
-            style={{ fontFamily: 'var(--wb-font-serif)' }}
+            className="font-serif-brand w-full border-0 bg-transparent text-[24px] leading-tight text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] sm:text-[28px]"
           />
         </div>
 
@@ -120,8 +119,7 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
                 成稿预览
               </p>
               <h3
-                className="mt-2 text-[28px] leading-tight text-[color:var(--wb-text)]"
-                style={{ fontFamily: 'var(--wb-font-serif)' }}
+                className="font-serif-brand mt-2 text-[28px] leading-tight text-[color:var(--wb-text)]"
               >
                 {title || '未命名稿件'}
               </h3>

@@ -49,7 +49,7 @@ export default function TopicSignalCard({
               <span className="inline-flex items-center gap-1.5 rounded-[var(--wb-radius-lg)] bg-[color:var(--wb-accent-soft)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--wb-accent-strong)]">
                 {indexLabel}
               </span>
-              <span className="text-[13px] font-medium text-[color:var(--wb-ink)]">
+              <span className="text-[13px] font-medium text-[color:var(--wb-text)]">
                 {item.topicTags[0] || '行业动态'}
               </span>
               <span className="text-[color:var(--wb-border-strong)]">·</span>
@@ -57,19 +57,19 @@ export default function TopicSignalCard({
                 href={new URL(item.primarySignal.link).origin}
                 target="_blank"
                 rel="noreferrer"
-                className="text-[13px] text-[color:var(--wb-muted)] transition hover:text-[color:var(--wb-accent)]"
+                className="text-[13px] text-[color:var(--wb-text-muted)] transition hover:text-[color:var(--wb-accent)]"
               >
                 {item.primarySignal.sourceName}
               </a>
               <span className="text-[color:var(--wb-border-strong)]">·</span>
-              <span className="inline-flex items-center gap-1 text-[13px] text-[color:var(--wb-muted)]">
+              <span className="inline-flex items-center gap-1 text-[13px] text-[color:var(--wb-text-muted)]">
                 <Clock3 size={12} />
                 {relativeLabel}
               </span>
             </div>
             {/* 字数/配图 — 右上角 */}
             {metrics && (
-              <span className="hidden shrink-0 text-[12px] text-[color:var(--wb-muted)] sm:block">
+              <span className="hidden shrink-0 text-[12px] text-[color:var(--wb-text-muted)] sm:block">
                 {metrics}
               </span>
             )}
@@ -78,12 +78,11 @@ export default function TopicSignalCard({
           {/* 标题 */}
           <div className="min-w-0">
             <h3
-              className="text-[20px] font-semibold leading-[1.4] text-[color:var(--wb-ink)] sm:text-[22px]"
-              style={{ fontFamily: 'var(--wb-font-serif)' }}
+              className="font-serif-brand text-[20px] font-semibold leading-[1.4] text-[color:var(--wb-text)] sm:text-[22px]"
             >
               {item.title}
             </h3>
-            <p className="mt-2 max-w-3xl text-[15px] leading-7 text-[color:var(--wb-muted)]">
+            <p className="mt-2 max-w-3xl text-[15px] leading-7 text-[color:var(--wb-text-muted)]">
               {item.whyNow}
             </p>
           </div>
@@ -93,7 +92,7 @@ export default function TopicSignalCard({
             <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
               编辑判断
             </p>
-            <p className="mt-1.5 text-[14px] leading-7 text-[color:var(--wb-ink)]">
+            <p className="mt-1.5 text-[14px] leading-7 text-[color:var(--wb-text)]">
               {item.affectedSummary
                 ? `影响对象：${item.affectedSummary}。`
                 : ''}
@@ -104,7 +103,7 @@ export default function TopicSignalCard({
           {/* 操作按钮 */}
           <div className="flex flex-wrap items-center gap-2 border-t border-[color:var(--wb-border-faint)] pt-3">
             {/* 评分区 — 底部左侧 */}
-            <div className="mr-auto hidden items-center gap-3 text-[12px] text-[color:var(--wb-muted)] sm:flex">
+            <div className="mr-auto hidden items-center gap-3 text-[12px] text-[color:var(--wb-text-muted)] sm:flex">
               <span className="font-semibold text-[color:var(--wb-accent)]">
                 {item.totalScore.toFixed(0)} 分
               </span>
@@ -118,7 +117,7 @@ export default function TopicSignalCard({
               href={item.primarySignal.link}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[color:var(--wb-surface)]"
+              className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-text)] transition hover:bg-[color:var(--wb-surface)]"
             >
               <ExternalLink size={15} />
               查看原文
@@ -126,7 +125,7 @@ export default function TopicSignalCard({
             <button
               type="button"
               onClick={() => setShowBrief((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-ink)] transition hover:bg-[color:var(--wb-surface)]"
+              className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-text)] transition hover:bg-[color:var(--wb-surface)]"
             >
               <ChevronDown
                 size={15}
@@ -148,33 +147,33 @@ export default function TopicSignalCard({
           {showBrief && brief ? (
             <div className="space-y-5 border-t border-[color:var(--wb-border-faint)] pt-5">
               <div className="border-l-2 border-[color:var(--wb-border-strong)] pl-4">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-muted)]">事件经过</p>
-                <p className="mt-1.5 text-sm leading-7 text-[color:var(--wb-muted)]">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-text-muted)]">事件经过</p>
+                <p className="mt-1.5 text-sm leading-7 text-[color:var(--wb-text-muted)]">
                   {brief.whatHappened}
                 </p>
               </div>
 
               <div className="border-l-2 border-[color:var(--wb-accent)] pl-4">
                 <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">为什么重要</p>
-                <p className="mt-1.5 text-sm leading-7 text-[color:var(--wb-ink)]">
+                <p className="mt-1.5 text-sm leading-7 text-[color:var(--wb-text)]">
                   {brief.whyItMatters}
                 </p>
               </div>
 
               <div className="pl-4">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-muted)]">影响了谁</p>
-                <p className="mt-2 text-sm text-[color:var(--wb-ink)]">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-text-muted)]">影响了谁</p>
+                <p className="mt-2 text-sm text-[color:var(--wb-text)]">
                   {brief.whoIsAffected.join(' · ')}
                 </p>
               </div>
 
               <div className="pl-4">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-muted)]">推荐写法</p>
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-text-muted)]">推荐写法</p>
                 <div className="mt-2 space-y-3">
                   {brief.recommendedAngles.map((angle) => (
                     <div key={angle.label}>
-                      <p className="text-sm font-medium leading-6 text-[color:var(--wb-ink)]">{angle.label}</p>
-                      <p className="text-sm leading-7 text-[color:var(--wb-muted)]">{angle.reason}</p>
+                      <p className="text-sm font-medium leading-6 text-[color:var(--wb-text)]">{angle.label}</p>
+                      <p className="text-sm leading-7 text-[color:var(--wb-text-muted)]">{angle.reason}</p>
                     </div>
                   ))}
                 </div>

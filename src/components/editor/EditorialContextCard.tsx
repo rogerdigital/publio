@@ -66,8 +66,7 @@ export default function EditorialContextCard() {
               当前标题
             </div>
             <div
-              className="mt-2 text-[16px] leading-snug text-[color:var(--wb-text)]"
-              style={{ fontFamily: 'var(--wb-font-serif)' }}
+              className="font-serif-brand mt-2 text-[16px] leading-snug text-[color:var(--wb-text)]"
             >
               {cleanTitle}
             </div>

@@ -208,7 +208,7 @@ export default function AiNewsPageClient() {
             <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
               刷新未更新
             </p>
-            <p className="mt-2 text-sm leading-7 text-[color:var(--wb-muted)]">
+            <p className="mt-2 text-sm leading-7 text-[color:var(--wb-text-muted)]">
               {refreshError} 下面保留的是上一次成功加载的内容。
             </p>
           </div>
@@ -229,13 +229,13 @@ export default function AiNewsPageClient() {
           </div>
         ) : error && allCandidates.length === 0 ? (
           <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] p-8">
-            <p className="text-lg font-medium text-[color:var(--wb-ink)]">新闻抓取失败</p>
-            <p className="mt-3 text-sm leading-7 text-[color:var(--wb-muted)]">{error}</p>
+            <p className="text-lg font-medium text-[color:var(--wb-text)]">新闻抓取失败</p>
+            <p className="mt-3 text-sm leading-7 text-[color:var(--wb-text-muted)]">{error}</p>
           </div>
         ) : allCandidates.length === 0 ? (
           <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] p-8 text-center">
-            <p className="text-lg font-medium text-[color:var(--wb-ink)]">选题桌暂无内容</p>
-            <p className="mt-3 text-sm leading-7 text-[color:var(--wb-muted)]">
+            <p className="text-lg font-medium text-[color:var(--wb-text)]">选题桌暂无内容</p>
+            <p className="mt-3 text-sm leading-7 text-[color:var(--wb-text-muted)]">
               点击右上角「抓取选题」开始抓取最新 AI 话题信号。
             </p>
           </div>
@@ -279,18 +279,16 @@ function CandidateSection({
 
   return (
     <section className="space-y-5">
-      <div className="space-y-5">
-        {items.map((item, index) => (
-          <TopicSignalCard
-            key={item.clusterId}
-            item={item}
-            indexLabel={buildSectionLabel(offset + index)}
-            relativeLabel={formatRelativeHours(item.latestPublishedAt)}
-            formattedDate={formatDateTime(item.latestPublishedAt)}
-            onCreateDraft={onCreateDraft}
-          />
-        ))}
-      </div>
+      {items.map((item, index) => (
+        <TopicSignalCard
+          key={item.clusterId}
+          item={item}
+          indexLabel={buildSectionLabel(offset + index)}
+          relativeLabel={formatRelativeHours(item.latestPublishedAt)}
+          formattedDate={formatDateTime(item.latestPublishedAt)}
+          onCreateDraft={onCreateDraft}
+        />
+      ))}
     </section>
   );
 }
