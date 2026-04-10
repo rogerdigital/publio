@@ -1,16 +1,16 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="64" height="64" rx="18" fill="#171513"/>
-  <rect x="8" y="8" width="48" height="48" rx="14" fill="url(#paint0_linear)"/>
-  <path d="M22 21H41.2C45.5078 21 49 24.4922 49 28.8C49 33.1078 45.5078 36.6 41.2 36.6H31.8L24.8 43V36.6H22C17.6922 36.6 14.2 33.1078 14.2 28.8C14.2 24.4922 17.6922 21 22 21Z" fill="#FFF5E8"/>
-  <path d="M24.6 28.2H38.8" stroke="#F06A38" stroke-width="3" stroke-linecap="round"/>
-  <path d="M24.6 32.8H34.4" stroke="#F06A38" stroke-width="3" stroke-linecap="round"/>
-  <circle cx="42.5" cy="22.5" r="6.5" fill="#171513"/>
-  <path d="M42.5 18.8L43.4 21.4L46 22.3L43.4 23.2L42.5 25.8L41.6 23.2L39 22.3L41.6 21.4L42.5 18.8Z" fill="#FF8A57"/>
-  <defs>
-    <linearGradient id="paint0_linear" x1="12" y1="8" x2="52" y2="56" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#2A211B"/>
-      <stop offset="0.52" stop-color="#1E1A17"/>
-      <stop offset="1" stop-color="#120F0D"/>
-    </linearGradient>
-  </defs>
+  <!-- 背景 -->
+  <rect width="64" height="64" rx="16" fill="#F5EDE4"/>
+  <!-- P 字母主体 -->
+  <text
+    x="11"
+    y="50"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="52"
+    font-style="italic"
+    font-weight="700"
+    fill="#D97757"
+  >P</text>
+  <!-- 右下角装饰点 -->
+  <circle cx="50" cy="50" r="5" fill="#D97757" opacity="0.35"/>
 </svg>
