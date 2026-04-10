@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node scripts/dev-safe.mjs",
+    "dev": "tsx scripts/dev-safe.ts",
     "dev:raw": "next dev",
     "preview": "next build && next start",
     "build": "next build",
@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@uiw/react-md-editor": "^4.0.4",
+    "@vanilla-extract/css": "^1.20.1",
+    "@vanilla-extract/recipes": "^0.5.7",
     "lucide-react": "^0.468.0",
     "marked": "^15.0.0",
     "next": "15.1.12",
@@ -28,11 +30,13 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@vanilla-extract/next-plugin": "^2.5.1",
     "eslint": "^9.0.0",
     "eslint-config-next": "^15.1.12",
     "jsdom": "^29.0.1",
     "postcss": "^8.0.0",
     "tailwindcss": "^4.0.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.0.0",
     "vitest": "^4.1.2"
   }

@@ -2,11 +2,11 @@ import { execFileSync, spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const projectRoot = process.cwd();
-const port = process.env.PORT || '3000';
-const nextCacheDir = path.join(projectRoot, '.next', 'cache');
+const projectRoot: string = process.cwd();
+const port: string = process.env['PORT'] ?? '3000';
+const nextCacheDir: string = path.join(projectRoot, '.next', 'cache');
 
-function run(command, args) {
+function run(command: string, args: string[]): string {
   return execFileSync(command, args, {
     cwd: projectRoot,
     encoding: 'utf8',
@@ -14,7 +14,7 @@ function run(command, args) {
   }).trim();
 }
 
-function tryRun(command, args) {
+function tryRun(command: string, args: string[]): string {
   try {
     return run(command, args);
   } catch {
@@ -22,7 +22,7 @@ function tryRun(command, args) {
   }
 }
 
-function findListeningPids(targetPort) {
+function findListeningPids(targetPort: string): string[] {
   const output = tryRun('lsof', ['-nP', `-iTCP:${targetPort}`, '-sTCP:LISTEN', '-t']);
   return output
     .split('\n')
@@ -30,11 +30,11 @@ function findListeningPids(targetPort) {
     .filter(Boolean);
 }
 
-function getCommandLine(pid) {
+function getCommandLine(pid: string): string {
   return tryRun('ps', ['-p', pid, '-o', 'command=']);
 }
 
-function isPublioNextProcess(commandLine) {
+function isPublioNextProcess(commandLine: string): boolean {
   return (
     commandLine.includes('next dev') ||
     commandLine.includes(`${path.sep}publio${path.sep}`) ||
@@ -42,34 +42,32 @@ function isPublioNextProcess(commandLine) {
   );
 }
 
-function killProcess(pid) {
+function killProcess(pid: string): void {
   execFileSync('kill', [pid], {
     cwd: projectRoot,
     stdio: 'inherit',
   });
 }
 
-function sleep(ms) {
+function sleep(ms: number): void {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
-function waitForPortRelease(targetPort, attempts = 20) {
+function waitForPortRelease(targetPort: string, attempts = 20): boolean {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     if (findListeningPids(targetPort).length === 0) {
       return true;
     }
-
     sleep(150);
   }
-
   return false;
 }
 
-function clearNextCache() {
+function clearNextCache(): void {
   fs.rmSync(nextCacheDir, { recursive: true, force: true });
 }
 
-function ensurePortReady(targetPort) {
+function ensurePortReady(targetPort: string): void {
   const pids = findListeningPids(targetPort);
 
   if (pids.length === 0) {
@@ -114,11 +112,10 @@ const child = spawn('pnpm', ['run', 'dev:raw'], {
   env: process.env,
 });
 
-child.on('exit', (code, signal) => {
+child.on('exit', (code: number | null, signal: NodeJS.Signals | null) => {
   if (signal) {
     process.kill(process.pid, signal);
     return;
   }
-
   process.exit(code ?? 0);
 });
