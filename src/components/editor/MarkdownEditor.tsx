@@ -83,68 +83,70 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
 
   return (
     <div data-color-mode="light" className="overflow-hidden bg-[color:var(--wb-surface)]">
-      {activeTab === 'edit' ? (
-        <>
-          {/* 标题输入区 */}
-          <div className="border-b border-[color:var(--wb-border-faint)] px-4 py-4 transition-colors focus-within:border-[color:var(--wb-accent)] sm:px-5">
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="给文章起个标题"
-              className="w-full border-0 bg-transparent text-[24px] leading-tight text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] sm:text-[28px]"
-              style={{ fontFamily: 'var(--wb-font-serif)' }}
+      {/* 编辑区：始终保持挂载，通过 CSS 显隐，避免 MDEditor 重复初始化导致闪烁 */}
+      <div style={{ display: activeTab === 'edit' ? undefined : 'none' }}>
+        {/* 标题输入区 */}
+        <div className="border-b border-[color:var(--wb-border-faint)] px-4 py-4 transition-colors focus-within:border-[color:var(--wb-accent)] sm:px-5">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="给文章起个标题"
+            className="w-full border-0 bg-transparent text-[24px] leading-tight text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] sm:text-[28px]"
+            style={{ fontFamily: 'var(--wb-font-serif)' }}
+          />
+        </div>
+
+        {/* 正文编辑区 */}
+        <div
+          ref={editorWrapRef}
+          className="bg-[color:var(--wb-surface)] [&_.w-md-editor]:border-0 [&_.w-md-editor]:rounded-none [&_.w-md-editor]:bg-transparent [&_.w-md-editor]:text-[color:var(--wb-text)] [&_.w-md-editor-toolbar]:border-b [&_.w-md-editor-toolbar]:border-[color:var(--wb-border-faint)] [&_.w-md-editor-toolbar]:border-t-0 [&_.w-md-editor-toolbar]:bg-[color:var(--wb-surface)] [&_.w-md-editor-toolbar]:px-3 [&_.w-md-editor-toolbar]:py-1.5 [&_.w-md-editor-toolbar-divider]:bg-[color:var(--wb-border-faint)] [&_.w-md-editor-bar]:hidden [&_.w-md-editor-text-input]:font-[family-name:var(--wb-font-sans)] [&_.w-md-editor-text-input]:bg-transparent [&_.w-md-editor-text-input]:text-[color:var(--wb-text)] [&_.w-md-editor-text-input]:placeholder:text-[color:var(--wb-text-muted)] [&_.wmde-markdown]:bg-transparent [&_.wmde-markdown]:text-[color:var(--wb-text)] [&_.w-md-editor-area]:bg-transparent"
+          onClick={(e) => {
+            const target = e.target as HTMLElement;
+            if (target.closest('.w-md-editor-toolbar')) return;
+            if (isDesktop) {
+              const textarea = editorWrapRef.current?.querySelector<HTMLTextAreaElement>('textarea.w-md-editor-text-input');
+              textarea?.focus();
+            } else {
+              textareaRef.current?.focus();
+            }
+          }}
+        >
+          {isDesktop ? (
+            <MDEditor
+              value={content}
+              onChange={(val) => setContent(val || '')}
+              height={editorHeight}
+              preview="edit"
+              visibleDragbar={false}
             />
-          </div>
+          ) : (
+            <textarea
+              ref={textareaRef}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="开始写作，支持 Markdown 语法..."
+              className="min-h-[18rem] w-full resize-y border-0 bg-transparent px-4 py-4 text-[15px] leading-7 text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] sm:min-h-[22rem] sm:px-5 sm:py-5"
+            />
+          )}
+        </div>
 
-          {/* 正文编辑区 */}
-          <div
-            ref={editorWrapRef}
-            className="bg-[color:var(--wb-surface)] [&_.w-md-editor]:border-0 [&_.w-md-editor]:rounded-none [&_.w-md-editor]:bg-transparent [&_.w-md-editor]:text-[color:var(--wb-text)] [&_.w-md-editor-toolbar]:border-b [&_.w-md-editor-toolbar]:border-[color:var(--wb-border-faint)] [&_.w-md-editor-toolbar]:border-t-0 [&_.w-md-editor-toolbar]:bg-[color:var(--wb-surface)] [&_.w-md-editor-toolbar]:px-3 [&_.w-md-editor-toolbar]:py-1.5 [&_.w-md-editor-toolbar-divider]:bg-[color:var(--wb-border-faint)] [&_.w-md-editor-bar]:hidden [&_.w-md-editor-text-input]:font-[family-name:var(--wb-font-sans)] [&_.w-md-editor-text-input]:bg-transparent [&_.w-md-editor-text-input]:text-[color:var(--wb-text)] [&_.w-md-editor-text-input]:placeholder:text-[color:var(--wb-text-muted)] [&_.wmde-markdown]:bg-transparent [&_.wmde-markdown]:text-[color:var(--wb-text)] [&_.w-md-editor-area]:bg-transparent"
-            onClick={(e) => {
-              const target = e.target as HTMLElement;
-              if (target.closest('.w-md-editor-toolbar')) return;
-              if (isDesktop) {
-                const textarea = editorWrapRef.current?.querySelector<HTMLTextAreaElement>('textarea.w-md-editor-text-input');
-                textarea?.focus();
-              } else {
-                textareaRef.current?.focus();
-              }
-            }}
-          >
-            {isDesktop ? (
-              <MDEditor
-                value={content}
-                onChange={(val) => setContent(val || '')}
-                height={editorHeight}
-                preview="edit"
-                visibleDragbar={false}
-              />
-            ) : (
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="开始写作，支持 Markdown 语法..."
-                className="min-h-[18rem] w-full resize-y border-0 bg-transparent px-4 py-4 text-[15px] leading-7 text-[color:var(--wb-text)] outline-none placeholder:text-[color:var(--wb-text-muted)] sm:min-h-[22rem] sm:px-5 sm:py-5"
-              />
-            )}
+        {/* 底部数据栏 */}
+        <div className="px-4 pb-3 pt-2 sm:px-5">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[color:var(--wb-text-muted)]">
+            <span>{countCharacters(cleanContent)} 字符</span>
+            <span className="text-[color:var(--wb-border-strong)]">·</span>
+            <span>{countParagraphs(cleanContent)} 段落</span>
+            <span className="text-[color:var(--wb-border-strong)]">·</span>
+            <span>{countHeadings(cleanContent)} 标题</span>
+            <span className="text-[color:var(--wb-border-strong)]">·</span>
+            <span>约 {cleanContent ? estimateReadTime(cleanContent) : '1 分钟'} 阅读</span>
           </div>
+        </div>
+      </div>
 
-          {/* 底部数据栏 */}
-          <div className="px-4 pb-3 pt-2 sm:px-5">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[color:var(--wb-text-muted)]">
-              <span>{countCharacters(cleanContent)} 字符</span>
-              <span className="text-[color:var(--wb-border-strong)]">·</span>
-              <span>{countParagraphs(cleanContent)} 段落</span>
-              <span className="text-[color:var(--wb-border-strong)]">·</span>
-              <span>{countHeadings(cleanContent)} 标题</span>
-              <span className="text-[color:var(--wb-border-strong)]">·</span>
-              <span>约 {cleanContent ? estimateReadTime(cleanContent) : '1 分钟'} 阅读</span>
-            </div>
-          </div>
-        </>
-      ) : (
+      {/* 预览区 */}
+      {activeTab === 'preview' && (
         <div className="px-6 py-6 lg:min-h-[760px] sm:px-8">
           <div>
             <div className="mb-5">
