@@ -8,6 +8,9 @@ import {
   Settings2,
   ArrowRight,
 } from 'lucide-react';
+import { Dancing_Script } from 'next/font/google';
+
+const handwriting = Dancing_Script({ subsets: ['latin'], weight: ['700'] });
 
 const navItems = [
   {
@@ -95,21 +98,17 @@ export default function Sidebar() {
           })}
         </nav>
 
-        <div className="mt-auto px-2 pb-2 pt-4">
+        <div className="mt-auto px-2 pb-2 pt-4 text-right">
           <p
-            className="text-[22px] leading-none tracking-tight"
-            style={{
-              fontFamily: 'var(--wb-font-serif)',
-              fontStyle: 'italic',
-              color: 'var(--wb-accent)',
-            }}
+            className={`${handwriting.className} text-[26px] leading-none`}
+            style={{ color: 'var(--wb-accent)' }}
           >
             Publio
           </p>
           <p className="mt-1.5 text-[11px] leading-4 text-[color:var(--wb-text-muted)]">
             Write once, publish everywhere.
           </p>
-          <p className="mt-2 text-[10px] uppercase tracking-[0.28em] text-[color:var(--wb-border-strong)]">
+          <p className="mt-2 text-[10px] uppercase tracking-[0.28em]" style={{ color: 'rgba(19,19,20,0.32)' }}>
             v0.1.0
           </p>
         </div>
