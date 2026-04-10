@@ -1,5 +1,17 @@
-import { globalStyle } from '@vanilla-extract/css';
+import { globalKeyframes, globalStyle } from '@vanilla-extract/css';
 import { vars } from './tokens.css';
+
+globalKeyframes('spin', {
+  from: { transform: 'rotate(0deg)' },
+  to: { transform: 'rotate(360deg)' },
+});
+
+globalStyle('.animate-spin', {
+  animationName: 'spin',
+  animationDuration: '1s',
+  animationTimingFunction: 'linear',
+  animationIterationCount: 'infinite',
+});
 
 globalStyle('*', {
   boxSizing: 'border-box',

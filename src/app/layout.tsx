@@ -18,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body className="antialiased">
+      <body>
         <div className={styles.shell}>
           <Sidebar />
 

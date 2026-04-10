@@ -7,6 +7,11 @@ export const pageWrap = style({
   gap: '24px',
 });
 
+export const accordionCard = style({
+  overflow: 'hidden',
+  padding: 0,
+});
+
 export const platformList = style({
   display: 'flex',
   flexDirection: 'column',

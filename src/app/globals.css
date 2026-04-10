@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@source "../**/*.{js,ts,jsx,tsx,mdx}";
+/* Legacy CSS variables kept for backward compatibility during migration */
+/* Primary styling is now in src/styles/tokens.css.ts and globals.css.ts */
 
 :root {
   --wb-bg:           #F5F4F0;
@@ -17,7 +17,6 @@
   --wb-radius-xl:    12px;
   --wb-radius-lg:    8px;
 
-  /* 语义状态色 */
   --wb-success-bg:     #f4fbf6;
   --wb-success-border: #bfe8cb;
   --wb-success-text:   #247a4b;
@@ -44,78 +43,5 @@
   --wb-font-serif: "Source Han Serif SC", "Songti SC", "Iowan Old Style",
     "Palatino Linotype", serif;
 
-  /* 统一眉题 letter-spacing */
   --wb-tracking-kicker: 0.30em;
-}
-
-html {
-  min-height: 100%;
-  background: var(--wb-canvas);
-  color-scheme: light;
-}
-
-body {
-  min-height: 100vh;
-  color: var(--wb-text);
-  font-family: var(--wb-font-sans);
-  background: var(--wb-bg);
-}
-
-::selection {
-  color: var(--wb-text);
-  background: rgba(217, 119, 87, 0.18);
-}
-
-:focus-visible:not(input):not(textarea):not(select) {
-  outline: 2px solid rgba(217, 119, 87, 0.55);
-  outline-offset: 2px;
-}
-
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: none;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-/* MDEditor 边框覆盖 */
-.w-md-editor {
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-}
-
-.w-md-editor-toolbar {
-  border-top: none !important;
-  border-bottom: 1px solid var(--wb-border-faint) !important;
-  border-left: none !important;
-  border-right: none !important;
-}
-
-.w-md-editor-content {
-  border: none !important;
-}
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
-
-/* 衬线字体 utility，替代内联 style={{ fontFamily: 'var(--wb-font-serif)' }} */
-.font-serif-brand {
-  font-family: var(--wb-font-serif);
-}
-
-/* 眉题 kicker 统一样式 */
-.kicker {
-  font-size: 11px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: var(--wb-tracking-kicker);
-  color: var(--wb-accent);
 }

@@ -178,7 +178,7 @@ export default function SettingsPage() {
           const { Icon } = platform;
 
           return (
-            <SurfaceCard key={platform.id} tone="soft" className="overflow-hidden px-0 py-0">
+            <SurfaceCard key={platform.id} tone="soft" className={styles.accordionCard}>
               <button
                 type="button"
                 aria-expanded={isExpanded}
