@@ -100,6 +100,7 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
           {/* 正文编辑区 */}
           <div
             ref={editorWrapRef}
+            data-color-mode="light"
             className="[&_.w-md-editor]:border-0 [&_.w-md-editor]:rounded-none [&_.w-md-editor]:bg-transparent [&_.w-md-editor]:text-[color:var(--wb-text)] [&_.w-md-editor-toolbar]:border-b [&_.w-md-editor-toolbar]:border-[color:var(--wb-border-faint)] [&_.w-md-editor-toolbar]:border-t-0 [&_.w-md-editor-toolbar]:bg-[color:var(--wb-surface)] [&_.w-md-editor-toolbar]:px-3 [&_.w-md-editor-toolbar]:py-1.5 [&_.w-md-editor-toolbar-divider]:bg-[color:var(--wb-border-faint)] [&_.w-md-editor-bar]:hidden [&_.w-md-editor-text-input]:font-[family-name:var(--wb-font-sans)] [&_.w-md-editor-text-input]:bg-transparent [&_.w-md-editor-text-input]:text-[color:var(--wb-text)] [&_.w-md-editor-text-input]:placeholder:text-[color:var(--wb-text-muted)] [&_.wmde-markdown]:bg-transparent [&_.wmde-markdown]:text-[color:var(--wb-text)] [&_.w-md-editor-area]:bg-transparent"
             onClick={(e) => {
               const target = e.target as HTMLElement;
@@ -145,9 +146,9 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
           </div>
         </>
       ) : (
-        <div className="bg-[color:var(--wb-bg)] p-4 sm:p-5 lg:min-h-[760px]">
-          <div className="mx-auto max-w-[860px] rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] px-5 py-6">
-          <div className="mb-5">
+        <div className="px-6 py-6 lg:min-h-[760px] sm:px-8">
+          <div>
+            <div className="mb-5">
               <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-[color:var(--wb-accent)]">
                 成稿预览
               </p>
