@@ -3,6 +3,7 @@ import { Clock3, ExternalLink, FileUp, ChevronDown } from 'lucide-react';
 
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import type { AiNewsDeskCandidate } from '@/lib/aiNews';
+import * as styles from './news.css';
 
 interface TopicSignalCardProps {
   item: AiNewsDeskCandidate;
@@ -38,61 +39,59 @@ export default function TopicSignalCard({
   );
 
   return (
-    <SurfaceCard tone="default" className="overflow-hidden">
-      <article className="px-5 py-5 sm:px-6">
-        <div className="space-y-4">
+    <SurfaceCard tone="default" className={styles.card}>
+      <article className={styles.cardInner}>
+        <div>
 
           {/* 顶部元信息行 */}
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+          <div className={styles.metaRow}>
+            <div className={styles.metaLeft}>
               {/* 序号 */}
-              <span className="inline-flex items-center gap-1.5 rounded-[var(--wb-radius-lg)] bg-[color:var(--wb-accent-soft)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--wb-accent-strong)]">
+              <span className={styles.indexBadge}>
                 {indexLabel}
               </span>
-              <span className="text-[13px] font-medium text-[color:var(--wb-text)]">
+              <span className={styles.topicTag}>
                 {item.topicTags[0] || '行业动态'}
               </span>
-              <span className="text-[color:var(--wb-border-strong)]">·</span>
+              <span className={styles.metaDot}>·</span>
               <a
                 href={new URL(item.primarySignal.link).origin}
                 target="_blank"
                 rel="noreferrer"
-                className="text-[13px] text-[color:var(--wb-text-muted)] transition hover:text-[color:var(--wb-accent)]"
+                className={styles.sourceLink}
               >
                 {item.primarySignal.sourceName}
               </a>
-              <span className="text-[color:var(--wb-border-strong)]">·</span>
-              <span className="inline-flex items-center gap-1 text-[13px] text-[color:var(--wb-text-muted)]">
+              <span className={styles.metaDot}>·</span>
+              <span className={styles.timeLabel}>
                 <Clock3 size={12} />
                 {relativeLabel}
               </span>
             </div>
             {/* 字数/配图 — 右上角 */}
             {metrics && (
-              <span className="hidden shrink-0 text-[12px] text-[color:var(--wb-text-muted)] sm:block">
+              <span className={styles.metricsLabel}>
                 {metrics}
               </span>
             )}
           </div>
 
           {/* 标题 */}
-          <div className="min-w-0">
-            <h3
-              className="font-serif-brand text-[20px] font-semibold leading-[1.4] text-[color:var(--wb-text)] sm:text-[22px]"
-            >
+          <div className={styles.headlineBlock}>
+            <h3 className={styles.headline}>
               {item.title}
             </h3>
-            <p className="mt-2 max-w-3xl text-[15px] leading-7 text-[color:var(--wb-text-muted)]">
+            <p className={styles.whyNow}>
               {item.whyNow}
             </p>
           </div>
 
           {/* 编辑判断 — 左侧竖线，无内框 */}
-          <div className="border-l-2 border-[color:var(--wb-accent)] pl-4">
-            <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">
+          <div className={styles.editorialBar}>
+            <p className={styles.editorialKicker}>
               编辑判断
             </p>
-            <p className="mt-1.5 text-[14px] leading-7 text-[color:var(--wb-text)]">
+            <p className={styles.editorialText}>
               {item.affectedSummary
                 ? `影响对象：${item.affectedSummary}。`
                 : ''}
@@ -101,13 +100,13 @@ export default function TopicSignalCard({
           </div>
 
           {/* 操作按钮 */}
-          <div className="flex flex-wrap items-center gap-2 border-t border-[color:var(--wb-border-faint)] pt-3">
+          <div className={styles.actionsRow}>
             {/* 评分区 — 底部左侧 */}
-            <div className="mr-auto hidden items-center gap-3 text-[12px] text-[color:var(--wb-text-muted)] sm:flex">
-              <span className="font-semibold text-[color:var(--wb-accent)]">
+            <div className={styles.scoreRow}>
+              <span className={styles.scoreHighlight}>
                 {item.totalScore.toFixed(0)} 分
               </span>
-              <span className="text-[color:var(--wb-border-strong)]">·</span>
+              <span>·</span>
               <span>新鲜度 {item.scores.freshness}</span>
               <span>影响力 {item.scores.impact}</span>
               <span>势能 {item.scores.momentum}</span>
@@ -117,7 +116,7 @@ export default function TopicSignalCard({
               href={item.primarySignal.link}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-text)] transition hover:bg-[color:var(--wb-surface)]"
+              className={styles.actionButton({ variant: 'secondary' })}
             >
               <ExternalLink size={15} />
               查看原文
@@ -125,18 +124,21 @@ export default function TopicSignalCard({
             <button
               type="button"
               onClick={() => setShowBrief((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-4 py-2 text-sm font-medium text-[color:var(--wb-text)] transition hover:bg-[color:var(--wb-surface)]"
+              className={styles.actionButton({ variant: 'secondary' })}
             >
               <ChevronDown
                 size={15}
-                className={`transition-transform duration-200 ${showBrief ? 'rotate-180' : ''}`}
+                style={{
+                  transition: 'transform 200ms',
+                  transform: showBrief ? 'rotate(180deg)' : 'rotate(0deg)',
+                }}
               />
               {showBrief ? '收起底稿' : '查看底稿'}
             </button>
             <button
               type="button"
               onClick={() => onCreateDraft(item)}
-              className="inline-flex items-center gap-2 rounded-[var(--wb-radius-lg)] border border-transparent bg-[color:var(--wb-accent)] px-4 py-2 text-sm font-medium text-white transition hover:brightness-105"
+              className={styles.actionButton({ variant: 'primary' })}
             >
               <FileUp size={15} />
               加入写作台
@@ -145,35 +147,35 @@ export default function TopicSignalCard({
 
           {/* 内联研究底稿 */}
           {showBrief && brief ? (
-            <div className="space-y-5 border-t border-[color:var(--wb-border-faint)] pt-5">
-              <div className="border-l-2 border-[color:var(--wb-border-strong)] pl-4">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-text-muted)]">事件经过</p>
-                <p className="mt-1.5 text-sm leading-7 text-[color:var(--wb-text-muted)]">
+            <div className={styles.briefSection}>
+              <div className={styles.briefBlock}>
+                <p className={styles.briefKicker}>事件经过</p>
+                <p className={styles.briefText}>
                   {brief.whatHappened}
                 </p>
               </div>
 
-              <div className="border-l-2 border-[color:var(--wb-accent)] pl-4">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-accent)]">为什么重要</p>
-                <p className="mt-1.5 text-sm leading-7 text-[color:var(--wb-text)]">
+              <div className={styles.briefBlockAccent}>
+                <p className={styles.briefKickerAccent}>为什么重要</p>
+                <p className={styles.briefTextDark}>
                   {brief.whyItMatters}
                 </p>
               </div>
 
-              <div className="pl-4">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-text-muted)]">影响了谁</p>
-                <p className="mt-2 text-sm text-[color:var(--wb-text)]">
+              <div className={styles.briefBlockPlain}>
+                <p className={styles.briefKicker}>影响了谁</p>
+                <p className={styles.affectedList}>
                   {brief.whoIsAffected.join(' · ')}
                 </p>
               </div>
 
-              <div className="pl-4">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-[color:var(--wb-text-muted)]">推荐写法</p>
-                <div className="mt-2 space-y-3">
+              <div className={styles.briefBlockPlain}>
+                <p className={styles.briefKicker}>推荐写法</p>
+                <div className={styles.angleList}>
                   {brief.recommendedAngles.map((angle) => (
                     <div key={angle.label}>
-                      <p className="text-sm font-medium leading-6 text-[color:var(--wb-text)]">{angle.label}</p>
-                      <p className="text-sm leading-7 text-[color:var(--wb-text-muted)]">{angle.reason}</p>
+                      <p className={styles.angleLabel}>{angle.label}</p>
+                      <p className={styles.angleReason}>{angle.reason}</p>
                     </div>
                   ))}
                 </div>

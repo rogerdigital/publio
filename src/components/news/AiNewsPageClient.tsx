@@ -10,6 +10,7 @@ import {
   buildResearchDraftMarkdown,
   NEWS_DRAFT_STORAGE_KEY,
 } from '@/lib/newsDraft';
+import * as styles from './news.css';
 
 interface AiNewsResponse {
   success: boolean;
@@ -188,7 +189,7 @@ export default function AiNewsPageClient() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className={styles.pageWrap}>
       <TopicDeskHeader
         generatedAt={formatDeskTime(generatedAt)}
         todayCount={todayCandidates.length}
@@ -198,49 +199,49 @@ export default function AiNewsPageClient() {
         refreshing={refreshing}
       />
 
-      <div className="space-y-5">
+      <div className={styles.contentWrap}>
         {refreshError ? (
           <div
-            className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[color:var(--wb-bg-elevated)] px-5 py-4"
+            className={styles.refreshErrorBanner}
             role="status"
             aria-live="polite"
           >
-            <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--wb-accent)]">
+            <p className={styles.refreshErrorKicker}>
               刷新未更新
             </p>
-            <p className="mt-2 text-sm leading-7 text-[color:var(--wb-text-muted)]">
+            <p className={styles.refreshErrorText}>
               {refreshError} 下面保留的是上一次成功加载的内容。
             </p>
           </div>
         ) : null}
 
         {loading ? (
-          <div className="space-y-5">
+          <div className={styles.skeletonList}>
             {[0, 1].map((i) => (
-              <div key={i} className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] p-6">
-                <div className="animate-pulse space-y-4">
-                  <div className="h-3 w-24 rounded bg-[color:var(--wb-canvas-deep)]" />
-                  <div className="h-9 w-4/5 rounded bg-[color:var(--wb-canvas-deep)]" />
-                  <div className="h-4 w-full rounded bg-[color:var(--wb-canvas-deep)]" />
-                  <div className="h-4 w-2/3 rounded bg-[color:var(--wb-canvas-deep)]" />
+              <div key={i} className={styles.skeletonCard}>
+                <div className={styles.skeletonInner}>
+                  <div className={styles.skeletonLineShort} />
+                  <div className={styles.skeletonLineTall} />
+                  <div className={styles.skeletonLineFull} />
+                  <div className={styles.skeletonLineMid} />
                 </div>
               </div>
             ))}
           </div>
         ) : error && allCandidates.length === 0 ? (
-          <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] p-8">
-            <p className="text-lg font-medium text-[color:var(--wb-text)]">新闻抓取失败</p>
-            <p className="mt-3 text-sm leading-7 text-[color:var(--wb-text-muted)]">{error}</p>
+          <div className={styles.stateCard}>
+            <p className={styles.stateTitle}>新闻抓取失败</p>
+            <p className={styles.stateText}>{error}</p>
           </div>
         ) : allCandidates.length === 0 ? (
-          <div className="rounded-[var(--wb-radius-xl)] border border-[color:var(--wb-border)] bg-[color:var(--wb-surface)] p-8 text-center">
-            <p className="text-lg font-medium text-[color:var(--wb-text)]">选题桌暂无内容</p>
-            <p className="mt-3 text-sm leading-7 text-[color:var(--wb-text-muted)]">
+          <div className={styles.stateCardCenter}>
+            <p className={styles.stateTitle}>选题桌暂无内容</p>
+            <p className={styles.stateText}>
               点击右上角「抓取选题」开始抓取最新 AI 话题信号。
             </p>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className={styles.candidateSections}>
             <CandidateSection
               title="今天能发"
               items={todayCandidates}
@@ -278,7 +279,7 @@ function CandidateSection({
   if (items.length === 0) return null;
 
   return (
-    <section className="space-y-5">
+    <section className={styles.candidateSection}>
       {items.map((item, index) => (
         <TopicSignalCard
           key={item.clusterId}
