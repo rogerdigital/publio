@@ -11,6 +11,9 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   updatedTime: 'updatedTime',
   draftTitle: 'draftTitle',
   draftExcerpt: 'draftExcerpt',
+  syncSummary: 'syncSummary',
+  syncTitle: 'syncTitle',
+  syncText: 'syncText',
   editLink: 'editLink',
   statePanel: 'statePanel',
   emptyState: 'emptyState',
@@ -32,22 +35,39 @@ describe('DraftLibraryClient', () => {
     );
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue({
+      vi.fn((url) => Promise.resolve({
         ok: true,
-        json: async () => ({
-          drafts: [
-            {
-              id: 'draft-1',
-              title: 'AI 话题稿件',
-              content: '这是一篇待同步的稿件正文。',
-              status: 'ready',
-              source: 'ai-news',
-              createdAt: '2026-04-11T08:00:00.000Z',
-              updatedAt: '2026-04-11T08:30:00.000Z',
-            },
-          ],
-        }),
-      }),
+        json: async () => url === '/api/sync-tasks'
+          ? ({
+            syncTasks: [
+              {
+                id: 'sync-1',
+                draftId: 'draft-1',
+                title: 'AI 话题稿件',
+                status: 'partial',
+                createdAt: '2026-04-11T08:40:00.000Z',
+                updatedAt: '2026-04-11T08:45:00.000Z',
+                receipts: [
+                  { platform: 'wechat', status: 'published' },
+                  { platform: 'zhihu', status: 'failed' },
+                ],
+              },
+            ],
+          })
+          : ({
+            drafts: [
+              {
+                id: 'draft-1',
+                title: 'AI 话题稿件',
+                content: '这是一篇待同步的稿件正文。',
+                status: 'ready',
+                source: 'ai-news',
+                createdAt: '2026-04-11T08:00:00.000Z',
+                updatedAt: '2026-04-11T08:30:00.000Z',
+              },
+            ],
+          }),
+      })),
     );
 
     render(createElement(DraftLibraryClient));
@@ -55,6 +75,10 @@ describe('DraftLibraryClient', () => {
     expect(await screen.findByText('AI 话题稿件')).toBeInTheDocument();
     expect(screen.getByText('待同步')).toBeInTheDocument();
     expect(screen.getByText('AI 选题')).toBeInTheDocument();
+    expect(screen.getByText('最近分发：部分完成')).toBeInTheDocument();
+    expect(screen.getByText((_, node) => (
+      node?.textContent === '2 个平台，更新于 2026年4月11日 16:45'
+    ))).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '继续编辑 AI 话题稿件' })).toHaveAttribute(
       'href',
       '/?draftId=draft-1',
@@ -69,7 +93,7 @@ describe('DraftLibraryClient', () => {
       'fetch',
       vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({ drafts: [] }),
+        json: async () => ({ drafts: [], syncTasks: [] }),
       }),
     );
 

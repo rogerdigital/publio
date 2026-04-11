@@ -75,6 +75,30 @@ export const draftExcerpt = style({
   color: vars.color.textMuted,
 });
 
+export const syncSummary = style({
+  display: 'inline-flex',
+  flexDirection: 'column',
+  gap: '4px',
+  marginTop: '14px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.bgElevated,
+  padding: '10px 12px',
+});
+
+export const syncTitle = style({
+  margin: 0,
+  fontSize: '13px',
+  fontWeight: 600,
+  color: vars.color.text,
+});
+
+export const syncText = style({
+  margin: 0,
+  fontSize: '12px',
+  color: vars.color.textMuted,
+});
+
 export const editLink = style({
   display: 'inline-flex',
   alignItems: 'center',

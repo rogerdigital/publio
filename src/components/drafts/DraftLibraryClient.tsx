@@ -4,10 +4,16 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, FileText, RefreshCcw } from 'lucide-react';
 import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
+import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
 import * as styles from './drafts.css';
 
 interface DraftsResponse {
   drafts?: ContentDraft[];
+  error?: string;
+}
+
+interface SyncTasksResponse {
+  syncTasks?: SyncTask[];
   error?: string;
 }
 
@@ -26,6 +32,14 @@ const sourceLabels: Record<DraftSource, string> = {
   import: '导入',
 };
 
+const syncStatusLabels: Record<SyncTaskStatus, string> = {
+  pending: '待分发',
+  syncing: '分发中',
+  completed: '已完成',
+  failed: '失败',
+  partial: '部分完成',
+};
+
 function formatDraftTime(value: string) {
   const timestamp = Date.parse(value);
   if (!Number.isFinite(timestamp)) return '时间待确认';
@@ -42,6 +56,7 @@ function createExcerpt(content: string) {
 
 export default function DraftLibraryClient() {
   const [drafts, setDrafts] = useState<ContentDraft[]>([]);
+  const [syncTasks, setSyncTasks] = useState<SyncTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -52,15 +67,23 @@ export default function DraftLibraryClient() {
       try {
         setLoading(true);
         setError('');
-        const response = await fetch('/api/drafts', { cache: 'no-store' });
-        const data = (await response.json()) as DraftsResponse;
+        const [draftsResponse, syncTasksResponse] = await Promise.all([
+          fetch('/api/drafts', { cache: 'no-store' }),
+          fetch('/api/sync-tasks', { cache: 'no-store' }),
+        ]);
+        const data = (await draftsResponse.json()) as DraftsResponse;
+        const syncData = (await syncTasksResponse.json()) as SyncTasksResponse;
 
-        if (!response.ok) {
+        if (!draftsResponse.ok) {
           throw new Error(data.error || '稿件读取失败，请稍后重试。');
+        }
+        if (!syncTasksResponse.ok) {
+          throw new Error(syncData.error || '分发记录读取失败，请稍后重试。');
         }
 
         if (!cancelled) {
           setDrafts(data.drafts ?? []);
+          setSyncTasks(syncData.syncTasks ?? []);
         }
       } catch (err) {
         if (!cancelled) {
@@ -117,31 +140,45 @@ export default function DraftLibraryClient() {
 
   return (
     <div className={styles.draftList}>
-      {drafts.map((draft) => (
-        <article key={draft.id} className={styles.draftCard}>
-          <div className={styles.draftMetaRow}>
-            <span className={styles.statusBadge}>{statusLabels[draft.status]}</span>
-            <span className={styles.sourceBadge}>{sourceLabels[draft.source]}</span>
-            <time className={styles.updatedTime} dateTime={draft.updatedAt}>
-              {formatDraftTime(draft.updatedAt)}
-            </time>
-          </div>
+      {drafts.map((draft) => {
+        const latestSyncTask = syncTasks.find((task) => task.draftId === draft.id);
 
-          <div>
-            <h2 className={styles.draftTitle}>{draft.title}</h2>
-            <p className={styles.draftExcerpt}>{createExcerpt(draft.content)}</p>
-          </div>
+        return (
+          <article key={draft.id} className={styles.draftCard}>
+            <div className={styles.draftMetaRow}>
+              <span className={styles.statusBadge}>{statusLabels[draft.status]}</span>
+              <span className={styles.sourceBadge}>{sourceLabels[draft.source]}</span>
+              <time className={styles.updatedTime} dateTime={draft.updatedAt}>
+                {formatDraftTime(draft.updatedAt)}
+              </time>
+            </div>
 
-          <Link
-            href={`/?draftId=${draft.id}`}
-            className={styles.editLink}
-            aria-label={`继续编辑 ${draft.title}`}
-          >
-            继续编辑
-            <ArrowRight size={15} />
-          </Link>
-        </article>
-      ))}
+            <div>
+              <h2 className={styles.draftTitle}>{draft.title}</h2>
+              <p className={styles.draftExcerpt}>{createExcerpt(draft.content)}</p>
+              {latestSyncTask ? (
+                <div className={styles.syncSummary}>
+                  <p className={styles.syncTitle}>
+                    最近分发：{syncStatusLabels[latestSyncTask.status]}
+                  </p>
+                  <p className={styles.syncText}>
+                    {latestSyncTask.receipts.length} 个平台，更新于 {formatDraftTime(latestSyncTask.updatedAt)}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+
+            <Link
+              href={`/?draftId=${draft.id}`}
+              className={styles.editLink}
+              aria-label={`继续编辑 ${draft.title}`}
+            >
+              继续编辑
+              <ArrowRight size={15} />
+            </Link>
+          </article>
+        );
+      })}
     </div>
   );
 }
