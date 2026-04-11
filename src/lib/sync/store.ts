@@ -1,0 +1,112 @@
+import type { PlatformId } from '@/types';
+import type {
+  CreateSyncTaskInput,
+  PlatformSyncReceipt,
+  SyncTask,
+  SyncTaskStatus,
+  UpdateSyncReceiptInput,
+} from '@/lib/sync/types';
+
+interface SyncHistoryStoreOptions {
+  createId?: () => string;
+  now?: () => string;
+  initialTasks?: SyncTask[];
+}
+
+function createDefaultId() {
+  return `sync-${crypto.randomUUID()}`;
+}
+
+function createTimestamp() {
+  return new Date().toISOString();
+}
+
+function sortByUpdatedAtDesc(left: SyncTask, right: SyncTask) {
+  return Date.parse(right.updatedAt) - Date.parse(left.updatedAt);
+}
+
+function deriveTaskStatus(receipts: PlatformSyncReceipt[]): SyncTaskStatus {
+  if (receipts.some((receipt) => receipt.status === 'syncing')) {
+    return 'syncing';
+  }
+  if (receipts.some((receipt) => receipt.status === 'failed')) {
+    return receipts.some((receipt) => receipt.status === 'draft-created' || receipt.status === 'published')
+      ? 'failed'
+      : 'failed';
+  }
+  if (receipts.every((receipt) => receipt.status === 'draft-created' || receipt.status === 'published')) {
+    return 'completed';
+  }
+  return 'pending';
+}
+
+export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
+  const createId = options.createId ?? createDefaultId;
+  const now = options.now ?? createTimestamp;
+  const tasks = new Map<string, SyncTask>(
+    (options.initialTasks ?? []).map((task) => [task.id, task]),
+  );
+
+  return {
+    createTask(input: CreateSyncTaskInput) {
+      const timestamp = now();
+      const task: SyncTask = {
+        id: createId(),
+        draftId: input.draftId,
+        title: input.title,
+        status: 'pending',
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        receipts: input.platforms.map((platform) => ({
+          platform,
+          status: 'pending',
+          attempts: 0,
+          updatedAt: timestamp,
+        })),
+      };
+
+      tasks.set(task.id, task);
+      return task;
+    },
+
+    getTask(id: string) {
+      return tasks.get(id) ?? null;
+    },
+
+    updateReceipt(taskId: string, platform: PlatformId, input: UpdateSyncReceiptInput) {
+      const current = tasks.get(taskId);
+      if (!current) return null;
+
+      const timestamp = now();
+      let foundReceipt = false;
+      const receipts = current.receipts.map((receipt) => {
+        if (receipt.platform !== platform) return receipt;
+        foundReceipt = true;
+        return {
+          ...receipt,
+          ...input,
+          attempts: receipt.attempts + 1,
+          updatedAt: timestamp,
+        };
+      });
+
+      if (!foundReceipt) return null;
+
+      const updated: SyncTask = {
+        ...current,
+        receipts,
+        status: deriveTaskStatus(receipts),
+        updatedAt: timestamp,
+      };
+
+      tasks.set(taskId, updated);
+      return updated;
+    },
+
+    listTasks() {
+      return Array.from(tasks.values()).sort(sortByUpdatedAtDesc);
+    },
+  };
+}
+
+export type { SyncTask };
