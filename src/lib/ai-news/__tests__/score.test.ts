@@ -197,11 +197,11 @@ describe('scoreAiNewsCluster', () => {
       new Date('2026-04-05T10:00:00.000Z'),
     );
 
-    expect(creatorFriendly.scores.creatorFit).toBeGreaterThan(
-      plainSignal.scores.creatorFit,
-    );
     expect(creatorFriendly.scores.visualReadiness).toBeGreaterThan(
       plainSignal.scores.visualReadiness,
+    );
+    expect(creatorFriendly.scores.creatorFit).toBeGreaterThan(
+      plainSignal.scores.creatorFit,
     );
     expect(creatorFriendly.totalScore).toBeGreaterThan(plainSignal.totalScore);
   });
