@@ -17,6 +17,7 @@ export interface NormalizedAiNewsSignal {
   articleWordCount?: number;
   articleImageCount?: number;
   sourceWeight: number;
+  creatorWeight?: number;
   sourceName: string;
   sourceType: AiNewsSourceType;
   sourceDomain: string;
