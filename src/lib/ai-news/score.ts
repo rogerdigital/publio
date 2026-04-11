@@ -48,7 +48,11 @@ function scoreImpact(cluster: AiNewsCluster) {
 function scoreMomentum(cluster: AiNewsCluster) {
   const coverage = Math.min(cluster.coverageCount * 12, 48);
   const multiSource = cluster.signals.length >= 3 ? 14 : cluster.signals.length >= 2 ? 8 : 0;
-  const freshnessAssist = Date.parse(cluster.latestPublishedAt) - Date.parse(cluster.earliestPublishedAt) <= 24 * 60 * 60 * 1000 ? 18 : 8;
+  const freshnessAssist =
+    Date.parse(cluster.latestPublishedAt) - Date.parse(cluster.earliestPublishedAt) <=
+    24 * 60 * 60 * 1000
+      ? 18
+      : 8;
 
   return clamp(18 + coverage + multiSource + freshnessAssist);
 }
@@ -71,6 +75,21 @@ function scoreVisualReadiness(cluster: AiNewsCluster) {
   return clamp(8 + imageCoverageBoost + leadImageBoost + imageCountBoost);
 }
 
+function scoreCreatorFit(cluster: AiNewsCluster) {
+  const creatorWeightBoost = Math.min(
+    cluster.signals.reduce((sum, signal) => sum + (signal.creatorWeight ?? 0), 0) * 8,
+    40,
+  );
+
+  const communityBoost = cluster.signals.some((signal) => signal.sourceType === 'community')
+    ? 24
+    : 0;
+
+  const visualAssist = cluster.primarySignal.imageUrl ? 16 : 0;
+
+  return clamp(20 + creatorWeightBoost + communityBoost + visualAssist);
+}
+
 function resolveBucket(freshness: number): AiNewsBucket {
   return freshness >= 60 ? 'today' : 'follow';
 }
@@ -82,14 +101,16 @@ export function scoreAiNewsCluster(cluster: AiNewsCluster, now = new Date()): Sc
     momentum: scoreMomentum(cluster),
     credibility: scoreCredibility(cluster),
     visualReadiness: scoreVisualReadiness(cluster),
+    creatorFit: scoreCreatorFit(cluster),
   };
 
   const totalScore = clamp(
-    scores.freshness * 0.28 +
-      scores.impact * 0.26 +
-      scores.momentum * 0.18 +
-      scores.credibility * 0.18 +
-      scores.visualReadiness * 0.10,
+    scores.freshness * 0.25 +
+      scores.impact * 0.24 +
+      scores.momentum * 0.16 +
+      scores.credibility * 0.16 +
+      scores.visualReadiness * 0.09 +
+      scores.creatorFit * 0.10,
   );
 
   return {

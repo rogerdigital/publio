@@ -48,6 +48,7 @@ export interface AiNewsScores {
   momentum: number;
   credibility: number;
   visualReadiness: number;
+  creatorFit: number;
 }
 
 export type AiNewsBucket = 'today' | 'follow';
