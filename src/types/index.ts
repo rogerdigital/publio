@@ -1,3 +1,5 @@
+import type { SyncTask } from '@/lib/sync/types';
+
 export type PlatformId = 'wechat' | 'xiaohongshu' | 'zhihu' | 'x';
 
 export interface Platform {
@@ -8,6 +10,7 @@ export interface Platform {
 }
 
 export interface PublishRequest {
+  draftId?: string;
   title: string;
   content: string;
   platforms: PlatformId[];
@@ -34,6 +37,7 @@ export interface PlatformPublishResult {
 
 export interface PublishResponse {
   results: PlatformPublishResult[];
+  syncTask?: SyncTask;
 }
 
 export const PLATFORMS: Platform[] = [

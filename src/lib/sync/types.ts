@@ -26,7 +26,7 @@ export interface PlatformSyncReceipt {
 
 export interface SyncTask {
   id: string;
-  draftId: string;
+  draftId?: string;
   title: string;
   status: SyncTaskStatus;
   receipts: PlatformSyncReceipt[];
@@ -35,7 +35,7 @@ export interface SyncTask {
 }
 
 export interface CreateSyncTaskInput {
-  draftId: string;
+  draftId?: string;
   title: string;
   platforms: PlatformId[];
 }

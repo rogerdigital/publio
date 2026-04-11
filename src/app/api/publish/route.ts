@@ -6,6 +6,8 @@ import { WechatPublisher } from '@/lib/publishers/wechat';
 import { XiaohongshuPublisher } from '@/lib/publishers/xiaohongshu';
 import { ZhihuPublisher } from '@/lib/publishers/zhihu';
 import { XPublisher } from '@/lib/publishers/x';
+import { getSyncHistoryStore } from '@/lib/sync/registry';
+import type { SyncReceiptStatus } from '@/lib/sync/types';
 
 const publisherMap: Record<PlatformId, () => Publisher> = {
   wechat: () => new WechatPublisher(),
@@ -14,10 +16,18 @@ const publisherMap: Record<PlatformId, () => Publisher> = {
   x: () => new XPublisher(),
 };
 
+function toSyncReceiptStatus(result: PlatformPublishResult): SyncReceiptStatus {
+  if (result.status === 'draft-created') return 'draft-created';
+  if (result.status === 'published' || result.status === 'success') return 'published';
+  if (result.status === 'needs-action') return 'needs-action';
+  if (result.status === 'pending' || result.status === 'publishing') return 'syncing';
+  return 'failed';
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, content, platforms } = body;
+    const { draftId, title, content, platforms } = body;
 
     // Validate
     if (!title?.trim()) {
@@ -84,7 +94,22 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    return NextResponse.json({ results: publishResults });
+    const syncStore = getSyncHistoryStore();
+    let syncTask = syncStore.createTask({
+      draftId: typeof draftId === 'string' && draftId.trim() ? draftId.trim() : undefined,
+      title,
+      platforms: platforms as PlatformId[],
+    });
+
+    for (const result of publishResults) {
+      syncTask = syncStore.updateReceipt(syncTask.id, result.platform, {
+        status: toSyncReceiptStatus(result),
+        message: result.message,
+        url: result.url,
+      }) ?? syncTask;
+    }
+
+    return NextResponse.json({ results: publishResults, syncTask });
   } catch (error) {
     return NextResponse.json(
       {
