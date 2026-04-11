@@ -14,6 +14,7 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   syncSummary: 'syncSummary',
   syncTitle: 'syncTitle',
   syncText: 'syncText',
+  syncDetailLink: 'syncDetailLink',
   editLink: 'editLink',
   statePanel: 'statePanel',
   emptyState: 'emptyState',
@@ -79,6 +80,10 @@ describe('DraftLibraryClient', () => {
     expect(screen.getByText((_, node) => (
       node?.textContent === '2 个平台，更新于 2026年4月11日 16:45'
     ))).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '查看分发详情' })).toHaveAttribute(
+      'href',
+      '/sync-tasks/sync-1',
+    );
     expect(screen.getByRole('link', { name: '继续编辑 AI 话题稿件' })).toHaveAttribute(
       'href',
       '/?draftId=draft-1',

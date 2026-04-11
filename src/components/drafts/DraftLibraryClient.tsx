@@ -164,6 +164,12 @@ export default function DraftLibraryClient() {
                   <p className={styles.syncText}>
                     {latestSyncTask.receipts.length} 个平台，更新于 {formatDraftTime(latestSyncTask.updatedAt)}
                   </p>
+                  <Link
+                    href={`/sync-tasks/${latestSyncTask.id}`}
+                    className={styles.syncDetailLink}
+                  >
+                    查看分发详情
+                  </Link>
                 </div>
               ) : null}
             </div>

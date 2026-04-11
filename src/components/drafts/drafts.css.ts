@@ -99,6 +99,17 @@ export const syncText = style({
   color: vars.color.textMuted,
 });
 
+export const syncDetailLink = style({
+  width: 'fit-content',
+  fontSize: '12px',
+  fontWeight: 600,
+  color: vars.color.accent,
+  textDecoration: 'none',
+  ':hover': {
+    color: vars.color.signal,
+  },
+});
+
 export const editLink = style({
   display: 'inline-flex',
   alignItems: 'center',
