@@ -28,6 +28,7 @@ Thumbs.db
 
 # Project local
 tasks/
+.worktrees/
 
 # Logs
 logs/
