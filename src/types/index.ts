@@ -15,9 +15,19 @@ export interface PublishRequest {
 
 export type PublishStatus = 'idle' | 'publishing' | 'success' | 'error';
 
+export type PlatformPublishStatus =
+  | 'pending'
+  | 'publishing'
+  | 'draft-created'
+  | 'published'
+  | 'needs-action'
+  | 'success'
+  | 'failed'
+  | 'error';
+
 export interface PlatformPublishResult {
   platform: PlatformId;
-  status: PublishStatus;
+  status: PlatformPublishStatus;
   message?: string;
   url?: string;
 }

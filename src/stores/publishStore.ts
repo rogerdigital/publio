@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { PlatformId, PlatformPublishResult, PublishStatus } from '@/types';
+import { resolveOverallPublishStatus } from '@/lib/publishStatus';
 
 interface PublishStore {
   title: string;
@@ -37,12 +38,10 @@ export const usePublishStore = create<PublishStore>((set) => ({
   overallStatus: 'idle',
   results: [],
   setPublishing: () => set({ overallStatus: 'publishing', results: [] }),
-  setResults: (results) => {
-    const hasError = results.some((r) => r.status === 'error');
+  setResults: (results) =>
     set({
       results,
-      overallStatus: hasError ? 'error' : 'success',
-    });
-  },
+      overallStatus: resolveOverallPublishStatus(results),
+    }),
   reset: () => set({ overallStatus: 'idle', results: [] }),
 }));

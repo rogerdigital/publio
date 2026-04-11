@@ -2,6 +2,7 @@
 
 import { usePublishStore } from '@/stores/publishStore';
 import { PLATFORMS } from '@/types';
+import { toPublishResultDisplayState } from '@/lib/publishStatus';
 import {
   MessageSquare,
   BookOpen,
@@ -23,9 +24,15 @@ const iconMap = {
 
 export default function PublishStatusPanel() {
   const { results, overallStatus } = usePublishStore();
-  const successCount = results.filter((r) => r.status === 'success').length;
-  const errorCount = results.filter((r) => r.status === 'error').length;
-  const inFlightCount = results.filter((r) => r.status === 'publishing').length;
+  const successCount = results.filter(
+    (r) => toPublishResultDisplayState(r.status) === 'success',
+  ).length;
+  const errorCount = results.filter(
+    (r) => toPublishResultDisplayState(r.status) === 'error',
+  ).length;
+  const inFlightCount = results.filter(
+    (r) => toPublishResultDisplayState(r.status) === 'publishing',
+  ).length;
   const totalCount = results.length;
 
   if (overallStatus === 'idle') return null;
@@ -64,7 +71,7 @@ export default function PublishStatusPanel() {
               const platform = PLATFORMS.find((p) => p.id === result.platform);
               if (!platform) return null;
               const Icon = iconMap[platform.icon as keyof typeof iconMap];
-              const s = result.status as 'success' | 'error' | 'publishing';
+              const s = toPublishResultDisplayState(result.status);
 
               return (
                 <div key={result.platform} className={styles.resultCardVariants[s]}>
@@ -91,7 +98,15 @@ export default function PublishStatusPanel() {
                       {s === 'success' && <CheckCircle2 size={12} />}
                       {s === 'error' && <XCircle size={12} />}
                       {s === 'publishing' && <Loader2 size={12} className="animate-spin" />}
-                      {s === 'success' ? '已发布' : s === 'error' ? '发布失败' : '发布中'}
+                      {result.status === 'draft-created'
+                        ? '已建草稿'
+                        : result.status === 'needs-action'
+                        ? '待处理'
+                        : s === 'success'
+                        ? '已发布'
+                        : s === 'error'
+                        ? '发布失败'
+                        : '发布中'}
                     </span>
 
                     {result.url ? (
