@@ -1,8 +1,60 @@
 import { describe, expect, test } from 'vitest';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import { createSyncHistoryStore } from '@/lib/sync/store';
 
 describe('createSyncHistoryStore', () => {
+  test('persists sync tasks to a local JSON file and restores them on restart', () => {
+    const dataDir = mkdtempSync(join(tmpdir(), 'publio-sync-'));
+    const storagePath = join(dataDir, 'sync-tasks.json');
+    const timestamps = [
+      '2026-04-11T07:00:00.000Z',
+      '2026-04-11T07:01:00.000Z',
+    ];
+
+    try {
+      const store = createSyncHistoryStore({
+        createId: () => 'sync-1',
+        now: () => timestamps.shift() ?? '2026-04-11T07:02:00.000Z',
+        storagePath,
+      });
+
+      store.createTask({
+        draftId: 'draft-1',
+        title: '持久化同步任务',
+        platforms: ['wechat'],
+      });
+      store.updateReceipt('sync-1', 'wechat', {
+        status: 'published',
+        url: 'https://mp.weixin.qq.com/example',
+      });
+
+      const restored = createSyncHistoryStore({ storagePath });
+
+      expect(restored.getTask('sync-1')).toMatchObject({
+        id: 'sync-1',
+        draftId: 'draft-1',
+        title: '持久化同步任务',
+        status: 'completed',
+        createdAt: '2026-04-11T07:00:00.000Z',
+        updatedAt: '2026-04-11T07:01:00.000Z',
+        receipts: [
+          expect.objectContaining({
+            platform: 'wechat',
+            status: 'published',
+            attempts: 1,
+            updatedAt: '2026-04-11T07:01:00.000Z',
+            url: 'https://mp.weixin.qq.com/example',
+          }),
+        ],
+      });
+    } finally {
+      rmSync(dataDir, { recursive: true, force: true });
+    }
+  });
+
   test('creates a sync task with per-platform pending receipts', () => {
     const store = createSyncHistoryStore({
       createId: () => 'task-1',

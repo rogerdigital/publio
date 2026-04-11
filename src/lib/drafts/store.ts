@@ -4,11 +4,16 @@ import type {
   ListDraftsOptions,
   UpdateDraftInput,
 } from '@/lib/drafts/types';
+import {
+  readJsonFileCollection,
+  writeJsonFileCollection,
+} from '@/lib/storage/jsonFileCollection';
 
 interface DraftStoreOptions {
   createId?: () => string;
   now?: () => string;
   initialDrafts?: ContentDraft[];
+  storagePath?: string;
 }
 
 function createDefaultId() {
@@ -26,9 +31,18 @@ function sortByUpdatedAtDesc(left: ContentDraft, right: ContentDraft) {
 export function createDraftStore(options: DraftStoreOptions = {}) {
   const createId = options.createId ?? createDefaultId;
   const now = options.now ?? createTimestamp;
+  const storagePath = options.storagePath;
+  const initialDrafts = storagePath
+    ? readJsonFileCollection<ContentDraft>(storagePath)
+    : (options.initialDrafts ?? []);
   const drafts = new Map<string, ContentDraft>(
-    (options.initialDrafts ?? []).map((draft) => [draft.id, draft]),
+    initialDrafts.map((draft) => [draft.id, draft]),
   );
+
+  function persistDrafts() {
+    if (!storagePath) return;
+    writeJsonFileCollection(storagePath, Array.from(drafts.values()));
+  }
 
   return {
     createDraft(input: CreateDraftInput) {
@@ -44,6 +58,7 @@ export function createDraftStore(options: DraftStoreOptions = {}) {
       };
 
       drafts.set(draft.id, draft);
+      persistDrafts();
       return draft;
     },
 
@@ -62,6 +77,7 @@ export function createDraftStore(options: DraftStoreOptions = {}) {
       };
 
       drafts.set(id, updated);
+      persistDrafts();
       return updated;
     },
 

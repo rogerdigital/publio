@@ -6,11 +6,16 @@ import type {
   SyncTaskStatus,
   UpdateSyncReceiptInput,
 } from '@/lib/sync/types';
+import {
+  readJsonFileCollection,
+  writeJsonFileCollection,
+} from '@/lib/storage/jsonFileCollection';
 
 interface SyncHistoryStoreOptions {
   createId?: () => string;
   now?: () => string;
   initialTasks?: SyncTask[];
+  storagePath?: string;
 }
 
 function createDefaultId() {
@@ -45,9 +50,18 @@ function deriveTaskStatus(receipts: PlatformSyncReceipt[]): SyncTaskStatus {
 export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
   const createId = options.createId ?? createDefaultId;
   const now = options.now ?? createTimestamp;
+  const storagePath = options.storagePath;
+  const initialTasks = storagePath
+    ? readJsonFileCollection<SyncTask>(storagePath)
+    : (options.initialTasks ?? []);
   const tasks = new Map<string, SyncTask>(
-    (options.initialTasks ?? []).map((task) => [task.id, task]),
+    initialTasks.map((task) => [task.id, task]),
   );
+
+  function persistTasks() {
+    if (!storagePath) return;
+    writeJsonFileCollection(storagePath, Array.from(tasks.values()));
+  }
 
   return {
     createTask(input: CreateSyncTaskInput) {
@@ -68,6 +82,7 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
       };
 
       tasks.set(task.id, task);
+      persistTasks();
       return task;
     },
 
@@ -102,6 +117,7 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
       };
 
       tasks.set(taskId, updated);
+      persistTasks();
       return updated;
     },
 

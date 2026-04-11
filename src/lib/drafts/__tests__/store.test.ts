@@ -1,8 +1,49 @@
 import { describe, expect, test } from 'vitest';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import { createDraftStore } from '@/lib/drafts/store';
 
 describe('createDraftStore', () => {
+  test('persists drafts to a local JSON file and restores them on restart', () => {
+    const dataDir = mkdtempSync(join(tmpdir(), 'publio-drafts-'));
+    const storagePath = join(dataDir, 'drafts.json');
+    const timestamps = [
+      '2026-04-11T06:00:00.000Z',
+      '2026-04-11T06:05:00.000Z',
+    ];
+
+    try {
+      const store = createDraftStore({
+        createId: () => 'draft-1',
+        now: () => timestamps.shift() ?? '2026-04-11T06:10:00.000Z',
+        storagePath,
+      });
+
+      store.createDraft({
+        title: '持久化稿件',
+        content: '第一版正文',
+        source: 'manual',
+      });
+      store.updateDraft('draft-1', { content: '第二版正文', status: 'ready' });
+
+      const restored = createDraftStore({ storagePath });
+
+      expect(restored.getDraft('draft-1')).toMatchObject({
+        id: 'draft-1',
+        title: '持久化稿件',
+        content: '第二版正文',
+        status: 'ready',
+        source: 'manual',
+        createdAt: '2026-04-11T06:00:00.000Z',
+        updatedAt: '2026-04-11T06:05:00.000Z',
+      });
+    } finally {
+      rmSync(dataDir, { recursive: true, force: true });
+    }
+  });
+
   test('creates a manual draft with timestamps and default draft status', () => {
     const store = createDraftStore({
       createId: () => 'draft-1',

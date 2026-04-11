@@ -1,8 +1,11 @@
 import { createSyncHistoryStore } from '@/lib/sync/store';
+import { createLocalDataPath } from '@/lib/storage/localDataPath';
 
 type SyncHistoryStore = ReturnType<typeof createSyncHistoryStore>;
 
-let syncHistoryStore: SyncHistoryStore = createSyncHistoryStore();
+let syncHistoryStore: SyncHistoryStore = createSyncHistoryStore({
+  storagePath: createLocalDataPath('sync-tasks.json'),
+});
 
 export function getSyncHistoryStore() {
   return syncHistoryStore;
