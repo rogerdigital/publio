@@ -8,8 +8,8 @@ import TopicSignalCard from '@/components/news/TopicSignalCard';
 import type { AiNewsDeskCandidate } from '@/lib/aiNews';
 import {
   buildResearchDraftMarkdown,
-  NEWS_DRAFT_STORAGE_KEY,
 } from '@/lib/newsDraft';
+import { createDraft } from '@/lib/drafts/client';
 import * as styles from './news.css';
 
 interface AiNewsResponse {
@@ -85,16 +85,23 @@ export default function AiNewsPageClient() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [refreshError, setRefreshError] = useState('');
+  const [draftError, setDraftError] = useState('');
   const hasDeskDataRef = useRef(false);
 
   const allCandidates = [...todayCandidates, ...followCandidates];
 
-  const writeDraftAndOpenEditor = (title: string, content: string) => {
-    window.localStorage.setItem(
-      NEWS_DRAFT_STORAGE_KEY,
-      JSON.stringify({ title, content }),
-    );
-    router.push('/');
+  const writeDraftAndOpenEditor = async (title: string, content: string) => {
+    try {
+      setDraftError('');
+      const draft = await createDraft({
+        title,
+        content,
+        source: 'ai-news',
+      });
+      router.push(`/?draftId=${draft.id}`);
+    } catch (err) {
+      setDraftError(err instanceof Error ? err.message : '稿件创建失败，请稍后重试。');
+    }
   };
 
   const createSingleNewsDraft = (item: AiNewsDeskCandidate) => {
@@ -119,7 +126,7 @@ export default function AiNewsPageClient() {
         },
       ],
     });
-    writeDraftAndOpenEditor(item.title, content);
+    void writeDraftAndOpenEditor(item.title, content);
   };
 
   const loadNews = async (isManualRefresh = false) => {
@@ -211,6 +218,21 @@ export default function AiNewsPageClient() {
             </p>
             <p className={styles.refreshErrorText}>
               {refreshError} 下面保留的是上一次成功加载的内容。
+            </p>
+          </div>
+        ) : null}
+
+        {draftError ? (
+          <div
+            className={styles.refreshErrorBanner}
+            role="status"
+            aria-live="polite"
+          >
+            <p className={styles.refreshErrorKicker}>
+              转稿未完成
+            </p>
+            <p className={styles.refreshErrorText}>
+              {draftError}
             </p>
           </div>
         ) : null}

@@ -1,4 +1,5 @@
 import type { ContentDraft } from '@/lib/drafts/types';
+import type { CreateDraftInput } from '@/lib/drafts/types';
 
 interface DraftResponse {
   draft?: ContentDraft;
@@ -11,6 +12,21 @@ export async function fetchDraftById(id: string) {
 
   if (!response.ok || !data.draft) {
     throw new Error(data.error || '稿件读取失败，请稍后重试。');
+  }
+
+  return data.draft;
+}
+
+export async function createDraft(input: CreateDraftInput) {
+  const response = await fetch('/api/drafts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  const data = (await response.json()) as DraftResponse;
+
+  if (!response.ok || !data.draft) {
+    throw new Error(data.error || '稿件创建失败，请稍后重试。');
   }
 
   return data.draft;
