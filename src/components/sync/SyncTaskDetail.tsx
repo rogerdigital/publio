@@ -4,6 +4,7 @@ import type {
   SyncTask,
   SyncTaskStatus,
 } from '@/lib/sync/types';
+import SyncTaskRetryButton from '@/components/sync/SyncTaskRetryButton';
 import * as styles from './sync.css';
 
 const platformLabels: Record<PlatformId, string> = {
@@ -44,6 +45,8 @@ interface SyncTaskDetailProps {
 }
 
 export default function SyncTaskDetail({ syncTask }: SyncTaskDetailProps) {
+  const hasFailedReceipt = syncTask.receipts.some((receipt) => receipt.status === 'failed');
+
   return (
     <section className={styles.detailPanel}>
       <div className={styles.detailHeader}>
@@ -79,6 +82,8 @@ export default function SyncTaskDetail({ syncTask }: SyncTaskDetailProps) {
           </article>
         ))}
       </div>
+
+      {hasFailedReceipt ? <SyncTaskRetryButton taskId={syncTask.id} /> : null}
     </section>
   );
 }

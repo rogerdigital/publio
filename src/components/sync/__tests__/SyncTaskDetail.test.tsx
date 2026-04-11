@@ -17,6 +17,15 @@ vi.mock('@/components/sync/sync.css', () => ({
   receiptStatus: 'receiptStatus',
   receiptMessage: 'receiptMessage',
   receiptLink: 'receiptLink',
+  retryPanel: 'retryPanel',
+  retryButton: 'retryButton',
+  retryMessage: 'retryMessage',
+}));
+
+vi.mock('@/components/sync/SyncTaskRetryButton', () => ({
+  default: ({ taskId }: { taskId: string }) => (
+    <button type="button">重试失败平台 {taskId}</button>
+  ),
 }));
 
 describe('SyncTaskDetail', () => {
@@ -68,5 +77,6 @@ describe('SyncTaskDetail', () => {
     expect(screen.getByText((_, node) => (
       node?.textContent === '知乎 Cookie 已过期 · 第 2 次尝试 · 2026年4月11日 16:45'
     ))).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '重试失败平台 sync-1' })).toBeInTheDocument();
   });
 });

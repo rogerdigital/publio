@@ -94,3 +94,31 @@ export const receiptLink = style({
     color: vars.color.signal,
   },
 });
+
+export const retryPanel = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  gap: '10px',
+});
+
+export const retryButton = style({
+  border: 0,
+  borderRadius: vars.radius.lg,
+  background: vars.color.accent,
+  padding: '10px 14px',
+  color: '#ffffff',
+  cursor: 'pointer',
+  fontSize: '14px',
+  fontWeight: 700,
+  ':disabled': {
+    cursor: 'not-allowed',
+    opacity: 0.64,
+  },
+});
+
+export const retryMessage = style({
+  margin: 0,
+  color: vars.color.textMuted,
+  fontSize: '13px',
+});
