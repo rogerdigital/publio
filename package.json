@@ -2,6 +2,7 @@
   "name": "publio",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.23.0",
   "scripts": {
     "dev": "tsx scripts/dev-safe.ts",
     "dev:raw": "next dev",

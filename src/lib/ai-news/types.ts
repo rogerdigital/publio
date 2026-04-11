@@ -17,6 +17,7 @@ export interface NormalizedAiNewsSignal {
   articleWordCount?: number;
   articleImageCount?: number;
   sourceWeight: number;
+  creatorWeight?: number;
   sourceName: string;
   sourceType: AiNewsSourceType;
   sourceDomain: string;
@@ -48,6 +49,7 @@ export interface AiNewsScores {
   momentum: number;
   credibility: number;
   visualReadiness: number;
+  creatorFit: number;
 }
 
 export type AiNewsBucket = 'today' | 'follow';

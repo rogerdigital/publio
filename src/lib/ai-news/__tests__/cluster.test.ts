@@ -55,7 +55,8 @@ describe('clusterAiNewsSignals', () => {
     expect(clusters[0].signals).toHaveLength(2);
     expect(clusters[0].primarySignal.id).toBe('official');
     expect(clusters[0].coverageCount).toBe(2);
-    expect(clusters[0].creatorSourceCount).toBe(0);
+    expect(clusters[0].officialSourceCount).toBe(1);
+    expect(clusters[0].mediaSourceCount).toBe(1);
   });
 
   test('会把不同事件保留为独立候选题', () => {
