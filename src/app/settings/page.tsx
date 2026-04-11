@@ -7,10 +7,14 @@ import {
   EyeOff,
   CheckCircle2,
   ChevronDown,
+  KeyRound,
 } from 'lucide-react';
 
 import AppShellHeader from '@/components/layout/AppShellHeader';
 import SurfaceCard from '@/components/layout/SurfaceCard';
+import { getPlatformConnectionProfiles } from '@/lib/platformConnections';
+import type { PlatformConnectionMode, PlatformConnectionStatus } from '@/lib/platformConnections/types';
+import type { PlatformId } from '@/types';
 import {
   WechatIcon,
   XiaohongshuIcon,
@@ -20,7 +24,7 @@ import {
 import * as styles from './settings.css';
 
 interface PlatformConfig {
-  id: string;
+  id: PlatformId;
   name: string;
   Icon: React.ComponentType<{ size?: number }>;
   summary: string;
@@ -82,13 +86,21 @@ const platformConfigs: PlatformConfig[] = [
   },
 ];
 
+const statusLabels: Record<PlatformConnectionStatus, string> = {
+  connected: '已连接',
+  available: '可授权',
+  'manual-required': '需配置',
+};
+
 export default function SettingsPage() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
   const [saved, setSaved] = useState(false);
   const [expandedPlatform, setExpandedPlatform] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [noticeMessage, setNoticeMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const connectionProfiles = getPlatformConnectionProfiles(values);
 
   useEffect(() => {
     let cancelled = false;
@@ -118,15 +130,27 @@ export default function SettingsPage() {
     setValues((prev) => ({ ...prev, [key]: value }));
     setSaved(false);
     setErrorMessage('');
+    setNoticeMessage('');
   }
 
   function toggleSecret(key: string) {
     setShowSecrets((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
+  function handleConnectionAction(platformName: string, mode: PlatformConnectionMode) {
+    setSaved(false);
+    setErrorMessage('');
+    setNoticeMessage(
+      mode === 'oauth'
+        ? `${platformName} 授权入口已预留，当前仍可使用下方凭证完成连接。`
+        : `${platformName} 当前使用登录态连接，请在下方完成配置。`,
+    );
+  }
+
   async function handleSave() {
     try {
       setErrorMessage('');
+      setNoticeMessage('');
       setSaved(false);
       const response = await fetch('/api/settings', {
         method: 'PUT',
@@ -167,6 +191,8 @@ export default function SettingsPage() {
               </span>
             ) : errorMessage ? (
               <span className={styles.errorIndicator}>{errorMessage}</span>
+            ) : noticeMessage ? (
+              <span className={styles.noticeIndicator}>{noticeMessage}</span>
             ) : null}
           </div>
         }
@@ -176,6 +202,7 @@ export default function SettingsPage() {
         {platformConfigs.map((platform) => {
           const isExpanded = expandedPlatform === platform.id;
           const { Icon } = platform;
+          const connectionProfile = connectionProfiles.find((profile) => profile.platform === platform.id);
 
           return (
             <SurfaceCard key={platform.id} tone="soft" className={styles.accordionCard}>
@@ -194,6 +221,11 @@ export default function SettingsPage() {
                   <p className={styles.accordionSummary}>{platform.summary}</p>
                 </div>
                 <div className={styles.accordionToggle}>
+                  {connectionProfile ? (
+                    <span className={`${styles.statusBadge} ${styles.statusBadgeVariants[connectionProfile.status]}`}>
+                      {statusLabels[connectionProfile.status]}
+                    </span>
+                  ) : null}
                   <span>{isExpanded ? '收起' : '展开'}</span>
                   <ChevronDown
                     size={16}
@@ -207,6 +239,32 @@ export default function SettingsPage() {
 
               {isExpanded ? (
                 <div id={`${platform.id}-panel`} className={styles.accordionPanel}>
+                  {connectionProfile ? (
+                    <div className={styles.connectionPanel}>
+                      <div className={styles.connectionBody}>
+                        <div className={styles.connectionTitleRow}>
+                          <KeyRound size={16} />
+                          <p className={styles.connectionTitle}>{connectionProfile.connectionLabel}</p>
+                        </div>
+                        <p className={styles.connectionText}>{connectionProfile.connectionHint}</p>
+                        <p className={styles.connectionMeta}>
+                          {connectionProfile.status === 'connected'
+                            ? `已配置 ${connectionProfile.configuredKeys.length} 项必要凭证。`
+                            : connectionProfile.missingKeys.length > 0
+                              ? `还需要 ${connectionProfile.missingKeys.length} 项必要凭证。`
+                              : '可以继续完成连接。'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        className={styles.connectButton}
+                        onClick={() => handleConnectionAction(platform.name, connectionProfile.mode)}
+                      >
+                        {connectionProfile.actionLabel}
+                      </button>
+                    </div>
+                  ) : null}
+
                   <div className={styles.fieldList}>
                     {platform.fields.map((field) => (
                       <div key={field.key} className={styles.fieldWrap}>
