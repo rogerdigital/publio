@@ -68,7 +68,7 @@ describe('createSyncHistoryStore', () => {
     expect(afterWechat?.status).toBe('pending');
     expect(afterZhihu).toMatchObject({
       id: 'task-1',
-      status: 'failed',
+      status: 'partial',
       updatedAt: '2026-04-11T07:02:00.000Z',
     });
     expect(afterZhihu?.receipts).toEqual([

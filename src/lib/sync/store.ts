@@ -26,13 +26,15 @@ function sortByUpdatedAtDesc(left: SyncTask, right: SyncTask) {
 }
 
 function deriveTaskStatus(receipts: PlatformSyncReceipt[]): SyncTaskStatus {
+  const hasCompletedReceipt = receipts.some(
+    (receipt) => receipt.status === 'draft-created' || receipt.status === 'published',
+  );
+
   if (receipts.some((receipt) => receipt.status === 'syncing')) {
     return 'syncing';
   }
   if (receipts.some((receipt) => receipt.status === 'failed')) {
-    return receipts.some((receipt) => receipt.status === 'draft-created' || receipt.status === 'published')
-      ? 'failed'
-      : 'failed';
+    return hasCompletedReceipt ? 'partial' : 'failed';
   }
   if (receipts.every((receipt) => receipt.status === 'draft-created' || receipt.status === 'published')) {
     return 'completed';
