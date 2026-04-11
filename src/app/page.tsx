@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Eye, SquarePen } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import AppShellHeader from '@/components/layout/AppShellHeader';
@@ -12,11 +13,14 @@ import {
   NEWS_DRAFT_STORAGE_KEY,
   type NewsDraftPayload,
 } from '@/lib/newsDraft';
+import { fetchDraftById } from '@/lib/drafts/client';
 import * as styles from './page.css';
 
-export default function HomePage() {
+function HomePageContent() {
   const { setTitle, setContent, reset, overallStatus } = usePublishStore();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
+  const [draftLoadError, setDraftLoadError] = useState('');
 
   useEffect(() => {
     const rawDraft = window.localStorage.getItem(NEWS_DRAFT_STORAGE_KEY);
@@ -32,6 +36,34 @@ export default function HomePage() {
       window.localStorage.removeItem(NEWS_DRAFT_STORAGE_KEY);
     }
   }, [reset, setContent, setTitle]);
+
+  useEffect(() => {
+    const draftId = searchParams.get('draftId');
+    if (!draftId) return;
+
+    const selectedDraftId = draftId;
+    let cancelled = false;
+    setDraftLoadError('');
+
+    async function loadDraft() {
+      try {
+        const draft = await fetchDraftById(selectedDraftId);
+        if (cancelled) return;
+        setTitle(draft.title);
+        setContent(draft.content);
+        reset();
+      } catch (error) {
+        if (!cancelled) {
+          setDraftLoadError(error instanceof Error ? error.message : '稿件读取失败，请稍后重试。');
+        }
+      }
+    }
+
+    void loadDraft();
+    return () => {
+      cancelled = true;
+    };
+  }, [reset, searchParams, setContent, setTitle]);
 
   return (
     <div className={styles.pageWrap}>
@@ -62,6 +94,12 @@ export default function HomePage() {
       />
 
       <div className={styles.editorSection}>
+        {draftLoadError ? (
+          <div className={styles.draftLoadError} role="status">
+            {draftLoadError}
+          </div>
+        ) : null}
+
         <div className={styles.editorCard}>
           <MarkdownEditor activeTab={activeTab} />
         </div>
@@ -86,5 +124,13 @@ export default function HomePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={null}>
+      <HomePageContent />
+    </Suspense>
   );
 }
