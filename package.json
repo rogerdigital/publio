@@ -19,7 +19,7 @@
     "lucide-react": "^0.468.0",
     "marked": "^15.0.0",
     "next": "15.1.12",
-    "react": "^19.0.0",
+    "react": "^19.2.5",
     "react-dom": "^19.0.0",
     "twitter-api-v2": "^1.18.0",
     "zustand": "^5.0.0"
