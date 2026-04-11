@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import { getDraftRegistry, resetDraftRegistryForTests } from '@/lib/drafts/registry';
 import { resetSyncHistoryStoreForTests } from '@/lib/sync/registry';
 import { POST } from '@/app/api/publish/route';
 
@@ -70,6 +71,15 @@ describe('/api/publish', () => {
       createId: () => 'sync-1',
       now: () => '2026-04-11T08:00:00.000Z',
     });
+    const draftStore = resetDraftRegistryForTests({
+      createId: () => 'draft-1',
+      now: () => '2026-04-11T07:55:00.000Z',
+    });
+    draftStore.createDraft({
+      title: '稿件标题',
+      content: '稿件正文',
+      source: 'manual',
+    });
   });
 
   test('returns a sync task with per-platform receipts', async () => {
@@ -117,6 +127,38 @@ describe('/api/publish', () => {
           attempts: 1,
         },
       ],
+    });
+  });
+
+  test('marks a draft as failed when its sync task is partial', async () => {
+    await POST(
+      createJsonRequest({
+        draftId: 'draft-1',
+        title: '稿件标题',
+        content: '稿件正文',
+        platforms: ['wechat', 'zhihu'],
+      }),
+    );
+
+    expect(getDraftRegistry().getDraft('draft-1')).toMatchObject({
+      id: 'draft-1',
+      status: 'failed',
+    });
+  });
+
+  test('marks a draft as synced when every platform completes', async () => {
+    await POST(
+      createJsonRequest({
+        draftId: 'draft-1',
+        title: '稿件标题',
+        content: '稿件正文',
+        platforms: ['wechat', 'x'],
+      }),
+    );
+
+    expect(getDraftRegistry().getDraft('draft-1')).toMatchObject({
+      id: 'draft-1',
+      status: 'synced',
     });
   });
 });

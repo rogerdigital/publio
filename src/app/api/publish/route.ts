@@ -6,8 +6,10 @@ import { WechatPublisher } from '@/lib/publishers/wechat';
 import { XiaohongshuPublisher } from '@/lib/publishers/xiaohongshu';
 import { ZhihuPublisher } from '@/lib/publishers/zhihu';
 import { XPublisher } from '@/lib/publishers/x';
+import { getDraftRegistry } from '@/lib/drafts/registry';
 import { getSyncHistoryStore } from '@/lib/sync/registry';
-import type { SyncReceiptStatus } from '@/lib/sync/types';
+import type { SyncReceiptStatus, SyncTaskStatus } from '@/lib/sync/types';
+import type { DraftStatus } from '@/lib/drafts/types';
 
 const publisherMap: Record<PlatformId, () => Publisher> = {
   wechat: () => new WechatPublisher(),
@@ -22,6 +24,12 @@ function toSyncReceiptStatus(result: PlatformPublishResult): SyncReceiptStatus {
   if (result.status === 'needs-action') return 'needs-action';
   if (result.status === 'pending' || result.status === 'publishing') return 'syncing';
   return 'failed';
+}
+
+function toDraftStatus(status: SyncTaskStatus): DraftStatus {
+  if (status === 'completed') return 'synced';
+  if (status === 'failed' || status === 'partial') return 'failed';
+  return 'syncing';
 }
 
 export async function POST(request: NextRequest) {
@@ -107,6 +115,12 @@ export async function POST(request: NextRequest) {
         message: result.message,
         url: result.url,
       }) ?? syncTask;
+    }
+
+    if (syncTask.draftId) {
+      getDraftRegistry().updateDraft(syncTask.draftId, {
+        status: toDraftStatus(syncTask.status),
+      });
     }
 
     return NextResponse.json({ results: publishResults, syncTask });
