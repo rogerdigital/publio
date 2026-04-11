@@ -48,5 +48,11 @@ export const AI_NEWS_SOURCES: AiNewsSource[] = [
     url: 'https://www.qbitai.com/feed',
     sourceType: 'media',
     weight: 5,
-  }
+  },
+  {
+    name: 'Import AI',
+    url: 'https://importai.substack.com/feed',
+    sourceType: 'community',
+    weight: 4,
+  },
 ];

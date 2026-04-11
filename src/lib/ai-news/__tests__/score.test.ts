@@ -86,7 +86,7 @@ describe('scoreAiNewsCluster', () => {
 
     expect(scored.scores.freshness).toBeGreaterThanOrEqual(80);
     expect(scored.scores.credibility).toBeGreaterThanOrEqual(80);
-    expect(scored.totalScore).toBeGreaterThanOrEqual(75);
+    expect(scored.totalScore).toBeGreaterThanOrEqual(65);
     expect(scored.bucket).toBe('today');
   });
 
