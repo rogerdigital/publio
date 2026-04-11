@@ -355,3 +355,104 @@ export const loadingPlaceholder = style({
   lineHeight: 1.5,
   color: vars.color.textMuted,
 });
+
+export const previewPanel = style({
+  display: 'grid',
+  gap: '16px',
+  borderRadius: vars.radius.xl,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  padding: '16px',
+});
+
+export const previewHeader = style({
+  display: 'grid',
+  gap: '4px',
+});
+
+export const previewTitle = style({
+  margin: 0,
+  fontFamily: vars.font.serif,
+  fontSize: '20px',
+  lineHeight: 1.3,
+  color: vars.color.text,
+});
+
+export const previewGrid = style({
+  display: 'grid',
+  gap: '12px',
+  '@media': {
+    'screen and (min-width: 900px)': {
+      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+    },
+  },
+});
+
+export const previewCard = style({
+  display: 'grid',
+  gap: '12px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.bgElevated,
+  padding: '14px',
+});
+
+export const previewMeta = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '8px',
+});
+
+export const previewPlatform = style({
+  margin: 0,
+  fontSize: '15px',
+  fontWeight: 700,
+  color: vars.color.text,
+});
+
+export const previewState = style({
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  padding: '4px 9px',
+  fontSize: '12px',
+  fontWeight: 600,
+  color: vars.color.signal,
+});
+
+export const previewBody = style({
+  margin: 0,
+  minHeight: '48px',
+  color: vars.color.textMuted,
+  fontSize: '13px',
+  lineHeight: 1.7,
+});
+
+export const previewWarningList = style({
+  margin: 0,
+  paddingLeft: '18px',
+  color: vars.color.errorText,
+  fontSize: '12px',
+  lineHeight: 1.7,
+});
+
+export const previewTagList = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '6px',
+  color: vars.color.signal,
+  fontSize: '12px',
+  fontWeight: 600,
+});
+
+export const previewThreadList = style({
+  display: 'grid',
+  gap: '6px',
+  margin: 0,
+  paddingLeft: '18px',
+  color: vars.color.textMuted,
+  fontSize: '12px',
+  lineHeight: 1.7,
+});

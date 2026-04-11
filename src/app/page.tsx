@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Eye, SquarePen } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
@@ -9,18 +9,35 @@ import MarkdownEditor from '@/components/editor/MarkdownEditor';
 import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
+import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
 import {
   NEWS_DRAFT_STORAGE_KEY,
   type NewsDraftPayload,
 } from '@/lib/newsDraft';
 import { fetchDraftById } from '@/lib/drafts/client';
+import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
+import type { PlatformId } from '@/types';
 import * as styles from './page.css';
 
 function HomePageContent() {
-  const { setTitle, setContent, reset, overallStatus } = usePublishStore();
+  const { title, content, platforms, setTitle, setContent, reset, overallStatus } = usePublishStore();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [draftLoadError, setDraftLoadError] = useState('');
+  const selectedPlatforms = useMemo(
+    () => Object.entries(platforms)
+      .filter(([, selected]) => selected)
+      .map(([platform]) => platform as PlatformId),
+    [platforms],
+  );
+  const platformAdaptations = useMemo(
+    () => adaptContentForPlatforms({
+      title,
+      content,
+      platforms: selectedPlatforms,
+    }),
+    [content, selectedPlatforms, title],
+  );
 
   useEffect(() => {
     const rawDraft = window.localStorage.getItem(NEWS_DRAFT_STORAGE_KEY);
@@ -118,6 +135,11 @@ function HomePageContent() {
             <PublishButton />
           </div>
         </div>
+
+        <PlatformPreviewPanel
+          adaptations={platformAdaptations}
+          selectedPlatforms={selectedPlatforms}
+        />
 
         {overallStatus !== 'idle' && (
           <PublishStatusPanel />
