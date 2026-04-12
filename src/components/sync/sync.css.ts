@@ -148,3 +148,65 @@ export const inlineActionMessage = style({
   color: vars.color.textMuted,
   fontSize: '12px',
 });
+
+export const historyList = style({
+  display: 'grid',
+  gap: '12px',
+});
+
+export const historyCard = style({
+  display: 'grid',
+  gap: '14px',
+  borderRadius: vars.radius.xl,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  padding: '18px',
+  '@media': {
+    'screen and (min-width: 760px)': {
+      gridTemplateColumns: 'minmax(0, 1fr) auto',
+      alignItems: 'center',
+    },
+  },
+});
+
+export const historyTitle = style({
+  margin: 0,
+  fontFamily: vars.font.serif,
+  color: vars.color.text,
+  fontSize: '22px',
+  lineHeight: 1.35,
+});
+
+export const historyMeta = style({
+  margin: '8px 0 0',
+  color: vars.color.textMuted,
+  fontSize: '13px',
+  lineHeight: 1.7,
+});
+
+export const historyLink = style({
+  width: 'fit-content',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.bgElevated,
+  padding: '10px 14px',
+  color: vars.color.accent,
+  fontSize: '14px',
+  fontWeight: 700,
+  textDecoration: 'none',
+  ':hover': {
+    borderColor: vars.color.borderStrong,
+    color: vars.color.signal,
+  },
+});
+
+export const emptyHistory = style({
+  margin: 0,
+  borderRadius: vars.radius.xl,
+  border: `1px dashed ${vars.color.borderStrong}`,
+  background: vars.color.surface,
+  padding: '32px',
+  color: vars.color.textMuted,
+  fontSize: '14px',
+  textAlign: 'center',
+});
