@@ -160,4 +160,33 @@ describe('createSyncHistoryStore', () => {
     expect(store.updateReceipt('missing', 'wechat', { status: 'failed' })).toBeNull();
     expect(store.updateReceipt('task-1', 'zhihu', { status: 'failed' })).toBeNull();
   });
+
+  test('derives needs-action when a platform requires manual handling', () => {
+    const store = createSyncHistoryStore({
+      createId: () => 'task-1',
+      now: () => '2026-04-11T07:00:00.000Z',
+    });
+    store.createTask({
+      draftId: 'draft-1',
+      title: '稿件标题',
+      platforms: ['xiaohongshu'],
+    });
+
+    const updated = store.updateReceipt('task-1', 'xiaohongshu', {
+      status: 'needs-action',
+      message: '请复制内容到小红书后台完成发布',
+    });
+
+    expect(updated).toMatchObject({
+      id: 'task-1',
+      status: 'needs-action',
+      receipts: [
+        expect.objectContaining({
+          platform: 'xiaohongshu',
+          status: 'needs-action',
+          message: '请复制内容到小红书后台完成发布',
+        }),
+      ],
+    });
+  });
 });

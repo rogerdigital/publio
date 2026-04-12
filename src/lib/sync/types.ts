@@ -13,7 +13,8 @@ export type SyncTaskStatus =
   | 'syncing'
   | 'completed'
   | 'failed'
-  | 'partial';
+  | 'partial'
+  | 'needs-action';
 
 export interface PlatformSyncReceipt {
   platform: PlatformId;

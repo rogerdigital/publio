@@ -38,6 +38,9 @@ function deriveTaskStatus(receipts: PlatformSyncReceipt[]): SyncTaskStatus {
   if (receipts.some((receipt) => receipt.status === 'syncing')) {
     return 'syncing';
   }
+  if (receipts.some((receipt) => receipt.status === 'needs-action')) {
+    return hasCompletedReceipt ? 'partial' : 'needs-action';
+  }
   if (receipts.some((receipt) => receipt.status === 'failed')) {
     return hasCompletedReceipt ? 'partial' : 'failed';
   }

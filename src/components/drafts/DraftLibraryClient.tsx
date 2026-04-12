@@ -38,6 +38,7 @@ const syncStatusLabels: Record<SyncTaskStatus, string> = {
   completed: '已完成',
   failed: '失败',
   partial: '部分完成',
+  'needs-action': '需要处理',
 };
 
 function formatDraftTime(value: string) {
