@@ -15,12 +15,21 @@ import {
   type NewsDraftPayload,
 } from '@/lib/newsDraft';
 import { fetchDraftById } from '@/lib/drafts/client';
-import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
 import type { PlatformId } from '@/types';
 import * as styles from './page.css';
 
 function HomePageContent() {
-  const { title, content, platforms, setTitle, setContent, reset, overallStatus } = usePublishStore();
+  const {
+    title,
+    content,
+    platforms,
+    platformDrafts,
+    syncPlatformDrafts,
+    setTitle,
+    setContent,
+    reset,
+    overallStatus,
+  } = usePublishStore();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [draftLoadError, setDraftLoadError] = useState('');
@@ -30,14 +39,10 @@ function HomePageContent() {
       .map(([platform]) => platform as PlatformId),
     [platforms],
   );
-  const platformAdaptations = useMemo(
-    () => adaptContentForPlatforms({
-      title,
-      content,
-      platforms: selectedPlatforms,
-    }),
-    [content, selectedPlatforms, title],
-  );
+
+  useEffect(() => {
+    syncPlatformDrafts();
+  }, [content, syncPlatformDrafts, title]);
 
   useEffect(() => {
     const rawDraft = window.localStorage.getItem(NEWS_DRAFT_STORAGE_KEY);
@@ -137,7 +142,7 @@ function HomePageContent() {
         </div>
 
         <PlatformPreviewPanel
-          adaptations={platformAdaptations}
+          adaptations={platformDrafts}
           selectedPlatforms={selectedPlatforms}
         />
 
