@@ -4,6 +4,7 @@ import type {
   SyncTask,
   SyncTaskStatus,
 } from '@/lib/sync/types';
+import SyncTaskMarkDoneButton from '@/components/sync/SyncTaskMarkDoneButton';
 import SyncTaskRetryButton from '@/components/sync/SyncTaskRetryButton';
 import * as styles from './sync.css';
 
@@ -79,6 +80,12 @@ export default function SyncTaskDetail({ syncTask }: SyncTaskDetailProps) {
               >
                 打开平台结果
               </a>
+            ) : null}
+            {receipt.status === 'needs-action' ? (
+              <SyncTaskMarkDoneButton
+                taskId={syncTask.id}
+                platform={receipt.platform}
+              />
             ) : null}
           </article>
         ))}

@@ -122,3 +122,29 @@ export const retryMessage = style({
   color: vars.color.textMuted,
   fontSize: '13px',
 });
+
+export const inlineActionButton = style({
+  width: 'fit-content',
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: vars.radius.lg,
+  background: vars.color.surface,
+  padding: '8px 11px',
+  color: vars.color.accent,
+  cursor: 'pointer',
+  fontSize: '13px',
+  fontWeight: 700,
+  ':hover': {
+    borderColor: vars.color.borderStrong,
+    color: vars.color.signal,
+  },
+  ':disabled': {
+    cursor: 'not-allowed',
+    opacity: 0.64,
+  },
+});
+
+export const inlineActionMessage = style({
+  margin: '8px 0 0',
+  color: vars.color.textMuted,
+  fontSize: '12px',
+});
