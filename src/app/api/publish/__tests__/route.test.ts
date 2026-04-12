@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { getDraftRegistry, resetDraftRegistryForTests } from '@/lib/drafts/registry';
 import { resetSyncHistoryStoreForTests } from '@/lib/sync/registry';
+import { WechatPublisher } from '@/lib/publishers/wechat';
 import { POST } from '@/app/api/publish/route';
 
 vi.mock('@/lib/publishers/wechat', () => ({
@@ -160,5 +161,32 @@ describe('/api/publish', () => {
       id: 'draft-1',
       status: 'synced',
     });
+  });
+
+  test('uses platform-level content when provided', async () => {
+    await POST(
+      createJsonRequest({
+        draftId: 'draft-1',
+        title: '通用标题',
+        content: '通用正文',
+        platforms: ['wechat'],
+        platformDrafts: {
+          wechat: {
+            title: '公众号标题',
+            content: '公众号正文',
+          },
+        },
+      }),
+    );
+
+    const wechatPublisher = vi.mocked(WechatPublisher).mock.results.at(-1)?.value as {
+      publish: ReturnType<typeof vi.fn>;
+    };
+    expect(wechatPublisher.publish).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: '公众号标题',
+        markdownContent: '公众号正文',
+      }),
+    );
   });
 });

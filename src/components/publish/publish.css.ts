@@ -422,6 +422,48 @@ export const previewState = style({
   color: vars.color.signal,
 });
 
+export const previewField = style({
+  display: 'grid',
+  gap: '6px',
+});
+
+export const previewLabel = style({
+  color: vars.color.textMuted,
+  fontSize: '12px',
+  fontWeight: 600,
+});
+
+export const previewInput = style({
+  width: '100%',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  padding: '9px 10px',
+  color: vars.color.text,
+  fontSize: '13px',
+  outline: 'none',
+  ':focus': {
+    borderColor: vars.color.borderStrong,
+  },
+});
+
+export const previewTextarea = style({
+  width: '100%',
+  minHeight: '120px',
+  resize: 'vertical',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  padding: '9px 10px',
+  color: vars.color.text,
+  fontSize: '13px',
+  lineHeight: 1.7,
+  outline: 'none',
+  ':focus': {
+    borderColor: vars.color.borderStrong,
+  },
+});
+
 export const previewBody = style({
   margin: 0,
   minHeight: '48px',

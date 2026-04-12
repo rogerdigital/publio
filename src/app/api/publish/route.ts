@@ -3,6 +3,7 @@ import { PlatformId } from '@/types';
 import { getDraftRegistry } from '@/lib/drafts/registry';
 import { getSyncHistoryStore } from '@/lib/sync/registry';
 import {
+  type PlatformPublishDrafts,
   publishToPlatforms,
   toDraftStatus,
   toSyncReceiptStatus,
@@ -12,6 +13,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { draftId, title, content, platforms } = body;
+    const platformDrafts: PlatformPublishDrafts =
+      body.platformDrafts && typeof body.platformDrafts === 'object'
+        ? body.platformDrafts
+        : {};
 
     // Validate
     if (!title?.trim()) {
@@ -27,7 +32,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const publishResults = await publishToPlatforms(platforms as PlatformId[], title, content);
+    const publishResults = await publishToPlatforms(
+      platforms as PlatformId[],
+      title,
+      content,
+      platformDrafts,
+    );
 
     const syncStore = getSyncHistoryStore();
     let syncTask = syncStore.createTask({

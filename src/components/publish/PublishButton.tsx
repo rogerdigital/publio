@@ -6,7 +6,7 @@ import { SendHorizonal, Loader2 } from 'lucide-react';
 import { publishButton } from './publish.css';
 
 export default function PublishButton() {
-  const { title, content, platforms, overallStatus, setPublishing, setResults } =
+  const { title, content, platforms, platformDrafts, overallStatus, setPublishing, setResults } =
     usePublishStore();
 
   const selectedPlatforms = (
@@ -29,7 +29,20 @@ export default function PublishButton() {
       const response = await fetch('/api/publish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content, platforms: selectedPlatforms }),
+        body: JSON.stringify({
+          title,
+          content,
+          platforms: selectedPlatforms,
+          platformDrafts: Object.fromEntries(
+            selectedPlatforms.map((platform) => [
+              platform,
+              {
+                title: platformDrafts[platform].title,
+                content: platformDrafts[platform].body,
+              },
+            ]),
+          ),
+        }),
       });
       const data = (await response.json()) as PublishResponse | { error?: string };
 

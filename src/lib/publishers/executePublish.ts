@@ -8,6 +8,13 @@ import { XPublisher } from '@/lib/publishers/x';
 import type { SyncReceiptStatus, SyncTaskStatus } from '@/lib/sync/types';
 import type { DraftStatus } from '@/lib/drafts/types';
 
+export type PlatformPublishDrafts = Partial<
+  Record<PlatformId, {
+    title: string;
+    content: string;
+  }>
+>;
+
 const publisherMap: Record<PlatformId, () => Publisher> = {
   wechat: () => new WechatPublisher(),
   xiaohongshu: () => new XiaohongshuPublisher(),
@@ -67,9 +74,17 @@ export async function publishToPlatforms(
   platforms: PlatformId[],
   title: string,
   content: string,
+  platformDrafts: PlatformPublishDrafts = {},
 ): Promise<PlatformPublishResult[]> {
   const results = await Promise.allSettled(
-    platforms.map((platformId) => publishToPlatform(platformId, title, content)),
+    platforms.map((platformId) => {
+      const platformDraft = platformDrafts[platformId];
+      return publishToPlatform(
+        platformId,
+        platformDraft?.title ?? title,
+        platformDraft?.content ?? content,
+      );
+    }),
   );
 
   return results.map((result, index) => {
