@@ -7,9 +7,9 @@ import {
   EyeOff,
   CheckCircle2,
   ChevronDown,
-  KeyRound,
   RefreshCw,
   Unplug,
+  Zap,
 } from 'lucide-react';
 
 import AppShellHeader from '@/components/layout/AppShellHeader';
@@ -308,113 +308,153 @@ export default function SettingsPage() {
 
               {isExpanded ? (
                 <div id={`${platform.id}-panel`} className={styles.accordionPanel}>
-                  {connectionProfile ? (
-                    <div className={styles.connectionPanel}>
-                      <div className={styles.connectionBody}>
-                        <div className={styles.connectionTitleRow}>
-                          <KeyRound size={16} />
-                          <p className={styles.connectionTitle}>{connectionProfile.connectionLabel}</p>
+                  {connectionProfile?.mode === 'oauth' ? (
+                    // ── OAuth 平台：两步引导 ──────────────────────────────
+                    <div className={styles.oauthSteps}>
+                      {/* 步骤 1：开发者凭证 */}
+                      <div className={styles.oauthStep}>
+                        <div className={styles.oauthStepHeader}>
+                          <span className={connectionProfile.status === 'connected' ? styles.oauthStepBadgeActive : styles.oauthStepBadge}>1</span>
+                          <p className={styles.oauthStepTitle}>填写开发者凭证</p>
                         </div>
-                        <p className={styles.connectionText}>{connectionProfile.connectionHint}</p>
-                        <p className={styles.connectionMeta}>
+                        <div className={styles.fieldList}>
+                          {platform.fields.map((field) => (
+                            <div key={field.key} className={styles.fieldWrap}>
+                              <label htmlFor={field.key} className={styles.fieldLabel}>
+                                {field.label}
+                              </label>
+                              <div className={styles.fieldInputWrap}>
+                                <input
+                                  id={field.key}
+                                  type={field.type === 'password' && !showSecrets[field.key] ? 'password' : 'text'}
+                                  value={values[field.key] || ''}
+                                  onChange={(event) => handleChange(field.key, event.target.value)}
+                                  placeholder={field.placeholder}
+                                  className={styles.fieldInput}
+                                />
+                                {field.type === 'password' ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleSecret(field.key)}
+                                    aria-label={`${showSecrets[field.key] ? '隐藏' : '显示'} ${field.label}`}
+                                    className={styles.eyeButton}
+                                  >
+                                    {showSecrets[field.key] ? <EyeOff size={16} /> : <Eye size={16} />}
+                                  </button>
+                                ) : null}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <p className={styles.fieldHint}>{platform.hint}</p>
+                      </div>
+
+                      {/* 步骤 2：账号授权 */}
+                      <div className={styles.oauthStep}>
+                        <div className={styles.oauthStepHeader}>
+                          <span className={connectionProfile.status === 'connected' ? styles.oauthStepBadgeActive : styles.oauthStepBadge}>2</span>
+                          <p className={styles.oauthStepTitle}>账号授权</p>
+                        </div>
+                        <p className={styles.oauthStepDesc}>
                           {connectionProfile.status === 'connected'
-                            ? `已配置 ${connectionProfile.configuredKeys.length} 项必要凭证。`
+                            ? `已配置全部 ${connectionProfile.configuredKeys.length} 项凭证。点击「检查连接」验证有效性，或重新授权刷新令牌。`
                             : connectionProfile.missingKeys.length > 0
-                              ? `还需要 ${connectionProfile.missingKeys.length} 项必要凭证。`
-                              : '可以继续完成连接。'}
+                              ? `填写上方全部凭证后，即可点击「一键授权」完成账号绑定。还差 ${connectionProfile.missingKeys.length} 项。`
+                              : '凭证已填写完毕，点击「一键授权」完成账号绑定。'}
                         </p>
+                        {/* 连接检查 / 断开结果 */}
                         {(() => {
                           const ck = checkStates[platform.id];
-                          if (!ck || ck.checking) return null;
-                          if (ck.ok) {
-                            return <p className={styles.checkResultOk}><CheckCircle2 size={13} /> 连接正常</p>;
+                          if (ck && !ck.checking) {
+                            if (ck.ok) return <p className={styles.checkResultOk}><CheckCircle2 size={13} /> 连接正常</p>;
+                            return <p className={styles.checkResultFail}>连接异常：{ck.failureReason ?? '未知原因'}</p>;
                           }
-                          return <p className={styles.checkResultFail}>连接异常：{ck.failureReason ?? '未知原因'}</p>;
+                          if (disconnectStates[platform.id]?.done) {
+                            return <p className={styles.checkResultOk}>连接记录已清除</p>;
+                          }
+                          return null;
                         })()}
-                        {disconnectStates[platform.id]?.done ? (
-                          <p className={styles.checkResultOk}>连接记录已清除</p>
-                        ) : null}
-                      </div>
-                      <div className={styles.connectionActions}>
-                        <button
-                          type="button"
-                          className={styles.connectButton}
-                          onClick={() => void handleConnectionAction(platform.id, platform.name, connectionProfile.mode)}
-                        >
-                          {connectionProfile.actionLabel}
-                        </button>
-                        {connectionProfile.status === 'connected' ? (
-                          <>
-                            <button
-                              type="button"
-                              className={styles.checkButton}
-                              disabled={checkStates[platform.id]?.checking}
-                              onClick={() => void handleCheckConnection(platform.id)}
-                            >
-                              <RefreshCw size={13} />
-                              {checkStates[platform.id]?.checking ? '检查中…' : '检查连接'}
-                            </button>
-                            <button
-                              type="button"
-                              className={styles.disconnectButton}
-                              disabled={disconnectStates[platform.id]?.disconnecting}
-                              onClick={() => void handleDisconnect(platform.id)}
-                            >
-                              <Unplug size={13} />
-                              {disconnectStates[platform.id]?.disconnecting ? '处理中…' : '断开连接'}
-                            </button>
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
-                  ) : null}
-
-                  <div className={styles.fieldList}>
-                    {platform.fields.map((field) => (
-                      <div key={field.key} className={styles.fieldWrap}>
-                        <label
-                          htmlFor={field.key}
-                          className={styles.fieldLabel}
-                        >
-                          {field.label}
-                        </label>
-                        <div className={styles.fieldInputWrap}>
-                          {field.type === 'textarea' ? (
-                            <textarea
-                              id={field.key}
-                              value={values[field.key] || ''}
-                              onChange={(event) => handleChange(field.key, event.target.value)}
-                              placeholder={field.placeholder}
-                              rows={4}
-                              className={styles.fieldTextarea}
-                            />
-                          ) : (
-                            <input
-                              id={field.key}
-                              type={field.type === 'password' && !showSecrets[field.key] ? 'password' : 'text'}
-                              value={values[field.key] || ''}
-                              onChange={(event) => handleChange(field.key, event.target.value)}
-                              placeholder={field.placeholder}
-                              className={styles.fieldInput}
-                            />
-                          )}
-                          {field.type === 'password' ? (
-                            <button
-                              type="button"
-                              onClick={() => toggleSecret(field.key)}
-                              aria-label={`${showSecrets[field.key] ? '隐藏' : '显示'} ${field.label}`}
-                              className={styles.eyeButton}
-                            >
-                              {showSecrets[field.key] ? <EyeOff size={16} /> : <Eye size={16} />}
-                            </button>
+                        <div className={styles.oauthAuthorizeRow}>
+                          <button
+                            type="button"
+                            className={styles.authorizeButton}
+                            disabled={connectionProfile.missingKeys.length > 0}
+                            onClick={() => void handleConnectionAction(platform.id, platform.name, connectionProfile.mode)}
+                          >
+                            <Zap size={15} />
+                            {connectionProfile.status === 'connected' ? '重新授权' : '一键授权'}
+                          </button>
+                          {connectionProfile.status === 'connected' ? (
+                            <>
+                              <button
+                                type="button"
+                                className={styles.checkButton}
+                                disabled={checkStates[platform.id]?.checking}
+                                onClick={() => void handleCheckConnection(platform.id)}
+                              >
+                                <RefreshCw size={13} />
+                                {checkStates[platform.id]?.checking ? '检查中…' : '检查连接'}
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.disconnectButton}
+                                disabled={disconnectStates[platform.id]?.disconnecting}
+                                onClick={() => void handleDisconnect(platform.id)}
+                              >
+                                <Unplug size={13} />
+                                {disconnectStates[platform.id]?.disconnecting ? '处理中…' : '断开连接'}
+                              </button>
+                            </>
                           ) : null}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                  <p className={styles.fieldHint}>
-                    {platform.hint}
-                  </p>
+                    </div>
+                  ) : (
+                    // ── Manual 平台（知乎）：纯表单 ──────────────────────
+                    <>
+                      <div className={styles.fieldList}>
+                        {platform.fields.map((field) => (
+                          <div key={field.key} className={styles.fieldWrap}>
+                            <label htmlFor={field.key} className={styles.fieldLabel}>
+                              {field.label}
+                            </label>
+                            <div className={styles.fieldInputWrap}>
+                              {field.type === 'textarea' ? (
+                                <textarea
+                                  id={field.key}
+                                  value={values[field.key] || ''}
+                                  onChange={(event) => handleChange(field.key, event.target.value)}
+                                  placeholder={field.placeholder}
+                                  rows={4}
+                                  className={styles.fieldTextarea}
+                                />
+                              ) : (
+                                <input
+                                  id={field.key}
+                                  type={field.type === 'password' && !showSecrets[field.key] ? 'password' : 'text'}
+                                  value={values[field.key] || ''}
+                                  onChange={(event) => handleChange(field.key, event.target.value)}
+                                  placeholder={field.placeholder}
+                                  className={styles.fieldInput}
+                                />
+                              )}
+                              {field.type === 'password' ? (
+                                <button
+                                  type="button"
+                                  onClick={() => toggleSecret(field.key)}
+                                  aria-label={`${showSecrets[field.key] ? '隐藏' : '显示'} ${field.label}`}
+                                  className={styles.eyeButton}
+                                >
+                                  {showSecrets[field.key] ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                              ) : null}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <p className={styles.fieldHint}>{platform.hint}</p>
+                    </>
+                  )}
                 </div>
               ) : null}
             </SurfaceCard>

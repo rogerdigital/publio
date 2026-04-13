@@ -394,3 +394,106 @@ export const inlineCode = style({
   background: vars.color.bg,
   padding: '1px 4px',
 });
+
+// Two-step OAuth layout
+export const oauthSteps = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0',
+});
+
+export const oauthStep = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+  padding: '20px 0',
+  borderBottom: `1px solid ${vars.color.borderFaint}`,
+  selectors: {
+    '&:last-child': {
+      borderBottom: 'none',
+      paddingBottom: '0',
+    },
+    '&:first-child': {
+      paddingTop: '0',
+    },
+  },
+});
+
+export const oauthStepHeader = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+});
+
+export const oauthStepBadge = style({
+  display: 'flex',
+  height: '22px',
+  width: '22px',
+  flexShrink: 0,
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '999px',
+  border: `1px solid ${vars.color.borderStrong}`,
+  fontSize: '11px',
+  fontWeight: 700,
+  color: vars.color.textMuted,
+  letterSpacing: '0.02em',
+});
+
+export const oauthStepBadgeActive = style({
+  display: 'flex',
+  height: '22px',
+  width: '22px',
+  flexShrink: 0,
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '999px',
+  background: vars.color.accent,
+  border: `1px solid ${vars.color.accent}`,
+  fontSize: '11px',
+  fontWeight: 700,
+  color: '#ffffff',
+  letterSpacing: '0.02em',
+});
+
+export const oauthStepTitle = style({
+  margin: 0,
+  fontSize: '14px',
+  fontWeight: 600,
+  color: vars.color.text,
+});
+
+export const oauthStepDesc = style({
+  margin: 0,
+  fontSize: '13px',
+  lineHeight: 1.65,
+  color: vars.color.textMuted,
+});
+
+export const oauthAuthorizeRow = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  gap: '12px',
+});
+
+export const authorizeButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '8px',
+  borderRadius: vars.radius.lg,
+  border: '1px solid transparent',
+  background: vars.color.accent,
+  padding: '10px 20px',
+  fontSize: '14px',
+  fontWeight: 600,
+  color: '#ffffff',
+  transition: 'filter 150ms',
+  ':hover': {
+    filter: 'brightness(1.05)',
+  },
+  ':disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  },
+});
