@@ -422,6 +422,12 @@ export const previewState = style({
   color: vars.color.signal,
 });
 
+export const previewStateNotReady = style({
+  borderColor: vars.color.errorText,
+  background: vars.color.errorBg,
+  color: vars.color.errorText,
+});
+
 export const previewField = style({
   display: 'grid',
   gap: '6px',

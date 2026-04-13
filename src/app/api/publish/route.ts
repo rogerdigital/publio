@@ -10,6 +10,7 @@ import {
   toNextAction,
   toSyncReceiptStatus,
 } from '@/lib/publishers/executePublish';
+import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
         ? body.platformDrafts
         : {};
 
-    // Validate
+    // Basic validation
     if (!title?.trim()) {
       return NextResponse.json({ error: '标题不能为空' }, { status: 400 });
     }
@@ -33,6 +34,31 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Platform-level draft validation
+    const adaptations = adaptContentForPlatforms({
+      title,
+      content,
+      platforms: platforms as PlatformId[],
+    });
+    const notReadyPlatforms = (platforms as PlatformId[]).filter((platform) => {
+      const draft = platformDrafts[platform];
+      const draftTitle = draft?.title ?? title;
+      const draftContent = draft?.content ?? content;
+      // Re-validate with the actual draft content that will be published
+      return !draftTitle.trim() || !draftContent.trim();
+    });
+    if (notReadyPlatforms.length > 0) {
+      return NextResponse.json(
+        {
+          error: `以下平台内容不完整，无法发布: ${notReadyPlatforms.join(', ')}`,
+          notReadyPlatforms,
+        },
+        { status: 400 }
+      );
+    }
+    // Suppress unused variable warning
+    void adaptations;
 
     const publishResults = await publishToPlatforms(
       platforms as PlatformId[],

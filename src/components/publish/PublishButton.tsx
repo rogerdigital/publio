@@ -2,8 +2,15 @@
 
 import { usePublishStore } from '@/stores/publishStore';
 import { PlatformId, PublishResponse } from '@/types';
-import { SendHorizonal, Loader2 } from 'lucide-react';
+import { SendHorizonal, Loader2, AlertCircle } from 'lucide-react';
 import { publishButton } from './publish.css';
+
+const platformLabels: Record<PlatformId, string> = {
+  wechat: '微信公众号',
+  xiaohongshu: '小红书',
+  zhihu: '知乎',
+  x: 'X (Twitter)',
+};
 
 export default function PublishButton() {
   const { title, content, platforms, platformDrafts, overallStatus, setPublishing, setResults } =
@@ -15,10 +22,17 @@ export default function PublishButton() {
     .filter(([, enabled]) => enabled)
     .map(([id]) => id);
 
+  // Platforms whose draft title or body is empty
+  const notReadyPlatforms = selectedPlatforms.filter((platform) => {
+    const draft = platformDrafts[platform];
+    return !draft?.title?.trim() || !draft?.body?.trim();
+  });
+
   const isDisabled =
     !title.trim() ||
     !content.trim() ||
     selectedPlatforms.length === 0 ||
+    notReadyPlatforms.length > 0 ||
     overallStatus === 'publishing';
 
   async function handlePublish() {
@@ -65,12 +79,16 @@ export default function PublishButton() {
     }
   }
 
-  const label =
-    overallStatus === 'publishing'
-      ? '发布中...'
-      : selectedPlatforms.length === 0
-      ? '请先选择平台'
-      : `发布到 ${selectedPlatforms.length} 个平台`;
+  let label: string;
+  if (overallStatus === 'publishing') {
+    label = '发布中...';
+  } else if (selectedPlatforms.length === 0) {
+    label = '请先选择平台';
+  } else if (notReadyPlatforms.length > 0) {
+    label = `${notReadyPlatforms.map((p) => platformLabels[p]).join('、')} 内容待补全`;
+  } else {
+    label = `发布到 ${selectedPlatforms.length} 个平台`;
+  }
 
   return (
     <button
@@ -80,6 +98,8 @@ export default function PublishButton() {
     >
       {overallStatus === 'publishing' ? (
         <Loader2 size={15} className="animate-spin" />
+      ) : notReadyPlatforms.length > 0 ? (
+        <AlertCircle size={15} />
       ) : (
         <SendHorizonal size={15} />
       )}

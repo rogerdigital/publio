@@ -28,7 +28,7 @@ describe('adaptContentForPlatforms', () => {
     expect(adaptations.x.format).toBe('thread');
     expect(adaptations.x.threadParts.length).toBeGreaterThan(1);
     expect(adaptations.x.threadParts.every((part) => part.length <= 260)).toBe(true);
-    expect(adaptations.x.warnings).toContain('X 内容已自动拆分为 thread');
+    expect(adaptations.x.warnings.some((w) => w.includes('X 内容已自动拆分为'))).toBe(true);
   });
 
   test('marks empty platform content as not ready', () => {

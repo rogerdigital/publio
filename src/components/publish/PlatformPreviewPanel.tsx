@@ -53,7 +53,7 @@ export default function PlatformPreviewPanel({
             <article key={platform} className={styles.previewCard}>
               <div className={styles.previewMeta}>
                 <p className={styles.previewPlatform}>{platformLabels[platform]}</p>
-                <span className={styles.previewState}>
+                <span className={`${styles.previewState} ${draft.isReady ? '' : styles.previewStateNotReady}`}>
                   {draft.isReady ? '可发布' : '待补全'} · {formatLabels[draft.format]}
                 </span>
               </div>
