@@ -14,7 +14,7 @@ import {
 
 import AppShellHeader from '@/components/layout/AppShellHeader';
 import SurfaceCard from '@/components/layout/SurfaceCard';
-import { getPlatformConnectionProfiles } from '@/lib/platformConnections';
+import { getPlatformConnectionProfiles } from '@/lib/platformConnections/profiles';
 import type { PlatformConnectionMode, PlatformConnectionStatus } from '@/lib/platformConnections/types';
 import type { PlatformId } from '@/types';
 import {

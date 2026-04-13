@@ -59,7 +59,7 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
     ? readJsonFileCollection<SyncTask>(storagePath)
     : (options.initialTasks ?? []);
   const tasks = new Map<string, SyncTask>(
-    initialTasks.map((task) => [task.id, { events: [], ...task }]),
+    initialTasks.map((task) => [task.id, { ...task, events: task.events ?? [] }]),
   );
 
   function persistTasks() {
