@@ -5,8 +5,8 @@ function makeParams(platform: string) {
   return { params: Promise.resolve({ platform }) };
 }
 
-function makeRequest() {
-  return new Request('http://localhost/api/platforms/wechat/connection/oauth/start', {
+function makeRequest(platform = 'wechat') {
+  return new Request(`http://localhost/api/platforms/${platform}/connection/oauth/start`, {
     method: 'POST',
   });
 }
@@ -24,11 +24,24 @@ describe('/api/platforms/[platform]/connection/oauth/start', () => {
     expect(json.error).toMatch(/手动凭证/);
   });
 
-  test('returns 501 for oauth platform not yet implemented (wechat)', async () => {
-    const res = await POST(makeRequest() as any, makeParams('wechat') as any);
-    expect(res.status).toBe(501);
+  test('returns 400 for wechat with requiresManualConfig (verify-only, no OAuth redirect)', async () => {
+    const res = await POST(makeRequest('wechat') as any, makeParams('wechat') as any);
+    expect(res.status).toBe(400);
     const json = await res.json();
-    expect(json.platform).toBe('wechat');
-    expect(json.error).toBeTruthy();
+    expect(json.requiresManualConfig).toBe(true);
+    expect(json.message).toBeTruthy();
+  });
+
+  test('returns 400 for x with requiresManualConfig (verify-only, no OAuth redirect)', async () => {
+    const res = await POST(makeRequest('x') as any, makeParams('x') as any);
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.requiresManualConfig).toBe(true);
+  });
+
+  test('returns 400 for xiaohongshu when XHS_APP_ID is not configured', async () => {
+    // XHS_APP_ID not set in test env → 400
+    const res = await POST(makeRequest('xiaohongshu') as any, makeParams('xiaohongshu') as any);
+    expect(res.status).toBe(400);
   });
 });
