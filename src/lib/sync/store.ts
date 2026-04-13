@@ -2,6 +2,7 @@ import type { PlatformId } from '@/types';
 import type {
   CreateSyncTaskInput,
   PlatformSyncReceipt,
+  SyncEvent,
   SyncTask,
   SyncTaskStatus,
   UpdateSyncReceiptInput,
@@ -58,7 +59,7 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
     ? readJsonFileCollection<SyncTask>(storagePath)
     : (options.initialTasks ?? []);
   const tasks = new Map<string, SyncTask>(
-    initialTasks.map((task) => [task.id, task]),
+    initialTasks.map((task) => [task.id, { events: [], ...task }]),
   );
 
   function persistTasks() {
@@ -66,16 +67,24 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
     writeJsonFileCollection(storagePath, Array.from(tasks.values()));
   }
 
+  function appendEvent(task: SyncTask, event: Omit<SyncEvent, 'timestamp'>): SyncTask {
+    return {
+      ...task,
+      events: [...(task.events ?? []), { ...event, timestamp: now() }],
+    };
+  }
+
   return {
     createTask(input: CreateSyncTaskInput) {
       const timestamp = now();
-      const task: SyncTask = {
+      let task: SyncTask = {
         id: createId(),
         draftId: input.draftId,
         title: input.title,
         status: 'pending',
         createdAt: timestamp,
         updatedAt: timestamp,
+        events: [],
         receipts: input.platforms.map((platform) => ({
           platform,
           status: 'pending',
@@ -84,6 +93,7 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
         })),
       };
 
+      task = appendEvent(task, { type: 'created' });
       tasks.set(task.id, task);
       persistTasks();
       return task;
@@ -112,13 +122,65 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
 
       if (!foundReceipt) return null;
 
-      const updated: SyncTask = {
+      const newStatus = deriveTaskStatus(receipts);
+      let updated: SyncTask = {
+        ...current,
+        receipts,
+        status: newStatus,
+        updatedAt: timestamp,
+      };
+
+      // Append per-platform event based on the new receipt status
+      if (input.status === 'published' || input.status === 'draft-created') {
+        updated = appendEvent(updated, { type: 'platform-succeeded', platform });
+      } else if (input.status === 'failed') {
+        updated = appendEvent(updated, {
+          type: 'platform-failed',
+          platform,
+          message: input.failureMessage ?? input.message,
+        });
+      } else if (input.status === 'needs-action') {
+        updated = appendEvent(updated, { type: 'platform-needs-action', platform });
+      }
+
+      tasks.set(taskId, updated);
+      persistTasks();
+      return updated;
+    },
+
+    markPlatformDone(taskId: string, platform: PlatformId) {
+      const current = tasks.get(taskId);
+      if (!current) return null;
+
+      const timestamp = now();
+      let foundReceipt = false;
+      const receipts = current.receipts.map((receipt) => {
+        if (receipt.platform !== platform) return receipt;
+        if (receipt.status !== 'needs-action') return receipt;
+        foundReceipt = true;
+        return { ...receipt, status: 'published' as const, updatedAt: timestamp };
+      });
+
+      if (!foundReceipt) return null;
+
+      let updated: SyncTask = {
         ...current,
         receipts,
         status: deriveTaskStatus(receipts),
         updatedAt: timestamp,
       };
 
+      updated = appendEvent(updated, { type: 'manual-completed', platform });
+      tasks.set(taskId, updated);
+      persistTasks();
+      return updated;
+    },
+
+    appendRetryEvent(taskId: string) {
+      const current = tasks.get(taskId);
+      if (!current) return null;
+
+      const updated = appendEvent(current, { type: 'retried' });
       tasks.set(taskId, updated);
       persistTasks();
       return updated;

@@ -45,10 +45,8 @@ export async function POST(request: NextRequest | Request, { params }: MarkDoneR
     return NextResponse.json({ error: '该平台不需要手动确认' }, { status: 400 });
   }
 
-  const syncTask = syncStore.updateReceipt(id, platform, {
-    status: 'published',
-    message: '已手动确认完成',
-  });
+  // Use the dedicated markPlatformDone which appends a manual-completed event
+  const syncTask = syncStore.markPlatformDone(id, platform);
 
   if (!syncTask) {
     return NextResponse.json({ error: '更新分发任务失败' }, { status: 500 });

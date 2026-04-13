@@ -218,3 +218,59 @@ export const emptyHistory = style({
   fontSize: '14px',
   textAlign: 'center',
 });
+
+// Event timeline
+export const eventTimeline = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0',
+  marginTop: '8px',
+});
+
+export const eventTimelineTitle = style({
+  margin: 0,
+  marginBottom: '12px',
+  fontSize: '13px',
+  fontWeight: 600,
+  color: vars.color.text,
+  letterSpacing: vars.tracking.kicker,
+  textTransform: 'uppercase',
+});
+
+export const eventItem = style({
+  display: 'flex',
+  gap: '12px',
+  paddingBottom: '12px',
+  position: 'relative',
+  ':last-child': {
+    paddingBottom: 0,
+  },
+});
+
+export const eventDot = style({
+  flexShrink: 0,
+  marginTop: '4px',
+  width: '8px',
+  height: '8px',
+  borderRadius: '50%',
+  background: vars.color.accent,
+  border: `2px solid ${vars.color.accentSoft}`,
+});
+
+export const eventBody = style({
+  flex: 1,
+  minWidth: 0,
+});
+
+export const eventLabel = style({
+  margin: 0,
+  fontSize: '13px',
+  color: vars.color.text,
+});
+
+export const eventTime = style({
+  margin: 0,
+  marginTop: '2px',
+  fontSize: '12px',
+  color: vars.color.textMuted,
+});

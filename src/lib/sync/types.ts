@@ -32,6 +32,22 @@ export type SyncNextAction =
   | 'mark-done'
   | 'contact-support';
 
+export type SyncEventType =
+  | 'created'
+  | 'platform-started'
+  | 'platform-succeeded'
+  | 'platform-failed'
+  | 'platform-needs-action'
+  | 'retried'
+  | 'manual-completed';
+
+export interface SyncEvent {
+  type: SyncEventType;
+  platform?: PlatformId;
+  message?: string;
+  timestamp: string;
+}
+
 export interface PlatformSyncReceipt {
   platform: PlatformId;
   status: SyncReceiptStatus;
@@ -50,6 +66,7 @@ export interface SyncTask {
   title: string;
   status: SyncTaskStatus;
   receipts: PlatformSyncReceipt[];
+  events: SyncEvent[];
   createdAt: string;
   updatedAt: string;
 }

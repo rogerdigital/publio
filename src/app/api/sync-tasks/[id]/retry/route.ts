@@ -54,6 +54,9 @@ export async function POST(
     draft.content,
   );
 
+  // Append a retried event before processing results
+  syncStore.appendRetryEvent(syncTask.id);
+
   for (const result of publishResults) {
     const receiptStatus = toSyncReceiptStatus(result);
     const isFailed = receiptStatus === 'failed';

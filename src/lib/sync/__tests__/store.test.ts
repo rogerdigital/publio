@@ -9,9 +9,13 @@ describe('createSyncHistoryStore', () => {
   test('persists sync tasks to a local JSON file and restores them on restart', () => {
     const dataDir = mkdtempSync(join(tmpdir(), 'publio-sync-'));
     const storagePath = join(dataDir, 'sync-tasks.json');
+    // createTask: 2 now() calls (timestamp + created-event)
+    // updateReceipt: 2 now() calls (receipt updatedAt + event timestamp)
     const timestamps = [
-      '2026-04-11T07:00:00.000Z',
-      '2026-04-11T07:01:00.000Z',
+      '2026-04-11T07:00:00.000Z', // createTask: timestamp
+      '2026-04-11T07:00:00.000Z', // createTask: created event
+      '2026-04-11T07:01:00.000Z', // updateReceipt: receipt updatedAt
+      '2026-04-11T07:01:00.000Z', // updateReceipt: platform-succeeded event
     ];
 
     try {
@@ -67,7 +71,7 @@ describe('createSyncHistoryStore', () => {
       platforms: ['wechat', 'zhihu'],
     });
 
-    expect(task).toEqual({
+    expect(task).toMatchObject({
       id: 'task-1',
       draftId: 'draft-1',
       title: '稿件标题',
@@ -89,13 +93,20 @@ describe('createSyncHistoryStore', () => {
         },
       ],
     });
+    // events array should have the created event
+    expect(task.events).toHaveLength(1);
+    expect(task.events[0].type).toBe('created');
   });
 
   test('updates a platform receipt and derives aggregate task status', () => {
+    // createTask: 2 calls; each updateReceipt: 2 calls
     const timestamps = [
-      '2026-04-11T07:00:00.000Z',
-      '2026-04-11T07:01:00.000Z',
-      '2026-04-11T07:02:00.000Z',
+      '2026-04-11T07:00:00.000Z', // createTask timestamp
+      '2026-04-11T07:00:00.000Z', // created event
+      '2026-04-11T07:01:00.000Z', // updateReceipt wechat: receipt updatedAt
+      '2026-04-11T07:01:00.000Z', // updateReceipt wechat: event
+      '2026-04-11T07:02:00.000Z', // updateReceipt zhihu: receipt updatedAt
+      '2026-04-11T07:02:00.000Z', // updateReceipt zhihu: event
     ];
     const store = createSyncHistoryStore({
       createId: () => 'task-1',
@@ -144,8 +155,11 @@ describe('createSyncHistoryStore', () => {
 
   test('lists latest tasks first and returns null for missing task or platform', () => {
     let nextId = 1;
+    // each createTask: 2 calls
     const timestamps = [
       '2026-04-11T07:00:00.000Z',
+      '2026-04-11T07:00:00.000Z',
+      '2026-04-11T07:01:00.000Z',
       '2026-04-11T07:01:00.000Z',
     ];
     const store = createSyncHistoryStore({

@@ -1,5 +1,7 @@
 import type { PlatformId } from '@/types';
 import type {
+  SyncEvent,
+  SyncEventType,
   SyncFailureCode,
   SyncNextAction,
   SyncReceiptStatus,
@@ -52,6 +54,24 @@ const nextActionLabels: Record<SyncNextAction, string> = {
   'mark-done': '人工确认完成',
   'contact-support': '联系平台客服',
 };
+
+const eventTypeLabels: Record<SyncEventType, string> = {
+  'created': '任务已创建',
+  'platform-started': '平台开始分发',
+  'platform-succeeded': '平台分发成功',
+  'platform-failed': '平台分发失败',
+  'platform-needs-action': '平台需要手动处理',
+  'retried': '触发重试',
+  'manual-completed': '人工标记完成',
+};
+
+function buildEventLabel(event: SyncEvent): string {
+  const base = eventTypeLabels[event.type];
+  if (event.platform) {
+    return `${platformLabels[event.platform]}：${base}`;
+  }
+  return base;
+}
 
 function formatTime(value: string) {
   const timestamp = Date.parse(value);
@@ -118,6 +138,26 @@ export default function SyncTaskDetail({ syncTask }: SyncTaskDetailProps) {
       </div>
 
       {hasFailedReceipt ? <SyncTaskRetryButton taskId={syncTask.id} /> : null}
+
+      {syncTask.events && syncTask.events.length > 0 ? (
+        <div>
+          <p className={styles.eventTimelineTitle}>分发日志</p>
+          <ol className={styles.eventTimeline}>
+            {syncTask.events.map((event, index) => (
+              <li key={index} className={styles.eventItem}>
+                <span className={styles.eventDot} />
+                <div className={styles.eventBody}>
+                  <p className={styles.eventLabel}>{buildEventLabel(event)}</p>
+                  {event.message ? (
+                    <p className={styles.eventTime}>{event.message}</p>
+                  ) : null}
+                  <p className={styles.eventTime}>{formatTime(event.timestamp)}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
     </section>
   );
 }

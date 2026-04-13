@@ -59,7 +59,6 @@ describe('/api/sync-tasks/[id]/mark-done', () => {
         expect.objectContaining({
           platform: 'xiaohongshu',
           status: 'published',
-          message: '已手动确认完成',
         }),
       ],
     });
