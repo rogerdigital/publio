@@ -45,7 +45,6 @@ export async function POST(request: NextRequest) {
       const draft = platformDrafts[platform];
       const draftTitle = draft?.title ?? title;
       const draftContent = draft?.content ?? content;
-      // Re-validate with the actual draft content that will be published
       return !draftTitle.trim() || !draftContent.trim();
     });
     if (notReadyPlatforms.length > 0) {
@@ -57,16 +56,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    // Suppress unused variable warning
     void adaptations;
 
-    const publishResults = await publishToPlatforms(
-      platforms as PlatformId[],
-      title,
-      content,
-      platformDrafts,
-    );
-
+    // Create sync task immediately so the UI can redirect to the detail page
     const syncStore = getSyncHistoryStore();
     let syncTask = syncStore.createTask({
       draftId: typeof draftId === 'string' && draftId.trim() ? draftId.trim() : undefined,
@@ -74,29 +66,57 @@ export async function POST(request: NextRequest) {
       platforms: platforms as PlatformId[],
     });
 
-    for (const result of publishResults) {
-      const receiptStatus = toSyncReceiptStatus(result);
-      const isFailed = receiptStatus === 'failed';
-      const failureCode = isFailed ? inferFailureCode(result.message) : undefined;
-      const nextAction = isFailed && failureCode ? toNextAction(failureCode) : undefined;
+    // Execute publish in the background (fire-and-forget within the same process).
+    // For a personal tool this is sufficient; swap for a real queue later.
+    void (async () => {
+      try {
+        const publishResults = await publishToPlatforms(
+          platforms as PlatformId[],
+          title,
+          content,
+          platformDrafts,
+        );
 
-      syncTask = syncStore.updateReceipt(syncTask.id, result.platform, {
-        status: receiptStatus,
-        message: result.message,
-        url: result.url,
-        failureCode,
-        failureMessage: isFailed ? (result.message ?? '未知错误') : undefined,
-        nextAction,
-      }) ?? syncTask;
-    }
+        for (const result of publishResults) {
+          const receiptStatus = toSyncReceiptStatus(result);
+          const isFailed = receiptStatus === 'failed';
+          const failureCode = isFailed ? inferFailureCode(result.message) : undefined;
+          const nextAction = isFailed && failureCode ? toNextAction(failureCode) : undefined;
 
-    if (syncTask.draftId) {
-      getDraftRegistry().updateDraft(syncTask.draftId, {
-        status: toDraftStatus(syncTask.status),
-      });
-    }
+          syncTask = syncStore.updateReceipt(syncTask.id, result.platform, {
+            status: receiptStatus,
+            message: result.message,
+            url: result.url,
+            failureCode,
+            failureMessage: isFailed ? (result.message ?? '未知错误') : undefined,
+            nextAction,
+          }) ?? syncTask;
+        }
 
-    return NextResponse.json({ results: publishResults, syncTask });
+        if (syncTask.draftId) {
+          getDraftRegistry().updateDraft(syncTask.draftId, {
+            status: toDraftStatus(syncTask.status),
+          });
+        }
+      } catch {
+        // Best-effort: mark all still-pending receipts as failed
+        for (const platform of platforms as PlatformId[]) {
+          const receipt = syncStore.getTask(syncTask.id)?.receipts.find(
+            (r) => r.platform === platform && r.status === 'pending',
+          );
+          if (receipt) {
+            syncStore.updateReceipt(syncTask.id, platform, {
+              status: 'failed',
+              failureCode: 'unknown',
+              failureMessage: '发布过程中发生未知错误',
+            });
+          }
+        }
+      }
+    })();
+
+    // Return task ID immediately — client navigates to /sync-tasks/:id
+    return NextResponse.json({ syncTaskId: syncTask.id, syncTask });
   } catch (error) {
     return NextResponse.json(
       {

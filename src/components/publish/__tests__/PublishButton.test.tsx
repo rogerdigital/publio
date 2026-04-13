@@ -4,6 +4,10 @@ import { createElement } from 'react';
 
 import { usePublishStore } from '@/stores/publishStore';
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 vi.mock('@/components/publish/publish.css', () => ({
   publishButton: () => 'publishButton',
 }));
@@ -29,7 +33,10 @@ describe('PublishButton', () => {
     });
     const fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ results: [] }),
+      json: async () => ({
+        syncTaskId: 'sync-test-1',
+        syncTask: { id: 'sync-test-1', status: 'pending', receipts: [], events: [] },
+      }),
     });
     vi.stubGlobal('fetch', fetch);
 

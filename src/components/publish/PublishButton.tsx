@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { usePublishStore } from '@/stores/publishStore';
 import { PlatformId, PublishResponse } from '@/types';
 import { SendHorizonal, Loader2, AlertCircle } from 'lucide-react';
@@ -13,6 +14,7 @@ const platformLabels: Record<PlatformId, string> = {
 };
 
 export default function PublishButton() {
+  const router = useRouter();
   const { title, content, platforms, platformDrafts, overallStatus, setPublishing, setResults } =
     usePublishStore();
 
@@ -22,7 +24,6 @@ export default function PublishButton() {
     .filter(([, enabled]) => enabled)
     .map(([id]) => id);
 
-  // Platforms whose draft title or body is empty
   const notReadyPlatforms = selectedPlatforms.filter((platform) => {
     const draft = platformDrafts[platform];
     return !draft?.title?.trim() || !draft?.body?.trim();
@@ -65,9 +66,10 @@ export default function PublishButton() {
         throw new Error(message);
       }
 
-      if (!('results' in data)) throw new Error('发布结果格式异常，请稍后重试');
+      if (!('syncTaskId' in data)) throw new Error('发布结果格式异常，请稍后重试');
 
-      setResults(data.results);
+      // Immediately navigate to the sync task detail page
+      router.push(`/sync-tasks/${data.syncTaskId}`);
     } catch (error) {
       setResults(
         selectedPlatforms.map((p) => ({
@@ -81,7 +83,7 @@ export default function PublishButton() {
 
   let label: string;
   if (overallStatus === 'publishing') {
-    label = '发布中...';
+    label = '提交中...';
   } else if (selectedPlatforms.length === 0) {
     label = '请先选择平台';
   } else if (notReadyPlatforms.length > 0) {

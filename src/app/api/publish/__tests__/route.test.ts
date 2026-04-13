@@ -1,57 +1,29 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { getDraftRegistry, resetDraftRegistryForTests } from '@/lib/drafts/registry';
+import { resetDraftRegistryForTests } from '@/lib/drafts/registry';
 import { resetSyncHistoryStoreForTests } from '@/lib/sync/registry';
-import { WechatPublisher } from '@/lib/publishers/wechat';
 import { POST } from '@/app/api/publish/route';
 
+// Mock all publishers — actual publish happens async, tests only verify task creation
 vi.mock('@/lib/publishers/wechat', () => ({
-  WechatPublisher: vi.fn().mockImplementation(function WechatPublisher() {
-    return {
-    publish: vi.fn().mockResolvedValue({
-      platform: 'wechat',
-      success: true,
-      message: '已创建公众号草稿',
-      url: 'https://mp.weixin.qq.com/draft',
-    }),
-    };
-  }),
+  WechatPublisher: vi.fn().mockImplementation(() => ({
+    publish: vi.fn().mockResolvedValue({ platform: 'wechat', success: true, message: '草稿已创建' }),
+  })),
 }));
-
 vi.mock('@/lib/publishers/zhihu', () => ({
-  ZhihuPublisher: vi.fn().mockImplementation(function ZhihuPublisher() {
-    return {
-    publish: vi.fn().mockResolvedValue({
-      platform: 'zhihu',
-      success: false,
-      message: '知乎登录态已过期',
-    }),
-    };
-  }),
+  ZhihuPublisher: vi.fn().mockImplementation(() => ({
+    publish: vi.fn().mockResolvedValue({ platform: 'zhihu', success: false, message: '登录态过期' }),
+  })),
 }));
-
 vi.mock('@/lib/publishers/xiaohongshu', () => ({
-  XiaohongshuPublisher: vi.fn().mockImplementation(function XiaohongshuPublisher() {
-    return {
-    publish: vi.fn().mockResolvedValue({
-      platform: 'xiaohongshu',
-      success: true,
-      message: '已同步到小红书',
-    }),
-    };
-  }),
+  XiaohongshuPublisher: vi.fn().mockImplementation(() => ({
+    publish: vi.fn().mockResolvedValue({ platform: 'xiaohongshu', success: true, message: '已同步' }),
+  })),
 }));
-
 vi.mock('@/lib/publishers/x', () => ({
-  XPublisher: vi.fn().mockImplementation(function XPublisher() {
-    return {
-    publish: vi.fn().mockResolvedValue({
-      platform: 'x',
-      success: true,
-      message: '已同步到 X',
-    }),
-    };
-  }),
+  XPublisher: vi.fn().mockImplementation(() => ({
+    publish: vi.fn().mockResolvedValue({ platform: 'x', success: true, message: '已发布' }),
+  })),
 }));
 
 function createJsonRequest(body: unknown) {
@@ -83,7 +55,7 @@ describe('/api/publish', () => {
     });
   });
 
-  test('returns a sync task with per-platform receipts', async () => {
+  test('returns syncTaskId and an initial pending sync task immediately', async () => {
     const response = await POST(
       createJsonRequest({
         draftId: 'draft-1',
@@ -95,98 +67,46 @@ describe('/api/publish', () => {
     const json = await readJson(response);
 
     expect(response.status).toBe(200);
-    expect(json.results).toEqual([
-      expect.objectContaining({
-        platform: 'wechat',
-        status: 'success',
-        message: '已创建公众号草稿',
-        url: 'https://mp.weixin.qq.com/draft',
-      }),
-      expect.objectContaining({
-        platform: 'zhihu',
-        status: 'error',
-        message: '知乎登录态已过期',
-      }),
-    ]);
+    expect(json.syncTaskId).toBe('sync-1');
     expect(json.syncTask).toMatchObject({
       id: 'sync-1',
       draftId: 'draft-1',
       title: '稿件标题',
-      status: 'partial',
-      receipts: [
-        {
-          platform: 'wechat',
-          status: 'published',
-          message: '已创建公众号草稿',
-          url: 'https://mp.weixin.qq.com/draft',
-          attempts: 1,
-        },
-        {
-          platform: 'zhihu',
-          status: 'failed',
-          message: '知乎登录态已过期',
-          attempts: 1,
-        },
-      ],
+      // task is returned immediately with pending receipts
+      receipts: expect.arrayContaining([
+        expect.objectContaining({ platform: 'wechat' }),
+        expect.objectContaining({ platform: 'zhihu' }),
+      ]),
     });
   });
 
-  test('marks a draft as failed when its sync task is partial', async () => {
-    await POST(
-      createJsonRequest({
-        draftId: 'draft-1',
-        title: '稿件标题',
-        content: '稿件正文',
-        platforms: ['wechat', 'zhihu'],
-      }),
+  test('rejects requests with empty title', async () => {
+    const response = await POST(
+      createJsonRequest({ title: '', content: '正文', platforms: ['wechat'] }),
     );
-
-    expect(getDraftRegistry().getDraft('draft-1')).toMatchObject({
-      id: 'draft-1',
-      status: 'failed',
-    });
+    expect(response.status).toBe(400);
+    const json = await readJson(response);
+    expect(json.error).toBeTruthy();
   });
 
-  test('marks a draft as synced when every platform completes', async () => {
-    await POST(
-      createJsonRequest({
-        draftId: 'draft-1',
-        title: '稿件标题',
-        content: '稿件正文',
-        platforms: ['wechat', 'x'],
-      }),
+  test('rejects requests with no platforms selected', async () => {
+    const response = await POST(
+      createJsonRequest({ title: '标题', content: '正文', platforms: [] }),
     );
-
-    expect(getDraftRegistry().getDraft('draft-1')).toMatchObject({
-      id: 'draft-1',
-      status: 'synced',
-    });
+    expect(response.status).toBe(400);
   });
 
-  test('uses platform-level content when provided', async () => {
-    await POST(
+  test('rejects requests with incomplete platform drafts', async () => {
+    const response = await POST(
       createJsonRequest({
-        draftId: 'draft-1',
-        title: '通用标题',
-        content: '通用正文',
+        title: '标题',
+        content: '正文',
         platforms: ['wechat'],
-        platformDrafts: {
-          wechat: {
-            title: '公众号标题',
-            content: '公众号正文',
-          },
-        },
+        platformDrafts: { wechat: { title: '', content: '' } },
       }),
     );
-
-    const wechatPublisher = vi.mocked(WechatPublisher).mock.results.at(-1)?.value as {
-      publish: ReturnType<typeof vi.fn>;
-    };
-    expect(wechatPublisher.publish).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: '公众号标题',
-        markdownContent: '公众号正文',
-      }),
-    );
+    expect(response.status).toBe(400);
+    const json = await readJson(response);
+    expect(json.notReadyPlatforms).toContain('wechat');
   });
 });

@@ -36,8 +36,9 @@ export interface PlatformPublishResult {
 }
 
 export interface PublishResponse {
-  results: PlatformPublishResult[];
-  syncTask?: SyncTask;
+  syncTaskId: string;
+  syncTask: SyncTask;
+  results?: PlatformPublishResult[];
 }
 
 export const PLATFORMS: Platform[] = [
