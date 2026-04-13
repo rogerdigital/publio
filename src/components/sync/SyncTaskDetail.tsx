@@ -1,5 +1,7 @@
 import type { PlatformId } from '@/types';
 import type {
+  SyncFailureCode,
+  SyncNextAction,
   SyncReceiptStatus,
   SyncTask,
   SyncTaskStatus,
@@ -31,6 +33,24 @@ const receiptStatusLabels: Record<SyncReceiptStatus, string> = {
   published: '已发布',
   failed: '失败',
   'needs-action': '需要处理',
+};
+
+const failureCodeLabels: Record<SyncFailureCode, string> = {
+  'auth-expired': '授权已过期',
+  'rate-limited': '触发频率限制',
+  'invalid-content': '内容格式有误',
+  'network-error': '网络请求失败',
+  'manual-required': '需要手动操作',
+  'unknown': '未知错误',
+};
+
+const nextActionLabels: Record<SyncNextAction, string> = {
+  'reconnect': '前往设置页重新授权',
+  'wait-and-retry': '稍后重试',
+  'fix-content': '修改内容后重新发布',
+  'open-platform': '前往平台手动操作',
+  'mark-done': '人工确认完成',
+  'contact-support': '联系平台客服',
 };
 
 function formatTime(value: string) {
@@ -71,6 +91,12 @@ export default function SyncTaskDetail({ syncTask }: SyncTaskDetailProps) {
             <p className={styles.receiptMessage}>
               {receipt.message ?? '暂无平台回执信息'} · 第 {receipt.attempts} 次尝试 · {formatTime(receipt.updatedAt)}
             </p>
+            {receipt.failureCode ? (
+              <p className={styles.receiptFailureReason}>
+                原因：{failureCodeLabels[receipt.failureCode]}
+                {receipt.nextAction ? `　建议：${nextActionLabels[receipt.nextAction]}` : ''}
+              </p>
+            ) : null}
             {receipt.url ? (
               <a
                 className={styles.receiptLink}

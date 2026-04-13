@@ -5,7 +5,7 @@ import { WechatPublisher } from '@/lib/publishers/wechat';
 import { XiaohongshuPublisher } from '@/lib/publishers/xiaohongshu';
 import { ZhihuPublisher } from '@/lib/publishers/zhihu';
 import { XPublisher } from '@/lib/publishers/x';
-import type { SyncReceiptStatus, SyncTaskStatus } from '@/lib/sync/types';
+import type { SyncFailureCode, SyncNextAction, SyncReceiptStatus, SyncTaskStatus } from '@/lib/sync/types';
 import type { DraftStatus } from '@/lib/drafts/types';
 
 export type PlatformPublishDrafts = Partial<
@@ -28,6 +28,35 @@ export function toSyncReceiptStatus(result: PlatformPublishResult): SyncReceiptS
   if (result.status === 'needs-action') return 'needs-action';
   if (result.status === 'pending' || result.status === 'publishing') return 'syncing';
   return 'failed';
+}
+
+export function inferFailureCode(message: string | undefined): SyncFailureCode {
+  if (!message) return 'unknown';
+  const lower = message.toLowerCase();
+  if (lower.includes('auth') || lower.includes('token') || lower.includes('unauthorized') || lower.includes('401')) {
+    return 'auth-expired';
+  }
+  if (lower.includes('rate') || lower.includes('limit') || lower.includes('429') || lower.includes('too many')) {
+    return 'rate-limited';
+  }
+  if (lower.includes('content') || lower.includes('invalid') || lower.includes('format') || lower.includes('400')) {
+    return 'invalid-content';
+  }
+  if (lower.includes('network') || lower.includes('timeout') || lower.includes('connect') || lower.includes('fetch')) {
+    return 'network-error';
+  }
+  return 'unknown';
+}
+
+export function toNextAction(failureCode: SyncFailureCode): SyncNextAction {
+  switch (failureCode) {
+    case 'auth-expired': return 'reconnect';
+    case 'rate-limited': return 'wait-and-retry';
+    case 'invalid-content': return 'fix-content';
+    case 'network-error': return 'wait-and-retry';
+    case 'manual-required': return 'open-platform';
+    default: return 'contact-support';
+  }
 }
 
 export function toDraftStatus(status: SyncTaskStatus): DraftStatus {

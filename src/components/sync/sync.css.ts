@@ -84,6 +84,14 @@ export const receiptMessage = style({
   lineHeight: 1.7,
 });
 
+export const receiptFailureReason = style({
+  margin: 0,
+  marginTop: '4px',
+  color: vars.color.errorText,
+  fontSize: '12px',
+  lineHeight: 1.7,
+});
+
 export const receiptLink = style({
   width: 'fit-content',
   color: vars.color.accent,

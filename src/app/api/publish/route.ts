@@ -4,8 +4,10 @@ import { getDraftRegistry } from '@/lib/drafts/registry';
 import { getSyncHistoryStore } from '@/lib/sync/registry';
 import {
   type PlatformPublishDrafts,
+  inferFailureCode,
   publishToPlatforms,
   toDraftStatus,
+  toNextAction,
   toSyncReceiptStatus,
 } from '@/lib/publishers/executePublish';
 
@@ -47,10 +49,18 @@ export async function POST(request: NextRequest) {
     });
 
     for (const result of publishResults) {
+      const receiptStatus = toSyncReceiptStatus(result);
+      const isFailed = receiptStatus === 'failed';
+      const failureCode = isFailed ? inferFailureCode(result.message) : undefined;
+      const nextAction = isFailed && failureCode ? toNextAction(failureCode) : undefined;
+
       syncTask = syncStore.updateReceipt(syncTask.id, result.platform, {
-        status: toSyncReceiptStatus(result),
+        status: receiptStatus,
         message: result.message,
         url: result.url,
+        failureCode,
+        failureMessage: isFailed ? (result.message ?? '未知错误') : undefined,
+        nextAction,
       }) ?? syncTask;
     }
 

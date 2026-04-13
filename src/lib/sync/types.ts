@@ -16,6 +16,22 @@ export type SyncTaskStatus =
   | 'partial'
   | 'needs-action';
 
+export type SyncFailureCode =
+  | 'auth-expired'
+  | 'rate-limited'
+  | 'invalid-content'
+  | 'network-error'
+  | 'manual-required'
+  | 'unknown';
+
+export type SyncNextAction =
+  | 'reconnect'
+  | 'wait-and-retry'
+  | 'fix-content'
+  | 'open-platform'
+  | 'mark-done'
+  | 'contact-support';
+
 export interface PlatformSyncReceipt {
   platform: PlatformId;
   status: SyncReceiptStatus;
@@ -23,6 +39,9 @@ export interface PlatformSyncReceipt {
   url?: string;
   attempts: number;
   updatedAt: string;
+  failureCode?: SyncFailureCode;
+  failureMessage?: string;
+  nextAction?: SyncNextAction;
 }
 
 export interface SyncTask {
@@ -42,5 +61,5 @@ export interface CreateSyncTaskInput {
 }
 
 export type UpdateSyncReceiptInput = Partial<
-  Pick<PlatformSyncReceipt, 'status' | 'message' | 'url'>
+  Pick<PlatformSyncReceipt, 'status' | 'message' | 'url' | 'failureCode' | 'failureMessage' | 'nextAction'>
 >;
