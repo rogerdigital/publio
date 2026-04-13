@@ -22,6 +22,18 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   stateTitle: 'stateTitle',
   stateText: 'stateText',
   primaryLink: 'primaryLink',
+  pageContent: 'pageContent',
+  pipelineSection: 'pipelineSection',
+  pipelineSectionTitle: 'pipelineSectionTitle',
+  pipelineSectionDesc: 'pipelineSectionDesc',
+  pipelineList: 'pipelineList',
+  pipelineRow: 'pipelineRow',
+  pipelineStep: 'pipelineStep',
+  pipelineStepIcon: 'pipelineStepIcon',
+  pipelineStepContent: 'pipelineStepContent',
+  pipelineStepLabel: 'pipelineStepLabel',
+  pipelineStepLink: 'pipelineStepLink',
+  pipelineArrow: 'pipelineArrow',
 }));
 
 describe('DraftLibraryClient', () => {
@@ -73,7 +85,10 @@ describe('DraftLibraryClient', () => {
 
     render(createElement(DraftLibraryClient));
 
-    expect(await screen.findByText('AI 话题稿件')).toBeInTheDocument();
+    // Title appears in both the pipeline section and the draft card
+    await waitFor(() => {
+      expect(screen.getAllByText('AI 话题稿件').length).toBeGreaterThan(0);
+    });
     expect(screen.getByText('待同步')).toBeInTheDocument();
     expect(screen.getByText('AI 选题')).toBeInTheDocument();
     expect(screen.getByText('最近分发：部分完成')).toBeInTheDocument();

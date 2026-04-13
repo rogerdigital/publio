@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, FileText, RefreshCcw } from 'lucide-react';
+import { ArrowRight, FileText, RefreshCcw, Newspaper, PenLine, ArrowRightCircle } from 'lucide-react';
 import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
 import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
 import * as styles from './drafts.css';
@@ -139,53 +139,125 @@ export default function DraftLibraryClient() {
     );
   }
 
+  const aiNewsDrafts = drafts.filter((d) => d.source === 'ai-news');
+
   return (
-    <div className={styles.draftList}>
-      {drafts.map((draft) => {
-        const latestSyncTask = syncTasks.find((task) => task.draftId === draft.id);
-
-        return (
-          <article key={draft.id} className={styles.draftCard}>
-            <div className={styles.draftMetaRow}>
-              <span className={styles.statusBadge}>{statusLabels[draft.status]}</span>
-              <span className={styles.sourceBadge}>{sourceLabels[draft.source]}</span>
-              <time className={styles.updatedTime} dateTime={draft.updatedAt}>
-                {formatDraftTime(draft.updatedAt)}
-              </time>
-            </div>
-
-            <div>
-              <h2 className={styles.draftTitle}>{draft.title}</h2>
-              <p className={styles.draftExcerpt}>{createExcerpt(draft.content)}</p>
-              {latestSyncTask ? (
-                <div className={styles.syncSummary}>
-                  <p className={styles.syncTitle}>
-                    最近分发：{syncStatusLabels[latestSyncTask.status]}
-                  </p>
-                  <p className={styles.syncText}>
-                    {latestSyncTask.receipts.length} 个平台，更新于 {formatDraftTime(latestSyncTask.updatedAt)}
-                  </p>
-                  <Link
-                    href={`/sync-tasks/${latestSyncTask.id}`}
-                    className={styles.syncDetailLink}
-                  >
-                    查看分发详情
-                  </Link>
+    <div className={styles.pageContent}>
+      {aiNewsDrafts.length > 0 && (
+        <section className={styles.pipelineSection}>
+          <h2 className={styles.pipelineSectionTitle}>
+            内容链路
+          </h2>
+          <p className={styles.pipelineSectionDesc}>
+            从 AI 选题台生成的稿件及其分发进展。
+          </p>
+          <div className={styles.pipelineList}>
+            {aiNewsDrafts.map((draft) => {
+              const syncTask = syncTasks.find((t) => t.draftId === draft.id);
+              return (
+                <div key={draft.id} className={styles.pipelineRow}>
+                  <div className={styles.pipelineStep}>
+                    <span className={styles.pipelineStepIcon}>
+                      <Newspaper size={14} />
+                    </span>
+                    <div className={styles.pipelineStepContent}>
+                      <span className={styles.pipelineStepLabel}>选题台</span>
+                      <Link href="/ai-news" className={styles.pipelineStepLink}>
+                        重新选题
+                      </Link>
+                    </div>
+                  </div>
+                  <ArrowRightCircle size={14} className={styles.pipelineArrow} />
+                  <div className={styles.pipelineStep}>
+                    <span className={styles.pipelineStepIcon}>
+                      <PenLine size={14} />
+                    </span>
+                    <div className={styles.pipelineStepContent}>
+                      <span className={styles.pipelineStepLabel} title={draft.title}>
+                        {draft.title.length > 24 ? `${draft.title.slice(0, 24)}…` : draft.title}
+                      </span>
+                      <Link href={`/?draftId=${draft.id}`} className={styles.pipelineStepLink}>
+                        {statusLabels[draft.status]}，去编辑
+                      </Link>
+                    </div>
+                  </div>
+                  <ArrowRightCircle size={14} className={styles.pipelineArrow} />
+                  <div className={styles.pipelineStep}>
+                    <span className={styles.pipelineStepIcon}>
+                      <FileText size={14} />
+                    </span>
+                    <div className={styles.pipelineStepContent}>
+                      {syncTask ? (
+                        <>
+                          <span className={styles.pipelineStepLabel}>
+                            {syncStatusLabels[syncTask.status]}
+                          </span>
+                          <Link
+                            href={`/sync-tasks/${syncTask.id}`}
+                            className={styles.pipelineStepLink}
+                          >
+                            查看详情
+                          </Link>
+                        </>
+                      ) : (
+                        <span className={styles.pipelineStepLabel}>尚未分发</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              ) : null}
-            </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
-            <Link
-              href={`/?draftId=${draft.id}`}
-              className={styles.editLink}
-              aria-label={`继续编辑 ${draft.title}`}
-            >
-              继续编辑
-              <ArrowRight size={15} />
-            </Link>
-          </article>
-        );
-      })}
+      <div className={styles.draftList}>
+        {drafts.map((draft) => {
+          const latestSyncTask = syncTasks.find((task) => task.draftId === draft.id);
+
+          return (
+            <article key={draft.id} className={styles.draftCard}>
+              <div className={styles.draftMetaRow}>
+                <span className={styles.statusBadge}>{statusLabels[draft.status]}</span>
+                <span className={styles.sourceBadge}>{sourceLabels[draft.source]}</span>
+                <time className={styles.updatedTime} dateTime={draft.updatedAt}>
+                  {formatDraftTime(draft.updatedAt)}
+                </time>
+              </div>
+
+              <div>
+                <h2 className={styles.draftTitle}>{draft.title}</h2>
+                <p className={styles.draftExcerpt}>{createExcerpt(draft.content)}</p>
+                {latestSyncTask ? (
+                  <div className={styles.syncSummary}>
+                    <p className={styles.syncTitle}>
+                      最近分发：{syncStatusLabels[latestSyncTask.status]}
+                    </p>
+                    <p className={styles.syncText}>
+                      {latestSyncTask.receipts.length} 个平台，更新于 {formatDraftTime(latestSyncTask.updatedAt)}
+                    </p>
+                    <Link
+                      href={`/sync-tasks/${latestSyncTask.id}`}
+                      className={styles.syncDetailLink}
+                    >
+                      查看分发详情
+                    </Link>
+                  </div>
+                ) : null}
+              </div>
+
+              <Link
+                href={`/?draftId=${draft.id}`}
+                className={styles.editLink}
+                aria-label={`继续编辑 ${draft.title}`}
+              >
+                继续编辑
+                <ArrowRight size={15} />
+              </Link>
+            </article>
+          );
+        })}
+      </div>
     </div>
   );
 }

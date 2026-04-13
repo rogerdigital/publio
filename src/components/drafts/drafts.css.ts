@@ -194,3 +194,96 @@ export const primaryLink = style({
   color: '#ffffff',
   textDecoration: 'none',
 });
+
+// Pipeline view
+export const pageContent = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '24px',
+});
+
+export const pipelineSection = style({
+  borderRadius: vars.radius.xl,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  padding: '20px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+});
+
+export const pipelineSectionTitle = style({
+  margin: 0,
+  fontSize: '14px',
+  fontWeight: 600,
+  color: vars.color.text,
+  textTransform: 'uppercase',
+  letterSpacing: vars.tracking.kicker,
+});
+
+export const pipelineSectionDesc = style({
+  margin: 0,
+  fontSize: '13px',
+  color: vars.color.textMuted,
+});
+
+export const pipelineList = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+});
+
+export const pipelineRow = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  flexWrap: 'wrap',
+});
+
+export const pipelineStep = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.bgElevated,
+  padding: '8px 12px',
+  minWidth: '120px',
+});
+
+export const pipelineStepIcon = style({
+  color: vars.color.accent,
+  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+});
+
+export const pipelineStepContent = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '2px',
+  minWidth: 0,
+});
+
+export const pipelineStepLabel = style({
+  fontSize: '13px',
+  fontWeight: 500,
+  color: vars.color.text,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
+export const pipelineStepLink = style({
+  fontSize: '12px',
+  color: vars.color.accent,
+  textDecoration: 'none',
+  ':hover': {
+    color: vars.color.signal,
+  },
+});
+
+export const pipelineArrow = style({
+  color: vars.color.textMuted,
+  flexShrink: 0,
+});

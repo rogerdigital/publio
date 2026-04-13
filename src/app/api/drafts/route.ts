@@ -21,6 +21,10 @@ export async function POST(request: NextRequest | Request) {
     const title = typeof body.title === 'string' ? body.title.trim() : '';
     const content = typeof body.content === 'string' ? body.content.trim() : '';
     const source = isDraftSource(body.source) ? body.source : 'manual';
+    const topicClusterId =
+      typeof body.topicClusterId === 'string' && body.topicClusterId.trim()
+        ? body.topicClusterId.trim()
+        : undefined;
 
     if (!title || !content) {
       return NextResponse.json({ error: '标题和内容不能为空' }, { status: 400 });
@@ -30,6 +34,7 @@ export async function POST(request: NextRequest | Request) {
       title,
       content,
       source,
+      topicClusterId,
     });
 
     return NextResponse.json({ draft }, { status: 201 });

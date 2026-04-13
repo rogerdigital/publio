@@ -53,6 +53,7 @@ export function createDraftStore(options: DraftStoreOptions = {}) {
         content: input.content,
         status: 'draft',
         source: input.source,
+        ...(input.topicClusterId ? { topicClusterId: input.topicClusterId } : {}),
         createdAt: timestamp,
         updatedAt: timestamp,
       };

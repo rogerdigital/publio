@@ -14,6 +14,7 @@ export interface ContentDraft {
   content: string;
   status: DraftStatus;
   source: DraftSource;
+  topicClusterId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -22,6 +23,7 @@ export interface CreateDraftInput {
   title: string;
   content: string;
   source: DraftSource;
+  topicClusterId?: string;
 }
 
 export type UpdateDraftInput = Partial<

@@ -10,6 +10,7 @@ import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
 import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
+import RecentDraftBar from '@/components/editor/RecentDraftBar';
 import {
   NEWS_DRAFT_STORAGE_KEY,
   type NewsDraftPayload,
@@ -122,6 +123,8 @@ function HomePageContent() {
             {draftLoadError}
           </div>
         ) : null}
+
+        <RecentDraftBar />
 
         <div className={styles.editorCard}>
           <MarkdownEditor activeTab={activeTab} />
