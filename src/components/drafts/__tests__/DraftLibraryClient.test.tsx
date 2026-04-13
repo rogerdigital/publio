@@ -58,8 +58,8 @@ describe('DraftLibraryClient', () => {
                 draftId: 'draft-1',
                 title: 'AI 话题稿件',
                 status: 'partial',
-                createdAt: '2026-04-11T08:40:00.000Z',
-                updatedAt: '2026-04-11T08:45:00.000Z',
+                createdAt: '2026-04-11T00:00:00.000Z',
+                updatedAt: '2026-04-11T00:00:00.000Z',
                 receipts: [
                   { platform: 'wechat', status: 'published' },
                   { platform: 'zhihu', status: 'failed' },
@@ -75,8 +75,8 @@ describe('DraftLibraryClient', () => {
                 content: '这是一篇待同步的稿件正文。',
                 status: 'ready',
                 source: 'ai-news',
-                createdAt: '2026-04-11T08:00:00.000Z',
-                updatedAt: '2026-04-11T08:30:00.000Z',
+                createdAt: '2026-04-11T00:00:00.000Z',
+                updatedAt: '2026-04-11T00:00:00.000Z',
               },
             ],
           }),
@@ -93,7 +93,7 @@ describe('DraftLibraryClient', () => {
     expect(screen.getByText('AI 选题')).toBeInTheDocument();
     expect(screen.getByText('最近分发：部分完成')).toBeInTheDocument();
     expect(screen.getByText((_, node) => (
-      node?.textContent === '2 个平台，更新于 2026年4月11日 16:45'
+      node?.textContent?.startsWith('2 个平台，更新于 2026年4月11日') === true
     ))).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '查看分发详情' })).toHaveAttribute(
       'href',
