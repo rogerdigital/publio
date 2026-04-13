@@ -9,18 +9,19 @@
 - **Markdown 写作台** — 桌面端使用 MDEditor 富编辑器，移动端降级为原生 textarea，底部实时显示字符数、段落数、标题层级与预计阅读时长
 - **成稿预览** — 切换到预览 tab 可查看接近公众号排版的最终效果，标题、h2/h3、引用块、行内代码均有独立样式
 - **Editorial context 卡片** — 标题写入状态、结构统计四格、可发布建议，始终与编辑器共存
+- **草稿库** — 持久化存储所有草稿（来源：手动创建 / AI 选题转稿 / 导入），支持状态跟踪（draft → ready → synced），可从写作台一键保存或从草稿库继续编辑
 - **AI 选题工作台** — 手动触发抓取，从 9 个 RSS 数据源拉取 24 小时内容，经标准化 → 聚类 → 多维评分后输出最多 10 条候选题，每条附带研究底稿（事件经过、重要性、影响方、写作切口建议）
 - **一键转稿** — 从工作台直接将研究底稿导入写作台，继续润色后发布
 - **多平台并发发布** — 基于 `Promise.allSettled` 并发执行，支持微信公众号、小红书、知乎、X (Twitter) 四大平台
-- **发布回执跟踪板** — 实时展示各平台发布进度与结果，成功后可一键跳转已发布内容
-- **凭据管理** — 设置页 accordion 面板，密钥脱敏显示，支持 `.env.local` 或 UI 二选一配置
+- **同步任务追踪** — 每次发布生成一条同步任务记录，包含各平台进度回执、失败原因、下一步建议（重新授权 / 修复内容 / 打开平台等）；支持重试与手动标记完成
+- **平台连接管理** — 设置页统一管理各平台凭证；OAuth 平台支持一键授权跳转，微信 / X 支持凭证验证；连接状态持久化，展示上次验证时间与账号信息
 
 ## 技术栈
 
 | 类别 | 技术 |
 |------|------|
 | 框架 | Next.js 15 (App Router) |
-| 语言 | TypeScript 5（100%，零 CSS / JS 文件） |
+| 语言 | TypeScript 5（100%，strict mode） |
 | 前端 | React 19 |
 | 样式 | vanilla-extract（零运行时 CSS-in-TypeScript） |
 | 状态管理 | Zustand 5 |
@@ -37,17 +38,32 @@ src/
 ├── app/
 │   ├── layout.tsx / layout.css.ts       # 根布局（侧边栏 + 主内容区）
 │   ├── page.tsx / page.css.ts           # 写作台：编辑器 + 平台选择 + 发布
+│   ├── drafts/
+│   │   └── page.tsx / page.css.ts       # 草稿库页
 │   ├── ai-news/
 │   │   ├── page.tsx                     # 选题工作台页（SSR metadata）
-│   │   ├── error.tsx / error.css.ts     # 错误边界
+│   │   └── error.tsx / error.css.ts     # 错误边界
 │   ├── settings/
 │   │   └── page.tsx / settings.css.ts   # 平台凭据设置页
+│   ├── sync-tasks/
+│   │   ├── page.tsx / page.css.ts       # 同步任务列表页
+│   │   └── [id]/page.tsx / page.css.ts  # 同步任务详情页
 │   └── api/
 │       ├── ai-news/route.ts             # 新闻聚合 API
 │       ├── publish/route.ts             # 批量发布 API
 │       ├── settings/route.ts            # 凭据读写 API
-│       └── platforms/                   # 各平台独立发布路由
-│           ├── wechat / xiaohongshu / zhihu / x
+│       ├── drafts/route.ts              # 草稿 CRUD API
+│       ├── drafts/[id]/route.ts         # 单条草稿操作
+│       ├── sync-tasks/route.ts          # 同步任务列表 API
+│       ├── sync-tasks/[id]/route.ts     # 任务详情
+│       ├── sync-tasks/[id]/retry/       # 重试任务
+│       ├── sync-tasks/[id]/mark-done/   # 手动标记完成
+│       └── platforms/                   # 各平台路由
+│           ├── wechat / xiaohongshu / zhihu / x  # 独立发布路由
+│           ├── [platform]/connection/check        # 连接验证
+│           ├── [platform]/connection/oauth/start  # OAuth 授权发起
+│           ├── [platform]/connection/disconnect   # 断开连接
+│           └── connection/records                 # 连接记录列表
 ├── components/
 │   ├── layout/
 │   │   ├── Sidebar.tsx / Sidebar.css.ts
@@ -55,16 +71,26 @@ src/
 │   │   ├── AppShellHeader.tsx / AppShellHeader.css.ts
 │   │   └── PageSection.tsx / PageSection.css.ts
 │   ├── editor/
-│   │   ├── MarkdownEditor.tsx / editor.css.ts   # MDEditor + 预览区 + globalStyle 覆盖
-│   │   └── EditorialContextCard.tsx
+│   │   ├── MarkdownEditor.tsx / editor.css.ts   # MDEditor + 预览区
+│   │   ├── EditorialContextCard.tsx             # 编辑上下文卡片
+│   │   └── RecentDraftBar.tsx                   # 最近草稿快速入口
+│   ├── drafts/
+│   │   └── DraftLibraryClient.tsx / drafts.css.ts
 │   ├── news/
 │   │   ├── AiNewsPageClient.tsx / news.css.ts
 │   │   ├── TopicDeskHeader.tsx
 │   │   └── TopicSignalCard.tsx
-│   └── publish/
-│       ├── PlatformSelector.tsx / publish.css.ts
-│       ├── PublishButton.tsx
-│       └── PublishStatusPanel.tsx
+│   ├── publish/
+│   │   ├── PlatformSelector.tsx / publish.css.ts
+│   │   ├── PlatformPreviewPanel.tsx             # 平台内容预览
+│   │   ├── PublishButton.tsx
+│   │   └── PublishStatusPanel.tsx
+│   ├── sync/
+│   │   ├── SyncTaskList.tsx / SyncTaskDetail.tsx
+│   │   ├── SyncTaskRetryButton.tsx
+│   │   └── SyncTaskMarkDoneButton.tsx
+│   └── icons/
+│       └── PlatformIcons.tsx
 ├── lib/
 │   ├── ai-news/                         # AI 新闻核心模块
 │   │   ├── sources.ts                   # RSS 数据源配置（9 个）
@@ -72,13 +98,33 @@ src/
 │   │   ├── cluster.ts                   # 话题聚类算法
 │   │   ├── score.ts                     # 多维度评分模型
 │   │   ├── research.ts                  # 研究底稿生成
+│   │   ├── requestTimeout.ts            # 请求超时控制
 │   │   ├── articleSnapshot.ts           # 原文快照抓取
 │   │   └── index.ts
+│   ├── drafts/                          # 草稿持久化
+│   │   ├── types.ts / store.ts / client.ts / registry.ts
+│   ├── sync/                            # 同步任务
+│   │   ├── types.ts / store.ts / registry.ts
+│   ├── platformConnections/             # 平台连接管理
+│   │   ├── types.ts / index.ts / registry.ts
+│   │   ├── profiles.ts                  # 连接状态计算
+│   │   ├── checkers.ts                  # 各平台连通性检查
+│   │   └── oauthNonce.ts / profiles.ts
+│   ├── platformAdapters/                # 平台内容适配
+│   │   ├── types.ts / adaptContent.ts
 │   ├── publishers/                      # 各平台发布器
 │   │   ├── wechat.ts / xiaohongshu.ts / zhihu.ts / x.ts
+│   │   ├── executePublish.ts
+│   │   └── types.ts
+│   ├── storage/                         # 本地数据存储
+│   │   ├── jsonFileCollection.ts        # JSON 文件集合抽象
+│   │   ├── localDataPath.ts             # 数据目录路径
+│   │   └── envFile.ts                   # .env.local 读写
 │   ├── markdown.ts                      # Markdown → 风格化 HTML
 │   ├── contentStats.ts                  # 字符数 / 段落 / 阅读时长统计
+│   ├── publishStatus.ts                 # 发布状态工具函数
 │   ├── newsDraft.ts                     # 选题转稿模板与 localStorage 桥接
+│   ├── cn.ts                            # className 工具
 │   └── config.ts                        # 环境变量读取
 ├── styles/
 │   ├── tokens.css.ts                    # createGlobalTheme 设计 token（颜色 / 圆角 / 字体）
