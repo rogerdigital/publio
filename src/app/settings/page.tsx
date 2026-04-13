@@ -8,6 +8,8 @@ import {
   CheckCircle2,
   ChevronDown,
   KeyRound,
+  RefreshCw,
+  Unplug,
 } from 'lucide-react';
 
 import AppShellHeader from '@/components/layout/AppShellHeader';
@@ -92,6 +94,18 @@ const statusLabels: Record<PlatformConnectionStatus, string> = {
   'manual-required': '需配置',
 };
 
+interface CheckState {
+  checking: boolean;
+  ok?: boolean;
+  failureReason?: string;
+  checkedAt?: string;
+}
+
+interface DisconnectState {
+  disconnecting: boolean;
+  done?: boolean;
+}
+
 export default function SettingsPage() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
@@ -100,6 +114,8 @@ export default function SettingsPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [noticeMessage, setNoticeMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [checkStates, setCheckStates] = useState<Record<string, CheckState>>({});
+  const [disconnectStates, setDisconnectStates] = useState<Record<string, DisconnectState>>({});
   const connectionProfiles = getPlatformConnectionProfiles(values);
 
   useEffect(() => {
@@ -145,6 +161,37 @@ export default function SettingsPage() {
         ? `${platformName} 授权入口已预留，当前仍可使用下方凭证完成连接。`
         : `${platformName} 当前使用登录态连接，请在下方完成配置。`,
     );
+  }
+
+  async function handleCheckConnection(platformId: PlatformId) {
+    setCheckStates((prev) => ({ ...prev, [platformId]: { checking: true } }));
+    try {
+      const res = await fetch(`/api/platforms/${platformId}/connection/check`, { method: 'POST' });
+      const data = (await res.json()) as { ok: boolean; failureReason?: string; checkedAt?: string };
+      setCheckStates((prev) => ({
+        ...prev,
+        [platformId]: { checking: false, ok: data.ok, failureReason: data.failureReason, checkedAt: data.checkedAt },
+      }));
+    } catch {
+      setCheckStates((prev) => ({
+        ...prev,
+        [platformId]: { checking: false, ok: false, failureReason: '请求失败，请重试' },
+      }));
+    }
+  }
+
+  async function handleDisconnect(platformId: PlatformId) {
+    setDisconnectStates((prev) => ({ ...prev, [platformId]: { disconnecting: true } }));
+    try {
+      await fetch(`/api/platforms/${platformId}/connection/disconnect`, { method: 'POST' });
+      setDisconnectStates((prev) => ({ ...prev, [platformId]: { disconnecting: false, done: true } }));
+      setCheckStates((prev) => ({ ...prev, [platformId]: { checking: false } }));
+      setTimeout(() => {
+        setDisconnectStates((prev) => ({ ...prev, [platformId]: { disconnecting: false } }));
+      }, 2000);
+    } catch {
+      setDisconnectStates((prev) => ({ ...prev, [platformId]: { disconnecting: false } }));
+    }
   }
 
   async function handleSave() {
@@ -254,14 +301,49 @@ export default function SettingsPage() {
                               ? `还需要 ${connectionProfile.missingKeys.length} 项必要凭证。`
                               : '可以继续完成连接。'}
                         </p>
+                        {(() => {
+                          const ck = checkStates[platform.id];
+                          if (!ck || ck.checking) return null;
+                          if (ck.ok) {
+                            return <p className={styles.checkResultOk}><CheckCircle2 size={13} /> 连接正常</p>;
+                          }
+                          return <p className={styles.checkResultFail}>连接异常：{ck.failureReason ?? '未知原因'}</p>;
+                        })()}
+                        {disconnectStates[platform.id]?.done ? (
+                          <p className={styles.checkResultOk}>连接记录已清除</p>
+                        ) : null}
                       </div>
-                      <button
-                        type="button"
-                        className={styles.connectButton}
-                        onClick={() => handleConnectionAction(platform.name, connectionProfile.mode)}
-                      >
-                        {connectionProfile.actionLabel}
-                      </button>
+                      <div className={styles.connectionActions}>
+                        <button
+                          type="button"
+                          className={styles.connectButton}
+                          onClick={() => handleConnectionAction(platform.name, connectionProfile.mode)}
+                        >
+                          {connectionProfile.actionLabel}
+                        </button>
+                        {connectionProfile.status === 'connected' ? (
+                          <>
+                            <button
+                              type="button"
+                              className={styles.checkButton}
+                              disabled={checkStates[platform.id]?.checking}
+                              onClick={() => void handleCheckConnection(platform.id)}
+                            >
+                              <RefreshCw size={13} />
+                              {checkStates[platform.id]?.checking ? '检查中…' : '检查连接'}
+                            </button>
+                            <button
+                              type="button"
+                              className={styles.disconnectButton}
+                              disabled={disconnectStates[platform.id]?.disconnecting}
+                              onClick={() => void handleDisconnect(platform.id)}
+                            >
+                              <Unplug size={13} />
+                              {disconnectStates[platform.id]?.disconnecting ? '处理中…' : '断开连接'}
+                            </button>
+                          </>
+                        ) : null}
+                      </div>
                     </div>
                   ) : null}
 

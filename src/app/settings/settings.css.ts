@@ -236,6 +236,74 @@ export const connectButton = style({
   },
 });
 
+export const connectionActions = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '8px',
+});
+
+export const checkButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  flexShrink: 0,
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.borderStrong}`,
+  background: vars.color.surface,
+  padding: '8px 14px',
+  fontSize: '13px',
+  fontWeight: 500,
+  color: vars.color.text,
+  transition: 'border-color 150ms, background-color 150ms',
+  ':hover': {
+    borderColor: vars.color.accent,
+    background: vars.color.accentSoft,
+  },
+  ':disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  },
+});
+
+export const disconnectButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  flexShrink: 0,
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: 'transparent',
+  padding: '8px 14px',
+  fontSize: '13px',
+  fontWeight: 500,
+  color: vars.color.textMuted,
+  transition: 'border-color 150ms, color 150ms',
+  ':hover': {
+    borderColor: vars.color.errorText,
+    color: vars.color.errorText,
+  },
+  ':disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  },
+});
+
+export const checkResultOk = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '5px',
+  fontSize: '12px',
+  color: vars.color.successText,
+});
+
+export const checkResultFail = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '5px',
+  fontSize: '12px',
+  color: vars.color.errorText,
+});
+
 export const fieldList = style({
   display: 'flex',
   flexDirection: 'column',
