@@ -2,8 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { PlatformId } from '@/types';
 import { PLATFORM_CONNECTIONS } from '@/lib/platformConnections';
 import { getConnectionRecordStore } from '@/lib/platformConnections/registry';
+import {
+  checkWechat,
+  checkXiaohongshu,
+  checkZhihu,
+  checkX,
+  type CheckResult,
+} from '@/lib/platformConnections/checkers';
 
 const VALID_PLATFORMS = new Set<string>(['wechat', 'xiaohongshu', 'zhihu', 'x']);
+
+type PlatformChecker = () => Promise<CheckResult>;
+
+const CHECKERS: Record<PlatformId, PlatformChecker> = {
+  wechat: checkWechat,
+  xiaohongshu: checkXiaohongshu,
+  zhihu: checkZhihu,
+  x: checkX,
+};
 
 export async function POST(
   _request: NextRequest,
@@ -22,23 +38,29 @@ export async function POST(
   }
 
   const checkedAt = new Date().toISOString();
+  const checker = CHECKERS[platformId];
+  const result = await checker();
 
-  // For manual-mode platforms (e.g. zhihu), we only verify that
-  // the required env keys are present — no live API call.
-  const missingKeys = definition.requiredKeys.filter(
-    (key) => !process.env[key]?.trim(),
-  );
-  const ok = missingKeys.length === 0;
-  const failureReason = ok
-    ? undefined
-    : `缺少必要凭证: ${missingKeys.join(', ')}`;
-
-  const record = getConnectionRecordStore().markChecked(platformId, {
+  // 持久化检查结果（markChecked 更新 lastCheckedAt + failureReason）
+  const store = getConnectionRecordStore();
+  store.markChecked(platformId, {
     platform: platformId,
-    ok,
-    failureReason,
+    ok: result.ok,
+    failureReason: result.failureReason,
     checkedAt,
   });
 
-  return NextResponse.json({ ok, failureReason, checkedAt, record });
+  // 同时更新账号元数据和 token 过期时间
+  if (result.ok) {
+    store.upsertRecord(platformId, {
+      ...(result.accountName ? { accountName: result.accountName } : {}),
+      ...(result.expiresAt ? { expiresAt: result.expiresAt } : {}),
+      lastCheckedAt: checkedAt,
+      failureReason: undefined,
+    });
+  }
+
+  const record = store.getRecord(platformId);
+
+  return NextResponse.json({ ok: result.ok, failureReason: result.failureReason, accountName: result.accountName, checkedAt, record });
 }

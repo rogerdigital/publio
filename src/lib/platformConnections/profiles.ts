@@ -14,7 +14,7 @@ export const PLATFORM_CONNECTIONS: PlatformConnectionDefinition[] = [
     mode: 'oauth',
     requiredKeys: ['WECHAT_APP_ID', 'WECHAT_APP_SECRET'],
     connectionLabel: '公众号授权',
-    connectionHint: '通过授权流程连接公众号后，可减少手动复制凭证。',
+    connectionHint: '微信公众号使用 AppID + AppSecret 直接接入，无需 OAuth 授权。填写凭证后点击「验证连接」确认配置有效。',
   },
   {
     platform: 'xiaohongshu',
@@ -41,7 +41,7 @@ export const PLATFORM_CONNECTIONS: PlatformConnectionDefinition[] = [
       'X_ACCESS_TOKEN_SECRET',
     ],
     connectionLabel: 'X 授权',
-    connectionHint: '通过开发者授权连接账号；手动 API Key 可作为高级配置。',
+    connectionHint: '在 developer.x.com → 你的 App → Keys and Tokens → Access Token and Secret 生成 4 个 key（需开启 Read and Write 权限），填入上方字段后点击「验证连接」。',
   },
 ];
 

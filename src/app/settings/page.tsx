@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Save,
   Eye,
@@ -15,7 +16,7 @@ import {
 import AppShellHeader from '@/components/layout/AppShellHeader';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import { getPlatformConnectionProfiles } from '@/lib/platformConnections/profiles';
-import type { PlatformConnectionMode, PlatformConnectionStatus } from '@/lib/platformConnections/types';
+import type { PlatformConnectionMode, PlatformConnectionStatus, PlatformConnectionRecord } from '@/lib/platformConnections/types';
 import type { PlatformId } from '@/types';
 import {
   WechatIcon,
@@ -60,7 +61,7 @@ const platformConfigs: PlatformConfig[] = [
     fields: [
       { key: 'XHS_APP_ID', label: 'App ID', type: 'text', placeholder: '输入小红书 App ID' },
       { key: 'XHS_APP_SECRET', label: 'App Secret', type: 'password', placeholder: '输入小红书 App Secret' },
-      { key: 'XHS_ACCESS_TOKEN', label: 'Access Token', type: 'password', placeholder: '输入小红书 Access Token' },
+      { key: 'XHS_ACCESS_TOKEN', label: 'Access Token', type: 'password', placeholder: '输入小红书 Access Token（可选，授权后自动写入）' },
     ],
   },
   {
@@ -88,6 +89,9 @@ const platformConfigs: PlatformConfig[] = [
   },
 ];
 
+// 这些平台不走 OAuth 重定向，直接调 check 验证凭证
+const VERIFY_ONLY_PLATFORMS = new Set<PlatformId>(['wechat', 'x']);
+
 const statusLabels: Record<PlatformConnectionStatus, string> = {
   connected: '已连接',
   available: '可授权',
@@ -98,6 +102,7 @@ interface CheckState {
   checking: boolean;
   ok?: boolean;
   failureReason?: string;
+  accountName?: string;
   checkedAt?: string;
 }
 
@@ -106,7 +111,18 @@ interface DisconnectState {
   done?: boolean;
 }
 
+function formatRelativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return '刚刚';
+  if (minutes < 60) return `${minutes} 分钟前`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} 小时前`;
+  return `${Math.floor(hours / 24)} 天前`;
+}
+
 export default function SettingsPage() {
+  const searchParams = useSearchParams();
   const [values, setValues] = useState<Record<string, string>>({});
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
   const [saved, setSaved] = useState(false);
@@ -116,7 +132,21 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [checkStates, setCheckStates] = useState<Record<string, CheckState>>({});
   const [disconnectStates, setDisconnectStates] = useState<Record<string, DisconnectState>>({});
+  const [connectionRecords, setConnectionRecords] = useState<Record<PlatformId, PlatformConnectionRecord>>({} as Record<PlatformId, PlatformConnectionRecord>);
   const connectionProfiles = getPlatformConnectionProfiles(values);
+
+  // 检测 OAuth callback 后的 ?connected= 参数
+  useEffect(() => {
+    const connected = searchParams.get('connected') as PlatformId | null;
+    const error = searchParams.get('error');
+    if (connected) {
+      const platformName = platformConfigs.find((p) => p.id === connected)?.name ?? connected;
+      setNoticeMessage(`${platformName} 授权成功，连接已建立。`);
+      setExpandedPlatform(connected);
+    } else if (error) {
+      setErrorMessage(`授权失败：${decodeURIComponent(error)}`);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     let cancelled = false;
@@ -125,10 +155,21 @@ export default function SettingsPage() {
       try {
         setLoading(true);
         setErrorMessage('');
-        const response = await fetch('/api/settings', { cache: 'no-store' });
-        const data = (await response.json()) as Record<string, string>;
-        if (!response.ok) throw new Error('加载设置失败，请稍后重试');
+        const [settingsRes, recordsRes] = await Promise.all([
+          fetch('/api/settings', { cache: 'no-store' }),
+          fetch('/api/platforms/connection/records', { cache: 'no-store' }),
+        ]);
+        const data = (await settingsRes.json()) as Record<string, string>;
+        if (!settingsRes.ok) throw new Error('加载设置失败，请稍后重试');
         if (!cancelled) setValues(data);
+
+        if (recordsRes.ok) {
+          const records = (await recordsRes.json()) as PlatformConnectionRecord[];
+          if (!cancelled) {
+            const recordMap = Object.fromEntries(records.map((r) => [r.platform, r])) as Record<PlatformId, PlatformConnectionRecord>;
+            setConnectionRecords(recordMap);
+          }
+        }
       } catch (error) {
         if (!cancelled) {
           setErrorMessage(error instanceof Error ? error.message : '加载设置失败，请稍后重试');
@@ -163,22 +204,27 @@ export default function SettingsPage() {
       return;
     }
 
+    // 微信/X 不走 OAuth redirect，直接验证连接
+    if (VERIFY_ONLY_PLATFORMS.has(platformId)) {
+      await handleCheckConnection(platformId);
+      return;
+    }
+
     try {
       const res = await fetch(`/api/platforms/${platformId}/connection/oauth/start`, { method: 'POST' });
-      const data = (await res.json()) as { authUrl?: string; error?: string };
+      const data = (await res.json()) as { authUrl?: string; error?: string; requiresManualConfig?: boolean };
 
-      if (res.status === 501) {
-        // OAuth not yet implemented — guide user to manual credential entry
-        setNoticeMessage(`${platformName} OAuth 授权入口已预留，当前请在下方手动填写 API 凭证完成连接。`);
+      if (data.requiresManualConfig || !res.ok) {
+        setNoticeMessage(data.error || `${platformName} 请填写凭证后点击「验证连接」。`);
         return;
       }
 
-      if (!res.ok || !data.authUrl) {
-        setErrorMessage(data.error || `${platformName} 授权失败，请稍后重试`);
+      if (!data.authUrl) {
+        setErrorMessage(`${platformName} 授权失败，请稍后重试`);
         return;
       }
 
-      // Redirect to the platform's OAuth authorization page
+      // 跳转到平台 OAuth 授权页
       window.location.href = data.authUrl;
     } catch {
       setErrorMessage(`${platformName} 授权请求失败，请稍后重试`);
@@ -189,10 +235,10 @@ export default function SettingsPage() {
     setCheckStates((prev) => ({ ...prev, [platformId]: { checking: true } }));
     try {
       const res = await fetch(`/api/platforms/${platformId}/connection/check`, { method: 'POST' });
-      const data = (await res.json()) as { ok: boolean; failureReason?: string; checkedAt?: string };
+      const data = (await res.json()) as { ok: boolean; failureReason?: string; accountName?: string; checkedAt?: string };
       setCheckStates((prev) => ({
         ...prev,
-        [platformId]: { checking: false, ok: data.ok, failureReason: data.failureReason, checkedAt: data.checkedAt },
+        [platformId]: { checking: false, ok: data.ok, failureReason: data.failureReason, accountName: data.accountName, checkedAt: data.checkedAt },
       }));
     } catch {
       setCheckStates((prev) => ({
@@ -236,6 +282,43 @@ export default function SettingsPage() {
     }
   }
 
+  function renderCheckResult(platformId: PlatformId) {
+    const ck = checkStates[platformId];
+    const record = connectionRecords[platformId];
+
+    if (ck && !ck.checking) {
+      if (ck.ok) {
+        return (
+          <p className={styles.checkResultOk}>
+            <CheckCircle2 size={13} />
+            {ck.accountName ? `连接正常（${ck.accountName}）` : '连接正常'}
+          </p>
+        );
+      }
+      return <p className={styles.checkResultFail}>连接异常：{ck.failureReason ?? '未知原因'}</p>;
+    }
+
+    if (disconnectStates[platformId]?.done) {
+      return <p className={styles.checkResultOk}>连接记录已清除</p>;
+    }
+
+    // 从持久化 records 中展示上次验证信息
+    if (record?.lastCheckedAt) {
+      const timeAgo = formatRelativeTime(record.lastCheckedAt);
+      if (record.failureReason) {
+        return <p className={styles.checkResultFail}>上次验证（{timeAgo}）失败：{record.failureReason}</p>;
+      }
+      return (
+        <p className={styles.checkResultOk}>
+          <CheckCircle2 size={13} />
+          {record.accountName ? `${record.accountName} · ` : ''}上次验证：{timeAgo}
+        </p>
+      );
+    }
+
+    return null;
+  }
+
   return (
     <div className={styles.pageWrap}>
       <AppShellHeader
@@ -272,6 +355,7 @@ export default function SettingsPage() {
           const isExpanded = expandedPlatform === platform.id;
           const { Icon } = platform;
           const connectionProfile = connectionProfiles.find((profile) => profile.platform === platform.id);
+          const isVerifyOnly = VERIFY_ONLY_PLATFORMS.has(platform.id);
 
           return (
             <SurfaceCard key={platform.id} tone="soft" className={styles.accordionCard}>
@@ -349,42 +433,39 @@ export default function SettingsPage() {
                         <p className={styles.fieldHint}>{platform.hint}</p>
                       </div>
 
-                      {/* 步骤 2：账号授权 */}
+                      {/* 步骤 2：账号授权 / 验证连接 */}
                       <div className={styles.oauthStep}>
                         <div className={styles.oauthStepHeader}>
                           <span className={connectionProfile.status === 'connected' ? styles.oauthStepBadgeActive : styles.oauthStepBadge}>2</span>
-                          <p className={styles.oauthStepTitle}>账号授权</p>
+                          <p className={styles.oauthStepTitle}>{isVerifyOnly ? '验证连接' : '账号授权'}</p>
                         </div>
                         <p className={styles.oauthStepDesc}>
-                          {connectionProfile.status === 'connected'
-                            ? `已配置全部 ${connectionProfile.configuredKeys.length} 项凭证。点击「检查连接」验证有效性，或重新授权刷新令牌。`
-                            : connectionProfile.missingKeys.length > 0
-                              ? `填写上方全部凭证后，即可点击「一键授权」完成账号绑定。还差 ${connectionProfile.missingKeys.length} 项。`
-                              : '凭证已填写完毕，点击「一键授权」完成账号绑定。'}
+                          {isVerifyOnly
+                            ? connectionProfile.status === 'connected'
+                              ? `已配置全部 ${connectionProfile.configuredKeys.length} 项凭证。点击「验证连接」确认凭证有效性。`
+                              : `填写上方全部凭证后点击「验证连接」。还差 ${connectionProfile.missingKeys.length} 项。`
+                            : connectionProfile.status === 'connected'
+                              ? `已配置全部 ${connectionProfile.configuredKeys.length} 项凭证。点击「检查连接」验证有效性，或重新授权刷新令牌。`
+                              : connectionProfile.missingKeys.length > 0
+                                ? `填写上方全部凭证后，即可点击「一键授权」完成账号绑定。还差 ${connectionProfile.missingKeys.length} 项。`
+                                : '凭证已填写完毕，点击「一键授权」完成账号绑定。'}
                         </p>
-                        {/* 连接检查 / 断开结果 */}
-                        {(() => {
-                          const ck = checkStates[platform.id];
-                          if (ck && !ck.checking) {
-                            if (ck.ok) return <p className={styles.checkResultOk}><CheckCircle2 size={13} /> 连接正常</p>;
-                            return <p className={styles.checkResultFail}>连接异常：{ck.failureReason ?? '未知原因'}</p>;
-                          }
-                          if (disconnectStates[platform.id]?.done) {
-                            return <p className={styles.checkResultOk}>连接记录已清除</p>;
-                          }
-                          return null;
-                        })()}
+                        {renderCheckResult(platform.id)}
                         <div className={styles.oauthAuthorizeRow}>
                           <button
                             type="button"
                             className={styles.authorizeButton}
-                            disabled={connectionProfile.missingKeys.length > 0}
+                            disabled={connectionProfile.missingKeys.length > 0 || checkStates[platform.id]?.checking}
                             onClick={() => void handleConnectionAction(platform.id, platform.name, connectionProfile.mode)}
                           >
-                            <Zap size={15} />
-                            {connectionProfile.status === 'connected' ? '重新授权' : '一键授权'}
+                            {isVerifyOnly ? <RefreshCw size={15} /> : <Zap size={15} />}
+                            {checkStates[platform.id]?.checking
+                              ? '验证中…'
+                              : isVerifyOnly
+                                ? connectionProfile.status === 'connected' ? '重新验证' : '验证连接'
+                                : connectionProfile.status === 'connected' ? '重新授权' : '一键授权'}
                           </button>
-                          {connectionProfile.status === 'connected' ? (
+                          {connectionProfile.status === 'connected' && !isVerifyOnly ? (
                             <>
                               <button
                                 type="button"
@@ -410,7 +491,7 @@ export default function SettingsPage() {
                       </div>
                     </div>
                   ) : (
-                    // ── Manual 平台（知乎）：纯表单 ──────────────────────
+                    // ── Manual 平台（知乎）：纯表单 + 测试连接 ───────────
                     <>
                       <div className={styles.fieldList}>
                         {platform.fields.map((field) => (
@@ -453,6 +534,19 @@ export default function SettingsPage() {
                         ))}
                       </div>
                       <p className={styles.fieldHint}>{platform.hint}</p>
+                      {/* 知乎：测试连接区域 */}
+                      <div className={styles.oauthAuthorizeRow}>
+                        <button
+                          type="button"
+                          className={styles.checkButton}
+                          disabled={checkStates[platform.id]?.checking || !values['ZHIHU_COOKIE']}
+                          onClick={() => void handleCheckConnection(platform.id)}
+                        >
+                          <RefreshCw size={13} />
+                          {checkStates[platform.id]?.checking ? '验证中…' : '测试连接'}
+                        </button>
+                      </div>
+                      {renderCheckResult(platform.id)}
                     </>
                   )}
                 </div>
