@@ -1,25 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PlatformId, PlatformPublishResult } from '@/types';
-import { Publisher, PublishInput } from '@/lib/publishers/types';
-import { markdownToHtml, markdownToStyledHtml } from '@/lib/markdown';
-import { WechatPublisher } from '@/lib/publishers/wechat';
-import { XiaohongshuPublisher } from '@/lib/publishers/xiaohongshu';
-import { ZhihuPublisher } from '@/lib/publishers/zhihu';
-import { XPublisher } from '@/lib/publishers/x';
-
-const publisherMap: Record<PlatformId, () => Publisher> = {
-  wechat: () => new WechatPublisher(),
-  xiaohongshu: () => new XiaohongshuPublisher(),
-  zhihu: () => new ZhihuPublisher(),
-  x: () => new XPublisher(),
-};
+import { PlatformId } from '@/types';
+import { getDraftRegistry } from '@/lib/drafts/registry';
+import { getSyncHistoryStore } from '@/lib/sync/registry';
+import {
+  type PlatformPublishDrafts,
+  inferFailureCode,
+  publishToPlatforms,
+  toDraftStatus,
+  toNextAction,
+  toSyncReceiptStatus,
+} from '@/lib/publishers/executePublish';
+import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, content, platforms } = body;
+    const { draftId, title, content, platforms } = body;
+    const platformDrafts: PlatformPublishDrafts =
+      body.platformDrafts && typeof body.platformDrafts === 'object'
+        ? body.platformDrafts
+        : {};
 
-    // Validate
+    // Basic validation
     if (!title?.trim()) {
       return NextResponse.json({ error: '标题不能为空' }, { status: 400 });
     }
@@ -33,58 +35,88 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Execute all publishers concurrently
-    const publishPromises = (platforms as PlatformId[]).map(
-      async (platformId): Promise<PlatformPublishResult> => {
-        const createPublisher = publisherMap[platformId];
-        if (!createPublisher) {
-          return {
-            platform: platformId,
-            status: 'error',
-            message: `不支持的平台: ${platformId}`,
-          };
-        }
+    // Platform-level draft validation
+    const adaptations = adaptContentForPlatforms({
+      title,
+      content,
+      platforms: platforms as PlatformId[],
+    });
+    const notReadyPlatforms = (platforms as PlatformId[]).filter((platform) => {
+      const draft = platformDrafts[platform];
+      const draftTitle = draft?.title ?? title;
+      const draftContent = draft?.content ?? content;
+      return !draftTitle.trim() || !draftContent.trim();
+    });
+    if (notReadyPlatforms.length > 0) {
+      return NextResponse.json(
+        {
+          error: `以下平台内容不完整，无法发布: ${notReadyPlatforms.join(', ')}`,
+          notReadyPlatforms,
+        },
+        { status: 400 }
+      );
+    }
+    void adaptations;
 
-        const publisher = createPublisher();
-        const htmlContent =
-          platformId === 'wechat' || platformId === 'zhihu'
-            ? markdownToStyledHtml(title, content, platformId)
-            : markdownToHtml(content);
-        const input: PublishInput = {
+    // Create sync task immediately so the UI can redirect to the detail page
+    const syncStore = getSyncHistoryStore();
+    let syncTask = syncStore.createTask({
+      draftId: typeof draftId === 'string' && draftId.trim() ? draftId.trim() : undefined,
+      title,
+      platforms: platforms as PlatformId[],
+    });
+
+    // Execute publish in the background (fire-and-forget within the same process).
+    // For a personal tool this is sufficient; swap for a real queue later.
+    void (async () => {
+      try {
+        const publishResults = await publishToPlatforms(
+          platforms as PlatformId[],
           title,
-          markdownContent: content,
-          htmlContent,
-        };
-        const result = await publisher.publish(input);
+          content,
+          platformDrafts,
+        );
 
-        return {
-          platform: result.platform,
-          status: result.success ? 'success' : 'error',
-          message: result.message,
-          url: result.url,
-        };
-      }
-    );
+        for (const result of publishResults) {
+          const receiptStatus = toSyncReceiptStatus(result);
+          const isFailed = receiptStatus === 'failed';
+          const failureCode = isFailed ? inferFailureCode(result.message) : undefined;
+          const nextAction = isFailed && failureCode ? toNextAction(failureCode) : undefined;
 
-    const results = await Promise.allSettled(publishPromises);
-
-    const publishResults: PlatformPublishResult[] = results.map(
-      (result, index) => {
-        if (result.status === 'fulfilled') {
-          return result.value;
+          syncTask = syncStore.updateReceipt(syncTask.id, result.platform, {
+            status: receiptStatus,
+            message: result.message,
+            url: result.url,
+            failureCode,
+            failureMessage: isFailed ? (result.message ?? '未知错误') : undefined,
+            nextAction,
+          }) ?? syncTask;
         }
-        return {
-          platform: platforms[index] as PlatformId,
-          status: 'error' as const,
-          message:
-            result.reason instanceof Error
-              ? result.reason.message
-              : '未知错误',
-        };
-      }
-    );
 
-    return NextResponse.json({ results: publishResults });
+        if (syncTask.draftId) {
+          getDraftRegistry().updateDraft(syncTask.draftId, {
+            status: toDraftStatus(syncTask.status),
+          });
+        }
+      } catch {
+        // Best-effort: mark all still-pending receipts as failed
+        for (const platform of platforms as PlatformId[]) {
+          const receipt = syncStore.getTask(syncTask.id)?.receipts.find(
+            (r) => r.platform === platform && r.status === 'pending',
+          );
+          if (receipt) {
+            syncStore.updateReceipt(syncTask.id, platform, {
+              status: 'failed',
+              failureCode: 'unknown',
+              failureMessage: '发布过程中发生未知错误',
+            });
+          }
+        }
+      }
+    })();
+
+    // Return task ID immediately — client navigates to /sync-tasks/:id
+    return NextResponse.json({ syncTaskId: syncTask.id, syncTask });
   } catch (error) {
     return NextResponse.json(
       {

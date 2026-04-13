@@ -1,5 +1,11 @@
 import { create } from 'zustand';
-import { PlatformId, PlatformPublishResult, PublishStatus } from '@/types';
+import { PlatformId, PlatformPublishResult, PLATFORMS, PublishStatus } from '@/types';
+import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
+import type {
+  PlatformContentDraft,
+  PlatformContentDrafts,
+} from '@/lib/platformAdapters/types';
+import { resolveOverallPublishStatus } from '@/lib/publishStatus';
 
 interface PublishStore {
   title: string;
@@ -10,12 +16,26 @@ interface PublishStore {
   platforms: Record<PlatformId, boolean>;
   togglePlatform: (id: PlatformId) => void;
 
+  platformDrafts: PlatformContentDrafts;
+  syncPlatformDrafts: () => void;
+  updatePlatformDraft: (
+    platform: PlatformId,
+    input: Partial<Pick<PlatformContentDraft, 'title' | 'body' | 'suggestedTags' | 'threadParts'>>,
+  ) => void;
+
   overallStatus: PublishStatus;
   results: PlatformPublishResult[];
   setPublishing: () => void;
   setResults: (results: PlatformPublishResult[]) => void;
   reset: () => void;
 }
+
+const platformIds = PLATFORMS.map((platform) => platform.id);
+const emptyPlatformDrafts = adaptContentForPlatforms({
+  title: '',
+  content: '',
+  platforms: platformIds,
+});
 
 export const usePublishStore = create<PublishStore>((set) => ({
   title: '',
@@ -34,15 +54,33 @@ export const usePublishStore = create<PublishStore>((set) => ({
       platforms: { ...state.platforms, [id]: !state.platforms[id] },
     })),
 
+  platformDrafts: emptyPlatformDrafts,
+  syncPlatformDrafts: () =>
+    set((state) => ({
+      platformDrafts: adaptContentForPlatforms({
+        title: state.title,
+        content: state.content,
+        platforms: platformIds,
+      }),
+    })),
+  updatePlatformDraft: (platform, input) =>
+    set((state) => ({
+      platformDrafts: {
+        ...state.platformDrafts,
+        [platform]: {
+          ...state.platformDrafts[platform],
+          ...input,
+        },
+      },
+    })),
+
   overallStatus: 'idle',
   results: [],
   setPublishing: () => set({ overallStatus: 'publishing', results: [] }),
-  setResults: (results) => {
-    const hasError = results.some((r) => r.status === 'error');
+  setResults: (results) =>
     set({
       results,
-      overallStatus: hasError ? 'error' : 'success',
-    });
-  },
+      overallStatus: resolveOverallPublishStatus(results),
+    }),
   reset: () => set({ overallStatus: 'idle', results: [] }),
 }));

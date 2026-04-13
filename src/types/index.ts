@@ -1,3 +1,5 @@
+import type { SyncTask } from '@/lib/sync/types';
+
 export type PlatformId = 'wechat' | 'xiaohongshu' | 'zhihu' | 'x';
 
 export interface Platform {
@@ -8,6 +10,7 @@ export interface Platform {
 }
 
 export interface PublishRequest {
+  draftId?: string;
   title: string;
   content: string;
   platforms: PlatformId[];
@@ -15,15 +18,27 @@ export interface PublishRequest {
 
 export type PublishStatus = 'idle' | 'publishing' | 'success' | 'error';
 
+export type PlatformPublishStatus =
+  | 'pending'
+  | 'publishing'
+  | 'draft-created'
+  | 'published'
+  | 'needs-action'
+  | 'success'
+  | 'failed'
+  | 'error';
+
 export interface PlatformPublishResult {
   platform: PlatformId;
-  status: PublishStatus;
+  status: PlatformPublishStatus;
   message?: string;
   url?: string;
 }
 
 export interface PublishResponse {
-  results: PlatformPublishResult[];
+  syncTaskId: string;
+  syncTask: SyncTask;
+  results?: PlatformPublishResult[];
 }
 
 export const PLATFORMS: Platform[] = [

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock3, ExternalLink, FileUp, ChevronDown } from 'lucide-react';
+import { Clock3, ExternalLink, FileUp, ChevronDown, CheckCircle2 } from 'lucide-react';
 
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import type { AiNewsDeskCandidate } from '@/lib/aiNews';
@@ -10,6 +10,7 @@ interface TopicSignalCardProps {
   indexLabel: string;
   relativeLabel: string;
   formattedDate: string;
+  draftId?: string;
   onCreateDraft: (item: AiNewsDeskCandidate) => void;
 }
 
@@ -29,6 +30,7 @@ export default function TopicSignalCard({
   indexLabel,
   relativeLabel,
   formattedDate,
+  draftId,
   onCreateDraft,
 }: TopicSignalCardProps) {
   const [showBrief, setShowBrief] = useState(false);
@@ -135,14 +137,24 @@ export default function TopicSignalCard({
               />
               {showBrief ? '收起底稿' : '查看底稿'}
             </button>
-            <button
-              type="button"
-              onClick={() => onCreateDraft(item)}
-              className={styles.actionButton({ variant: 'primary' })}
-            >
-              <FileUp size={15} />
-              加入写作台
-            </button>
+            {draftId ? (
+              <a
+                href={`/?draftId=${draftId}`}
+                className={styles.actionButton({ variant: 'added' })}
+              >
+                <CheckCircle2 size={15} />
+                已加入写作台
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onCreateDraft(item)}
+                className={styles.actionButton({ variant: 'primary' })}
+              >
+                <FileUp size={15} />
+                加入写作台
+              </button>
+            )}
           </div>
 
           {/* 内联研究底稿 */}

@@ -349,6 +349,12 @@ export const actionButton = recipe({
           filter: 'brightness(1.05)',
         },
       },
+      added: {
+        borderColor: vars.color.successBorder,
+        background: vars.color.successBg,
+        color: vars.color.successText,
+        textDecoration: 'none',
+      },
     },
   },
   defaultVariants: {

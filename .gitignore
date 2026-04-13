@@ -8,6 +8,7 @@ dist/
 
 # Runtime
 .quantpilot-runtime/
+.publio-data/
 
 # Environment
 .env

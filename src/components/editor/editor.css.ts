@@ -398,3 +398,43 @@ export const contextFooter = style({
   lineHeight: 1.75,
   color: vars.color.textMuted,
 });
+
+// RecentDraftBar
+export const recentDraftBar = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  gap: '8px',
+  paddingTop: '2px',
+});
+
+export const recentDraftLabel = style({
+  fontSize: '12px',
+  color: vars.color.textMuted,
+  flexShrink: 0,
+});
+
+export const recentDraftChips = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '6px',
+});
+
+export const recentDraftChip = style({
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.bgElevated,
+  padding: '4px 10px',
+  fontSize: '12px',
+  color: vars.color.textMuted,
+  textDecoration: 'none',
+  whiteSpace: 'nowrap',
+  maxWidth: '180px',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  transition: 'border-color 150ms, color 150ms',
+  ':hover': {
+    borderColor: vars.color.borderStrong,
+    color: vars.color.text,
+  },
+});

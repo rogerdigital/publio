@@ -20,6 +20,15 @@ export const editorCard = style({
   background: vars.color.surface,
 });
 
+export const draftLoadError = style({
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.errorBorder}`,
+  background: vars.color.errorBg,
+  padding: '12px 14px',
+  fontSize: '14px',
+  color: vars.color.errorText,
+});
+
 export const publishBar = style({
   display: 'flex',
   flexWrap: 'wrap',

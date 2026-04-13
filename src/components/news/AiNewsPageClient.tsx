@@ -8,9 +8,29 @@ import TopicSignalCard from '@/components/news/TopicSignalCard';
 import type { AiNewsDeskCandidate } from '@/lib/aiNews';
 import {
   buildResearchDraftMarkdown,
-  NEWS_DRAFT_STORAGE_KEY,
 } from '@/lib/newsDraft';
+import { createDraft } from '@/lib/drafts/client';
 import * as styles from './news.css';
+
+// localStorage key for tracking which topic clusters have drafts in this session
+const TOPIC_DRAFT_MAP_KEY = 'publio-topic-draft-map';
+
+function loadTopicDraftMap(): Record<string, string> {
+  try {
+    const raw = window.localStorage.getItem(TOPIC_DRAFT_MAP_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveTopicDraftMap(map: Record<string, string>) {
+  try {
+    window.localStorage.setItem(TOPIC_DRAFT_MAP_KEY, JSON.stringify(map));
+  } catch {
+    // ignore storage errors
+  }
+}
 
 interface AiNewsResponse {
   success: boolean;
@@ -85,16 +105,30 @@ export default function AiNewsPageClient() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [refreshError, setRefreshError] = useState('');
+  const [draftError, setDraftError] = useState('');
+  // Maps clusterId → draftId for topics the user has sent to the writing desk
+  const [topicDraftMap, setTopicDraftMap] = useState<Record<string, string>>({});
   const hasDeskDataRef = useRef(false);
 
   const allCandidates = [...todayCandidates, ...followCandidates];
 
-  const writeDraftAndOpenEditor = (title: string, content: string) => {
-    window.localStorage.setItem(
-      NEWS_DRAFT_STORAGE_KEY,
-      JSON.stringify({ title, content }),
-    );
-    router.push('/');
+  const writeDraftAndOpenEditor = async (title: string, content: string, clusterId: string) => {
+    try {
+      setDraftError('');
+      const draft = await createDraft({
+        title,
+        content,
+        source: 'ai-news',
+        topicClusterId: clusterId,
+      });
+      // Track the mapping so this card shows "已加入" if the user comes back
+      const updated = { ...loadTopicDraftMap(), [clusterId]: draft.id };
+      saveTopicDraftMap(updated);
+      setTopicDraftMap(updated);
+      router.push(`/?draftId=${draft.id}`);
+    } catch (err) {
+      setDraftError(err instanceof Error ? err.message : '稿件创建失败，请稍后重试。');
+    }
   };
 
   const createSingleNewsDraft = (item: AiNewsDeskCandidate) => {
@@ -119,7 +153,7 @@ export default function AiNewsPageClient() {
         },
       ],
     });
-    writeDraftAndOpenEditor(item.title, content);
+    void writeDraftAndOpenEditor(item.title, content, item.clusterId);
   };
 
   const loadNews = async (isManualRefresh = false) => {
@@ -174,6 +208,9 @@ export default function AiNewsPageClient() {
   };
 
   useEffect(() => {
+    // Restore topic→draft mappings from localStorage
+    setTopicDraftMap(loadTopicDraftMap());
+
     if (cachedNewsState) {
       setTodayCandidates(cachedNewsState.todayCandidates);
       setFollowCandidates(cachedNewsState.followCandidates);
@@ -215,6 +252,21 @@ export default function AiNewsPageClient() {
           </div>
         ) : null}
 
+        {draftError ? (
+          <div
+            className={styles.refreshErrorBanner}
+            role="status"
+            aria-live="polite"
+          >
+            <p className={styles.refreshErrorKicker}>
+              转稿未完成
+            </p>
+            <p className={styles.refreshErrorText}>
+              {draftError}
+            </p>
+          </div>
+        ) : null}
+
         {loading ? (
           <div className={styles.skeletonList}>
             {[0, 1].map((i) => (
@@ -246,12 +298,14 @@ export default function AiNewsPageClient() {
               title="今天能发"
               items={todayCandidates}
               offset={0}
+              topicDraftMap={topicDraftMap}
               onCreateDraft={createSingleNewsDraft}
             />
             <CandidateSection
               title="还能追"
               items={followCandidates}
               offset={todayCandidates.length}
+              topicDraftMap={topicDraftMap}
               onCreateDraft={createSingleNewsDraft}
             />
           </div>
@@ -269,11 +323,13 @@ function CandidateSection({
   title,
   items,
   offset,
+  topicDraftMap,
   onCreateDraft,
 }: {
   title: string;
   items: AiNewsDeskCandidate[];
   offset: number;
+  topicDraftMap: Record<string, string>;
   onCreateDraft: (item: AiNewsDeskCandidate) => void;
 }) {
   if (items.length === 0) return null;
@@ -287,6 +343,7 @@ function CandidateSection({
           indexLabel={buildSectionLabel(offset + index)}
           relativeLabel={formatRelativeHours(item.latestPublishedAt)}
           formattedDate={formatDateTime(item.latestPublishedAt)}
+          draftId={topicDraftMap[item.clusterId]}
           onCreateDraft={onCreateDraft}
         />
       ))}
