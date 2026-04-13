@@ -153,14 +153,36 @@ export default function SettingsPage() {
     setShowSecrets((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
-  function handleConnectionAction(platformName: string, mode: PlatformConnectionMode) {
+  async function handleConnectionAction(platformId: PlatformId, platformName: string, mode: PlatformConnectionMode) {
     setSaved(false);
     setErrorMessage('');
-    setNoticeMessage(
-      mode === 'oauth'
-        ? `${platformName} 授权入口已预留，当前仍可使用下方凭证完成连接。`
-        : `${platformName} 当前使用登录态连接，请在下方完成配置。`,
-    );
+    setNoticeMessage('');
+
+    if (mode !== 'oauth') {
+      setNoticeMessage(`${platformName} 当前使用登录态连接，请在下方完成配置。`);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/platforms/${platformId}/connection/oauth/start`, { method: 'POST' });
+      const data = (await res.json()) as { authUrl?: string; error?: string };
+
+      if (res.status === 501) {
+        // OAuth not yet implemented — guide user to manual credential entry
+        setNoticeMessage(`${platformName} OAuth 授权入口已预留，当前请在下方手动填写 API 凭证完成连接。`);
+        return;
+      }
+
+      if (!res.ok || !data.authUrl) {
+        setErrorMessage(data.error || `${platformName} 授权失败，请稍后重试`);
+        return;
+      }
+
+      // Redirect to the platform's OAuth authorization page
+      window.location.href = data.authUrl;
+    } catch {
+      setErrorMessage(`${platformName} 授权请求失败，请稍后重试`);
+    }
   }
 
   async function handleCheckConnection(platformId: PlatformId) {
@@ -317,7 +339,7 @@ export default function SettingsPage() {
                         <button
                           type="button"
                           className={styles.connectButton}
-                          onClick={() => handleConnectionAction(platform.name, connectionProfile.mode)}
+                          onClick={() => void handleConnectionAction(platform.id, platform.name, connectionProfile.mode)}
                         >
                           {connectionProfile.actionLabel}
                         </button>
