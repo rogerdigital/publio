@@ -395,6 +395,8 @@ export const previewCard = style({
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
   padding: '14px',
+  // 统一卡片高度上限，避免 Thread 等长内容撑开整行
+  alignContent: 'start',
 });
 
 export const previewMeta = style({
@@ -430,10 +432,19 @@ export const previewStateNotReady = style({
 
 export const previewBody = style({
   margin: 0,
-  minHeight: '48px',
   color: vars.color.textMuted,
   fontSize: '13px',
   lineHeight: 1.7,
+});
+
+// 小红书首图缩略图
+export const previewImage = style({
+  width: '100%',
+  height: '120px',
+  objectFit: 'cover',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  display: 'block',
 });
 
 export const previewWarningList = style({
@@ -461,4 +472,7 @@ export const previewThreadList = style({
   color: vars.color.textMuted,
   fontSize: '12px',
   lineHeight: 1.7,
+  maxHeight: '160px',
+  overflowY: 'auto',
+  overscrollBehavior: 'contain',
 });

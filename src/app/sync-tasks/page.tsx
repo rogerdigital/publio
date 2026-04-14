@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import AppShellHeader from '@/components/layout/AppShellHeader';
 import SyncTaskList from '@/components/sync/SyncTaskList';
 import { getSyncHistoryStore } from '@/lib/sync/registry';
@@ -12,6 +14,10 @@ export default function SyncTasksPage() {
 
   return (
     <div className={styles.pageWrap}>
+      <Link className={styles.backLink} href="/">
+        <ArrowLeft size={14} />
+        返回写作台
+      </Link>
       <AppShellHeader
         kicker="Sync history"
         title="分发记录"

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 import AppShellHeader from '@/components/layout/AppShellHeader';
@@ -26,8 +27,9 @@ export default async function SyncTaskDetailPage({ params }: SyncTaskDetailPageP
 
   return (
     <div className={styles.pageWrap}>
-      <Link className={styles.backLink} href="/drafts">
-        返回稿件库
+      <Link className={styles.backLink} href="/sync-tasks">
+        <ArrowLeft size={14} />
+        返回分发记录
       </Link>
       <AppShellHeader
         kicker="Sync history"

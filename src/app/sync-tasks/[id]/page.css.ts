@@ -8,12 +8,15 @@ export const pageWrap = style({
 });
 
 export const backLink = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
   width: 'fit-content',
-  color: vars.color.accent,
-  fontSize: '14px',
-  fontWeight: 600,
+  color: vars.color.textMuted,
+  fontSize: '13px',
   textDecoration: 'none',
+  transition: 'color 150ms',
   ':hover': {
-    color: vars.color.signal,
+    color: vars.color.accent,
   },
 });

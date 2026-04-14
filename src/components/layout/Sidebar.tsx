@@ -3,8 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Files,
-  History,
   Newspaper,
   PenLine,
   Settings2,
@@ -28,18 +26,6 @@ const navItems = [
     label: '写作台',
     description: 'Markdown 写作、排版预览与发布一体化。',
     icon: PenLine,
-  },
-  {
-    href: '/drafts',
-    label: '稿件库',
-    description: '管理草稿、待同步内容与分发记录。',
-    icon: Files,
-  },
-  {
-    href: '/sync-tasks',
-    label: '分发记录',
-    description: '追踪发布结果、重试失败平台与人工处理状态。',
-    icon: History,
   },
   {
     href: '/settings',
