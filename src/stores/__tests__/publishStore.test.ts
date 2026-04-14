@@ -28,23 +28,5 @@ describe('publishStore platform drafts', () => {
     });
   });
 
-  test('supports platform-level draft edits without changing shared content', () => {
-    usePublishStore.getState().setTitle('通用标题');
-    usePublishStore.getState().setContent('通用正文');
-    usePublishStore.getState().syncPlatformDrafts();
 
-    usePublishStore.getState().updatePlatformDraft('xiaohongshu', {
-      title: '小红书标题',
-      body: '小红书正文',
-      suggestedTags: ['AI', '选题'],
-    });
-
-    expect(usePublishStore.getState().title).toBe('通用标题');
-    expect(usePublishStore.getState().content).toBe('通用正文');
-    expect(usePublishStore.getState().platformDrafts.xiaohongshu).toMatchObject({
-      title: '小红书标题',
-      body: '小红书正文',
-      suggestedTags: ['AI', '选题'],
-    });
-  });
 });

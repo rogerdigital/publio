@@ -27,10 +27,6 @@ describe('PublishButton', () => {
     usePublishStore.getState().setTitle('通用标题');
     usePublishStore.getState().setContent('通用正文');
     usePublishStore.getState().syncPlatformDrafts();
-    usePublishStore.getState().updatePlatformDraft('wechat', {
-      title: '公众号标题',
-      body: '公众号正文',
-    });
     const fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -50,8 +46,8 @@ describe('PublishButton', () => {
     const payload = JSON.parse(init.body as string);
 
     expect(payload.platformDrafts.wechat).toMatchObject({
-      title: '公众号标题',
-      content: '公众号正文',
+      title: '通用标题',
+      content: '通用正文',
     });
     expect(payload.platformDrafts.x).toMatchObject({
       title: '通用标题',

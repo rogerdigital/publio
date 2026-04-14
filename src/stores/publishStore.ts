@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { PlatformId, PlatformPublishResult, PLATFORMS, PublishStatus } from '@/types';
 import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
 import type {
-  PlatformContentDraft,
   PlatformContentDrafts,
 } from '@/lib/platformAdapters/types';
 import { resolveOverallPublishStatus } from '@/lib/publishStatus';
@@ -18,10 +17,6 @@ interface PublishStore {
 
   platformDrafts: PlatformContentDrafts;
   syncPlatformDrafts: () => void;
-  updatePlatformDraft: (
-    platform: PlatformId,
-    input: Partial<Pick<PlatformContentDraft, 'title' | 'body' | 'suggestedTags' | 'threadParts'>>,
-  ) => void;
 
   overallStatus: PublishStatus;
   results: PlatformPublishResult[];
@@ -62,16 +57,6 @@ export const usePublishStore = create<PublishStore>((set) => ({
         content: state.content,
         platforms: platformIds,
       }),
-    })),
-  updatePlatformDraft: (platform, input) =>
-    set((state) => ({
-      platformDrafts: {
-        ...state.platformDrafts,
-        [platform]: {
-          ...state.platformDrafts[platform],
-          ...input,
-        },
-      },
     })),
 
   overallStatus: 'idle',

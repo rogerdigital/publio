@@ -26,7 +26,6 @@ function HomePageContent() {
     platforms,
     platformDrafts,
     syncPlatformDrafts,
-    updatePlatformDraft,
     setTitle,
     setContent,
     reset,
@@ -148,7 +147,6 @@ function HomePageContent() {
         <PlatformPreviewPanel
           adaptations={platformDrafts}
           selectedPlatforms={selectedPlatforms}
-          onUpdate={updatePlatformDraft}
         />
 
         {overallStatus !== 'idle' && (
