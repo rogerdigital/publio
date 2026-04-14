@@ -14,6 +14,7 @@ export interface NormalizedAiNewsSignal {
   summary: string;
   link: string;
   imageUrl?: string;
+  articleImages?: string[];
   articleWordCount?: number;
   articleImageCount?: number;
   sourceWeight: number;
@@ -65,8 +66,19 @@ export interface ResearchAngle {
   reason: string;
 }
 
+export interface ResearchPerspective {
+  sourceName: string;
+  sourceType: AiNewsSourceType;
+  title: string;
+  summary: string;
+  imageUrl?: string;
+  link: string;
+  publishedAt: string;
+}
+
 export interface ResearchEvidence {
   label: string;
+  summary?: string;
   sourceName: string;
   link: string;
   imageUrl?: string;
@@ -79,11 +91,13 @@ export interface ResearchBrief {
   title: string;
   bucket: AiNewsBucket;
   imageUrl?: string;
+  articleImages?: string[];
   whatHappened: string;
   whyItMatters: string;
   whoIsAffected: string[];
   recommendedAngles: ResearchAngle[];
   background: string[];
+  perspectives: ResearchPerspective[];
   evidence: ResearchEvidence[];
   scores: AiNewsScores;
   totalScore: number;

@@ -1,5 +1,6 @@
 interface ArticleSnapshot {
   imageUrl: string;
+  imageUrls: string[];
   wordCount?: number;
   imageCount?: number;
 }
@@ -46,6 +47,11 @@ function isLikelyDecorativeImage(url: string) {
   const normalized = url.toLowerCase();
 
   if (!normalized) {
+    return true;
+  }
+
+  // WordPress 主题资源目录
+  if (/\/wp-content\/themes\//i.test(normalized)) {
     return true;
   }
 
@@ -119,9 +125,11 @@ export function extractArticleSnapshotFromHtml(
   const scope = extractMainScope(html);
   const images = extractImageCandidates(scope, pageUrl);
   const metaImage = extractMetaImage(html, pageUrl);
+  const imageUrls = images.length > 0 ? images : (metaImage ? [metaImage] : []);
 
   return {
-    imageUrl: images[0] || metaImage,
+    imageUrl: imageUrls[0] ?? '',
+    imageUrls,
     wordCount: countArticleWords(scope),
     imageCount: images.length > 0 ? images.length : undefined,
   };
@@ -138,13 +146,13 @@ export async function fetchArticleSnapshot(link: string): Promise<ArticleSnapsho
     });
 
     if (!response.ok) {
-      return { imageUrl: '' };
+      return { imageUrl: '', imageUrls: [] };
     }
 
     const html = await response.text();
     return extractArticleSnapshotFromHtml(html, link);
   } catch {
-    return { imageUrl: '' };
+    return { imageUrl: '', imageUrls: [] };
   }
 }
 

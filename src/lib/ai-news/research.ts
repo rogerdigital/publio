@@ -2,6 +2,7 @@ import type {
   ResearchBrief,
   ResearchEvidence,
   ResearchAngle,
+  ResearchPerspective,
   ScoredAiNewsCluster,
 } from '@/lib/ai-news/types';
 
@@ -29,7 +30,22 @@ function buildWhyItMatters(cluster: ScoredAiNewsCluster) {
           ? '平台规则、企业决策和市场预期'
           : '模型能力、产品采用速度和竞争格局';
 
-  return `这不是一条普通动态，因为它直接关系到 ${impactObject}。结合当前 ${topicHeadline(cluster.topicTags)} 的主线，这个话题既有行业影响，也具备被中文内容场继续放大的条件。`;
+  const coverageContext =
+    cluster.coverageCount >= 5
+      ? `已有 ${cluster.coverageCount} 条交叉报道`
+      : `当前 ${cluster.coverageCount} 条来源指向同一事件`;
+
+  const sourceContext =
+    cluster.officialSourceCount > 0 ? '含官方信源' : '来自媒体交叉报道';
+
+  const scoreContext =
+    cluster.scores.impact >= 80
+      ? '影响力评分较高'
+      : cluster.scores.impact >= 60
+        ? '具有一定行业影响'
+        : '短期关注度较强';
+
+  return `${coverageContext}（${sourceContext}），${scoreContext}，直接关系到 ${impactObject}。结合当前 ${topicHeadline(cluster.topicTags)} 主线，具备在中文内容场持续放大的条件。`;
 }
 
 function buildAffectedAudience(cluster: ScoredAiNewsCluster) {
@@ -94,26 +110,75 @@ function buildAngles(cluster: ScoredAiNewsCluster): ResearchAngle[] {
 }
 
 function buildBackground(cluster: ScoredAiNewsCluster) {
-  return [
-    `最近 ${cluster.coverageCount} 条相关报道都指向同一主线：${topicHeadline(cluster.topicTags)}。`,
-    cluster.officialSourceCount > 0
-      ? '当前候选包含官方源，可作为后续写作时的第一手依据。'
-      : '当前候选主要来自媒体交叉报道，适合继续补官方信息确认细节。',
-    cluster.bucket === 'today'
-      ? '它仍然处于今天可以直接切入的时效窗口。'
-      : '它已经过了最早爆点，更适合做背景、影响和竞争格局延展。',
+  const sourceNames = [
+    ...new Set(cluster.signals.slice(0, 4).map((s) => s.sourceName)),
   ];
+
+  return [
+    `当前聚合 ${cluster.coverageCount} 条报道，来源包括：${sourceNames.join('、')}。`,
+    cluster.officialSourceCount > 0
+      ? '含官方信源，可作为写作时的第一手依据。'
+      : '主要来自媒体交叉报道，建议补充官方信息确认细节。',
+    cluster.bucket === 'today'
+      ? `最新更新于 ${new Date(cluster.latestPublishedAt).toLocaleString('zh-CN')}，仍在时效窗口内，适合直接切入。`
+      : `首报于 ${new Date(cluster.earliestPublishedAt).toLocaleString('zh-CN')}，适合做背景、影响和竞争格局延展。`,
+  ];
+}
+
+function buildPerspectives(cluster: ScoredAiNewsCluster): ResearchPerspective[] {
+  return cluster.signals
+    .filter(
+      (s) =>
+        s.link !== cluster.primarySignal.link &&
+        (!!s.imageUrl || !!(s.summary?.trim())),
+    )
+    .slice(0, 3)
+    .map((s) => ({
+      sourceName: s.sourceName,
+      sourceType: s.sourceType,
+      title: s.title,
+      summary: s.summary?.trim() ?? '',
+      imageUrl: s.imageUrl,
+      link: s.link,
+      publishedAt: s.publishedAt,
+    }));
 }
 
 function buildEvidence(cluster: ScoredAiNewsCluster): ResearchEvidence[] {
   return cluster.signals.slice(0, 5).map((signal) => ({
     label: `${signal.sourceName}｜${signal.title}`,
+    summary: signal.summary || '',
     sourceName: signal.sourceName,
     link: signal.link,
     imageUrl: signal.imageUrl,
     publishedAt: signal.publishedAt,
     sourceType: signal.sourceType,
   }));
+}
+
+function truncateSummary(text: string, maxLen = 200): string {
+  if (text.length <= maxLen) return text;
+  // 尝试在句子边界截断（。！？）
+  const cutoff = text.slice(0, maxLen);
+  const lastBreak = Math.max(
+    cutoff.lastIndexOf('。'),
+    cutoff.lastIndexOf('！'),
+    cutoff.lastIndexOf('？'),
+    cutoff.lastIndexOf('. '),
+  );
+  return lastBreak > maxLen * 0.5
+    ? text.slice(0, lastBreak + 1)
+    : `${cutoff.trimEnd()}……`;
+}
+
+function buildWhatHappened(cluster: ScoredAiNewsCluster): string {
+  const primary = cluster.primarySignal;
+  const base = `${primary.sourceName} 报道的核心事件：${primary.title}。`;
+  const summaryPart = primary.summary
+    ? `\n\n> ${truncateSummary(primary.summary)}`
+    : '';
+  const statPart = `\n\n当前已聚合 ${cluster.coverageCount} 条相关报道，最新更新于 ${new Date(cluster.latestPublishedAt).toLocaleString('zh-CN')}。`;
+  return `${base}${summaryPart}${statPart}`;
 }
 
 export function buildResearchBrief(cluster: ScoredAiNewsCluster): ResearchBrief {
@@ -126,11 +191,13 @@ export function buildResearchBrief(cluster: ScoredAiNewsCluster): ResearchBrief 
     title: cluster.title,
     bucket: cluster.bucket,
     imageUrl: leadImageUrl,
-    whatHappened: `${primary.sourceName} 指向的核心事件是：${primary.title}。当前候选窗口内共聚合 ${cluster.coverageCount} 条相关报道，最新更新发生在 ${new Date(cluster.latestPublishedAt).toLocaleString('zh-CN')}。`,
+    articleImages: primary.articleImages,
+    whatHappened: buildWhatHappened(cluster),
     whyItMatters: buildWhyItMatters(cluster),
     whoIsAffected: buildAffectedAudience(cluster),
     recommendedAngles: buildAngles(cluster),
     background: buildBackground(cluster),
+    perspectives: buildPerspectives(cluster),
     evidence: buildEvidence(cluster),
     scores: cluster.scores,
     totalScore: cluster.totalScore,

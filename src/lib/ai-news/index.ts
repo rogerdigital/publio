@@ -134,68 +134,101 @@ function diversifyCandidates(
   return selected;
 }
 
-async function hydrateCandidateImages(candidates: AiNewsDeskCandidate[]) {  const snapshotCache = new Map<string, Promise<ArticleSnapshot>>();
+async function hydrateCandidateImages(candidates: AiNewsDeskCandidate[]) {
+  const snapshotCache = new Map<string, Promise<ArticleSnapshot>>();
+
+  function getOrFetchSnapshot(link: string): Promise<ArticleSnapshot> {
+    if (!snapshotCache.has(link)) {
+      snapshotCache.set(link, fetchArticleSnapshot(link));
+    }
+    return snapshotCache.get(link)!;
+  }
 
   return Promise.all(
     candidates.map(async (candidate) => {
-      const hasImage = candidate.researchBrief.imageUrl || candidate.primarySignal.imageUrl;
-      const hasMetrics =
+      const primaryLink = candidate.primarySignal.link;
+      const hasPrimaryImage = !!(candidate.researchBrief.imageUrl || candidate.primarySignal.imageUrl);
+      const hasPrimaryMetrics =
         typeof candidate.primarySignal.articleWordCount === 'number' ||
         typeof candidate.primarySignal.articleImageCount === 'number';
+      const needsPrimary = !hasPrimaryImage || !hasPrimaryMetrics;
 
-      if (hasImage && hasMetrics) {
+      // 最多补抓 2 条没有图片的次级信号
+      const secondaryTargets = candidate.signals
+        .filter((s) => s.link !== primaryLink && !s.imageUrl)
+        .slice(0, 2);
+
+      if (!needsPrimary && secondaryTargets.length === 0) {
         return candidate;
       }
 
-      const articleLink = candidate.primarySignal.link;
-      let snapshotPromise = snapshotCache.get(articleLink);
-      if (!snapshotPromise) {
-        snapshotPromise = fetchArticleSnapshot(articleLink);
-        snapshotCache.set(articleLink, snapshotPromise);
-      }
+      // 主信号和次级信号并行抓取
+      const [primarySnapshot, ...secondarySnapshots] = await Promise.all([
+        needsPrimary
+          ? getOrFetchSnapshot(primaryLink)
+          : Promise.resolve<ArticleSnapshot>({ imageUrl: '', imageUrls: [] }),
+        ...secondaryTargets.map((s) => getOrFetchSnapshot(s.link)),
+      ]);
 
-      const snapshot = await snapshotPromise;
-      const imageUrl = snapshot.imageUrl || candidate.researchBrief.imageUrl || candidate.primarySignal.imageUrl;
-      const articleWordCount = snapshot.wordCount ?? candidate.primarySignal.articleWordCount;
-      const articleImageCount =
-        snapshot.imageCount ?? candidate.primarySignal.articleImageCount;
+      const primaryImageUrl = needsPrimary
+        ? (primarySnapshot.imageUrl || candidate.researchBrief.imageUrl || candidate.primarySignal.imageUrl)
+        : (candidate.primarySignal.imageUrl || candidate.researchBrief.imageUrl);
+      const articleWordCount = needsPrimary
+        ? (primarySnapshot.wordCount ?? candidate.primarySignal.articleWordCount)
+        : candidate.primarySignal.articleWordCount;
+      const articleImageCount = needsPrimary
+        ? (primarySnapshot.imageCount ?? candidate.primarySignal.articleImageCount)
+        : candidate.primarySignal.articleImageCount;
 
-      if (!imageUrl && typeof articleWordCount !== 'number' && typeof articleImageCount !== 'number') {
+      const secondaryImageMap = new Map(
+        secondaryTargets
+          .map((s, i) => [s.link, secondarySnapshots[i]?.imageUrl ?? ''] as const)
+          .filter(([, img]) => !!img),
+      );
+
+      if (
+        !primaryImageUrl &&
+        secondaryImageMap.size === 0 &&
+        typeof articleWordCount !== 'number' &&
+        typeof articleImageCount !== 'number'
+      ) {
         return candidate;
       }
+
+      const updatedSignals = candidate.signals.map((signal) => {
+        if (signal.link === primaryLink) {
+          return {
+            ...signal,
+            imageUrl: primaryImageUrl,
+            articleImages: needsPrimary ? primarySnapshot.imageUrls : signal.articleImages,
+            articleWordCount,
+            articleImageCount,
+          };
+        }
+        const secImage = secondaryImageMap.get(signal.link);
+        return secImage ? { ...signal, imageUrl: secImage } : signal;
+      });
+
+      const updatedPrimary =
+        updatedSignals.find((s) => s.link === primaryLink) ?? candidate.primarySignal;
 
       return {
         ...candidate,
-        primarySignal: {
-          ...candidate.primarySignal,
-          imageUrl,
-          articleWordCount,
-          articleImageCount,
-        },
-        signals: candidate.signals.map((signal) =>
-          signal.link === articleLink &&
-          (!signal.imageUrl ||
-            typeof signal.articleWordCount !== 'number' ||
-            typeof signal.articleImageCount !== 'number')
-            ? {
-                ...signal,
-                imageUrl,
-                articleWordCount,
-                articleImageCount,
-              }
-            : signal,
-        ),
+        primarySignal: updatedPrimary,
+        signals: updatedSignals,
         researchBrief: {
           ...candidate.researchBrief,
-          imageUrl,
-          evidence: candidate.researchBrief.evidence.map((entry) =>
-            entry.link === articleLink && !entry.imageUrl
-              ? {
-                  ...entry,
-                  imageUrl,
-                }
-              : entry,
-          ),
+          imageUrl: primaryImageUrl || candidate.researchBrief.imageUrl,
+          articleImages: needsPrimary
+            ? primarySnapshot.imageUrls
+            : candidate.researchBrief.articleImages,
+          evidence: candidate.researchBrief.evidence.map((entry) => {
+            if (entry.link === primaryLink) {
+              return { ...entry, imageUrl: primaryImageUrl || entry.imageUrl };
+            }
+            const secImage = secondaryImageMap.get(entry.link);
+            return secImage && !entry.imageUrl ? { ...entry, imageUrl: secImage } : entry;
+          }),
         },
       };
     }),
