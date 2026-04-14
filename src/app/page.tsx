@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, Files, SquarePen } from 'lucide-react';
+import { Eye, Files, SquarePen, Eraser } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import AppShellHeader from '@/components/layout/AppShellHeader';
 import MarkdownEditor from '@/components/editor/MarkdownEditor';
@@ -126,6 +126,15 @@ function HomePageContent() {
             </div>
             <button
               type="button"
+              onClick={handleNewDraft}
+              className={styles.newDraftButton}
+              title="清空写作台"
+            >
+              <Eraser size={15} />
+              清空
+            </button>
+            <button
+              type="button"
               onClick={() => setIsPanelOpen((v) => !v)}
               className={styles.panelToggle({ active: isPanelOpen })}
               title={isPanelOpen ? '收起草稿' : '展开草稿'}
@@ -138,13 +147,6 @@ function HomePageContent() {
       />
 
       <div className={styles.editorLayout}>
-        <div
-          className={styles.panelOuter}
-          style={{ width: isPanelOpen ? '216px' : 0 }}
-        >
-          <DraftPanel onNewDraft={handleNewDraft} />
-        </div>
-
         <div className={styles.editorSection}>
           {draftLoadError ? (
             <div className={styles.draftLoadError} role="status">
@@ -183,6 +185,13 @@ function HomePageContent() {
           {overallStatus !== 'idle' && (
             <PublishStatusPanel />
           )}
+        </div>
+
+        <div
+          className={styles.panelOuter}
+          style={{ width: isPanelOpen ? '216px' : 0 }}
+        >
+          <DraftPanel onNewDraft={handleNewDraft} />
         </div>
       </div>
     </div>

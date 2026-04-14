@@ -132,6 +132,25 @@ export const headerActions = style({
   gap: '8px',
 });
 
+export const newDraftButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: 'transparent',
+  padding: '6px 10px',
+  fontSize: '14px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'background-color 150ms, color 150ms, border-color 150ms',
+  ':hover': {
+    background: vars.color.canvasDeep,
+    color: vars.color.text,
+    borderColor: vars.color.borderStrong,
+  },
+});
+
 // 面板切换按钮，仅桌面端显示（带文字标签，避免与复制按钮混淆）
 export const panelToggle = recipe({
   base: {
