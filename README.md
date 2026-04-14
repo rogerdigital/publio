@@ -9,9 +9,9 @@
 - **Markdown 写作台** — 桌面端使用 MDEditor 富编辑器，移动端降级为原生 textarea，底部实时显示字符数、段落数、标题层级与预计阅读时长
 - **成稿预览** — 切换到预览 tab 可查看接近公众号排版的最终效果，标题、h2/h3、引用块、行内代码均有独立样式
 - **Editorial context 卡片** — 标题写入状态、结构统计四格、可发布建议，始终与编辑器共存
-- **草稿库** — 持久化存储所有草稿（来源：手动创建 / AI 选题转稿 / 导入），支持状态跟踪（draft → ready → synced），可从写作台一键保存或从草稿库继续编辑
-- **AI 选题工作台** — 手动触发抓取，从 9 个 RSS 数据源拉取 24 小时内容，经标准化 → 聚类 → 多维评分后输出最多 10 条候选题，每条附带研究底稿（事件经过、重要性、影响方、写作切口建议）
-- **一键转稿** — 从工作台直接将研究底稿导入写作台，继续润色后发布
+- **草稿库** — 持久化存储所有草稿（来源：手动创建 / AI 选题转稿 / 导入），支持状态跟踪（draft → ready → synced）；稿件库页（`/drafts`）以「来源 → 写作台 → 分发」pipeline 行展示全部稿件，支持多选批量删除；写作台侧边草稿面板可快速切换草稿，同样支持编辑模式删除
+- **AI 选题工作台** — 手动触发抓取，从 9 个 RSS 数据源拉取 24 小时内容，经标准化 → 聚类 → 多维评分后输出最多 10 条候选题；每条附带研究底稿（事件经过、重要性、影响方、写作切口建议），底稿内嵌原文多张配图及其他来源报道视角
+- **一键转稿** — 从工作台直接将研究底稿导入写作台，底稿携带多图和多方视角，继续润色后发布；写作台支持「清空」一键重置编辑器
 - **多平台并发发布** — 基于 `Promise.allSettled` 并发执行，支持微信公众号、小红书、知乎、X (Twitter) 四大平台
 - **同步任务追踪** — 每次发布生成一条同步任务记录，包含各平台进度回执、失败原因、下一步建议（重新授权 / 修复内容 / 打开平台等）；支持重试与手动标记完成
 - **平台连接管理** — 设置页统一管理各平台凭证；OAuth 平台支持一键授权跳转，微信 / X 支持凭证验证；连接状态持久化，展示上次验证时间与账号信息
@@ -39,7 +39,9 @@ src/
 │   ├── layout.tsx / layout.css.ts       # 根布局（侧边栏 + 主内容区）
 │   ├── page.tsx / page.css.ts           # 写作台：编辑器 + 平台选择 + 发布
 │   ├── drafts/
-│   │   └── page.tsx / page.css.ts       # 草稿库页
+│   │   ├── page.tsx                     # 稿件库页（metadata + 入口）
+│   │   ├── DraftsPageClient.tsx         # 稿件库客户端（编辑模式状态）
+│   │   └── drafts.page.css.ts           # 稿件库页样式
 │   ├── ai-news/
 │   │   ├── page.tsx                     # 选题工作台页（SSR metadata）
 │   │   └── error.tsx / error.css.ts     # 错误边界
@@ -72,8 +74,9 @@ src/
 │   │   └── PageSection.tsx / PageSection.css.ts
 │   ├── editor/
 │   │   ├── MarkdownEditor.tsx / editor.css.ts   # MDEditor + 预览区
+│   │   ├── DraftPanel.tsx / DraftPanel.css.ts   # 右侧草稿面板（含编辑模式）
 │   │   ├── EditorialContextCard.tsx             # 编辑上下文卡片
-│   │   └── RecentDraftBar.tsx                   # 最近草稿快速入口
+│   │   └── RecentDraftBar.tsx                   # 最近草稿快速入口（移动端）
 │   ├── drafts/
 │   │   └── DraftLibraryClient.tsx / drafts.css.ts
 │   ├── news/
