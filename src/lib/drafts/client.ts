@@ -31,3 +31,11 @@ export async function createDraft(input: CreateDraftInput) {
 
   return data.draft;
 }
+
+export async function deleteDraft(id: string) {
+  const response = await fetch(`/api/drafts/${id}`, { method: 'DELETE' });
+  if (!response.ok) {
+    const data = (await response.json()) as { error?: string };
+    throw new Error(data.error || '稿件删除失败，请稍后重试。');
+  }
+}

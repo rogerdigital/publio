@@ -359,10 +359,6 @@ export const loadingPlaceholder = style({
 export const previewPanel = style({
   display: 'grid',
   gap: '16px',
-  borderRadius: vars.radius.xl,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
-  padding: '16px',
 });
 
 export const previewHeader = style({

@@ -1,4 +1,5 @@
 import { style } from '@vanilla-extract/css';
+import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/styles/tokens.css';
 
 export const draftList = style({
@@ -286,4 +287,200 @@ export const pipelineStepLink = style({
 export const pipelineArrow = style({
   color: vars.color.textMuted,
   flexShrink: 0,
+});
+
+export const deleteErrorText = style({
+  fontSize: '13px',
+  color: vars.color.errorText,
+});
+
+// Pipeline card (normal mode)
+export const pipelineCard = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  flexWrap: 'wrap',
+  padding: '4px 0',
+});
+
+// Pipeline card (edit/selectable mode)
+export const pipelineRowSelectable = recipe({
+  base: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    flexWrap: 'wrap',
+    borderRadius: vars.radius.lg,
+    padding: '4px 6px',
+    cursor: 'pointer',
+    transition: 'background-color 150ms',
+  },
+  variants: {
+    selected: {
+      true: {
+        background: vars.color.accentSoft,
+      },
+      false: {
+        ':hover': {
+          background: 'rgba(0,0,0,0.03)',
+        },
+      },
+    },
+  },
+  defaultVariants: { selected: false },
+});
+
+// Edit mode toolbar
+export const editModeBar = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '12px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.bgElevated,
+  padding: '10px 14px',
+});
+
+export const editModeBarLeft = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+});
+
+export const editModeBarRight = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+});
+
+export const editModeCount = style({
+  fontSize: '13px',
+  color: vars.color.textMuted,
+});
+
+export const editModeDeleteButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.errorBorder}`,
+  background: vars.color.errorBg,
+  padding: '6px 12px',
+  fontSize: '13px',
+  fontWeight: 500,
+  color: vars.color.errorText,
+  cursor: 'pointer',
+  transition: 'opacity 150ms',
+  selectors: {
+    '&:disabled': {
+      opacity: 0.4,
+      cursor: 'not-allowed',
+    },
+  },
+});
+
+export const editModeCancelButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: 'transparent',
+  padding: '6px 12px',
+  fontSize: '13px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'color 150ms, border-color 150ms',
+  ':hover': {
+    color: vars.color.text,
+    borderColor: vars.color.borderStrong,
+  },
+});
+
+export const draftCardSelectable = recipe({
+  base: {
+    display: 'grid',
+    gap: '18px',
+    borderRadius: vars.radius.xl,
+    border: `1px solid ${vars.color.border}`,
+    background: vars.color.surface,
+    padding: '18px',
+    cursor: 'pointer',
+    transition: 'border-color 150ms, background-color 150ms',
+    '@media': {
+      'screen and (min-width: 760px)': {
+        gridTemplateColumns: 'auto minmax(0, 1fr) auto',
+        alignItems: 'center',
+      },
+    },
+  },
+  variants: {
+    selected: {
+      true: {
+        borderColor: vars.color.accent,
+        background: vars.color.accentSoft,
+      },
+      false: {
+        ':hover': {
+          borderColor: vars.color.borderStrong,
+        },
+      },
+    },
+  },
+  defaultVariants: { selected: false },
+});
+
+export const draftCardCheckbox = style({
+  flexShrink: 0,
+  width: '18px',
+  height: '18px',
+  borderRadius: '4px',
+  border: `2px solid ${vars.color.borderStrong}`,
+  background: vars.color.bgElevated,
+  appearance: 'none',
+  cursor: 'pointer',
+  position: 'relative',
+  selectors: {
+    '&:checked': {
+      background: vars.color.accent,
+      borderColor: vars.color.accent,
+    },
+    '&:checked::after': {
+      content: '""',
+      position: 'absolute',
+      left: '3px',
+      top: '1px',
+      width: '8px',
+      height: '5px',
+      borderLeft: `2px solid #ffffff`,
+      borderBottom: `2px solid #ffffff`,
+      transform: 'rotate(-45deg)',
+    },
+  },
+});
+
+export const listHeader = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '8px',
+});
+
+export const editToggleButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: 'transparent',
+  padding: '6px 10px',
+  fontSize: '13px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'color 150ms, border-color 150ms',
+  ':hover': {
+    color: vars.color.text,
+    borderColor: vars.color.borderStrong,
+  },
 });

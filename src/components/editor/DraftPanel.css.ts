@@ -5,8 +5,8 @@ import { vars } from '@/styles/tokens.css';
 export const panel = style({
   display: 'flex',
   flexDirection: 'column',
+  width: '216px',
   height: '100%',
-  minHeight: '480px',
   background: vars.color.canvasDeep,
   borderRadius: vars.radius.xl,
   overflow: 'hidden',
@@ -150,4 +150,85 @@ export const footerLink = style({
   ':hover': {
     color: vars.color.accent,
   },
+});
+
+// Edit mode action buttons in header
+export const editActionBtn = recipe({
+  base: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '3px',
+    borderRadius: '5px',
+    border: '1px solid transparent',
+    padding: '3px 7px',
+    fontSize: '11px',
+    fontWeight: 500,
+    cursor: 'pointer',
+    transition: 'opacity 150ms',
+    selectors: {
+      '&:disabled': {
+        opacity: 0.4,
+        cursor: 'not-allowed',
+      },
+    },
+  },
+  variants: {
+    variant: {
+      cancel: {
+        background: 'transparent',
+        borderColor: vars.color.border,
+        color: vars.color.textMuted,
+        ':hover': {
+          color: vars.color.text,
+          borderColor: vars.color.borderStrong,
+        },
+      },
+      delete: {
+        background: vars.color.errorBg,
+        borderColor: vars.color.errorBorder,
+        color: vars.color.errorText,
+      },
+    },
+  },
+});
+
+// Selectable item in edit mode
+export const itemSelectable = recipe({
+  base: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    borderRadius: vars.radius.lg,
+    padding: '7px 10px',
+    cursor: 'pointer',
+    marginBottom: '1px',
+    transition: 'background-color 150ms',
+  },
+  variants: {
+    selected: {
+      true: {
+        background: vars.color.accentSoft,
+      },
+      false: {
+        ':hover': {
+          background: 'rgba(0,0,0,0.04)',
+        },
+      },
+    },
+  },
+  defaultVariants: { selected: false },
+});
+
+export const itemCheckbox = style({
+  flexShrink: 0,
+  width: '14px',
+  height: '14px',
+  borderRadius: '3px',
+  accentColor: vars.color.accent,
+  cursor: 'pointer',
+});
+
+export const itemBody = style({
+  minWidth: 0,
+  flex: 1,
 });

@@ -7,6 +7,7 @@ import {
   PenLine,
   Settings2,
   ArrowRight,
+  Library,
 } from 'lucide-react';
 import { Dancing_Script } from 'next/font/google';
 import { cn } from '@/lib/cn';
@@ -26,6 +27,12 @@ const navItems = [
     label: '写作台',
     description: 'Markdown 写作、排版预览与发布一体化。',
     icon: PenLine,
+  },
+  {
+    href: '/drafts',
+    label: '稿件库',
+    description: '管理所有草稿，追踪从选题到分发的完整链路。',
+    icon: Library,
   },
   {
     href: '/settings',

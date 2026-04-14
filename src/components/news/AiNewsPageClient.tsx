@@ -140,14 +140,21 @@ export default function AiNewsPageClient() {
         {
           title: item.title,
           imageUrl: item.researchBrief.imageUrl,
+          articleImages: item.researchBrief.articleImages,
           whyNow: item.whyNow,
           whatHappened: item.researchBrief.whatHappened,
           whyItMatters: item.researchBrief.whyItMatters,
           whoIsAffected: item.researchBrief.whoIsAffected,
           recommendedAngles: item.researchBrief.recommendedAngles,
           background: item.researchBrief.background,
+          perspectives: item.researchBrief.perspectives.map((p) => ({
+            ...p,
+            publishedAt: formatDateTime(p.publishedAt),
+          })),
           evidence: item.researchBrief.evidence.map((entry) => ({
-            ...entry,
+            label: entry.label,
+            sourceName: entry.sourceName,
+            link: entry.link,
             publishedAt: formatDateTime(entry.publishedAt),
           })),
         },
