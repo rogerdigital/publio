@@ -34,6 +34,19 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   pipelineStepLabel: 'pipelineStepLabel',
   pipelineStepLink: 'pipelineStepLink',
   pipelineArrow: 'pipelineArrow',
+  pipelineCard: 'pipelineCard',
+  pipelineRowSelectable: (variants: { selected?: boolean }) =>
+    variants?.selected ? 'pipelineRowSelectable-selected' : 'pipelineRowSelectable',
+  editModeBar: 'editModeBar',
+  editModeBarLeft: 'editModeBarLeft',
+  editModeBarRight: 'editModeBarRight',
+  editModeCount: 'editModeCount',
+  editModeDeleteButton: 'editModeDeleteButton',
+  editModeCancelButton: 'editModeCancelButton',
+  draftCardCheckbox: 'draftCardCheckbox',
+  deleteErrorText: 'deleteErrorText',
+  listHeader: 'listHeader',
+  editToggleButton: 'editToggleButton',
 }));
 
 describe('DraftLibraryClient', () => {
@@ -83,23 +96,25 @@ describe('DraftLibraryClient', () => {
       })),
     );
 
-    render(createElement(DraftLibraryClient));
+    render(createElement(DraftLibraryClient, { isEditMode: false, onExitEditMode: vi.fn() }));
 
-    // Title appears in both the pipeline section and the draft card
+    // Title appears in the pipeline step label
     await waitFor(() => {
       expect(screen.getAllByText('AI 话题稿件').length).toBeGreaterThan(0);
     });
-    expect(screen.getByText('待同步')).toBeInTheDocument();
+    // Status label for 'ready' draft
+    expect(screen.getByText('待同步，去编辑')).toBeInTheDocument();
+    // Source label for 'ai-news'
     expect(screen.getByText('AI 选题')).toBeInTheDocument();
-    expect(screen.getByText('最近分发：部分完成')).toBeInTheDocument();
-    expect(screen.getByText((_, node) => (
-      node?.textContent?.startsWith('2 个平台，更新于 2026年4月11日') === true
-    ))).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: '查看分发详情' })).toHaveAttribute(
+    // Sync task status label for 'partial'
+    expect(screen.getByText('部分完成')).toBeInTheDocument();
+    // Link to sync task detail
+    expect(screen.getByRole('link', { name: '查看详情' })).toHaveAttribute(
       'href',
       '/sync-tasks/sync-1',
     );
-    expect(screen.getByRole('link', { name: '继续编辑 AI 话题稿件' })).toHaveAttribute(
+    // Link to edit draft
+    expect(screen.getByRole('link', { name: '待同步，去编辑' })).toHaveAttribute(
       'href',
       '/?draftId=draft-1',
     );
@@ -117,7 +132,7 @@ describe('DraftLibraryClient', () => {
       }),
     );
 
-    render(createElement(DraftLibraryClient));
+    render(createElement(DraftLibraryClient, { isEditMode: false, onExitEditMode: vi.fn() }));
 
     await waitFor(() => {
       expect(screen.getByText('还没有稿件')).toBeInTheDocument();

@@ -35,7 +35,7 @@ describe('buildResearchDraftMarkdown', () => {
     });
 
     expect(markdown).toContain(
-      '![OpenAI 发布新模型 GPT-X](https://openai.com/images/gpt-x-cover.jpg)',
+      '![](https://openai.com/images/gpt-x-cover.jpg)',
     );
   });
 });
