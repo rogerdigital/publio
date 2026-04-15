@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { usePublishStore } from '@/stores/publishStore';
 import { PlatformId, PublishResponse } from '@/types';
 import { SendHorizonal, Loader2, AlertCircle } from 'lucide-react';
@@ -14,9 +13,17 @@ const platformLabels: Record<PlatformId, string> = {
 };
 
 export default function PublishButton() {
-  const router = useRouter();
-  const { title, content, platforms, platformDrafts, overallStatus, setPublishing, setResults } =
-    usePublishStore();
+  const {
+    title,
+    content,
+    platforms,
+    platformDrafts,
+    overallStatus,
+    setPublishing,
+    setResults,
+    setLastSyncTaskId,
+    openProgressOverlay,
+  } = usePublishStore();
 
   const selectedPlatforms = (
     Object.entries(platforms) as [PlatformId, boolean][]
@@ -68,8 +75,9 @@ export default function PublishButton() {
 
       if (!('syncTaskId' in data)) throw new Error('发布结果格式异常，请稍后重试');
 
-      // Immediately navigate to the sync task detail page
-      router.push(`/sync-tasks/${data.syncTaskId}`);
+      // 原地显示发布进度浮层，不跳转
+      setLastSyncTaskId(data.syncTaskId);
+      openProgressOverlay();
     } catch (error) {
       setResults(
         selectedPlatforms.map((p) => ({
