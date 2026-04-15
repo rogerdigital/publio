@@ -8,6 +8,7 @@ import {
   Settings2,
   ArrowRight,
   Library,
+  Send,
 } from 'lucide-react';
 import { Dancing_Script } from 'next/font/google';
 import { cn } from '@/lib/cn';
@@ -33,6 +34,12 @@ const navItems = [
     label: '稿件库',
     description: '管理所有草稿，追踪从选题到分发的完整链路。',
     icon: Library,
+  },
+  {
+    href: '/sync-tasks',
+    label: '分发记录',
+    description: '查看各平台发布回执、失败原因与重试入口。',
+    icon: Send,
   },
   {
     href: '/settings',
