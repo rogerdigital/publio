@@ -8,6 +8,28 @@ export const selectorWrap = style({
   gap: '8px',
 });
 
+export const selectorFooter = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginTop: '8px',
+  fontSize: '12px',
+  color: vars.color.textMuted,
+});
+
+export const selectorToggleAll = style({
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  fontSize: '12px',
+  color: vars.color.accent,
+  cursor: 'pointer',
+  transition: 'color 150ms',
+  ':hover': {
+    color: vars.color.signal,
+  },
+});
+
 export const platformLabel = recipe({
   base: {
     display: 'inline-flex',

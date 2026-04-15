@@ -17,6 +17,7 @@ interface PublishStore {
 
   platforms: Record<PlatformId, boolean>;
   togglePlatform: (id: PlatformId) => void;
+  setAllPlatforms: (checked: boolean) => void;
 
   platformDrafts: PlatformContentDrafts;
   syncPlatformDrafts: () => void;
@@ -59,6 +60,10 @@ export const usePublishStore = create<PublishStore>((set) => ({
   togglePlatform: (id) =>
     set((state) => ({
       platforms: { ...state.platforms, [id]: !state.platforms[id] },
+    })),
+  setAllPlatforms: (checked) =>
+    set(() => ({
+      platforms: Object.fromEntries(platformIds.map((id) => [id, checked])) as Record<PlatformId, boolean>,
     })),
 
   platformDrafts: emptyPlatformDrafts,
