@@ -12,6 +12,7 @@ import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
 import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
+import * as publishStyles from '@/components/publish/publish.css';
 import {
   NEWS_DRAFT_STORAGE_KEY,
   type NewsDraftPayload,
@@ -195,28 +196,33 @@ function HomePageContent() {
           </div>
 
           <div className={styles.rightPanel}>
-            <PlatformSelector />
+            <div className={publishStyles.rightPanelSection}>
+              <span className={publishStyles.rightPanelSectionTitle}>发布到</span>
+              <PlatformSelector />
+            </div>
 
             <PlatformPreviewPanel
               adaptations={platformDrafts}
               selectedPlatforms={selectedPlatforms}
             />
 
-            <div className={styles.publishRight}>
-              {overallStatus !== 'idle' && overallStatus !== 'publishing' && (
-                <button
-                  onClick={reset}
-                  className={styles.resetLink}
-                >
-                  清除结果
-                </button>
-              )}
-              <PublishButton />
-            </div>
+            <div className={publishStyles.rightPanelSection}>
+              <div className={styles.publishRight}>
+                {overallStatus !== 'idle' && overallStatus !== 'publishing' && (
+                  <button
+                    onClick={reset}
+                    className={styles.resetLink}
+                  >
+                    清除结果
+                  </button>
+                )}
+                <PublishButton />
+              </div>
 
-            {overallStatus !== 'idle' && (
-              <PublishStatusPanel />
-            )}
+              {overallStatus !== 'idle' && (
+                <PublishStatusPanel />
+              )}
+            </div>
           </div>
         </div>
       </div>
