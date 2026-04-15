@@ -21,6 +21,9 @@ export const vars = createGlobalTheme(':root', {
     errorBg:       '#fff4f4',
     errorBorder:   '#f4c1c1',
     errorText:     '#bf4b4b',
+    warningBg:     '#fff8f0',
+    warningBorder: '#fcd9a0',
+    warningText:   '#b45309',
   },
   radius: {
     xl: '12px',

@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css';
+import { style, styleVariants } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/styles/tokens.css';
 
@@ -483,4 +483,77 @@ export const editToggleButton = style({
     color: vars.color.text,
     borderColor: vars.color.borderStrong,
   },
+});
+
+// 分发状态步骤变体（按状态显示不同颜色徽标）
+export const syncStatusStepVariants = styleVariants({
+  default: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    borderRadius: vars.radius.lg,
+    border: `1px solid ${vars.color.border}`,
+    background: vars.color.bgElevated,
+    padding: '8px 12px',
+    minWidth: '120px',
+  },
+  syncing: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    borderRadius: vars.radius.lg,
+    border: `1px solid ${vars.color.warningBorder}`,
+    background: vars.color.warningBg,
+    padding: '8px 12px',
+    minWidth: '120px',
+  },
+  completed: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    borderRadius: vars.radius.lg,
+    border: `1px solid ${vars.color.successBorder}`,
+    background: vars.color.successBg,
+    padding: '8px 12px',
+    minWidth: '120px',
+  },
+  failed: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    borderRadius: vars.radius.lg,
+    border: `1px solid ${vars.color.errorBorder}`,
+    background: vars.color.errorBg,
+    padding: '8px 12px',
+    minWidth: '120px',
+  },
+  'needs-action': {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    borderRadius: vars.radius.lg,
+    border: `1px solid ${vars.color.warningBorder}`,
+    background: vars.color.warningBg,
+    padding: '8px 12px',
+    minWidth: '120px',
+  },
+  partial: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    borderRadius: vars.radius.lg,
+    border: `1px solid ${vars.color.warningBorder}`,
+    background: vars.color.warningBg,
+    padding: '8px 12px',
+    minWidth: '120px',
+  },
+});
+
+export const syncStatusLabelVariants = styleVariants({
+  default: { fontSize: '13px', fontWeight: 500, color: vars.color.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  syncing: { fontSize: '13px', fontWeight: 500, color: vars.color.warningText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  completed: { fontSize: '13px', fontWeight: 500, color: vars.color.successText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  failed: { fontSize: '13px', fontWeight: 500, color: vars.color.errorText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  'needs-action': { fontSize: '13px', fontWeight: 500, color: vars.color.warningText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  partial: { fontSize: '13px', fontWeight: 500, color: vars.color.warningText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
 });

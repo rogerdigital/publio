@@ -285,29 +285,34 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
 
               <ArrowRightCircle size={14} className={styles.pipelineArrow} />
 
-              <div className={styles.pipelineStep}>
-                <span className={styles.pipelineStepIcon}>
-                  <FileText size={14} />
-                </span>
-                <div className={styles.pipelineStepContent}>
-                  {syncTask ? (
-                    <>
-                      <span className={styles.pipelineStepLabel}>
-                        {syncStatusLabels[syncTask.status]}
-                      </span>
-                      <Link
-                        href={`/sync-tasks/${syncTask.id}`}
-                        className={styles.pipelineStepLink}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        查看详情
-                      </Link>
-                    </>
-                  ) : (
-                    <span className={styles.pipelineStepLabel}>尚未分发</span>
-                  )}
+              {syncTask ? (
+                <div className={styles.syncStatusStepVariants[syncTask.status in styles.syncStatusStepVariants ? syncTask.status as keyof typeof styles.syncStatusStepVariants : 'default']}>
+                  <span className={styles.pipelineStepIcon}>
+                    <FileText size={14} />
+                  </span>
+                  <div className={styles.pipelineStepContent}>
+                    <span className={styles.syncStatusLabelVariants[syncTask.status in styles.syncStatusLabelVariants ? syncTask.status as keyof typeof styles.syncStatusLabelVariants : 'default']}>
+                      {syncStatusLabels[syncTask.status]}
+                    </span>
+                    <Link
+                      href={`/sync-tasks/${syncTask.id}`}
+                      className={styles.pipelineStepLink}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      查看详情
+                    </Link>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className={styles.syncStatusStepVariants.default}>
+                  <span className={styles.pipelineStepIcon}>
+                    <FileText size={14} />
+                  </span>
+                  <div className={styles.pipelineStepContent}>
+                    <span className={styles.syncStatusLabelVariants.default}>尚未分发</span>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
