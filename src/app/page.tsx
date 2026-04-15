@@ -17,6 +17,7 @@ import {
   type NewsDraftPayload,
 } from '@/lib/newsDraft';
 import { fetchDraftById } from '@/lib/drafts/client';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import type { PlatformId } from '@/types';
 import * as styles from './page.css';
 
@@ -31,6 +32,8 @@ function HomePageContent() {
     setContent,
     reset,
     overallStatus,
+    currentDraftId,
+    setCurrentDraftId,
   } = usePublishStore();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,12 +47,25 @@ function HomePageContent() {
     [platforms],
   );
 
+  const handleDraftCreated = useCallback((id: string) => {
+    setCurrentDraftId(id);
+    router.replace(`/?draftId=${id}`);
+  }, [setCurrentDraftId, router]);
+
+  const { saveStatus } = useAutoSave({
+    title,
+    content,
+    draftId: currentDraftId,
+    onDraftCreated: handleDraftCreated,
+  });
+
   const handleNewDraft = useCallback(() => {
     setTitle('');
     setContent('');
+    setCurrentDraftId(null);
     reset();
-    router.push('/');
-  }, [reset, router, setContent, setTitle]);
+    router.replace('/');
+  }, [reset, router, setContent, setTitle, setCurrentDraftId]);
 
   useEffect(() => {
     syncPlatformDrafts();
@@ -84,6 +100,7 @@ function HomePageContent() {
         if (cancelled) return;
         setTitle(draft.title);
         setContent(draft.content);
+        setCurrentDraftId(selectedDraftId);
         reset();
       } catch (error) {
         if (!cancelled) {
@@ -96,7 +113,7 @@ function HomePageContent() {
     return () => {
       cancelled = true;
     };
-  }, [reset, searchParams, setContent, setTitle]);
+  }, [reset, searchParams, setContent, setTitle, setCurrentDraftId]);
 
   return (
     <div className={styles.pageWrap}>
@@ -106,6 +123,12 @@ function HomePageContent() {
         description="在一个界面里完成写作、排版预览与多平台分发。"
         action={
           <div className={styles.headerActions}>
+            {saveStatus === 'saving' && (
+              <span className={styles.saveStatusHint}>保存中…</span>
+            )}
+            {saveStatus === 'saved' && (
+              <span className={styles.saveStatusHint}>已自动保存</span>
+            )}
             <div className={styles.tabSwitcher}>
               <button
                 type="button"

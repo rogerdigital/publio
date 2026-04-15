@@ -193,3 +193,15 @@ export const panelToggle = recipe({
   },
   defaultVariants: { active: false },
 });
+
+// 自动保存状态提示
+export const saveStatusHint = style({
+  fontSize: '13px',
+  color: vars.color.textMuted,
+  display: 'none',
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      display: 'inline',
+    },
+  },
+});
