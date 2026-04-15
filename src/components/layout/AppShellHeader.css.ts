@@ -4,7 +4,9 @@ import { vars } from '@/styles/tokens.css';
 export const header = style({
   width: '100%',
   paddingTop: '8px',
-  paddingBottom: '8px',
+  paddingBottom: '16px',
+  marginBottom: '4px',
+  borderBottom: `1px solid ${vars.color.border}`,
 });
 
 export const inner = style({
