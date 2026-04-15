@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Clock3, ExternalLink, FileUp, ChevronDown, CheckCircle2 } from 'lucide-react';
 
 import SurfaceCard from '@/components/layout/SurfaceCard';
@@ -12,6 +11,8 @@ interface TopicSignalCardProps {
   relativeLabel: string;
   formattedDate: string;
   draftId?: string;
+  showBrief: boolean;
+  onBriefToggle: (open: boolean) => void;
   onCreateDraft: (item: AiNewsDeskCandidate) => void;
 }
 
@@ -32,9 +33,10 @@ export default function TopicSignalCard({
   relativeLabel,
   formattedDate,
   draftId,
+  showBrief,
+  onBriefToggle,
   onCreateDraft,
 }: TopicSignalCardProps) {
-  const [showBrief, setShowBrief] = useState(false);
   const brief = item.researchBrief;
   const metrics = formatArticleMetrics(
     item.primarySignal.articleWordCount,
@@ -129,7 +131,7 @@ export default function TopicSignalCard({
             </a>
             <button
               type="button"
-              onClick={() => setShowBrief((v) => !v)}
+              onClick={() => onBriefToggle(!showBrief)}
               className={styles.actionButton({ variant: 'secondary' })}
             >
               <ChevronDown

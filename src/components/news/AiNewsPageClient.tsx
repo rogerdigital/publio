@@ -93,6 +93,8 @@ interface NewsState {
   totalCandidates: number;
 }
 let cachedNewsState: NewsState | null = null;
+// 模块级缓存：保持卡片底稿展开/折叠状态，tab 切换回来时不重置
+const cachedBriefOpenMap: Map<string, boolean> = new Map();
 
 export default function AiNewsPageClient() {
   const router = useRouter();
@@ -108,6 +110,7 @@ export default function AiNewsPageClient() {
   const [draftError, setDraftError] = useState('');
   // Maps clusterId → draftId for topics the user has sent to the writing desk
   const [topicDraftMap, setTopicDraftMap] = useState<Record<string, string>>({});
+  const [briefOpenMap, setBriefOpenMap] = useState<Map<string, boolean>>(cachedBriefOpenMap);
   const hasDeskDataRef = useRef(false);
 
   const allCandidates = [...todayCandidates, ...followCandidates];
@@ -306,6 +309,11 @@ export default function AiNewsPageClient() {
               items={todayCandidates}
               offset={0}
               topicDraftMap={topicDraftMap}
+              briefOpenMap={briefOpenMap}
+              onBriefToggle={(clusterId, open) => {
+                cachedBriefOpenMap.set(clusterId, open);
+                setBriefOpenMap(new Map(cachedBriefOpenMap));
+              }}
               onCreateDraft={createSingleNewsDraft}
             />
             <CandidateSection
@@ -313,6 +321,11 @@ export default function AiNewsPageClient() {
               items={followCandidates}
               offset={todayCandidates.length}
               topicDraftMap={topicDraftMap}
+              briefOpenMap={briefOpenMap}
+              onBriefToggle={(clusterId, open) => {
+                cachedBriefOpenMap.set(clusterId, open);
+                setBriefOpenMap(new Map(cachedBriefOpenMap));
+              }}
               onCreateDraft={createSingleNewsDraft}
             />
           </div>
@@ -331,12 +344,16 @@ function CandidateSection({
   items,
   offset,
   topicDraftMap,
+  briefOpenMap,
+  onBriefToggle,
   onCreateDraft,
 }: {
   title: string;
   items: AiNewsDeskCandidate[];
   offset: number;
   topicDraftMap: Record<string, string>;
+  briefOpenMap: Map<string, boolean>;
+  onBriefToggle: (clusterId: string, open: boolean) => void;
   onCreateDraft: (item: AiNewsDeskCandidate) => void;
 }) {
   if (items.length === 0) return null;
@@ -351,6 +368,8 @@ function CandidateSection({
           relativeLabel={formatRelativeHours(item.latestPublishedAt)}
           formattedDate={formatDateTime(item.latestPublishedAt)}
           draftId={topicDraftMap[item.clusterId]}
+          showBrief={briefOpenMap.get(item.clusterId) ?? false}
+          onBriefToggle={(open) => onBriefToggle(item.clusterId, open)}
           onCreateDraft={onCreateDraft}
         />
       ))}
