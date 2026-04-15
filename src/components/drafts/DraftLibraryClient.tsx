@@ -64,6 +64,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [statusFilter, setStatusFilter] = useState<DraftStatus | 'all'>('all');
 
   useEffect(() => {
     if (!isEditMode) {
@@ -208,8 +209,23 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
         </div>
       )}
 
+      {!isEditMode && (
+        <div className={styles.filterBar}>
+          {(['all', 'draft', 'ready', 'syncing', 'synced', 'failed'] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              className={styles.filterChip({ active: statusFilter === s })}
+              onClick={() => setStatusFilter(s)}
+            >
+              {s === 'all' ? '全部' : statusLabels[s as DraftStatus]}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className={styles.pipelineList}>
-        {drafts.map((draft) => {
+        {drafts.filter((d) => statusFilter === 'all' || d.status === statusFilter).map((draft) => {
           const syncTask = syncTasks.find((t) => t.draftId === draft.id);
           const isSelected = selected.has(draft.id);
 

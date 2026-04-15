@@ -557,3 +557,40 @@ export const syncStatusLabelVariants = styleVariants({
   'needs-action': { fontSize: '13px', fontWeight: 500, color: vars.color.warningText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   partial: { fontSize: '13px', fontWeight: 500, color: vars.color.warningText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
 });
+
+// 状态筛选栏
+export const filterBar = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '6px',
+});
+
+export const filterChip = recipe({
+  base: {
+    borderRadius: '999px',
+    border: `1px solid ${vars.color.border}`,
+    padding: '4px 12px',
+    fontSize: '12px',
+    cursor: 'pointer',
+    transition: 'background-color 150ms, color 150ms, border-color 150ms',
+  },
+  variants: {
+    active: {
+      true: {
+        background: vars.color.accent,
+        borderColor: vars.color.accent,
+        color: '#ffffff',
+        fontWeight: 500,
+      },
+      false: {
+        background: 'transparent',
+        color: vars.color.textMuted,
+        ':hover': {
+          borderColor: vars.color.borderStrong,
+          color: vars.color.text,
+        },
+      },
+    },
+  },
+  defaultVariants: { active: false },
+});
