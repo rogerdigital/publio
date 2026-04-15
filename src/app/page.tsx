@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, Files, SquarePen, Eraser } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
@@ -42,6 +42,8 @@ function HomePageContent() {
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [draftLoadError, setDraftLoadError] = useState('');
+  const [clearConfirming, setClearConfirming] = useState(false);
+  const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedPlatforms = useMemo(
     () => Object.entries(platforms)
       .filter(([, selected]) => selected)
@@ -68,6 +70,17 @@ function HomePageContent() {
     reset();
     router.replace('/');
   }, [reset, router, setContent, setTitle, setCurrentDraftId]);
+
+  const handleClearClick = useCallback(() => {
+    if (!clearConfirming) {
+      setClearConfirming(true);
+      clearConfirmTimerRef.current = setTimeout(() => setClearConfirming(false), 3000);
+      return;
+    }
+    if (clearConfirmTimerRef.current) clearTimeout(clearConfirmTimerRef.current);
+    setClearConfirming(false);
+    handleNewDraft();
+  }, [clearConfirming, handleNewDraft]);
 
   useEffect(() => {
     syncPlatformDrafts();
@@ -151,12 +164,12 @@ function HomePageContent() {
             </div>
             <button
               type="button"
-              onClick={handleNewDraft}
-              className={styles.newDraftButton}
-              title="清空写作台"
+              onClick={handleClearClick}
+              className={clearConfirming ? styles.newDraftButtonDanger : styles.newDraftButton}
+              title={clearConfirming ? '再次点击确认清空' : '清空写作台'}
             >
               <Eraser size={15} />
-              清空
+              {clearConfirming ? '确认清空？' : '清空'}
             </button>
             <button
               type="button"

@@ -183,6 +183,21 @@ export const newDraftButton = style({
   },
 });
 
+export const newDraftButtonDanger = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.errorBorder}`,
+  background: vars.color.errorBg,
+  padding: '6px 10px',
+  fontSize: '14px',
+  fontWeight: 500,
+  color: vars.color.errorText,
+  cursor: 'pointer',
+  transition: 'background-color 150ms, color 150ms, border-color 150ms',
+});
+
 // 面板切换按钮，仅桌面端显示（带文字标签，避免与复制按钮混淆）
 export const panelToggle = recipe({
   base: {
