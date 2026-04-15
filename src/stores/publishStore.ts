@@ -12,6 +12,9 @@ interface PublishStore {
   setTitle: (title: string) => void;
   setContent: (content: string) => void;
 
+  currentDraftId: string | null;
+  setCurrentDraftId: (id: string | null) => void;
+
   platforms: Record<PlatformId, boolean>;
   togglePlatform: (id: PlatformId) => void;
 
@@ -37,6 +40,9 @@ export const usePublishStore = create<PublishStore>((set) => ({
   content: '',
   setTitle: (title) => set({ title }),
   setContent: (content) => set({ content }),
+
+  currentDraftId: null,
+  setCurrentDraftId: (id) => set({ currentDraftId: id }),
 
   platforms: {
     wechat: true,
