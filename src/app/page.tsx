@@ -170,23 +170,38 @@ function HomePageContent() {
       />
 
       <div className={styles.editorLayout}>
-        <div className={styles.editorSection}>
-          {draftLoadError ? (
-            <div className={styles.draftLoadError} role="status">
-              {draftLoadError}
+        <div
+          className={styles.panelOuter}
+          style={{ width: isPanelOpen ? '216px' : 0 }}
+        >
+          <DraftPanel onNewDraft={handleNewDraft} />
+        </div>
+
+        <div className={styles.mainContentArea}>
+          <div className={styles.editorSection}>
+            {draftLoadError ? (
+              <div className={styles.draftLoadError} role="status">
+                {draftLoadError}
+              </div>
+            ) : null}
+
+            <div className={styles.mobileOnly}>
+              <RecentDraftBar />
             </div>
-          ) : null}
 
-          <div className={styles.mobileOnly}>
-            <RecentDraftBar />
+            <div className={styles.editorCard}>
+              <MarkdownEditor activeTab={activeTab} />
+            </div>
           </div>
 
-          <div className={styles.editorCard}>
-            <MarkdownEditor activeTab={activeTab} />
-          </div>
-
-          <div className={styles.publishBar}>
+          <div className={styles.rightPanel}>
             <PlatformSelector />
+
+            <PlatformPreviewPanel
+              adaptations={platformDrafts}
+              selectedPlatforms={selectedPlatforms}
+            />
+
             <div className={styles.publishRight}>
               {overallStatus !== 'idle' && overallStatus !== 'publishing' && (
                 <button
@@ -198,23 +213,11 @@ function HomePageContent() {
               )}
               <PublishButton />
             </div>
+
+            {overallStatus !== 'idle' && (
+              <PublishStatusPanel />
+            )}
           </div>
-
-          <PlatformPreviewPanel
-            adaptations={platformDrafts}
-            selectedPlatforms={selectedPlatforms}
-          />
-
-          {overallStatus !== 'idle' && (
-            <PublishStatusPanel />
-          )}
-        </div>
-
-        <div
-          className={styles.panelOuter}
-          style={{ width: isPanelOpen ? '216px' : 0 }}
-        >
-          <DraftPanel onNewDraft={handleNewDraft} />
         </div>
       </div>
     </div>
