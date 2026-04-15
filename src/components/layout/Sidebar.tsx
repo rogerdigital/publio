@@ -53,57 +53,81 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className={styles.sidebar}>
-      <div className={styles.inner}>
-        <nav className={styles.nav}>
-          {navItems.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== '/' && pathname.startsWith(item.href));
-            const Icon = item.icon;
-            const state = isActive ? 'active' : 'inactive';
+    <>
+      <aside className={styles.sidebar}>
+        <div className={styles.inner}>
+          <nav className={styles.nav}>
+            {navItems.map((item) => {
+              const isActive =
+                pathname === item.href ||
+                (item.href !== '/' && pathname.startsWith(item.href));
+              const Icon = item.icon;
+              const state = isActive ? 'active' : 'inactive';
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(styles.navItemBase, styles.navItemVariants[state])}
-              >
-                <span className={styles.navIndicator[state]} />
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(styles.navItemBase, styles.navItemVariants[state])}
+                >
+                  <span className={styles.navIndicator[state]} />
 
-                <div className={cn(styles.navIconBase, styles.navIconVariants[state])}>
-                  <Icon size={14} />
-                </div>
-
-                <div className={styles.navText}>
-                  <div className={styles.navLabelRow}>
-                    <p className={styles.navLabelVariants[state]}>
-                      {item.label}
-                    </p>
-                    <ArrowRight
-                      size={13}
-                      className={styles.navArrowVariants[state]}
-                    />
+                  <div className={cn(styles.navIconBase, styles.navIconVariants[state])}>
+                    <Icon size={14} />
                   </div>
-                  <p className={styles.navDescription}>
-                    {item.description}
-                  </p>
-                </div>
-              </Link>
-            );
-          })}
-        </nav>
 
-        <div className={styles.brandFooter}>
-          <p className={cn(handwriting.className, styles.brandName)}>
-            Publio
-          </p>
-          <p className={styles.brandSlogan}>
-            Write once, publish everywhere.
-          </p>
-          <p className={styles.version}>v0.1.0</p>
+                  <div className={styles.navText}>
+                    <div className={styles.navLabelRow}>
+                      <p className={styles.navLabelVariants[state]}>
+                        {item.label}
+                      </p>
+                      <ArrowRight
+                        size={13}
+                        className={styles.navArrowVariants[state]}
+                      />
+                    </div>
+                    <p className={styles.navDescription}>
+                      {item.description}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className={styles.brandFooter}>
+            <p className={cn(handwriting.className, styles.brandName)}>
+              Publio
+            </p>
+            <p className={styles.brandSlogan}>
+              Write once, publish everywhere.
+            </p>
+            <p className={styles.version}>v0.1.0</p>
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+
+      <nav className={styles.mobileTabBar} aria-label="移动端导航">
+        {navItems.map((item) => {
+          const isActive =
+            pathname === item.href ||
+            (item.href !== '/' && pathname.startsWith(item.href));
+          const Icon = item.icon;
+          const state = isActive ? 'active' : 'inactive';
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={styles.mobileTabItem[state]}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              <Icon size={20} />
+              <span className={styles.mobileTabLabel[state]}>{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+    </>
   );
 }
