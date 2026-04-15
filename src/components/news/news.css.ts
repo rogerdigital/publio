@@ -440,3 +440,24 @@ export const affectedList = style({
   fontSize: '14px',
   color: vars.color.text,
 });
+
+// 评分进度条区块
+export const scoreBarsBlock = style({
+  display: 'none',
+  marginRight: 'auto',
+  alignItems: 'flex-start',
+  gap: '12px',
+  '@media': {
+    'screen and (min-width: 640px)': {
+      display: 'flex',
+    },
+  },
+});
+
+export const scoreBarsGrid = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '4px',
+  flex: 1,
+  minWidth: '160px',
+});
