@@ -26,6 +26,12 @@ interface PublishStore {
   setPublishing: () => void;
   setResults: (results: PlatformPublishResult[]) => void;
   reset: () => void;
+
+  lastSyncTaskId: string | null;
+  isProgressOverlayOpen: boolean;
+  setLastSyncTaskId: (id: string | null) => void;
+  openProgressOverlay: () => void;
+  closeProgressOverlay: () => void;
 }
 
 const platformIds = PLATFORMS.map((platform) => platform.id);
@@ -73,5 +79,11 @@ export const usePublishStore = create<PublishStore>((set) => ({
       results,
       overallStatus: resolveOverallPublishStatus(results),
     }),
-  reset: () => set({ overallStatus: 'idle', results: [] }),
+  reset: () => set({ overallStatus: 'idle', results: [], lastSyncTaskId: null, isProgressOverlayOpen: false }),
+
+  lastSyncTaskId: null,
+  isProgressOverlayOpen: false,
+  setLastSyncTaskId: (id) => set({ lastSyncTaskId: id }),
+  openProgressOverlay: () => set({ isProgressOverlayOpen: true }),
+  closeProgressOverlay: () => set({ isProgressOverlayOpen: false }),
 }));
