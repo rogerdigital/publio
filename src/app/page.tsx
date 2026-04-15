@@ -12,6 +12,7 @@ import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
 import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
+import PublishProgressOverlay from '@/components/publish/PublishProgressOverlay';
 import * as publishStyles from '@/components/publish/publish.css';
 import {
   NEWS_DRAFT_STORAGE_KEY,
@@ -226,6 +227,7 @@ function HomePageContent() {
           </div>
         </div>
       </div>
+      <PublishProgressOverlay />
     </div>
   );
 }
