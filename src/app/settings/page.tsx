@@ -276,6 +276,14 @@ function SettingsContent() {
       if (!response.ok || !data.success) throw new Error(data.error || '保存失败，请重试');
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+
+      // Auto-verify all fully-configured platforms after save
+      const configuredPlatformIds = getPlatformConnectionProfiles(values)
+        .filter((p) => p.missingKeys.length === 0)
+        .map((p) => p.platform);
+      if (configuredPlatformIds.length > 0) {
+        void Promise.all(configuredPlatformIds.map((id) => handleCheckConnection(id)));
+      }
     } catch (error) {
       setSaved(false);
       setErrorMessage(error instanceof Error ? error.message : '保存失败，请重试');
