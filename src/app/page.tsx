@@ -14,10 +14,6 @@ import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
 import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
 import PublishProgressOverlay from '@/components/publish/PublishProgressOverlay';
 import * as publishStyles from '@/components/publish/publish.css';
-import {
-  NEWS_DRAFT_STORAGE_KEY,
-  type NewsDraftPayload,
-} from '@/lib/newsDraft';
 import { fetchDraftById } from '@/lib/drafts/client';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import type { PlatformId } from '@/types';
@@ -85,21 +81,6 @@ function HomePageContent() {
   useEffect(() => {
     syncPlatformDrafts();
   }, [content, syncPlatformDrafts, title]);
-
-  useEffect(() => {
-    const rawDraft = window.localStorage.getItem(NEWS_DRAFT_STORAGE_KEY);
-    if (!rawDraft) return;
-
-    try {
-      const draft = JSON.parse(rawDraft) as NewsDraftPayload;
-      setTitle(draft.title || '');
-      setContent(draft.content || '');
-      reset();
-      window.localStorage.removeItem(NEWS_DRAFT_STORAGE_KEY);
-    } catch {
-      window.localStorage.removeItem(NEWS_DRAFT_STORAGE_KEY);
-    }
-  }, [reset, setContent, setTitle]);
 
   useEffect(() => {
     const draftId = searchParams.get('draftId');
