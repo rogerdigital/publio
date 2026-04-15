@@ -12,9 +12,11 @@
 - **草稿库** — 持久化存储所有草稿（来源：手动创建 / AI 选题转稿 / 导入），支持状态跟踪（draft → ready → synced）；稿件库页（`/drafts`）以「来源 → 写作台 → 分发」pipeline 行展示全部稿件，支持多选批量删除；写作台侧边草稿面板可快速切换草稿，同样支持编辑模式删除
 - **AI 选题工作台** — 手动触发抓取，从 9 个 RSS 数据源拉取 24 小时内容，经标准化 → 聚类 → 多维评分后输出最多 10 条候选题；每条附带研究底稿（事件经过、重要性、影响方、写作切口建议），底稿内嵌原文多张配图及其他来源报道视角
 - **一键转稿** — 从工作台直接将研究底稿导入写作台，底稿携带多图和多方视角，继续润色后发布；写作台支持「清空」一键重置编辑器
-- **多平台并发发布** — 基于 `Promise.allSettled` 并发执行，支持微信公众号、小红书、知乎、X (Twitter) 四大平台
+- **多平台并发发布** — 基于 `Promise.allSettled` 并发执行，支持微信公众号、小红书、知乎、X (Twitter) 四大平台；平台选择器支持全选切换，实时显示已选数量
+- **发布进度浮层** — 发布触发后右下角弹出进度浮层，轮询更新各平台状态，无需跳转页面即可跟踪全程
 - **同步任务追踪** — 每次发布生成一条同步任务记录，包含各平台进度回执、失败原因、下一步建议（重新授权 / 修复内容 / 打开平台等）；支持重试与手动标记完成
-- **平台连接管理** — 设置页统一管理各平台凭证；OAuth 平台支持一键授权跳转，微信 / X 支持凭证验证；连接状态持久化，展示上次验证时间与账号信息
+- **平台连接管理** — 设置页统一管理各平台凭证；OAuth 平台支持一键授权跳转，微信 / X 支持凭证验证；保存后自动触发连接验证，连接状态持久化并展示已连接账号名
+- **响应式导航** — 桌面端侧边栏，移动端切换为底部 Tab 栏，覆盖写作台、稿件库、AI 选题、分发记录四个核心入口
 
 ## 技术栈
 
@@ -82,11 +84,13 @@ src/
 │   ├── news/
 │   │   ├── AiNewsPageClient.tsx / news.css.ts
 │   │   ├── TopicDeskHeader.tsx
-│   │   └── TopicSignalCard.tsx
+│   │   ├── TopicSignalCard.tsx
+│   │   └── ScoreBar.tsx / ScoreBar.css.ts       # 评分进度条原子组件
 │   ├── publish/
 │   │   ├── PlatformSelector.tsx / publish.css.ts
-│   │   ├── PlatformPreviewPanel.tsx             # 平台内容预览
+│   │   ├── PlatformPreviewPanel.tsx             # 平台内容预览（可折叠）
 │   │   ├── PublishButton.tsx
+│   │   ├── PublishProgressOverlay.tsx           # 发布进度浮层（右下角轮询）
 │   │   └── PublishStatusPanel.tsx
 │   ├── sync/
 │   │   ├── SyncTaskList.tsx / SyncTaskDetail.tsx
@@ -94,6 +98,8 @@ src/
 │   │   └── SyncTaskMarkDoneButton.tsx
 │   └── icons/
 │       └── PlatformIcons.tsx
+├── hooks/
+│   └── useAutoSave.ts                   # 防抖自动保存（停止输入 1s 触发，自动创建草稿并同步 URL）
 ├── lib/
 │   ├── ai-news/                         # AI 新闻核心模块
 │   │   ├── sources.ts                   # RSS 数据源配置（9 个）
