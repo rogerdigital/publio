@@ -8,6 +8,28 @@ export const selectorWrap = style({
   gap: '8px',
 });
 
+export const selectorFooter = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginTop: '8px',
+  fontSize: '12px',
+  color: vars.color.textMuted,
+});
+
+export const selectorToggleAll = style({
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  fontSize: '12px',
+  color: vars.color.accent,
+  cursor: 'pointer',
+  transition: 'color 150ms',
+  ':hover': {
+    color: vars.color.signal,
+  },
+});
+
 export const platformLabel = recipe({
   base: {
     display: 'inline-flex',
@@ -471,4 +493,51 @@ export const previewThreadList = style({
   maxHeight: '160px',
   overflowY: 'auto',
   overscrollBehavior: 'contain',
+});
+
+// 右侧面板区块容器
+export const rightPanelSection = style({
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  padding: '12px 14px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '10px',
+});
+
+export const rightPanelSectionTitle = style({
+  fontSize: '11px',
+  fontWeight: 500,
+  textTransform: 'uppercase',
+  letterSpacing: '0.32em',
+  color: vars.color.accent,
+});
+
+// 折叠区域：发布配置
+export const collapseToggle = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  width: '100%',
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+  gap: '6px',
+});
+
+export const collapseContent = style({
+  overflow: 'hidden',
+  transition: 'max-height 220ms cubic-bezier(0.4, 0, 0.2, 1)',
+});
+
+export const collapseChevron = style({
+  transition: 'transform 220ms',
+  flexShrink: 0,
+  color: vars.color.textMuted,
+});
+
+export const collapseChevronOpen = style({
+  transform: 'rotate(180deg)',
 });

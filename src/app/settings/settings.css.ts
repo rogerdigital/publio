@@ -119,6 +119,17 @@ export const accordionSummary = style({
   color: vars.color.textMuted,
 });
 
+export const accordionAccountName = style({
+  margin: 0,
+  marginTop: '3px',
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  fontSize: '13px',
+  fontWeight: 500,
+  color: vars.color.successText,
+});
+
 export const accordionToggle = style({
   display: 'flex',
   flexShrink: 0,

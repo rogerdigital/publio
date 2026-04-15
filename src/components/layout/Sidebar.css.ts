@@ -2,22 +2,80 @@ import { style, styleVariants } from '@vanilla-extract/css';
 import { vars } from '@/styles/tokens.css';
 
 export const sidebar = style({
-  width: '100%',
-  borderBottom: `1px solid ${vars.color.border}`,
-  background: vars.color.bg,
-  color: vars.color.text,
+  display: 'none',
   '@media': {
     'screen and (min-width: 1024px)': {
+      display: 'block',
       position: 'sticky',
       top: 0,
       height: '100dvh',
       width: '18rem',
       flexShrink: 0,
-      borderBottom: 'none',
       borderRight: `1px solid ${vars.color.border}`,
+      background: vars.color.bg,
+      color: vars.color.text,
       overflowY: 'auto',
       overscrollBehavior: 'contain',
     },
+  },
+});
+
+export const mobileTabBar = style({
+  position: 'fixed',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  zIndex: 100,
+  display: 'flex',
+  alignItems: 'stretch',
+  background: vars.color.bg,
+  borderTop: `1px solid ${vars.color.border}`,
+  paddingBottom: 'env(safe-area-inset-bottom)',
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      display: 'none',
+    },
+  },
+});
+
+export const mobileTabItem = styleVariants({
+  active: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '3px',
+    padding: '8px 4px',
+    textDecoration: 'none',
+    color: vars.color.accent,
+  },
+  inactive: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '3px',
+    padding: '8px 4px',
+    textDecoration: 'none',
+    color: vars.color.textMuted,
+    ':hover': {
+      color: vars.color.text,
+    },
+  },
+});
+
+export const mobileTabLabel = styleVariants({
+  active: {
+    fontSize: '10px',
+    fontWeight: 600,
+    lineHeight: 1,
+  },
+  inactive: {
+    fontSize: '10px',
+    fontWeight: 400,
+    lineHeight: 1,
   },
 });
 

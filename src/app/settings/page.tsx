@@ -276,6 +276,14 @@ function SettingsContent() {
       if (!response.ok || !data.success) throw new Error(data.error || '保存失败，请重试');
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+
+      // Auto-verify all fully-configured platforms after save
+      const configuredPlatformIds = getPlatformConnectionProfiles(values)
+        .filter((p) => p.missingKeys.length === 0)
+        .map((p) => p.platform);
+      if (configuredPlatformIds.length > 0) {
+        void Promise.all(configuredPlatformIds.map((id) => handleCheckConnection(id)));
+      }
     } catch (error) {
       setSaved(false);
       setErrorMessage(error instanceof Error ? error.message : '保存失败，请重试');
@@ -356,6 +364,13 @@ function SettingsContent() {
           const { Icon } = platform;
           const connectionProfile = connectionProfiles.find((profile) => profile.platform === platform.id);
           const isVerifyOnly = VERIFY_ONLY_PLATFORMS.has(platform.id);
+          const record = connectionRecords[platform.id];
+          // 账号名：优先用最新 check 结果，其次用持久化 record
+          const connectedAccountName =
+            (checkStates[platform.id]?.ok && checkStates[platform.id]?.accountName) ||
+            (!checkStates[platform.id] && record?.accountName) ||
+            null;
+          const isConnected = connectionProfile?.status === 'connected' && !disconnectStates[platform.id]?.done;
 
           return (
             <SurfaceCard key={platform.id} tone="soft" className={styles.accordionCard}>
@@ -371,7 +386,14 @@ function SettingsContent() {
                 </div>
                 <div className={styles.accordionBody}>
                   <p className={styles.accordionTitle}>{platform.name}</p>
-                  <p className={styles.accordionSummary}>{platform.summary}</p>
+                  {isConnected && connectedAccountName ? (
+                    <p className={styles.accordionAccountName}>
+                      <CheckCircle2 size={11} />
+                      {connectedAccountName}
+                    </p>
+                  ) : (
+                    <p className={styles.accordionSummary}>{platform.summary}</p>
+                  )}
                 </div>
                 <div className={styles.accordionToggle}>
                   {connectionProfile ? (

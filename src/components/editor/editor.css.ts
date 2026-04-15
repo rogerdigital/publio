@@ -138,6 +138,10 @@ export const statsDot = style({
 // Preview area
 export const previewWrap = style({
   padding: '24px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  background: vars.color.canvasDeep,
   '@media': {
     'screen and (min-width: 640px)': {
       padding: '32px',
@@ -146,6 +150,49 @@ export const previewWrap = style({
       minHeight: '420px',
     },
   },
+});
+
+// 模拟手机/公众号文章阅读容器
+export const previewPhoneFrame = style({
+  width: '100%',
+  maxWidth: '480px',
+  borderRadius: vars.radius.xl,
+  background: vars.color.surface,
+  boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+  overflow: 'hidden',
+});
+
+// 公众号风格顶部栏（模拟 status bar）
+export const previewPhoneBar = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '8px 14px',
+  borderBottom: `1px solid ${vars.color.borderFaint}`,
+  background: vars.color.bgElevated,
+});
+
+export const previewPhoneBarDot = style({
+  width: '6px',
+  height: '6px',
+  borderRadius: '50%',
+  background: vars.color.borderStrong,
+});
+
+export const previewPhoneBarDots = style({
+  display: 'flex',
+  gap: '4px',
+});
+
+export const previewPhoneBarLabel = style({
+  fontSize: '10px',
+  color: vars.color.textMuted,
+  letterSpacing: '0.08em',
+});
+
+// 文章内容内边距容器
+export const previewInner = style({
+  padding: '20px 20px 32px',
 });
 
 export const previewKicker = style({

@@ -47,6 +47,11 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   deleteErrorText: 'deleteErrorText',
   listHeader: 'listHeader',
   editToggleButton: 'editToggleButton',
+  syncStatusStepVariants: () => 'syncStatusStepVariants',
+  syncStatusLabelVariants: () => 'syncStatusLabelVariants',
+  filterBar: 'filterBar',
+  filterChip: (variants: { active?: boolean }) =>
+    variants?.active ? 'filterChip-active' : 'filterChip',
 }));
 
 describe('DraftLibraryClient', () => {

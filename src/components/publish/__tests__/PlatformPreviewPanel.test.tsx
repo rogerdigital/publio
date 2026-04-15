@@ -5,7 +5,33 @@ import { createElement } from 'react';
 import type { PlatformContentDrafts } from '@/lib/platformAdapters/types';
 
 vi.mock('@/components/publish/publish.css', () => ({
+  selectorWrap: 'selectorWrap',
+  selectorFooter: 'selectorFooter',
+  selectorToggleAll: 'selectorToggleAll',
+  platformLabel: 'platformLabel',
+  srOnly: 'srOnly',
+  publishButton: 'publishButton',
+  panel: 'panel',
+  panelHeader: 'panelHeader',
   panelKicker: 'panelKicker',
+  panelTitle: 'panelTitle',
+  panelStats: 'panelStats',
+  statBadge: 'statBadge',
+  resultList: 'resultList',
+  resultCardVariants: () => 'resultCardVariants',
+  resultPlatformRow: 'resultPlatformRow',
+  platformIconWrap: 'platformIconWrap',
+  platformName: 'platformName',
+  platformSubLabel: 'platformSubLabel',
+  resultMessage: 'resultMessage',
+  resultMessageTextVariants: () => 'resultMessageTextVariants',
+  resultActions: 'resultActions',
+  statusBadgeVariants: () => 'statusBadgeVariants',
+  externalLink: 'externalLink',
+  loadingWrap: 'loadingWrap',
+  loadingCard: 'loadingCard',
+  loadingText: 'loadingText',
+  loadingPlaceholder: 'loadingPlaceholder',
   previewPanel: 'previewPanel',
   previewHeader: 'previewHeader',
   previewTitle: 'previewTitle',
@@ -16,9 +42,16 @@ vi.mock('@/components/publish/publish.css', () => ({
   previewState: 'previewState',
   previewStateNotReady: 'previewStateNotReady',
   previewBody: 'previewBody',
+  previewImage: 'previewImage',
   previewWarningList: 'previewWarningList',
   previewTagList: 'previewTagList',
   previewThreadList: 'previewThreadList',
+  rightPanelSection: 'rightPanelSection',
+  rightPanelSectionTitle: 'rightPanelSectionTitle',
+  collapseToggle: 'collapseToggle',
+  collapseContent: 'collapseContent',
+  collapseChevron: 'collapseChevron',
+  collapseChevronOpen: 'collapseChevronOpen',
 }));
 
 describe('PlatformPreviewPanel', () => {
@@ -74,7 +107,7 @@ describe('PlatformPreviewPanel', () => {
       selectedPlatforms: ['xiaohongshu', 'x'],
     }));
 
-    expect(screen.getByText('发布配置')).toBeInTheDocument();
+    expect(screen.getByText('内容配置')).toBeInTheDocument();
     expect(screen.getByText('小红书')).toBeInTheDocument();
     expect(screen.getByText('小红书标题建议控制在 20 字以内')).toBeInTheDocument();
     expect(screen.getByText('X (Twitter)')).toBeInTheDocument();

@@ -12,8 +12,12 @@ interface PublishStore {
   setTitle: (title: string) => void;
   setContent: (content: string) => void;
 
+  currentDraftId: string | null;
+  setCurrentDraftId: (id: string | null) => void;
+
   platforms: Record<PlatformId, boolean>;
   togglePlatform: (id: PlatformId) => void;
+  setAllPlatforms: (checked: boolean) => void;
 
   platformDrafts: PlatformContentDrafts;
   syncPlatformDrafts: () => void;
@@ -23,6 +27,12 @@ interface PublishStore {
   setPublishing: () => void;
   setResults: (results: PlatformPublishResult[]) => void;
   reset: () => void;
+
+  lastSyncTaskId: string | null;
+  isProgressOverlayOpen: boolean;
+  setLastSyncTaskId: (id: string | null) => void;
+  openProgressOverlay: () => void;
+  closeProgressOverlay: () => void;
 }
 
 const platformIds = PLATFORMS.map((platform) => platform.id);
@@ -38,6 +48,9 @@ export const usePublishStore = create<PublishStore>((set) => ({
   setTitle: (title) => set({ title }),
   setContent: (content) => set({ content }),
 
+  currentDraftId: null,
+  setCurrentDraftId: (id) => set({ currentDraftId: id }),
+
   platforms: {
     wechat: true,
     xiaohongshu: true,
@@ -47,6 +60,10 @@ export const usePublishStore = create<PublishStore>((set) => ({
   togglePlatform: (id) =>
     set((state) => ({
       platforms: { ...state.platforms, [id]: !state.platforms[id] },
+    })),
+  setAllPlatforms: (checked) =>
+    set(() => ({
+      platforms: Object.fromEntries(platformIds.map((id) => [id, checked])) as Record<PlatformId, boolean>,
     })),
 
   platformDrafts: emptyPlatformDrafts,
@@ -67,5 +84,11 @@ export const usePublishStore = create<PublishStore>((set) => ({
       results,
       overallStatus: resolveOverallPublishStatus(results),
     }),
-  reset: () => set({ overallStatus: 'idle', results: [] }),
+  reset: () => set({ overallStatus: 'idle', results: [], lastSyncTaskId: null, isProgressOverlayOpen: false }),
+
+  lastSyncTaskId: null,
+  isProgressOverlayOpen: false,
+  setLastSyncTaskId: (id) => set({ lastSyncTaskId: id }),
+  openProgressOverlay: () => set({ isProgressOverlayOpen: true }),
+  closeProgressOverlay: () => set({ isProgressOverlayOpen: false }),
 }));

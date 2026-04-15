@@ -114,19 +114,31 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
       {/* 预览区 */}
       {activeTab === 'preview' && (
         <div className={styles.previewWrap}>
-          <div>
-            <div className={styles.previewTitleBlock}>
-              <p className={styles.previewKicker}>
-                成稿预览
-              </p>
-              <h3 className={styles.previewTitle}>
-                {title || '未命名稿件'}
-              </h3>
+          <div className={styles.previewPhoneFrame}>
+            {/* 模拟公众号/手机阅读顶栏 */}
+            <div className={styles.previewPhoneBar}>
+              <div className={styles.previewPhoneBarDots}>
+                <span className={styles.previewPhoneBarDot} />
+                <span className={styles.previewPhoneBarDot} />
+                <span className={styles.previewPhoneBarDot} />
+              </div>
+              <span className={styles.previewPhoneBarLabel}>成稿预览</span>
+              <div style={{ width: '36px' }} />
             </div>
-            <div
-              className={styles.previewContent}
-              dangerouslySetInnerHTML={{ __html: previewHtml }}
-            />
+            <div className={styles.previewInner}>
+              <div className={styles.previewTitleBlock}>
+                <p className={styles.previewKicker}>
+                  文章
+                </p>
+                <h3 className={styles.previewTitle}>
+                  {title || '未命名稿件'}
+                </h3>
+              </div>
+              <div
+                className={styles.previewContent}
+                dangerouslySetInnerHTML={{ __html: previewHtml }}
+              />
+            </div>
           </div>
         </div>
       )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, Files, SquarePen, Eraser } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
@@ -12,11 +12,11 @@ import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
 import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
-import {
-  NEWS_DRAFT_STORAGE_KEY,
-  type NewsDraftPayload,
-} from '@/lib/newsDraft';
+import PublishProgressOverlay from '@/components/publish/PublishProgressOverlay';
+import EditorialContextCard from '@/components/editor/EditorialContextCard';
+import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import type { PlatformId } from '@/types';
 import * as styles from './page.css';
 
@@ -31,12 +31,16 @@ function HomePageContent() {
     setContent,
     reset,
     overallStatus,
+    currentDraftId,
+    setCurrentDraftId,
   } = usePublishStore();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [draftLoadError, setDraftLoadError] = useState('');
+  const [clearConfirming, setClearConfirming] = useState(false);
+  const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedPlatforms = useMemo(
     () => Object.entries(platforms)
       .filter(([, selected]) => selected)
@@ -44,31 +48,40 @@ function HomePageContent() {
     [platforms],
   );
 
+  const handleDraftCreated = useCallback((id: string) => {
+    setCurrentDraftId(id);
+    router.replace(`/?draftId=${id}`);
+  }, [setCurrentDraftId, router]);
+
+  const { saveStatus } = useAutoSave({
+    title,
+    content,
+    draftId: currentDraftId,
+    onDraftCreated: handleDraftCreated,
+  });
+
   const handleNewDraft = useCallback(() => {
     setTitle('');
     setContent('');
+    setCurrentDraftId(null);
     reset();
-    router.push('/');
-  }, [reset, router, setContent, setTitle]);
+    router.replace('/');
+  }, [reset, router, setContent, setTitle, setCurrentDraftId]);
+
+  const handleClearClick = useCallback(() => {
+    if (!clearConfirming) {
+      setClearConfirming(true);
+      clearConfirmTimerRef.current = setTimeout(() => setClearConfirming(false), 3000);
+      return;
+    }
+    if (clearConfirmTimerRef.current) clearTimeout(clearConfirmTimerRef.current);
+    setClearConfirming(false);
+    handleNewDraft();
+  }, [clearConfirming, handleNewDraft]);
 
   useEffect(() => {
     syncPlatformDrafts();
   }, [content, syncPlatformDrafts, title]);
-
-  useEffect(() => {
-    const rawDraft = window.localStorage.getItem(NEWS_DRAFT_STORAGE_KEY);
-    if (!rawDraft) return;
-
-    try {
-      const draft = JSON.parse(rawDraft) as NewsDraftPayload;
-      setTitle(draft.title || '');
-      setContent(draft.content || '');
-      reset();
-      window.localStorage.removeItem(NEWS_DRAFT_STORAGE_KEY);
-    } catch {
-      window.localStorage.removeItem(NEWS_DRAFT_STORAGE_KEY);
-    }
-  }, [reset, setContent, setTitle]);
 
   useEffect(() => {
     const draftId = searchParams.get('draftId');
@@ -84,6 +97,7 @@ function HomePageContent() {
         if (cancelled) return;
         setTitle(draft.title);
         setContent(draft.content);
+        setCurrentDraftId(selectedDraftId);
         reset();
       } catch (error) {
         if (!cancelled) {
@@ -96,7 +110,7 @@ function HomePageContent() {
     return () => {
       cancelled = true;
     };
-  }, [reset, searchParams, setContent, setTitle]);
+  }, [reset, searchParams, setContent, setTitle, setCurrentDraftId]);
 
   return (
     <div className={styles.pageWrap}>
@@ -106,6 +120,12 @@ function HomePageContent() {
         description="在一个界面里完成写作、排版预览与多平台分发。"
         action={
           <div className={styles.headerActions}>
+            {saveStatus === 'saving' && (
+              <span className={styles.saveStatusHint}>保存中…</span>
+            )}
+            {saveStatus === 'saved' && (
+              <span className={styles.saveStatusHint}>已自动保存</span>
+            )}
             <div className={styles.tabSwitcher}>
               <button
                 type="button"
@@ -126,12 +146,12 @@ function HomePageContent() {
             </div>
             <button
               type="button"
-              onClick={handleNewDraft}
-              className={styles.newDraftButton}
-              title="清空写作台"
+              onClick={handleClearClick}
+              className={clearConfirming ? styles.newDraftButtonDanger : styles.newDraftButton}
+              title={clearConfirming ? '再次点击确认清空' : '清空写作台'}
             >
               <Eraser size={15} />
-              清空
+              {clearConfirming ? '确认清空？' : '清空'}
             </button>
             <button
               type="button"
@@ -147,53 +167,64 @@ function HomePageContent() {
       />
 
       <div className={styles.editorLayout}>
-        <div className={styles.editorSection}>
-          {draftLoadError ? (
-            <div className={styles.draftLoadError} role="status">
-              {draftLoadError}
-            </div>
-          ) : null}
-
-          <div className={styles.mobileOnly}>
-            <RecentDraftBar />
-          </div>
-
-          <div className={styles.editorCard}>
-            <MarkdownEditor activeTab={activeTab} />
-          </div>
-
-          <div className={styles.publishBar}>
-            <PlatformSelector />
-            <div className={styles.publishRight}>
-              {overallStatus !== 'idle' && overallStatus !== 'publishing' && (
-                <button
-                  onClick={reset}
-                  className={styles.resetLink}
-                >
-                  清除结果
-                </button>
-              )}
-              <PublishButton />
-            </div>
-          </div>
-
-          <PlatformPreviewPanel
-            adaptations={platformDrafts}
-            selectedPlatforms={selectedPlatforms}
-          />
-
-          {overallStatus !== 'idle' && (
-            <PublishStatusPanel />
-          )}
-        </div>
-
         <div
           className={styles.panelOuter}
           style={{ width: isPanelOpen ? '216px' : 0 }}
         >
           <DraftPanel onNewDraft={handleNewDraft} />
         </div>
+
+        <div className={styles.mainContentArea}>
+          <div className={styles.editorSection}>
+            {draftLoadError ? (
+              <div className={styles.draftLoadError} role="status">
+                {draftLoadError}
+              </div>
+            ) : null}
+
+            <div className={styles.mobileOnly}>
+              <RecentDraftBar />
+            </div>
+
+            <div className={styles.editorCard}>
+              <MarkdownEditor activeTab={activeTab} />
+            </div>
+          </div>
+
+          <div className={styles.rightPanel}>
+            <EditorialContextCard />
+
+            <div className={publishStyles.rightPanelSection}>
+              <span className={publishStyles.rightPanelSectionTitle}>发布到</span>
+              <PlatformSelector />
+            </div>
+
+            <PlatformPreviewPanel
+              adaptations={platformDrafts}
+              selectedPlatforms={selectedPlatforms}
+            />
+
+            <div className={publishStyles.rightPanelSection}>
+              <div className={styles.publishRight}>
+                {overallStatus !== 'idle' && overallStatus !== 'publishing' && (
+                  <button
+                    onClick={reset}
+                    className={styles.resetLink}
+                  >
+                    清除结果
+                  </button>
+                )}
+                <PublishButton />
+              </div>
+
+              {overallStatus !== 'idle' && (
+                <PublishStatusPanel />
+              )}
+            </div>
+          </div>
+        </div>
       </div>
+      <PublishProgressOverlay />
     </div>
   );
 }

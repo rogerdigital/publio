@@ -8,14 +8,14 @@ export const pageWrap = style({
   gap: '24px',
 });
 
-// 双列容器：草稿面板 + 编辑主区
+// 最外层 flex 容器：草稿抽屉 + 主内容区
 export const editorLayout = style({
   display: 'flex',
   alignItems: 'stretch',
   gap: '16px',
 });
 
-// 面板外层：控制宽度动画，移动端隐藏
+// 草稿抽屉外层：控制宽度动画，移动端隐藏
 export const panelOuter = style({
   display: 'none',
   flexShrink: 0,
@@ -28,12 +28,44 @@ export const panelOuter = style({
   },
 });
 
+// 主内容区域：移动端单列，桌面端双列（编辑区 + 右侧控制面板）
+export const mainContentArea = style({
+  flex: 1,
+  minWidth: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      flexDirection: 'row',
+      alignItems: 'start',
+      gap: '20px',
+    },
+  },
+});
+
+// 左侧编辑内容区（撑满剩余宽度）
 export const editorSection = style({
   flex: 1,
   minWidth: 0,
   display: 'flex',
   flexDirection: 'column',
   gap: '16px',
+});
+
+// 右侧固定控制面板（桌面端 sticky，移动端退化为底部区块）
+export const rightPanel = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      width: '280px',
+      flexShrink: 0,
+      position: 'sticky',
+      top: '24px',
+    },
+  },
 });
 
 // 仅移动端显示（< 1024px）
@@ -151,6 +183,21 @@ export const newDraftButton = style({
   },
 });
 
+export const newDraftButtonDanger = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.errorBorder}`,
+  background: vars.color.errorBg,
+  padding: '6px 10px',
+  fontSize: '14px',
+  fontWeight: 500,
+  color: vars.color.errorText,
+  cursor: 'pointer',
+  transition: 'background-color 150ms, color 150ms, border-color 150ms',
+});
+
 // 面板切换按钮，仅桌面端显示（带文字标签，避免与复制按钮混淆）
 export const panelToggle = recipe({
   base: {
@@ -192,4 +239,16 @@ export const panelToggle = recipe({
     },
   },
   defaultVariants: { active: false },
+});
+
+// 自动保存状态提示
+export const saveStatusHint = style({
+  fontSize: '13px',
+  color: vars.color.textMuted,
+  display: 'none',
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      display: 'inline',
+    },
+  },
 });

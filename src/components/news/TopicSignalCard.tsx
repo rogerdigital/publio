@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import { Clock3, ExternalLink, FileUp, ChevronDown, CheckCircle2 } from 'lucide-react';
 
 import SurfaceCard from '@/components/layout/SurfaceCard';
+import ScoreBar from '@/components/news/ScoreBar';
 import type { AiNewsDeskCandidate } from '@/lib/aiNews';
 import * as styles from './news.css';
 
@@ -11,6 +11,8 @@ interface TopicSignalCardProps {
   relativeLabel: string;
   formattedDate: string;
   draftId?: string;
+  showBrief: boolean;
+  onBriefToggle: (open: boolean) => void;
   onCreateDraft: (item: AiNewsDeskCandidate) => void;
 }
 
@@ -31,9 +33,10 @@ export default function TopicSignalCard({
   relativeLabel,
   formattedDate,
   draftId,
+  showBrief,
+  onBriefToggle,
   onCreateDraft,
 }: TopicSignalCardProps) {
-  const [showBrief, setShowBrief] = useState(false);
   const brief = item.researchBrief;
   const metrics = formatArticleMetrics(
     item.primarySignal.articleWordCount,
@@ -103,16 +106,19 @@ export default function TopicSignalCard({
 
           {/* 操作按钮 */}
           <div className={styles.actionsRow}>
-            {/* 评分区 — 底部左侧 */}
-            <div className={styles.scoreRow}>
-              <span className={styles.scoreHighlight}>
+            {/* 评分区 — 六条进度条 + 总分，桌面端显示 */}
+            <div className={styles.scoreBarsBlock}>
+              <div className={styles.scoreBarsGrid}>
+                <ScoreBar label="新鲜度" value={item.scores.freshness} />
+                <ScoreBar label="影响力" value={item.scores.impact} />
+                <ScoreBar label="势　能" value={item.scores.momentum} />
+                <ScoreBar label="可信度" value={item.scores.credibility} />
+                <ScoreBar label="视觉力" value={item.scores.visualReadiness} />
+                <ScoreBar label="创作适" value={item.scores.creatorFit} />
+              </div>
+              <span className={styles.scoreHighlight} style={{ alignSelf: 'flex-end', flexShrink: 0 }}>
                 {item.totalScore.toFixed(0)} 分
               </span>
-              <span>·</span>
-              <span>新鲜度 {item.scores.freshness}</span>
-              <span>影响力 {item.scores.impact}</span>
-              <span>势能 {item.scores.momentum}</span>
-              <span>可信度 {item.scores.credibility}</span>
             </div>
             <a
               href={item.primarySignal.link}
@@ -125,7 +131,7 @@ export default function TopicSignalCard({
             </a>
             <button
               type="button"
-              onClick={() => setShowBrief((v) => !v)}
+              onClick={() => onBriefToggle(!showBrief)}
               className={styles.actionButton({ variant: 'secondary' })}
             >
               <ChevronDown
