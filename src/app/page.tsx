@@ -13,6 +13,7 @@ import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
 import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
 import PublishProgressOverlay from '@/components/publish/PublishProgressOverlay';
+import EditorialContextCard from '@/components/editor/EditorialContextCard';
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
 import { useAutoSave } from '@/hooks/useAutoSave';
@@ -191,6 +192,8 @@ function HomePageContent() {
           </div>
 
           <div className={styles.rightPanel}>
+            <EditorialContextCard />
+
             <div className={publishStyles.rightPanelSection}>
               <span className={publishStyles.rightPanelSectionTitle}>发布到</span>
               <PlatformSelector />
