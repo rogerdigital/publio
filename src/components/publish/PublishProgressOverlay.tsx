@@ -6,6 +6,7 @@ import { X, Loader2, CheckCircle2, XCircle, ArrowUpRight } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import type { SyncTask, SyncReceiptStatus } from '@/lib/sync/types';
 import type { PlatformId } from '@/types';
+import { syncTaskToPublishResults } from '@/lib/publishStatus';
 import * as styles from './PublishProgressOverlay.css';
 
 const platformLabels: Record<PlatformId, string> = {
@@ -48,7 +49,12 @@ function statusClass(status: SyncReceiptStatus): string {
 }
 
 export default function PublishProgressOverlay() {
-  const { isProgressOverlayOpen, lastSyncTaskId, closeProgressOverlay } = usePublishStore();
+  const {
+    isProgressOverlayOpen,
+    lastSyncTaskId,
+    closeProgressOverlay,
+    setResults,
+  } = usePublishStore();
   const [syncTask, setSyncTask] = useState<SyncTask | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -67,6 +73,7 @@ export default function PublishProgressOverlay() {
         if (!res.ok) return;
         const data = await res.json() as { syncTask: SyncTask };
         setSyncTask(data.syncTask);
+        setResults(syncTaskToPublishResults(data.syncTask));
         // 所有 receipt 都到终态时停止轮询
         if (data.syncTask.receipts.every((r) => isTerminalStatus(r.status))) {
           if (intervalRef.current) clearInterval(intervalRef.current);
@@ -82,7 +89,7 @@ export default function PublishProgressOverlay() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isProgressOverlayOpen, lastSyncTaskId]);
+  }, [isProgressOverlayOpen, lastSyncTaskId, setResults]);
 
   // 关闭时清理状态
   function handleClose() {

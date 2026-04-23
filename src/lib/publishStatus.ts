@@ -3,6 +3,7 @@ import type {
   PlatformPublishStatus,
   PublishStatus,
 } from '@/types';
+import type { SyncReceiptStatus, SyncTask } from '@/lib/sync/types';
 
 export type PublishResultDisplayState = 'success' | 'error' | 'publishing';
 
@@ -34,4 +35,18 @@ export function resolveOverallPublishStatus(
     (result) => toPublishResultDisplayState(result.status) === 'error',
   );
   return hasError ? 'error' : 'success';
+}
+
+function toPlatformPublishStatus(status: SyncReceiptStatus): PlatformPublishStatus {
+  if (status === 'syncing') return 'publishing';
+  return status;
+}
+
+export function syncTaskToPublishResults(syncTask: SyncTask): PlatformPublishResult[] {
+  return syncTask.receipts.map((receipt) => ({
+    platform: receipt.platform,
+    status: toPlatformPublishStatus(receipt.status),
+    message: receipt.failureMessage ?? receipt.message,
+    url: receipt.url,
+  }));
 }
