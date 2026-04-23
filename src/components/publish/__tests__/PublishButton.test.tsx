@@ -24,6 +24,7 @@ describe('PublishButton', () => {
 
   test('sends platform-level draft content in the publish request', async () => {
     const { default: PublishButton } = await import('@/components/publish/PublishButton');
+    usePublishStore.getState().setCurrentDraftId('draft-42');
     usePublishStore.getState().setTitle('通用标题');
     usePublishStore.getState().setContent('通用正文');
     usePublishStore.getState().syncPlatformDrafts();
@@ -45,6 +46,7 @@ describe('PublishButton', () => {
     const [, init] = fetch.mock.calls[0] as [string, RequestInit];
     const payload = JSON.parse(init.body as string);
 
+    expect(payload.draftId).toBe('draft-42');
     expect(payload.platformDrafts.wechat).toMatchObject({
       title: '通用标题',
       content: '通用正文',

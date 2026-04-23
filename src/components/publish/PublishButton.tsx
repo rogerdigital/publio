@@ -16,6 +16,7 @@ export default function PublishButton() {
   const {
     title,
     content,
+    currentDraftId,
     platforms,
     platformDrafts,
     overallStatus,
@@ -52,6 +53,7 @@ export default function PublishButton() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          draftId: currentDraftId ?? undefined,
           title,
           content,
           platforms: selectedPlatforms,
