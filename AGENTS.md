@@ -15,7 +15,7 @@
 | Layer | Tech |
 |-------|------|
 | Framework | Next.js 15.1.12 (App Router) |
-| Language | TypeScript 5 (strict mode) |
+| Language | TypeScript 5 (100% first-party source in `src/` and `scripts/`) |
 | UI | React 19, Tailwind CSS 4, lucide-react |
 | Editor | @uiw/react-md-editor |
 | State | Zustand 5 |
@@ -148,5 +148,7 @@ pnpm lint
 - `.env` / `.env.local` 已在 `.gitignore` 中，不要提交密钥
 - `.next/` 和 `node_modules/` 不提交
 - `dist/` 目录已被 gitignore
-- `scripts/dev-safe.mjs` 会在开发启动前清理端口和 `.next/cache`
+- 第一方源码目录 `src/` 与 `scripts/` 必须使用 TypeScript；禁止新增 `.js`、`.mjs`、`.cjs` 源文件
+- 生成产物、第三方代码、依赖目录不计入上述规则；检查会忽略 `.next`、`node_modules`、`coverage`、`.git`
+- `scripts/dev-safe.ts` 会在开发启动前清理端口和 `.next/cache`
 - 中文注释和 UI 文案是项目惯例，保持一致

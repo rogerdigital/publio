@@ -9,8 +9,10 @@
     "preview": "next build && next start",
     "build": "next build",
     "start": "next start",
+    "check:no-js-source": "tsx scripts/check-no-js-source.ts",
     "lint": "next lint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "verify": "pnpm check:no-js-source && pnpm lint && pnpm test && pnpm build"
   },
   "dependencies": {
     "@uiw/react-md-editor": "^4.0.4",

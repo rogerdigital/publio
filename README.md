@@ -23,7 +23,7 @@
 | 类别 | 技术 |
 |------|------|
 | 框架 | Next.js 15 (App Router) |
-| 语言 | TypeScript 5（100%，strict mode） |
+| 语言 | TypeScript 5（第一方源码 100%，禁止新增 JavaScript 源文件） |
 | 前端 | React 19 |
 | 样式 | vanilla-extract（零运行时 CSS-in-TypeScript） |
 | 状态管理 | Zustand 5 |
@@ -221,6 +221,12 @@ pnpm preview               # 构建 + 启动一步完成
 ```bash
 pnpm test
 ```
+
+## TypeScript 约束
+
+- 第一方源码目录 `src/` 与 `scripts/` 保持 100% TypeScript
+- 禁止新增 `.js`、`.mjs`、`.cjs` 源文件到源码根目录
+- 生成产物、第三方代码、依赖目录不计入该规则
 
 ## 平台配置指南
 
