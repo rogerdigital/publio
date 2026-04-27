@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import '@uiw/react-md-editor/markdown-editor.css';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { usePublishStore } from '@/stores/publishStore';
 import { markdownToHtml } from '@/lib/markdown';
 import {
@@ -11,20 +11,24 @@ import {
   countHeadings,
   estimateReadTime,
 } from '@/lib/contentStats';
+import { useSlashCommands } from '@/hooks/useSlashCommands';
+import SlashCommandMenu from './SlashCommandMenu';
 import * as styles from './editor.css';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
 interface MarkdownEditorProps {
   activeTab: 'edit' | 'preview';
+  onSave?: () => Promise<void>;
 }
 
-export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
-  const { title, setTitle, content, setContent } = usePublishStore();
+export default function MarkdownEditor({ activeTab, onSave }: MarkdownEditorProps) {
+  const { title, setTitle, content, setContent, setActiveTab } = usePublishStore();
   const [editorHeight, setEditorHeight] = useState<number | undefined>(undefined);
   const [isDesktop, setIsDesktop] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const editorWrapRef = useRef<HTMLDivElement>(null);
+  const slash = useSlashCommands(content, setContent);
 
   useEffect(() => {
     function syncHeight() {
@@ -42,6 +46,92 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
     window.addEventListener('resize', syncHeight);
     return () => window.removeEventListener('resize', syncHeight);
   }, []);
+
+  // 全局快捷键
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key === 's') {
+        e.preventDefault();
+        onSave?.();
+      }
+      if (mod && e.key === 'Enter') {
+        e.preventDefault();
+        document.dispatchEvent(new CustomEvent('publio:publish'));
+      }
+      if (mod && e.key === 'p') {
+        e.preventDefault();
+        setActiveTab(activeTab === 'edit' ? 'preview' : 'edit');
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [activeTab, onSave, setActiveTab]);
+
+  // 监听编辑器 keydown 以处理 slash commands 导航
+  useEffect(() => {
+    const wrap = editorWrapRef.current;
+    if (!wrap) return;
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (slash.onKeyDown(e)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }
+
+    wrap.addEventListener('keydown', handleKeyDown, true);
+    return () => {
+      wrap.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [slash]);
+
+  const lastContentForSlashRef = useRef(content);
+  const handleContentChange = (val?: string) => {
+    const newValue = val || '';
+    setContent(newValue);
+    // 仅当内容确实由用户输入变化时检测 slash command
+    if (newValue !== lastContentForSlashRef.current) {
+      lastContentForSlashRef.current = newValue;
+      // 简单检测：如果新内容比旧内容多且包含 /，触发 slash 检测
+      slash.onTextChange(newValue, newValue.length);
+    }
+  };
+
+  const handleImageUpload = useCallback(async (file: File) => {
+    if (!file.type.startsWith('image/')) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      if (!res.ok) return;
+      const { url } = await res.json();
+      const insertion = `\n![${file.name}](${url})\n`;
+      setContent(content + insertion);
+    } catch {
+      // 上传失败静默处理
+    }
+  }, [content, setContent]);
+
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    const files = Array.from(e.clipboardData.files).filter((f) => f.type.startsWith('image/'));
+    if (files.length > 0) {
+      e.preventDefault();
+      for (const file of files) {
+        void handleImageUpload(file);
+      }
+    }
+  }, [handleImageUpload]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
+    if (files.length > 0) {
+      e.preventDefault();
+      for (const file of files) {
+        void handleImageUpload(file);
+      }
+    }
+  }, [handleImageUpload]);
 
   const cleanContent = content.trim();
   const previewHtml = markdownToHtml(
@@ -67,9 +157,13 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
         <div
           ref={editorWrapRef}
           className={styles.editorWrap}
+          onPaste={handlePaste}
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
           onClick={(e) => {
             const target = e.target as HTMLElement;
             if (target.closest('.w-md-editor-toolbar')) return;
+            if (target.closest('[data-slash-menu]')) return;
             if (isDesktop) {
               const textarea = editorWrapRef.current?.querySelector<HTMLTextAreaElement>('textarea.w-md-editor-text-input');
               textarea?.focus();
@@ -78,10 +172,19 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
             }
           }}
         >
+          {slash.visible && (
+            <div data-slash-menu>
+              <SlashCommandMenu
+                commands={slash.filteredCommands}
+                selectedIndex={slash.selectedIndex}
+                onSelect={(cmd) => slash.selectCommand(cmd)}
+              />
+            </div>
+          )}
           {isDesktop ? (
             <MDEditor
               value={content}
-              onChange={(val) => setContent(val || '')}
+              onChange={handleContentChange}
               height={editorHeight}
               preview="edit"
               visibleDragbar={false}
@@ -90,7 +193,7 @@ export default function MarkdownEditor({ activeTab }: MarkdownEditorProps) {
             <textarea
               ref={textareaRef}
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e) => handleContentChange(e.target.value)}
               placeholder="开始写作，支持 Markdown 语法..."
               className={styles.mobileTextarea}
             />
