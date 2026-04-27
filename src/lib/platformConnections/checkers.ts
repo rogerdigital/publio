@@ -4,7 +4,6 @@
  */
 import { TwitterApi } from 'twitter-api-v2';
 import { getWechatConfig, getXhsConfig, getZhihuConfig, getXConfig } from '@/lib/config';
-import { getXhsAccessToken } from '@/lib/publishers/xiaohongshu';
 
 export interface CheckResult {
   ok: boolean;
@@ -42,7 +41,22 @@ export async function checkXiaohongshu(): Promise<CheckResult> {
   }
 
   try {
-    await getXhsAccessToken(appId, appSecret);
+    const tokenRes = await fetch(
+      'https://open.xiaohongshu.com/api/oauth/token',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          app_id: appId,
+          app_secret: appSecret,
+          grant_type: 'client_credentials',
+        }),
+      }
+    );
+    const tokenData = await tokenRes.json();
+    if (tokenData.code !== 0 && tokenData.code !== 200) {
+      return { ok: false, failureReason: `小红书凭证无效: ${tokenData.msg || tokenData.message || '未知错误'}` };
+    }
     const expiresAt = new Date(Date.now() + 7200 * 1000).toISOString();
     return { ok: true, expiresAt };
   } catch (error) {

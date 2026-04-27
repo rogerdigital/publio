@@ -54,6 +54,8 @@ export function createDraftStore(options: DraftStoreOptions = {}) {
         status: 'draft',
         source: input.source,
         ...(input.topicClusterId ? { topicClusterId: input.topicClusterId } : {}),
+        ...(input.scheduledAt ? { scheduledAt: input.scheduledAt } : {}),
+        ...(input.platforms ? { platforms: input.platforms } : {}),
         createdAt: timestamp,
         updatedAt: timestamp,
       };

@@ -15,6 +15,9 @@ interface PublishStore {
   currentDraftId: string | null;
   setCurrentDraftId: (id: string | null) => void;
 
+  activeTab: 'edit' | 'preview';
+  setActiveTab: (tab: 'edit' | 'preview') => void;
+
   platforms: Record<PlatformId, boolean>;
   togglePlatform: (id: PlatformId) => void;
   setAllPlatforms: (checked: boolean) => void;
@@ -33,6 +36,9 @@ interface PublishStore {
   setLastSyncTaskId: (id: string | null) => void;
   openProgressOverlay: () => void;
   closeProgressOverlay: () => void;
+
+  scheduledAt: string | null;
+  setScheduledAt: (value: string | null) => void;
 }
 
 const platformIds = PLATFORMS.map((platform) => platform.id);
@@ -50,6 +56,9 @@ export const usePublishStore = create<PublishStore>((set) => ({
 
   currentDraftId: null,
   setCurrentDraftId: (id) => set({ currentDraftId: id }),
+
+  activeTab: 'edit',
+  setActiveTab: (tab) => set({ activeTab: tab }),
 
   platforms: {
     wechat: true,
@@ -91,4 +100,7 @@ export const usePublishStore = create<PublishStore>((set) => ({
   setLastSyncTaskId: (id) => set({ lastSyncTaskId: id }),
   openProgressOverlay: () => set({ isProgressOverlayOpen: true }),
   closeProgressOverlay: () => set({ isProgressOverlayOpen: false }),
+
+  scheduledAt: null,
+  setScheduledAt: (value) => set({ scheduledAt: value }),
 }));

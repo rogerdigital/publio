@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDraftRegistry } from '@/lib/drafts/registry';
 import type { DraftSource } from '@/lib/drafts/types';
+import { validateTitle, validateContent } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,16 +26,28 @@ export async function POST(request: NextRequest | Request) {
       typeof body.topicClusterId === 'string' && body.topicClusterId.trim()
         ? body.topicClusterId.trim()
         : undefined;
+    const scheduledAt =
+      typeof body.scheduledAt === 'string' && body.scheduledAt.trim()
+        ? body.scheduledAt.trim()
+        : undefined;
+    const platforms = Array.isArray(body.platforms) ? body.platforms : undefined;
 
     if (!title || !content) {
       return NextResponse.json({ error: '标题和内容不能为空' }, { status: 400 });
     }
+
+    const titleErr = validateTitle(title);
+    if (titleErr) return NextResponse.json({ error: titleErr }, { status: 400 });
+    const contentErr = validateContent(content);
+    if (contentErr) return NextResponse.json({ error: contentErr }, { status: 400 });
 
     const draft = getDraftRegistry().createDraft({
       title,
       content,
       source,
       topicClusterId,
+      scheduledAt,
+      platforms,
     });
 
     return NextResponse.json({ draft }, { status: 201 });

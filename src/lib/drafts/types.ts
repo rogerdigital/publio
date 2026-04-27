@@ -1,3 +1,5 @@
+import type { PlatformId } from '@/types';
+
 export type DraftStatus =
   | 'draft'
   | 'ready'
@@ -15,6 +17,8 @@ export interface ContentDraft {
   status: DraftStatus;
   source: DraftSource;
   topicClusterId?: string;
+  scheduledAt?: string;
+  platforms?: PlatformId[];
   createdAt: string;
   updatedAt: string;
 }
@@ -24,10 +28,12 @@ export interface CreateDraftInput {
   content: string;
   source: DraftSource;
   topicClusterId?: string;
+  scheduledAt?: string;
+  platforms?: PlatformId[];
 }
 
 export type UpdateDraftInput = Partial<
-  Pick<ContentDraft, 'title' | 'content' | 'status'>
+  Pick<ContentDraft, 'title' | 'content' | 'status' | 'scheduledAt' | 'platforms'>
 >;
 
 export interface ListDraftsOptions {

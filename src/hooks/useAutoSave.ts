@@ -19,12 +19,13 @@ export function useAutoSave({
   draftId,
   onDraftCreated,
   debounceMs = 1000,
-}: UseAutoSaveOptions): { saveStatus: SaveStatus } {
+}: UseAutoSaveOptions): { saveStatus: SaveStatus; triggerSave: () => Promise<void> } {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // 使用 ref 追踪最新值，避免 stale closure
   const draftIdRef = useRef(draftId);
   const onDraftCreatedRef = useRef(onDraftCreated);
+  const titleRef = useRef(title);
+  const contentRef = useRef(content);
 
   useEffect(() => {
     draftIdRef.current = draftId;
@@ -35,27 +36,41 @@ export function useAutoSave({
   }, [onDraftCreated]);
 
   useEffect(() => {
-    // 标题和内容都为空时不触发
+    titleRef.current = title;
+  }, [title]);
+
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+
+  async function performSave() {
+    const currentTitle = titleRef.current;
+    const currentContent = contentRef.current;
+
+    if (!currentTitle.trim() && !currentContent.trim()) return;
+    if (!currentTitle.trim() && !draftIdRef.current) return;
+
+    setSaveStatus('saving');
+    try {
+      if (draftIdRef.current) {
+        await updateDraft(draftIdRef.current, { title: currentTitle, content: currentContent });
+      } else {
+        const draft = await ensureDraft({ title: currentTitle, content: currentContent, source: 'manual' });
+        onDraftCreatedRef.current(draft.id);
+      }
+      setSaveStatus('saved');
+    } catch {
+      setSaveStatus('error');
+    }
+  }
+
+  useEffect(() => {
     if (!title.trim() && !content.trim()) return;
 
     if (timerRef.current) clearTimeout(timerRef.current);
 
-    timerRef.current = setTimeout(async () => {
-      // 标题为空时不创建新草稿，但若已有草稿则更新内容
-      if (!title.trim() && !draftIdRef.current) return;
-
-      setSaveStatus('saving');
-      try {
-        if (draftIdRef.current) {
-          await updateDraft(draftIdRef.current, { title, content });
-        } else {
-          const draft = await ensureDraft({ title, content, source: 'manual' });
-          onDraftCreatedRef.current(draft.id);
-        }
-        setSaveStatus('saved');
-      } catch {
-        setSaveStatus('error');
-      }
+    timerRef.current = setTimeout(() => {
+      void performSave();
     }, debounceMs);
 
     return () => {
@@ -63,5 +78,5 @@ export function useAutoSave({
     };
   }, [title, content, debounceMs]);
 
-  return { saveStatus };
+  return { saveStatus, triggerSave: performSave };
 }

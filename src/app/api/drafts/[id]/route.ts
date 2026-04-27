@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDraftRegistry } from '@/lib/drafts/registry';
 import type { DraftStatus } from '@/lib/drafts/types';
+import { validateTitle, validateContent } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,13 +39,22 @@ export async function PATCH(request: NextRequest | Request, { params }: DraftRou
   try {
     const { id } = await params;
     const body = await request.json();
-    const input = {
-      ...(typeof body.title === 'string' ? { title: body.title.trim() } : {}),
-      ...(typeof body.content === 'string' ? { content: body.content.trim() } : {}),
-      ...(isDraftStatus(body.status) ? { status: body.status } : {}),
-    };
+    const input: Record<string, unknown> = {};
+    if (typeof body.title === 'string') {
+      const err = validateTitle(body.title);
+      if (err) return NextResponse.json({ error: err }, { status: 400 });
+      input.title = body.title.trim();
+    }
+    if (typeof body.content === 'string') {
+      const err = validateContent(body.content);
+      if (err) return NextResponse.json({ error: err }, { status: 400 });
+      input.content = body.content.trim();
+    }
+    if (isDraftStatus(body.status)) {
+      input.status = body.status;
+    }
 
-    const draft = getDraftRegistry().updateDraft(id, input);
+    const draft = getDraftRegistry().updateDraft(id, input as any);
     if (!draft) return missingDraftResponse();
 
     return NextResponse.json({ draft });
