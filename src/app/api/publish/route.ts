@@ -11,6 +11,7 @@ import {
   toSyncReceiptStatus,
 } from '@/lib/publishers/executePublish';
 import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
+import { validateTitle, validateContent, validatePlatforms } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,18 +23,12 @@ export async function POST(request: NextRequest) {
         : {};
 
     // Basic validation
-    if (!title?.trim()) {
-      return NextResponse.json({ error: '标题不能为空' }, { status: 400 });
-    }
-    if (!content?.trim()) {
-      return NextResponse.json({ error: '内容不能为空' }, { status: 400 });
-    }
-    if (!platforms?.length) {
-      return NextResponse.json(
-        { error: '请至少选择一个发布平台' },
-        { status: 400 }
-      );
-    }
+    const titleErr = validateTitle(title);
+    if (titleErr) return NextResponse.json({ error: titleErr }, { status: 400 });
+    const contentErr = validateContent(content);
+    if (contentErr) return NextResponse.json({ error: contentErr }, { status: 400 });
+    const platformErr = validatePlatforms(platforms);
+    if (platformErr) return NextResponse.json({ error: platformErr }, { status: 400 });
 
     // Platform-level draft validation
     const adaptations = adaptContentForPlatforms({
