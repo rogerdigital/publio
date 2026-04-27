@@ -81,6 +81,7 @@ export const editorCard = style({
   overflow: 'hidden',
   borderRadius: vars.radius.xl,
   background: vars.color.surface,
+  outline: 'none',
 });
 
 export const draftLoadError = style({

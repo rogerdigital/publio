@@ -9,12 +9,7 @@ export const editorRoot = style({
 
 // Title input area
 export const titleRow = style({
-  borderBottom: `1px solid ${vars.color.borderFaint}`,
   padding: '16px',
-  transition: 'border-color 150ms',
-  ':focus-within': {
-    borderColor: vars.color.accent,
-  },
   '@media': {
     'screen and (min-width: 640px)': {
       padding: '16px 20px',
@@ -31,6 +26,12 @@ export const titleInput = style({
   lineHeight: 1.3,
   color: vars.color.text,
   outline: 'none',
+  selectors: {
+    '&:focus, &:focus-visible': {
+      outline: 'none',
+      boxShadow: 'none',
+    },
+  },
   '::placeholder': {
     color: vars.color.textMuted,
   },
@@ -44,18 +45,24 @@ export const titleInput = style({
 // MDEditor wrapper — globalStyle overrides for third-party component
 export const editorWrap = style({
   background: vars.color.surface,
+  position: 'relative',
+  outline: 'none',
 });
 
 globalStyle(`${editorWrap} .w-md-editor`, {
   border: 'none',
   borderRadius: 0,
-  boxShadow: 'none',
+  boxShadow: 'none !important',
   background: 'transparent',
   color: vars.color.text,
 });
 
+globalStyle(`${editorWrap} .w-md-editor:focus-within`, {
+  boxShadow: 'none !important',
+});
+
 globalStyle(`${editorWrap} .w-md-editor-toolbar`, {
-  borderTop: 'none',
+  borderTop: `1px solid ${vars.color.borderFaint}`,
   borderBottom: `1px solid ${vars.color.borderFaint}`,
   background: vars.color.surface,
   padding: '6px 12px',
@@ -73,6 +80,12 @@ globalStyle(`${editorWrap} .w-md-editor-text-input`, {
   fontFamily: vars.font.sans,
   background: 'transparent',
   color: vars.color.text,
+  outline: 'none',
+});
+
+globalStyle(`${editorWrap} .w-md-editor-text-input:focus, ${editorWrap} .w-md-editor-text-input:focus-visible`, {
+  outline: 'none',
+  boxShadow: 'none',
 });
 
 globalStyle(`${editorWrap} .w-md-editor-text-input::placeholder`, {
