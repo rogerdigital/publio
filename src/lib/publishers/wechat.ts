@@ -1,31 +1,6 @@
-import { Publisher, PublishInput, PublishOutput } from './types';
+import type { PublishInput, PublishOutput } from './types';
+import { BasePublisher } from './base';
 import { getWechatConfig } from '@/lib/config';
-
-let cachedToken: { token: string; expiresAt: number } | null = null;
-
-async function getAccessToken(): Promise<string> {
-  const { appId, appSecret } = getWechatConfig();
-
-  if (cachedToken && Date.now() < cachedToken.expiresAt) {
-    return cachedToken.token;
-  }
-
-  const res = await fetch(
-    `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appId}&secret=${appSecret}`
-  );
-  const data = await res.json();
-
-  if (data.errcode) {
-    throw new Error(`微信获取 access_token 失败: ${data.errmsg} (${data.errcode})`);
-  }
-
-  cachedToken = {
-    token: data.access_token,
-    expiresAt: Date.now() + (data.expires_in - 300) * 1000,
-  };
-
-  return cachedToken.token;
-}
 
 async function uploadDefaultThumb(token: string): Promise<string> {
   // Create a minimal 1x1 JPEG as placeholder thumbnail
@@ -98,7 +73,7 @@ async function uploadDefaultThumb(token: string): Promise<string> {
   return data.media_id;
 }
 
-export class WechatPublisher implements Publisher {
+export class WechatPublisher extends BasePublisher {
   platform = 'wechat' as const;
 
   validateConfig(): boolean {
@@ -106,95 +81,94 @@ export class WechatPublisher implements Publisher {
     return !!(appId && appSecret);
   }
 
-  async publish(input: PublishInput): Promise<PublishOutput> {
+  protected async publishToPlatform(input: PublishInput): Promise<PublishOutput> {
+    // Step 1: Get access token
+    const token = await this.getAccessToken();
+
+    // Step 2: Upload thumb image
+    let thumbMediaId: string;
     try {
-      if (!this.validateConfig()) {
-        return {
-          success: false,
-          platform: 'wechat',
-          message: '微信公众号凭证未配置，请在设置中配置 App ID 和 App Secret',
-        };
+      thumbMediaId = await uploadDefaultThumb(token);
+    } catch {
+      thumbMediaId = '';
+    }
+
+    // Step 3: Create draft
+    const digest =
+      input.markdownContent.replace(/[#*`>\-\[\]()!]/g, '').slice(0, 120);
+
+    const draftRes = await fetch(
+      `https://api.weixin.qq.com/cgi-bin/draft/add?access_token=${token}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          articles: [
+            {
+              title: input.title,
+              author: '',
+              content: input.htmlContent,
+              thumb_media_id: thumbMediaId,
+              digest,
+              content_source_url: '',
+              need_open_comment: 0,
+              only_fans_can_comment: 0,
+            },
+          ],
+        }),
       }
+    );
 
-      // Step 1: Get access token
-      const token = await getAccessToken();
+    const draftData = await draftRes.json();
+    if (draftData.errcode) {
+      this.handleAuthError(draftData.errcode);
+      throw new Error(`创建草稿失败: ${draftData.errmsg}`);
+    }
 
-      // Step 2: Upload thumb image
-      let thumbMediaId: string;
-      try {
-        thumbMediaId = await uploadDefaultThumb(token);
-      } catch {
-        // If thumb upload fails, try without it
-        thumbMediaId = '';
+    // Step 4: Submit for publish
+    const publishRes = await fetch(
+      `https://api.weixin.qq.com/cgi-bin/freepublish/submit?access_token=${token}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ media_id: draftData.media_id }),
       }
+    );
 
-      // Step 3: Create draft
-      const digest =
-        input.markdownContent.replace(/[#*`>\-\[\]()!]/g, '').slice(0, 120);
+    const publishData = await publishRes.json();
+    if (publishData.errcode) {
+      throw new Error(`提交发布失败: ${publishData.errmsg}`);
+    }
 
-      const draftRes = await fetch(
-        `https://api.weixin.qq.com/cgi-bin/draft/add?access_token=${token}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            articles: [
-              {
-                title: input.title,
-                author: '',
-                content: input.htmlContent,
-                thumb_media_id: thumbMediaId,
-                digest,
-                content_source_url: '',
-                need_open_comment: 0,
-                only_fans_can_comment: 0,
-              },
-            ],
-          }),
-        }
-      );
+    return {
+      success: true,
+      platform: 'wechat',
+      message: '已提交发布（文章审核后将自动发布）',
+      url: 'https://mp.weixin.qq.com',
+    };
+  }
 
-      const draftData = await draftRes.json();
-      if (draftData.errcode) {
-        throw new Error(`创建草稿失败: ${draftData.errmsg}`);
-      }
+  private async getAccessToken(): Promise<string> {
+    const cached = this.getCachedToken('wechat');
+    if (cached) return cached;
 
-      // Step 4: Submit for publish
-      const publishRes = await fetch(
-        `https://api.weixin.qq.com/cgi-bin/freepublish/submit?access_token=${token}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ media_id: draftData.media_id }),
-        }
-      );
+    const { appId, appSecret } = getWechatConfig();
+    const res = await fetch(
+      `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appId}&secret=${appSecret}`
+    );
+    const data = await res.json();
 
-      const publishData = await publishRes.json();
-      if (publishData.errcode) {
-        throw new Error(`提交发布失败: ${publishData.errmsg}`);
-      }
+    if (data.errcode) {
+      throw new Error(`微信获取 access_token 失败: ${data.errmsg} (${data.errcode})`);
+    }
 
-      return {
-        success: true,
-        platform: 'wechat',
-        message: '已提交发布（文章审核后将自动发布）',
-        url: 'https://mp.weixin.qq.com',
-      };
-    } catch (error) {
-      // Clear token cache on auth errors
-      if (
-        error instanceof Error &&
-        (error.message.includes('40001') || error.message.includes('42001'))
-      ) {
-        cachedToken = null;
-      }
+    this.setCachedToken('wechat', data.access_token, data.expires_in);
+    return data.access_token;
+  }
 
-      return {
-        success: false,
-        platform: 'wechat',
-        message:
-          error instanceof Error ? error.message : '微信公众号发布失败',
-      };
+  private handleAuthError(errcode: number): void {
+    if (errcode === 40001 || errcode === 42001) {
+      this.clearCachedToken('wechat');
     }
   }
 }

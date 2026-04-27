@@ -1,4 +1,5 @@
 import { marked, Tokens } from 'marked';
+import sanitizeHtml from 'sanitize-html';
 
 type StyledPlatform = 'wechat' | 'zhihu';
 
@@ -233,8 +234,20 @@ function tokenize(markdown: string) {
   return marked.lexer(markdown) as unknown as TokensList;
 }
 
+const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'h1', 'h2', 'h3', 'section', 'article']),
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    '*': ['style'],
+    img: ['src', 'alt', 'style'],
+    a: ['href', 'target', 'rel', 'style'],
+  },
+  allowedSchemes: ['http', 'https', 'mailto'],
+};
+
 export function markdownToHtml(markdown: string): string {
-  return tokensToHtml(tokenize(markdown));
+  const raw = tokensToHtml(tokenize(markdown));
+  return sanitizeHtml(raw, SANITIZE_OPTIONS);
 }
 
 export function markdownToStyledHtml(
@@ -274,13 +287,13 @@ export function markdownToStyledHtml(
 
   const bodyHtml = tokensToHtml(bodyTokens, platform, { skipFirstH1: true });
 
-  return `
+  return sanitizeHtml(`
     <article style="${ARTICLE_THEME[platform].article}">
       ${hero}
       ${leadHtml}
       ${bodyHtml}
     </article>
-  `;
+  `, SANITIZE_OPTIONS);
 }
 
 export function markdownToPlainText(markdown: string): string {
