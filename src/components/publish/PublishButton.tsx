@@ -1,8 +1,9 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { usePublishStore } from '@/stores/publishStore';
 import { PlatformId, PublishResponse } from '@/types';
-import { SendHorizonal, Loader2, AlertCircle } from 'lucide-react';
+import { SendHorizonal, Loader2, AlertCircle, Clock } from 'lucide-react';
 import { publishButton } from './publish.css';
 
 const platformLabels: Record<PlatformId, string> = {
@@ -20,11 +21,14 @@ export default function PublishButton() {
     platforms,
     platformDrafts,
     overallStatus,
+    scheduledAt,
     setPublishing,
     setResults,
     setLastSyncTaskId,
     openProgressOverlay,
   } = usePublishStore();
+
+  const handlePublishRef = useRef<typeof handlePublish>(null!);
 
   const selectedPlatforms = (
     Object.entries(platforms) as [PlatformId, boolean][]
@@ -46,6 +50,54 @@ export default function PublishButton() {
 
   async function handlePublish() {
     if (isDisabled) return;
+
+    // 定时发布：创建/更新草稿并设置 scheduledAt
+    if (scheduledAt) {
+      try {
+        const body = {
+          title,
+          content,
+          source: 'manual' as const,
+          scheduledAt,
+          platforms: selectedPlatforms,
+        };
+
+        if (currentDraftId) {
+          await fetch(`/api/drafts/${currentDraftId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+        } else {
+          const res = await fetch('/api/drafts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          const data = await res.json();
+          if (data.draft?.id) {
+            usePublishStore.getState().setCurrentDraftId(data.draft.id);
+          }
+        }
+        setResults(
+          selectedPlatforms.map((p) => ({
+            platform: p,
+            status: 'success' as const,
+            message: `已设定 ${new Date(scheduledAt).toLocaleString('zh-CN')} 定时发布`,
+          })),
+        );
+      } catch (error) {
+        setResults(
+          selectedPlatforms.map((p) => ({
+            platform: p,
+            status: 'error' as const,
+            message: error instanceof Error ? error.message : '设定定时发布失败',
+          })),
+        );
+      }
+      return;
+    }
+
     setPublishing();
 
     try {
@@ -91,6 +143,16 @@ export default function PublishButton() {
     }
   }
 
+  handlePublishRef.current = handlePublish;
+
+  useEffect(() => {
+    function onShortcut() {
+      handlePublishRef.current();
+    }
+    document.addEventListener('publio:publish', onShortcut);
+    return () => document.removeEventListener('publio:publish', onShortcut);
+  }, []);
+
   let label: string;
   if (overallStatus === 'publishing') {
     label = '提交中...';
@@ -98,6 +160,8 @@ export default function PublishButton() {
     label = '请先选择平台';
   } else if (notReadyPlatforms.length > 0) {
     label = `${notReadyPlatforms.map((p) => platformLabels[p]).join('、')} 内容待补全`;
+  } else if (scheduledAt) {
+    label = `定时 ${new Date(scheduledAt).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 发布`;
   } else {
     label = `发布到 ${selectedPlatforms.length} 个平台`;
   }
@@ -110,6 +174,8 @@ export default function PublishButton() {
     >
       {overallStatus === 'publishing' ? (
         <Loader2 size={15} className="animate-spin" />
+      ) : scheduledAt ? (
+        <Clock size={15} />
       ) : notReadyPlatforms.length > 0 ? (
         <AlertCircle size={15} />
       ) : (

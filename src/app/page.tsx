@@ -13,6 +13,7 @@ import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
 import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
 import PublishProgressOverlay from '@/components/publish/PublishProgressOverlay';
+import SchedulePicker from '@/components/publish/SchedulePicker';
 import EditorialContextCard from '@/components/editor/EditorialContextCard';
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
@@ -33,10 +34,11 @@ function HomePageContent() {
     overallStatus,
     currentDraftId,
     setCurrentDraftId,
+    activeTab,
+    setActiveTab,
   } = usePublishStore();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [draftLoadError, setDraftLoadError] = useState('');
   const [clearConfirming, setClearConfirming] = useState(false);
@@ -53,7 +55,7 @@ function HomePageContent() {
     router.replace(`/?draftId=${id}`);
   }, [setCurrentDraftId, router]);
 
-  const { saveStatus } = useAutoSave({
+  const { saveStatus, triggerSave } = useAutoSave({
     title,
     content,
     draftId: currentDraftId,
@@ -187,7 +189,7 @@ function HomePageContent() {
             </div>
 
             <div className={styles.editorCard}>
-              <MarkdownEditor activeTab={activeTab} />
+              <MarkdownEditor activeTab={activeTab} onSave={triggerSave} />
             </div>
           </div>
 
@@ -197,6 +199,10 @@ function HomePageContent() {
             <div className={publishStyles.rightPanelSection}>
               <span className={publishStyles.rightPanelSectionTitle}>发布到</span>
               <PlatformSelector />
+            </div>
+
+            <div className={publishStyles.rightPanelSection}>
+              <SchedulePicker />
             </div>
 
             <PlatformPreviewPanel
