@@ -27,6 +27,11 @@
     "twitter-api-v2": "^1.18.0",
     "zustand": "^5.0.0"
   },
+  "pnpm": {
+    "overrides": {
+      "postcss": ">=8.5.10"
+    }
+  },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
