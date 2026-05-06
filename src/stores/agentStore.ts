@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { AgentAction, AgentStreamStatus } from '@/lib/agent/types';
+import type { AgentAction, AgentStreamStatus, LLMResearchAnalysis } from '@/lib/agent/types';
 
 interface AgentStore {
   // 流式输出状态
@@ -11,6 +11,9 @@ interface AgentStore {
   // AbortController 用于取消正在进行的请求
   abortController: AbortController | null;
 
+  // Research 结果缓存（按 clusterTitle 索引）
+  researchCache: Record<string, LLMResearchAnalysis>;
+
   // Actions
   startStream: (action: AgentAction) => AbortController;
   appendOutput: (delta: string) => void;
@@ -18,6 +21,7 @@ interface AgentStore {
   setError: (error: string) => void;
   abort: () => void;
   reset: () => void;
+  cacheResearch: (analysis: LLMResearchAnalysis) => void;
 }
 
 export const useAgentStore = create<AgentStore>((set, get) => ({
@@ -26,6 +30,7 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
   error: null,
   activeAction: null,
   abortController: null,
+  researchCache: {},
 
   startStream: (action) => {
     // 取消之前的请求（如有）
@@ -71,5 +76,14 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
       activeAction: null,
       abortController: null,
     });
+  },
+
+  cacheResearch: (analysis) => {
+    set((state) => ({
+      researchCache: {
+        ...state.researchCache,
+        [analysis.clusterTitle]: analysis,
+      },
+    }));
   },
 }));

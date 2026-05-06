@@ -93,3 +93,14 @@ export type AgentStreamEvent = AgentStreamDelta | AgentStreamDone | AgentStreamE
 // --- Agent Store ---
 
 export type AgentStreamStatus = 'idle' | 'streaming' | 'done' | 'error';
+
+// --- Research Analysis ---
+
+export interface LLMResearchAnalysis {
+  /** 原始 markdown 输出 */
+  raw: string;
+  /** 话题标题 */
+  clusterTitle: string;
+  /** 生成时间 */
+  generatedAt: string;
+}
