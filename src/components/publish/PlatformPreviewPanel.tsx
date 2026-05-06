@@ -6,6 +6,7 @@ import type { PlatformId } from '@/types';
 import type {
   PlatformContentDrafts,
 } from '@/lib/platformAdapters/types';
+import PlatformAdaptButton from './PlatformAdaptButton';
 import * as styles from './publish.css';
 
 const platformLabels: Record<PlatformId, string> = {
@@ -24,6 +25,7 @@ const formatLabels = {
 interface PlatformPreviewPanelProps {
   adaptations: PlatformContentDrafts;
   selectedPlatforms: PlatformId[];
+  agentEnabled?: boolean;
 }
 
 // 去除常见 Markdown 语法，返回纯文本
@@ -57,6 +59,7 @@ function extractFirstImage(content: string): string | null {
 export default function PlatformPreviewPanel({
   adaptations,
   selectedPlatforms,
+  agentEnabled = false,
 }: PlatformPreviewPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -84,15 +87,17 @@ export default function PlatformPreviewPanel({
         <div className={styles.previewGrid} style={{ marginTop: '8px' }}>
           {selectedPlatforms.map((platform) => {
             const draft = adaptations[platform];
-            const firstImage = extractFirstImage(draft.body);
+            const displayBody = draft.aiAdapted && draft.aiBody ? draft.aiBody : draft.body;
+            const firstImage = extractFirstImage(displayBody);
 
             return (
               <article key={platform} className={styles.previewCard}>
-                {/* 平台名 + 状态 */}
+                {/* 平台名 + 状态 + AI 适配按钮 */}
                 <div className={styles.previewMeta}>
                   <p className={styles.previewPlatform}>{platformLabels[platform]}</p>
+                  <PlatformAdaptButton platform={platform} agentEnabled={agentEnabled} />
                   <span className={`${styles.previewState} ${draft.isReady ? '' : styles.previewStateNotReady}`}>
-                    {draft.isReady ? '可发布' : '待补全'} · {formatLabels[draft.format]}
+                    {draft.aiAdapted ? '✨ AI' : ''} {draft.isReady ? '可发布' : '待补全'} · {formatLabels[draft.format]}
                   </span>
                 </div>
 
@@ -107,8 +112,8 @@ export default function PlatformPreviewPanel({
                 ) : null}
 
                 {/* 内容摘要 */}
-                {draft.body ? (
-                  <p className={styles.previewBody}>{createExcerpt(draft.body)}</p>
+                {displayBody ? (
+                  <p className={styles.previewBody}>{createExcerpt(displayBody)}</p>
                 ) : null}
 
                 {/* Warnings */}

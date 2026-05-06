@@ -1,6 +1,11 @@
-import { style, styleVariants } from '@vanilla-extract/css';
+import { style, styleVariants, keyframes } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/styles/tokens.css';
+
+const spin = keyframes({
+  from: { transform: 'rotate(0deg)' },
+  to: { transform: 'rotate(360deg)' },
+});
 
 export const selectorWrap = style({
   display: 'flex',
@@ -540,4 +545,49 @@ export const collapseChevron = style({
 
 export const collapseChevronOpen = style({
   transform: 'rotate(180deg)',
+});
+
+// AI 适配按钮
+export const adaptButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  borderRadius: '4px',
+  border: `1px solid ${vars.color.border}`,
+  background: 'transparent',
+  padding: '2px 7px',
+  fontSize: '11px',
+  color: vars.color.accent,
+  cursor: 'pointer',
+  transition: 'all 150ms',
+  ':hover': {
+    background: vars.color.accentSoft,
+    borderColor: vars.color.accent,
+  },
+  ':disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  },
+});
+
+export const adaptButtonRevert = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  borderRadius: '4px',
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.canvasDeep,
+  padding: '2px 7px',
+  fontSize: '11px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'all 150ms',
+  ':hover': {
+    borderColor: vars.color.borderStrong,
+    color: vars.color.text,
+  },
+});
+
+export const spinIcon = style({
+  animation: `${spin} 1s linear infinite`,
 });

@@ -222,6 +222,7 @@ function HomePageContent() {
             <PlatformPreviewPanel
               adaptations={platformDrafts}
               selectedPlatforms={selectedPlatforms}
+              agentEnabled={agentEnabled}
             />
 
             <div className={publishStyles.rightPanelSection}>
