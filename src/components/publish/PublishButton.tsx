@@ -114,7 +114,9 @@ export default function PublishButton() {
               platform,
               {
                 title: platformDrafts[platform].title,
-                content: platformDrafts[platform].body,
+                content: (platformDrafts[platform].aiAdapted && platformDrafts[platform].aiBody)
+                  ? platformDrafts[platform].aiBody
+                  : platformDrafts[platform].body,
               },
             ]),
           ),

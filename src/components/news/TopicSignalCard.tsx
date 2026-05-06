@@ -1,4 +1,4 @@
-import { Clock3, ExternalLink, FileUp, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { Clock3, ExternalLink, FileUp, ChevronDown, CheckCircle2, Sparkles } from 'lucide-react';
 
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import ScoreBar from '@/components/news/ScoreBar';
@@ -14,6 +14,10 @@ interface TopicSignalCardProps {
   showBrief: boolean;
   onBriefToggle: (open: boolean) => void;
   onCreateDraft: (item: AiNewsDeskCandidate) => void;
+  onDeepResearch?: (item: AiNewsDeskCandidate) => void;
+  deepResearchContent?: string;
+  deepResearchLoading?: boolean;
+  agentEnabled?: boolean;
 }
 
 function formatArticleMetrics(wordCount?: number, imageCount?: number) {
@@ -36,6 +40,10 @@ export default function TopicSignalCard({
   showBrief,
   onBriefToggle,
   onCreateDraft,
+  onDeepResearch,
+  deepResearchContent,
+  deepResearchLoading,
+  agentEnabled,
 }: TopicSignalCardProps) {
   const brief = item.researchBrief;
   const metrics = formatArticleMetrics(
@@ -143,6 +151,17 @@ export default function TopicSignalCard({
               />
               {showBrief ? '收起底稿' : '查看底稿'}
             </button>
+            {agentEnabled && onDeepResearch && (
+              <button
+                type="button"
+                onClick={() => onDeepResearch(item)}
+                disabled={deepResearchLoading}
+                className={styles.actionButton({ variant: 'secondary' })}
+              >
+                <Sparkles size={15} />
+                {deepResearchLoading ? '分析中…' : deepResearchContent ? '重新分析' : '深度分析'}
+              </button>
+            )}
             {draftId ? (
               <a
                 href={`/?draftId=${draftId}`}
@@ -196,6 +215,21 @@ export default function TopicSignalCard({
                       <p className={styles.angleReason}>{angle.reason}</p>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {/* AI 深度分析结果 */}
+          {deepResearchContent ? (
+            <div className={styles.briefSection}>
+              <div className={styles.briefBlockAccent}>
+                <p className={styles.briefKickerAccent}>✨ AI 深度分析</p>
+                <div
+                  className={styles.briefText}
+                  style={{ whiteSpace: 'pre-wrap' }}
+                >
+                  {deepResearchContent}
                 </div>
               </div>
             </div>

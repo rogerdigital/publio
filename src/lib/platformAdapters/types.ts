@@ -11,6 +11,12 @@ export interface PlatformContentDraft {
   warnings: string[];
   threadParts: string[];
   suggestedTags: string[];
+  /** AI 适配后的内容（优先于 body 使用） */
+  aiBody?: string;
+  /** 是否已经过 AI 适配 */
+  aiAdapted?: boolean;
+  /** AI 适配前的原始 body（用于回退） */
+  originalBody?: string;
 }
 
 export type PlatformContentDrafts = Record<PlatformId, PlatformContentDraft>;

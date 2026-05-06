@@ -12,6 +12,7 @@ const SECRET_KEYS = [
   'ZHIHU_COOKIE',
   'X_API_SECRET',
   'X_ACCESS_TOKEN_SECRET',
+  'AGENT_API_KEY',
 ];
 
 function maskValue(key: string, value: string): string {

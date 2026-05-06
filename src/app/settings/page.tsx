@@ -11,6 +11,7 @@ import {
   RefreshCw,
   Unplug,
   Zap,
+  Sparkles,
 } from 'lucide-react';
 
 import AppShellHeader from '@/components/layout/AppShellHeader';
@@ -576,6 +577,86 @@ function SettingsContent() {
             </SurfaceCard>
           );
         })}
+      </div>
+      <div className={styles.platformList}>
+        <SurfaceCard tone="soft" className={styles.accordionCard}>
+          <div className={styles.accordionTrigger} style={{ cursor: 'default' }}>
+            <div className={styles.accordionIcon}>
+              <Sparkles size={20} />
+            </div>
+            <div className={styles.accordionBody}>
+              <p className={styles.accordionTitle}>AI 助手（Agent）</p>
+              <p className={styles.accordionSummary}>配置 LLM 接口，启用 AI 写作、适配、研究功能</p>
+            </div>
+          </div>
+
+          <div className={styles.accordionPanel}>
+            <div className={styles.fieldList}>
+              <div className={styles.fieldWrap}>
+                <label htmlFor="AGENT_BASE_URL" className={styles.fieldLabel}>
+                  API Base URL
+                </label>
+                <div className={styles.fieldInputWrap}>
+                  <input
+                    id="AGENT_BASE_URL"
+                    type="text"
+                    value={values['AGENT_BASE_URL'] || ''}
+                    onChange={(event) => handleChange('AGENT_BASE_URL', event.target.value)}
+                    placeholder="如 https://api.openai.com/v1 或 https://api.deepseek.com"
+                    className={styles.fieldInput}
+                  />
+                </div>
+              </div>
+              <div className={styles.fieldWrap}>
+                <label htmlFor="AGENT_API_KEY" className={styles.fieldLabel}>
+                  API Key
+                </label>
+                <div className={styles.fieldInputWrap}>
+                  <input
+                    id="AGENT_API_KEY"
+                    type={showSecrets['AGENT_API_KEY'] ? 'text' : 'password'}
+                    value={values['AGENT_API_KEY'] || ''}
+                    onChange={(event) => handleChange('AGENT_API_KEY', event.target.value)}
+                    placeholder="输入 API Key"
+                    className={styles.fieldInput}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => toggleSecret('AGENT_API_KEY')}
+                    aria-label={`${showSecrets['AGENT_API_KEY'] ? '隐藏' : '显示'} API Key`}
+                    className={styles.eyeButton}
+                  >
+                    {showSecrets['AGENT_API_KEY'] ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+              <div className={styles.fieldWrap}>
+                <label htmlFor="AGENT_MODEL" className={styles.fieldLabel}>
+                  模型名称
+                </label>
+                <div className={styles.fieldInputWrap}>
+                  <input
+                    id="AGENT_MODEL"
+                    type="text"
+                    value={values['AGENT_MODEL'] || ''}
+                    onChange={(event) => handleChange('AGENT_MODEL', event.target.value)}
+                    placeholder="如 gpt-4o-mini、deepseek-chat、qwen-plus"
+                    className={styles.fieldInput}
+                  />
+                </div>
+              </div>
+            </div>
+            <p className={styles.fieldHint}>
+              填写任意 OpenAI 兼容 API 的地址、密钥和模型名称。三项全部填写并保存后：
+            </p>
+            <ul className={styles.fieldHint} style={{ margin: '4px 0 0 16px', padding: 0 }}>
+              <li>编辑器输入 <code className={styles.inlineCode}>/</code> 查看 AI 命令（扩写、缩写、改写、润色、续写）</li>
+              <li>AI 选题页话题卡出现「深度分析」按钮</li>
+              <li>发布预览面板出现「AI 适配」按钮</li>
+              <li>分发失败时出现「AI 诊断」按钮</li>
+            </ul>
+          </div>
+        </SurfaceCard>
       </div>
     </div>
   );
