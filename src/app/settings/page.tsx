@@ -647,8 +647,14 @@ function SettingsContent() {
               </div>
             </div>
             <p className={styles.fieldHint}>
-              填写任意 OpenAI 兼容 API 的地址、密钥和模型名称。三项全部填写后，编辑器中的 AI 写作命令自动激活。
+              填写任意 OpenAI 兼容 API 的地址、密钥和模型名称。三项全部填写并保存后：
             </p>
+            <ul className={styles.fieldHint} style={{ margin: '4px 0 0 16px', padding: 0 }}>
+              <li>编辑器输入 <code className={styles.inlineCode}>/</code> 查看 AI 命令（扩写、缩写、改写、润色、续写）</li>
+              <li>AI 选题页话题卡出现「深度分析」按钮</li>
+              <li>发布预览面板出现「AI 适配」按钮</li>
+              <li>分发失败时出现「AI 诊断」按钮</li>
+            </ul>
           </div>
         </SurfaceCard>
       </div>

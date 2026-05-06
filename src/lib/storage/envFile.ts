@@ -36,6 +36,13 @@ export function serializeEnvFile(values: Record<string, string>): string {
     `X_API_SECRET=${values.X_API_SECRET || ''}`,
     `X_ACCESS_TOKEN=${values.X_ACCESS_TOKEN || ''}`,
     `X_ACCESS_TOKEN_SECRET=${values.X_ACCESS_TOKEN_SECRET || ''}`,
+    '',
+    '# AI Agent',
+    `AGENT_BASE_URL=${values.AGENT_BASE_URL || ''}`,
+    `AGENT_API_KEY=${values.AGENT_API_KEY || ''}`,
+    `AGENT_MODEL=${values.AGENT_MODEL || ''}`,
+    `AGENT_MAX_TOKENS=${values.AGENT_MAX_TOKENS || ''}`,
+    `AGENT_TEMPERATURE=${values.AGENT_TEMPERATURE || ''}`,
   ];
   return lines.join('\n') + '\n';
 }
