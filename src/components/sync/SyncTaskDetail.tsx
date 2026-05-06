@@ -1,3 +1,7 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import type { PlatformId } from '@/types';
 import type {
   SyncEvent,
@@ -7,7 +11,9 @@ import type {
   SyncReceiptStatus,
   SyncTask,
   SyncTaskStatus,
+  PlatformSyncReceipt,
 } from '@/lib/sync/types';
+import type { AgentStreamEvent } from '@/lib/agent/types';
 import SyncTaskMarkDoneButton from '@/components/sync/SyncTaskMarkDoneButton';
 import SyncTaskRetryButton from '@/components/sync/SyncTaskRetryButton';
 import * as styles from './sync.css';
@@ -84,10 +90,98 @@ function formatTime(value: string) {
 
 interface SyncTaskDetailProps {
   syncTask: SyncTask;
+  agentEnabled?: boolean;
 }
 
-export default function SyncTaskDetail({ syncTask }: SyncTaskDetailProps) {
+function DiagnoseButton({ receipt }: { receipt: PlatformSyncReceipt }) {
+  const [loading, setLoading] = useState(false);
+  const [diagnosis, setDiagnosis] = useState(receipt.diagnosis || '');
+
+  const handleDiagnose = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/agent/diagnose', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          platform: receipt.platform,
+          errorMessage: receipt.failureMessage || receipt.message || '未知错误',
+          statusCode: undefined,
+          context: receipt.failureCode ? `failureCode: ${receipt.failureCode}` : undefined,
+        }),
+      });
+
+      if (!response.ok || !response.body) {
+        setDiagnosis('诊断请求失败');
+        return;
+      }
+
+      const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+      let buffer = '';
+      let accumulated = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += value;
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const event: AgentStreamEvent = JSON.parse(line.slice(6));
+            if (event.type === 'delta') {
+              accumulated += event.content;
+              setDiagnosis(accumulated);
+            }
+          } catch {
+            // skip
+          }
+        }
+      }
+    } catch {
+      setDiagnosis('诊断失败，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ marginTop: 8 }}>
+      {!diagnosis && (
+        <button
+          type="button"
+          onClick={handleDiagnose}
+          disabled={loading}
+          className={styles.receiptLink}
+          style={{ cursor: 'pointer', border: 'none', background: 'none', padding: 0 }}
+        >
+          <Sparkles size={12} style={{ marginRight: 4, verticalAlign: '-1px' }} />
+          {loading ? '诊断中…' : 'AI 诊断'}
+        </button>
+      )}
+      {diagnosis && (
+        <div style={{ fontSize: '12px', color: '#5c4a3f', whiteSpace: 'pre-wrap', marginTop: 4, padding: '8px', background: '#faf6f2', borderRadius: 6 }}>
+          {diagnosis}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function SyncTaskDetail({ syncTask, agentEnabled: agentEnabledProp }: SyncTaskDetailProps) {
   const hasFailedReceipt = syncTask.receipts.some((receipt) => receipt.status === 'failed');
+  const [agentChecked, setAgentChecked] = useState(agentEnabledProp ?? false);
+
+  useEffect(() => {
+    if (agentEnabledProp !== undefined) return;
+    fetch('/api/agent/status')
+      .then((r) => r.json())
+      .then((d) => setAgentChecked(d.available === true))
+      .catch(() => setAgentChecked(false));
+  }, [agentEnabledProp]);
+
+  const agentEnabled = agentEnabledProp ?? agentChecked;
 
   return (
     <section className={styles.detailPanel}>
@@ -132,6 +226,9 @@ export default function SyncTaskDetail({ syncTask }: SyncTaskDetailProps) {
                 taskId={syncTask.id}
                 platform={receipt.platform}
               />
+            ) : null}
+            {receipt.status === 'failed' && agentEnabled ? (
+              <DiagnoseButton receipt={receipt} />
             ) : null}
           </article>
         ))}
