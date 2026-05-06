@@ -24,6 +24,8 @@ interface PublishStore {
 
   platformDrafts: PlatformContentDrafts;
   syncPlatformDrafts: () => void;
+  setAIAdaptedContent: (platform: PlatformId, aiBody: string) => void;
+  revertAIDraft: (platform: PlatformId) => void;
 
   overallStatus: PublishStatus;
   results: PlatformPublishResult[];
@@ -84,6 +86,38 @@ export const usePublishStore = create<PublishStore>((set) => ({
         platforms: platformIds,
       }),
     })),
+
+  setAIAdaptedContent: (platform, aiBody) =>
+    set((state) => {
+      const draft = state.platformDrafts[platform];
+      return {
+        platformDrafts: {
+          ...state.platformDrafts,
+          [platform]: {
+            ...draft,
+            aiBody,
+            aiAdapted: true,
+            originalBody: draft.originalBody || draft.body,
+          },
+        },
+      };
+    }),
+
+  revertAIDraft: (platform) =>
+    set((state) => {
+      const draft = state.platformDrafts[platform];
+      return {
+        platformDrafts: {
+          ...state.platformDrafts,
+          [platform]: {
+            ...draft,
+            aiBody: undefined,
+            aiAdapted: false,
+            originalBody: undefined,
+          },
+        },
+      };
+    }),
 
   overallStatus: 'idle',
   results: [],
