@@ -93,9 +93,31 @@ interface SyncTaskDetailProps {
   agentEnabled?: boolean;
 }
 
-function DiagnoseButton({ receipt }: { receipt: PlatformSyncReceipt }) {
+function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; taskId: string }) {
   const [loading, setLoading] = useState(false);
   const [diagnosis, setDiagnosis] = useState(receipt.diagnosis || '');
+  const [retrying, setRetrying] = useState(false);
+  const [retryMessage, setRetryMessage] = useState('');
+
+  const canRetry = diagnosis.includes('可重试：是');
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    setRetryMessage('');
+    try {
+      const response = await fetch(`/api/sync-tasks/${taskId}/retry`, { method: 'POST' });
+      const data = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        setRetryMessage(data.error ?? '重试失败');
+      } else {
+        setRetryMessage('重试已完成');
+      }
+    } catch {
+      setRetryMessage('重试失败');
+    } finally {
+      setRetrying(false);
+    }
+  };
 
   const handleDiagnose = async () => {
     setLoading(true);
@@ -163,6 +185,20 @@ function DiagnoseButton({ receipt }: { receipt: PlatformSyncReceipt }) {
       {diagnosis && (
         <div style={{ fontSize: '12px', color: '#5c4a3f', whiteSpace: 'pre-wrap', marginTop: 4, padding: '8px', background: '#faf6f2', borderRadius: 6 }}>
           {diagnosis}
+          {canRetry && (
+            <div style={{ marginTop: 8 }}>
+              <button
+                type="button"
+                onClick={handleRetry}
+                disabled={retrying}
+                className={styles.receiptLink}
+                style={{ cursor: 'pointer', border: 'none', background: 'none', padding: 0, fontWeight: 500 }}
+              >
+                {retrying ? '重试中…' : '🔄 智能重试'}
+              </button>
+              {retryMessage && <span style={{ marginLeft: 8, fontSize: '11px' }}>{retryMessage}</span>}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -228,7 +264,7 @@ export default function SyncTaskDetail({ syncTask, agentEnabled: agentEnabledPro
               />
             ) : null}
             {receipt.status === 'failed' && agentEnabled ? (
-              <DiagnoseButton receipt={receipt} />
+              <DiagnoseButton receipt={receipt} taskId={syncTask.id} />
             ) : null}
           </article>
         ))}
