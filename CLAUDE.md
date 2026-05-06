@@ -1,6 +1,6 @@
 # Publio
 
-> 多平台内容分发工具，支持 Markdown 编辑、AI 新闻聚合、一键发布到微信公众号 / 小红书 / 知乎 / X (Twitter)。
+> 多平台内容分发工具，支持 Markdown 编辑、AI 新闻聚合、AI 写作辅助、一键发布到微信公众号 / 小红书 / 知乎 / X (Twitter)。
 
 ## Project Overview
 
@@ -21,9 +21,10 @@
 | Editor | @uiw/react-md-editor |
 | State | Zustand 5 |
 | Markdown | marked 15 |
+| LLM Streaming | eventsource-parser (server-side SSE parsing) |
 | Social API | twitter-api-v2 |
 | Lint | ESLint 9 + eslint-config-next |
-| Package Manager | pnpm (dev script 中使用 pnpm run) |
+| Package Manager | pnpm |
 
 ## Architecture
 
@@ -31,129 +32,95 @@
 src/
 ├── app/                    # Next.js App Router 页面
 │   ├── layout.tsx            # 根布局（Sidebar + main）
-│   ├── page.tsx              # 首页：写作台（编辑器 + 右侧发布面板 + 自动保存）
+│   ├── page.tsx              # 首页：写作台（编辑器 + Agent 面板 + 发布面板）
 │   ├── ai-news/
 │   │   ├── page.tsx          # AI 选题工作台（SSR metadata）
 │   │   └── error.tsx         # 错误边界
 │   ├── drafts/
-│   │   ├── page.tsx          # 稿件库页（SSR metadata）
-│   │   └── DraftsPageClient.tsx  # 稿件库客户端
+│   │   ├── page.tsx          # 稿件库页
+│   │   └── DraftsPageClient.tsx
 │   ├── settings/
-│   │   └── page.tsx          # 设置页（API 凭证管理）
+│   │   └── page.tsx          # 设置页（平台凭证 + AI Agent 配置）
+│   ├── sync-tasks/           # 分发记录
+│   │   ├── page.tsx
+│   │   └── [id]/page.tsx
 │   └── api/                  # API Routes
-│       ├── ai-news/route.ts    # AI 新闻 RSS 聚合接口
-│       ├── publish/route.ts    # 统一发布接口（fire-and-forget）
-│       ├── settings/route.ts   # .env.local 读写接口
+│       ├── ai-news/route.ts
+│       ├── publish/route.ts
+│       ├── settings/route.ts
 │       ├── drafts/             # 草稿 CRUD
-│       │   ├── route.ts          # GET list / POST create
-│       │   └── [id]/route.ts     # GET / PATCH / DELETE
-│       ├── sync-tasks/         # 分发任务
 │       │   ├── route.ts
 │       │   └── [id]/route.ts
+│       ├── sync-tasks/         # 分发任务
+│       │   ├── route.ts
+│       │   └── [id]/
+│       │       ├── route.ts
+│       │       ├── mark-done/route.ts
+│       │       └── retry/route.ts
+│       ├── agent/              # AI Agent SSE endpoints
+│       │   ├── status/route.ts   # GET — 检查 Agent 可用性
+│       │   ├── write/route.ts    # POST — 写作辅助（扩写/缩写/改写/润色/续写）
+│       │   ├── adapt/route.ts    # POST — 平台内容适配
+│       │   ├── research/route.ts # POST — 深度选题分析
+│       │   └── diagnose/route.ts # POST — 发布失败诊断
 │       └── platforms/          # 平台连接管理
 │           └── [platform]/connection/
-│               ├── check/route.ts
-│               ├── disconnect/route.ts
-│               ├── oauth/start/route.ts
-│               └── oauth/callback/route.ts
 ├── components/
-│   ├── layout/
-│   │   ├── Sidebar.tsx           # 侧边导航栏
-│   │   ├── AppShellHeader.tsx    # 通用页头（kicker/title/description/action）
-│   │   └── SurfaceCard.tsx       # 卡片容器（tone 变体）
-│   ├── editor/
-│   │   ├── MarkdownEditor.tsx    # Markdown 编辑器（@uiw/react-md-editor）
-│   │   ├── DraftPanel.tsx        # 草稿抽屉面板
-│   │   ├── RecentDraftBar.tsx    # 移动端最近草稿栏
-│   │   └── EditorialContextCard.tsx  # 稿件统计信号卡
-│   ├── news/
-│   │   ├── AiNewsPageClient.tsx  # AI 选题工作台客户端
-│   │   ├── TopicSignalCard.tsx   # 话题信号卡片（含六维评分进度条）
-│   │   ├── TopicDeskHeader.tsx   # 选题工作台页头
-│   │   └── ScoreBar.tsx          # 单条评分进度条原子组件
-│   ├── publish/
-│   │   ├── PlatformSelector.tsx      # 平台选择器
-│   │   ├── PublishButton.tsx         # 发布按钮（发布后打开进度浮层）
-│   │   ├── PublishStatusPanel.tsx    # 发布状态面板
-│   │   ├── PlatformPreviewPanel.tsx  # 平台内容预览（可折叠）
-│   │   └── PublishProgressOverlay.tsx  # 发布进度浮层（右下角，轮询更新）
-│   ├── drafts/
-│   │   └── DraftLibraryClient.tsx   # 稿件库流水线视图（含彩色分发状态）
-│   └── sync/
-│       ├── SyncTaskList.tsx          # 分发记录列表
-│       └── SyncTaskDetail.tsx        # 分发详情面板
+│   ├── layout/               # AppShellHeader, Sidebar, SurfaceCard
+│   ├── editor/               # MarkdownEditor, DraftPanel, EditorialContextCard
+│   ├── news/                 # AiNewsPageClient, TopicSignalCard, ScoreBar
+│   ├── publish/              # PlatformSelector, PublishButton, PlatformPreviewPanel,
+│   │                         # PlatformAdaptButton, PublishTimingSuggestion
+│   ├── sync/                 # SyncTaskList, SyncTaskDetail (含 DiagnoseButton)
+│   ├── agent/                # AgentPanel, AgentStreamOutput
+│   └── drafts/               # DraftLibraryClient
 ├── hooks/
-│   └── useAutoSave.ts        # 防抖自动保存 hook（停止输入 1s 后触发）
+│   ├── useAutoSave.ts
+│   ├── useSlashCommands.ts   # 编辑器 slash commands（含 AI 命令）
+│   └── useAgentStream.ts     # SSE 消费 hook（fetch + AbortController）
 ├── lib/
-│   ├── ai-news/              # AI 新闻引擎
-│   │   ├── index.ts            # 完整 pipeline（抓取→聚类→评分→排序）
-│   │   ├── sources.ts          # RSS 源定义
-│   │   ├── cluster.ts          # 话题聚类
-│   │   ├── score.ts            # 六维评分
-│   │   └── research.ts         # 研究底稿生成
-│   ├── drafts/
-│   │   ├── store.ts            # 草稿 CRUD（JSON 文件，原子写）
-│   │   ├── registry.ts         # 单例注册表
-│   │   ├── client.ts           # 客户端请求函数（updateDraft / ensureDraft）
-│   │   └── types.ts            # 类型定义
-│   ├── sync/
-│   │   ├── store.ts            # 分发任务 CRUD + 状态机
-│   │   ├── registry.ts         # 单例注册表
-│   │   └── types.ts
-│   ├── publishers/             # 各平台发布器
-│   │   ├── executePublish.ts
-│   │   ├── wechat.ts
-│   │   ├── x.ts
-│   │   ├── xiaohongshu.ts
-│   │   └── zhihu.ts
-│   ├── platformAdapters/       # 内容适配（各平台格式/字数校验）
-│   │   ├── adaptContent.ts
-│   │   └── types.ts
-│   ├── platformConnections/    # 平台连接管理
-│   │   ├── profiles.ts
-│   │   ├── checkers.ts
-│   │   └── index.ts
-│   ├── storage/                # 通用存储工具
-│   │   ├── jsonFileCollection.ts  # 原子写 JSON 文件
-│   │   ├── localDataPath.ts
-│   │   └── envFile.ts
-│   ├── markdown.ts             # Markdown → 带样式 HTML 转换
-│   ├── newsDraft.ts            # 新闻草稿 localStorage 桥接
-│   ├── config.ts               # 平台 API 配置
-│   └── publishStatus.ts        # 发布状态工具函数
+│   ├── agent/                # AI Agent 核心
+│   │   ├── types.ts            # AgentAction, ChatMessage, LLMProvider 等
+│   │   ├── config.ts           # 从 .env.local 实时读取 Agent 配置
+│   │   ├── provider.ts         # OpenAI-compatible streaming provider
+│   │   ├── stream.ts           # createSSEResponse — Next.js SSE 封装
+│   │   ├── publishOps.ts       # 发布历史聚合 + 时间建议
+│   │   └── prompts/
+│   │       ├── writing.ts        # 扩写/缩写/改写/润色/续写 prompt
+│   │       ├── adaptation.ts     # 各平台风格适配 prompt
+│   │       ├── research.ts       # 深度选题分析 prompt
+│   │       └── diagnose.ts       # 发布失败诊断 prompt
+│   ├── ai-news/              # RSS → 聚类 → 评分 → 研究底稿
+│   ├── drafts/               # 草稿 CRUD（JSON 文件）
+│   ├── sync/                 # 分发任务状态机
+│   ├── publishers/           # 各平台发布器
+│   ├── platformAdapters/     # 内容格式适配
+│   ├── platformConnections/  # 连接管理
+│   ├── storage/              # jsonFileCollection, envFile
+│   ├── markdown.ts
+│   ├── newsDraft.ts          # 研究底稿 → Markdown 草稿（支持 LLM 分析融入）
+│   └── config.ts
 ├── stores/
-│   └── publishStore.ts      # Zustand 全局状态（title/content/platforms/currentDraftId/浮层）
+│   ├── publishStore.ts       # 编辑器内容、平台选择、发布状态
+│   └── agentStore.ts         # Agent 流式输出状态 + researchCache
 ├── styles/
-│   └── tokens.css.ts        # 设计 token（颜色/圆角/字体）
+│   └── tokens.css.ts         # 设计 token
 └── types/
-    └── index.ts              # 类型定义 + PLATFORMS 常量
-scripts/
-└── dev-safe.ts               # 开发启动脚本（端口清理 + 缓存清除）
+    └── index.ts
 ```
 
 ## Commands
 
 ```bash
-# 安装依赖
-pnpm install
-
-# 开发模式（自动清理端口和缓存，默认 port 3000）
-pnpm dev
-
-# 直接启动 Next.js dev server（跳过端口清理）
-pnpm run dev:raw
-
-# 生产构建
-pnpm build
-
-# 启动生产服务
-pnpm start
-
-# 预览（构建 + 启动）
-pnpm preview
-
-# 代码检查
-pnpm lint
+pnpm install          # 安装依赖
+pnpm dev              # 开发模式（含端口清理 + 缓存清除）
+pnpm run dev:raw      # 跳过清理直接启动
+pnpm build            # 生产构建
+pnpm start            # 启动生产服务
+pnpm preview          # 构建 + 启动
+pnpm lint             # ESLint 检查
+pnpm test             # Vitest 测试
+pnpm verify           # lint + test + build
 ```
 
 ## Code Conventions
@@ -161,50 +128,61 @@ pnpm lint
 ### TypeScript
 - 路径别名: `@/*` → `./src/*`
 - Target: ES2017, strict mode
-- JSX: preserve（由 Next.js 处理）
 - 使用 `export default function` 导出页面和组件
 - 类型定义集中在 `src/types/index.ts`
 
 ### React & Next.js
-- 使用 App Router（`src/app/` 目录结构）
-- 客户端组件显式标注 `'use client'`
-- 动态导入重组件: `dynamic(() => import(...), { ssr: false })`
-- Metadata 通过 `export const metadata` 声明
+- App Router（`src/app/`），客户端组件标注 `'use client'`
+- 动态导入: `dynamic(() => import(...), { ssr: false })`
 - API Routes 使用 Route Handlers (`route.ts`)
 
 ### Styling
 - vanilla-extract（`@vanilla-extract/css` + `@vanilla-extract/recipes`）
-- 每个组件对应同目录的 `.css.ts` 文件
-- 设计 token 集中在 `src/styles/tokens.css.ts`（颜色、圆角、字体）
-- 设计风格：暖色调（橙/棕基调 `#D97757` accent），卡片式布局
+- 每个组件对应同目录 `.css.ts` 文件
+- 设计 token 在 `src/styles/tokens.css.ts`（暖色调，橙/棕基调 `#D97757` accent）
+- `keyframes` 动画用 `keyframes()` 函数单独定义，不能内联在 style 对象里
 
 ### State Management
-- Zustand store 位于 `src/stores/`
-- 单一 `publishStore` 管理编辑器内容、平台选择、发布状态、当前草稿 ID、发布进度浮层
-- `useAutoSave` hook 防抖自动保存（`src/hooks/useAutoSave.ts`）
-- localStorage 用于新闻草稿临时传递 (`publio-ai-news-draft`)
+- Zustand 5，store 在 `src/stores/`
+- `publishStore` — 编辑器内容、平台选择、发布状态、AI 适配内容
+- `agentStore` — Agent 流式输出、AbortController、researchCache
+- localStorage 用于新闻草稿临时传递
+
+### Agent System
+- **Graceful degradation** — 无 AGENT_* 配置时所有 AI 入口隐藏
+- **Provider 无关** — 任何 OpenAI-compatible API（智谱GLM/DeepSeek/Qwen/OpenAI/Ollama）
+- **Streaming first** — 所有 Agent 响应走 SSE（text/event-stream）
+- **独立 store** — agentStore 与 publishStore 解耦
+- **配置热更新** — `getAgentConfig()` 从 .env.local 实时读取，设置页保存后无需重启
 
 ### Patterns
-- **平台配置**: 环境变量读取集中在 `src/lib/config.ts`
-- **RSS 聚合**: 多源 RSS 抓取 → 聚类 → 六维评分 → 排序 → 研究底稿生成
-- **发布流程**: 编辑器 → 选平台 → 统一发布接口（fire-and-forget）→ 原地浮层展示进度
-- **自动保存**: 停止输入 1s 后触发，首次保存自动创建草稿并更新 URL
-- **数据存储**: JSON 文件持久化（`.publio-data/`），原子写（`.tmp` + rename）
-- **中文注释**: 项目惯例，UI 文案以中文为主
+- **平台配置**: `src/lib/config.ts`
+- **RSS 聚合**: 多源 RSS → 聚类 → 六维评分 → 排序 → 研究底稿
+- **发布流程**: 编辑器 → 选平台 → fire-and-forget → 浮层轮询
+- **AI 写作**: Slash command → SSE → Agent Panel → 插入/替换/复制
+- **自动保存**: 停止输入 1s 触发，首次保存自动创建草稿
+- **数据存储**: JSON 文件（`.publio-data/`），原子写
 
 ## Environment Variables
 
-各平台 API 密钥通过 `.env.local` 配置：
-
+### 平台凭证
 - `WECHAT_APP_ID`, `WECHAT_APP_SECRET`
 - `XHS_APP_ID`, `XHS_APP_SECRET`, `XHS_ACCESS_TOKEN`
 - `ZHIHU_COOKIE`
 - `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET`
 
+### AI Agent（三项必填，设置页可配）
+- `AGENT_BASE_URL` — OpenAI-compatible endpoint（如 `https://open.bigmodel.cn/api/paas/v4`）
+- `AGENT_API_KEY` — API key
+- `AGENT_MODEL` — 模型名（如 `glm-4-flash`, `deepseek-chat`）
+- `AGENT_MAX_TOKENS` — 可选，默认 2048
+- `AGENT_TEMPERATURE` — 可选，默认 0.7
+
 ## Important Guardrails
 
-- `.env` / `.env.local` 已在 `.gitignore` 中，不要提交密钥
-- `.next/` 和 `node_modules/` 不提交
-- `dist/` 目录已被 gitignore
-- `scripts/dev-safe.ts` 会在开发启动前清理端口和 `.next/cache`
-- 中文注释和 UI 文案是项目惯例，保持一致
+- `.env` / `.env.local` 不提交（已 gitignore）
+- `.next/` / `node_modules/` 不提交
+- 第一方源码必须 TypeScript，禁止 `.js`/`.mjs`/`.cjs`
+- `scripts/dev-safe.ts` 在开发启动前清理端口和缓存
+- 中文注释和 UI 文案是项目惯例
+- main 分支有保护规则：必须通过 PR + 状态检查
