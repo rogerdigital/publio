@@ -18,10 +18,16 @@
 - 自动保存（停止输入 1s 触发，首次保存自动创建草稿并更新 URL）
 - Editorial context 卡片：标题状态、结构统计、可发布建议
 
+**AI 写作助手**（可选，需配置 LLM）
+- 编辑器 Slash 命令：`/ai-expand`（扩写）、`/ai-condense`（缩写）、`/ai-rewrite`（改写）、`/ai-polish`（润色）、`/ai-continue`（续写）
+- 右侧流式输出面板，支持插入、替换、复制
+- 支持任意 OpenAI 兼容 API（智谱GLM、DeepSeek、通义千问、OpenAI、Ollama 等）
+
 **AI 选题工作台**
 - 从 9 个 RSS 数据源抓取 24h AI 行业动态 → 话题聚类 → 五维评分 → 最多 10 条候选题
 - 每条附带研究底稿（事件经过、重要性、影响方、写作切口、多方视角、配图）
-- 一键转稿到写作台
+- AI 深度分析（可选，需配置 LLM）：多角度解读、趋势判断、写作建议
+- 一键转稿到写作台（含 LLM 分析融入）
 
 **稿件库**
 - 持久化草稿管理（手动创建 / AI 选题转稿），支持状态跟踪（draft → ready → synced）
@@ -29,8 +35,10 @@
 
 **多平台发布**
 - 并发发布（Promise.allSettled），支持微信公众号、小红书、知乎、X (Twitter)
+- AI 平台适配（可选）：一键生成各平台风格内容（小红书 emoji/tag、X 精炼、微信长文润色）
 - 发布进度浮层（右下角轮询更新各平台状态）
-- 同步任务追踪：各平台回执、失败原因、重试 / 手动标记完成
+- 同步任务追踪：各平台回执、失败原因、AI 诊断、重试 / 手动标记完成
+- 发布时机建议（基于历史发布数据）
 - 各平台内容格式适配（字数校验、样式转换）
 
 **平台连接管理**
@@ -108,7 +116,7 @@ pnpm verify       # 完整验证（lint + test + build）
 
 ### 技术栈
 
-Next.js 15 (App Router) · React 19 · TypeScript 5 (strict) · vanilla-extract · Zustand 5 · marked 15 · Vitest + Testing Library
+Next.js 15 (App Router) · React 19 · TypeScript 5 (strict) · vanilla-extract · Zustand 5 · marked 15 · eventsource-parser · Vitest + Testing Library
 
 ### 代码规范
 
@@ -128,13 +136,28 @@ Next.js 15 (App Router) · React 19 · TypeScript 5 (strict) · vanilla-extract 
 | 知乎 | `ZHIHU_COOKIE` | 浏览器登录后从 DevTools Network 面板复制 Cookie |
 | X (Twitter) | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET` | [developer.x.com](https://developer.x.com/) |
 
+#### AI Agent（可选）
+
+| 变量 | 说明 |
+|------|------|
+| `AGENT_BASE_URL` | OpenAI 兼容 API 地址（如 `https://open.bigmodel.cn/api/paas/v4`） |
+| `AGENT_API_KEY` | 对应平台的 API Key |
+| `AGENT_MODEL` | 模型名（如 `glm-4-flash`、`deepseek-chat`） |
+| `AGENT_MAX_TOKENS` | 可选，默认 2048 |
+| `AGENT_TEMPERATURE` | 可选，默认 0.7 |
+
+三项必填配置完成后，编辑器 AI 命令、选题深度分析、平台适配、发布诊断功能自动激活。
+
 ## Roadmap
 
 - [ ] 更多平台支持（掘金、CSDN、B 站专栏）
 - [ ] 图片上传与管理（图床集成）
 - [ ] 排版模板系统
-- [ ] 定时发布
-- [ ] 多语言内容适配（AI 辅助翻译）
+- [x] 定时发布
+- [x] AI 写作辅助（扩写/缩写/改写/润色/续写）
+- [x] AI 平台内容适配
+- [x] AI 选题深度分析
+- [x] AI 发布诊断与智能重试
 - [ ] 数据看板（各平台阅读量、互动数据聚合）
 
 ## License
