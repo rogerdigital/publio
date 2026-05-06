@@ -12,6 +12,7 @@ import {
   estimateReadTime,
 } from '@/lib/contentStats';
 import { useSlashCommands } from '@/hooks/useSlashCommands';
+import { useAgentStream } from '@/hooks/useAgentStream';
 import SlashCommandMenu from './SlashCommandMenu';
 import * as styles from './editor.css';
 
@@ -20,15 +21,17 @@ const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 interface MarkdownEditorProps {
   activeTab: 'edit' | 'preview';
   onSave?: () => Promise<void>;
+  agentEnabled?: boolean;
 }
 
-export default function MarkdownEditor({ activeTab, onSave }: MarkdownEditorProps) {
+export default function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEditorProps) {
   const { title, setTitle, content, setContent, setActiveTab } = usePublishStore();
   const [editorHeight, setEditorHeight] = useState<number | undefined>(undefined);
   const [isDesktop, setIsDesktop] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const editorWrapRef = useRef<HTMLDivElement>(null);
-  const slash = useSlashCommands(content, setContent);
+  const slash = useSlashCommands(content, setContent, { agentEnabled });
+  const agent = useAgentStream();
 
   useEffect(() => {
     function syncHeight() {
@@ -177,7 +180,16 @@ export default function MarkdownEditor({ activeTab, onSave }: MarkdownEditorProp
               <SlashCommandMenu
                 commands={slash.filteredCommands}
                 selectedIndex={slash.selectedIndex}
-                onSelect={(cmd) => slash.selectCommand(cmd)}
+                onSelect={(cmd) => {
+                  const result = slash.selectCommand(cmd);
+                  if (result?.type === 'ai') {
+                    agent.request({
+                      url: '/api/agent/write',
+                      body: { action: result.action, content, title },
+                      action: result.action,
+                    });
+                  }
+                }}
               />
             </div>
           )}

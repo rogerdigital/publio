@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, Files, SquarePen, Eraser } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
+import { useAgentStore } from '@/stores/agentStore';
 import AppShellHeader from '@/components/layout/AppShellHeader';
 import MarkdownEditor from '@/components/editor/MarkdownEditor';
 import RecentDraftBar from '@/components/editor/RecentDraftBar';
@@ -15,6 +16,7 @@ import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
 import PublishProgressOverlay from '@/components/publish/PublishProgressOverlay';
 import SchedulePicker from '@/components/publish/SchedulePicker';
 import EditorialContextCard from '@/components/editor/EditorialContextCard';
+import AgentPanel from '@/components/agent/AgentPanel';
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
 import { useAutoSave } from '@/hooks/useAutoSave';
@@ -37,12 +39,22 @@ function HomePageContent() {
     activeTab,
     setActiveTab,
   } = usePublishStore();
+  const agentStatus = useAgentStore((s) => s.status);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [draftLoadError, setDraftLoadError] = useState('');
   const [clearConfirming, setClearConfirming] = useState(false);
   const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [agentEnabled, setAgentEnabled] = useState(false);
+
+  // 检查 Agent 是否已配置
+  useEffect(() => {
+    fetch('/api/agent/status')
+      .then((r) => r.json())
+      .then((data) => setAgentEnabled(data.available === true))
+      .catch(() => setAgentEnabled(false));
+  }, []);
   const selectedPlatforms = useMemo(
     () => Object.entries(platforms)
       .filter(([, selected]) => selected)
@@ -189,9 +201,11 @@ function HomePageContent() {
             </div>
 
             <div className={styles.editorCard}>
-              <MarkdownEditor activeTab={activeTab} onSave={triggerSave} />
+              <MarkdownEditor activeTab={activeTab} onSave={triggerSave} agentEnabled={agentEnabled} />
             </div>
           </div>
+
+          {agentStatus !== 'idle' && <AgentPanel />}
 
           <div className={styles.rightPanel}>
             <EditorialContextCard />
