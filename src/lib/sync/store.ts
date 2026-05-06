@@ -117,6 +117,9 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
           ...input,
           attempts: receipt.attempts + 1,
           updatedAt: timestamp,
+          ...(input.status === 'published' || input.status === 'draft-created'
+            ? { publishedAt: timestamp }
+            : {}),
         };
       });
 

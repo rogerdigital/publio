@@ -55,9 +55,11 @@ export interface PlatformSyncReceipt {
   url?: string;
   attempts: number;
   updatedAt: string;
+  publishedAt?: string;
   failureCode?: SyncFailureCode;
   failureMessage?: string;
   nextAction?: SyncNextAction;
+  diagnosis?: string;
 }
 
 export interface SyncTask {
