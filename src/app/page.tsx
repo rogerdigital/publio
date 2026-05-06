@@ -14,6 +14,7 @@ import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
 import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
 import PublishProgressOverlay from '@/components/publish/PublishProgressOverlay';
+import PublishTimingSuggestion from '@/components/publish/PublishTimingSuggestion';
 import SchedulePicker from '@/components/publish/SchedulePicker';
 import EditorialContextCard from '@/components/editor/EditorialContextCard';
 import AgentPanel from '@/components/agent/AgentPanel';
@@ -218,6 +219,8 @@ function HomePageContent() {
             <div className={publishStyles.rightPanelSection}>
               <SchedulePicker />
             </div>
+
+            <PublishTimingSuggestion />
 
             <PlatformPreviewPanel
               adaptations={platformDrafts}
