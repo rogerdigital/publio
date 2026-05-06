@@ -266,6 +266,7 @@ export default function AiNewsPageClient() {
           })),
         },
       ],
+      llmAnalysis: deepResearchContent[item.clusterId] || undefined,
     });
     void writeDraftAndOpenEditor(item.title, content, item.clusterId);
   };
