@@ -54,6 +54,8 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   editToggleButton: 'editToggleButton',
   syncStatusStepVariants: () => 'syncStatusStepVariants',
   syncStatusLabelVariants: () => 'syncStatusLabelVariants',
+  toolbar: 'toolbar',
+  searchInput: 'searchInput',
   filterBar: 'filterBar',
   filterChip: (variants: { active?: boolean }) =>
     variants?.active ? 'filterChip-active' : 'filterChip',

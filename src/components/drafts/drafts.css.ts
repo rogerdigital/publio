@@ -558,6 +558,70 @@ export const syncStatusLabelVariants = styleVariants({
   partial: { fontSize: '13px', fontWeight: 500, color: vars.color.warningText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
 });
 
+// 搜索栏 + 筛选栏
+export const toolbar = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  flexWrap: 'wrap',
+});
+
+export const searchInput = style({
+  flex: 1,
+  minWidth: 200,
+  padding: '6px 12px',
+  fontSize: 13,
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: vars.radius.lg,
+  background: vars.color.surface,
+  color: vars.color.text,
+  outline: 'none',
+  ':focus': {
+    borderColor: vars.color.accent,
+  },
+  '::placeholder': {
+    color: vars.color.textMuted,
+  },
+});
+
+export const tagContainer = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: 4,
+  marginTop: 6,
+});
+
+export const tagChip = recipe({
+  base: {
+    borderRadius: 999,
+    padding: '2px 8px',
+    fontSize: 11,
+    cursor: 'default',
+    transition: 'background-color 150ms',
+  },
+  variants: {
+    active: {
+      true: {
+        background: vars.color.accentSoft,
+        color: vars.color.signal,
+      },
+      false: {
+        background: vars.color.bgElevated,
+        color: vars.color.textMuted,
+      },
+    },
+    clickable: {
+      true: {
+        cursor: 'pointer',
+        ':hover': {
+          opacity: 0.8,
+        },
+      },
+    },
+  },
+  defaultVariants: { active: false, clickable: false },
+});
+
 // 状态筛选栏
 export const filterBar = style({
   display: 'flex',

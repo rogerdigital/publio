@@ -11,8 +11,8 @@ interface AgentStore {
   // AbortController 用于取消正在进行的请求
   abortController: AbortController | null;
 
-  // Research 结果缓存（按 clusterTitle 索引）
-  researchCache: Record<string, LLMResearchAnalysis>;
+  // Research 结果缓存（按 clusterTitle 索引，带 TTL）
+  researchCache: Record<string, { analysis: LLMResearchAnalysis; cachedAt: number }>;
 
   // Actions
   startStream: (action: AgentAction) => AbortController;
@@ -82,7 +82,7 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
     set((state) => ({
       researchCache: {
         ...state.researchCache,
-        [analysis.clusterTitle]: analysis,
+        [analysis.clusterTitle]: { analysis, cachedAt: Date.now() },
       },
     }));
   },

@@ -19,6 +19,7 @@ export interface ContentDraft {
   topicClusterId?: string;
   scheduledAt?: string;
   platforms?: PlatformId[];
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -33,7 +34,7 @@ export interface CreateDraftInput {
 }
 
 export type UpdateDraftInput = Partial<
-  Pick<ContentDraft, 'title' | 'content' | 'status' | 'scheduledAt' | 'platforms'>
+  Pick<ContentDraft, 'title' | 'content' | 'status' | 'scheduledAt' | 'platforms' | 'tags'>
 >;
 
 export interface ListDraftsOptions {

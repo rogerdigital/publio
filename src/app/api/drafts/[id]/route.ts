@@ -54,6 +54,9 @@ export async function PATCH(request: NextRequest | Request, { params }: DraftRou
     if (isDraftStatus(body.status)) {
       input.status = body.status;
     }
+    if (Array.isArray(body.tags)) {
+      input.tags = body.tags.filter((t: unknown) => typeof t === 'string').slice(0, 20);
+    }
 
     const draft = getDraftRegistry().updateDraft(id, input as any);
     if (!draft) return missingDraftResponse();

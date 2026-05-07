@@ -66,6 +66,8 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [statusFilter, setStatusFilter] = useState<DraftStatus | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [tagFilter, setTagFilter] = useState('');
 
   useEffect(() => {
     if (!isEditMode) {
@@ -209,22 +211,68 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
       )}
 
       {!isEditMode && (
-        <div className={styles.filterBar}>
-          {(['all', 'draft', 'ready', 'syncing', 'synced', 'failed'] as const).map((s) => (
-            <button
-              key={s}
-              type="button"
-              className={styles.filterChip({ active: statusFilter === s })}
-              onClick={() => setStatusFilter(s)}
-            >
-              {s === 'all' ? '全部' : statusLabels[s as DraftStatus]}
-            </button>
-          ))}
+        <div className={styles.toolbar}>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="搜索稿件标题或内容..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <div className={styles.filterBar}>
+            {(['all', 'draft', 'ready', 'syncing', 'synced', 'failed'] as const).map((s) => (
+              <button
+                key={s}
+                type="button"
+                className={styles.filterChip({ active: statusFilter === s })}
+                onClick={() => setStatusFilter(s)}
+              >
+                {s === 'all' ? '全部' : statusLabels[s as DraftStatus]}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
+      {/* 标签筛选 */}
+      {!isEditMode && (() => {
+        const allTags = [...new Set(drafts.flatMap((d) => d.tags ?? []))];
+        if (allTags.length === 0) return null;
+        return (
+          <div className={styles.tagContainer}>
+            {tagFilter && (
+              <button
+                type="button"
+                className={styles.tagChip({ active: false, clickable: true })}
+                onClick={() => setTagFilter('')}
+              >
+                全部标签
+              </button>
+            )}
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                className={styles.tagChip({ active: tagFilter === tag, clickable: true })}
+                onClick={() => setTagFilter(tagFilter === tag ? '' : tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        );
+      })()}
+
       <div className={styles.pipelineList}>
-        {drafts.filter((d) => statusFilter === 'all' || d.status === statusFilter).map((draft) => {
+        {drafts
+          .filter((d) => statusFilter === 'all' || d.status === statusFilter)
+          .filter((d) => {
+            if (!searchQuery.trim()) return true;
+            const q = searchQuery.toLowerCase();
+            return d.title.toLowerCase().includes(q) || d.content.toLowerCase().includes(q);
+          })
+          .filter((d) => !tagFilter || (d.tags ?? []).includes(tagFilter))
+          .map((draft) => {
           const syncTask = syncTasks.find((t) => t.draftId === draft.id);
           const isSelected = selected.has(draft.id);
 

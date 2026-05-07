@@ -134,13 +134,14 @@ export default function AiNewsPageClient() {
       .catch(() => setAgentEnabled(false));
   }, []);
 
-  // Restore cached research results
+  // Restore cached research results (TTL: 1h)
   useEffect(() => {
+    const TTL = 60 * 60 * 1000;
     const restored: Record<string, string> = {};
-    for (const [title, analysis] of Object.entries(researchCache)) {
-      // Find matching candidate by title
+    for (const [title, entry] of Object.entries(researchCache)) {
+      if (Date.now() - entry.cachedAt > TTL) continue;
       const match = allCandidates.find((c) => c.title === title);
-      if (match) restored[match.clusterId] = analysis.raw;
+      if (match) restored[match.clusterId] = entry.analysis.raw;
     }
     if (Object.keys(restored).length > 0) {
       setDeepResearchContent((prev) => ({ ...prev, ...restored }));

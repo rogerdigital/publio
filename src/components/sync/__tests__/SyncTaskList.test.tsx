@@ -11,6 +11,8 @@ vi.mock('@/components/sync/sync.css', () => ({
   historyMeta: 'historyMeta',
   historyLink: 'historyLink',
   emptyHistory: 'emptyHistory',
+  filterBar: 'filterBar',
+  filterChip: () => 'filterChip',
 }));
 
 vi.mock('@/components/feedback/EmptyState', () => ({
