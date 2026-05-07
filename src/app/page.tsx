@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, Files, SquarePen, Eraser } from 'lucide-react';
+import { Eye, Files, SquarePen, Eraser, History } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import { useAgentStore } from '@/stores/agentStore';
 import AppShellHeader from '@/components/layout/AppShellHeader';
@@ -17,6 +17,7 @@ import PublishProgressOverlay from '@/components/publish/PublishProgressOverlay'
 import PublishTimingSuggestion from '@/components/publish/PublishTimingSuggestion';
 import SchedulePicker from '@/components/publish/SchedulePicker';
 import EditorialContextCard from '@/components/editor/EditorialContextCard';
+import VersionHistory from '@/components/editor/VersionHistory';
 import AgentPanel from '@/components/agent/AgentPanel';
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
@@ -48,6 +49,7 @@ function HomePageContent() {
   const [clearConfirming, setClearConfirming] = useState(false);
   const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [agentEnabled, setAgentEnabled] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
 
   // 检查 Agent 是否已配置
   useEffect(() => {
@@ -74,6 +76,11 @@ function HomePageContent() {
     draftId: currentDraftId,
     onDraftCreated: handleDraftCreated,
   });
+
+  const handleVersionRestore = useCallback((version: { title: string; content: string }) => {
+    setTitle(version.title);
+    setContent(version.content);
+  }, [setTitle, setContent]);
 
   const handleNewDraft = useCallback(() => {
     setTitle('');
@@ -210,6 +217,27 @@ function HomePageContent() {
 
           <div className={styles.rightPanel}>
             <EditorialContextCard />
+
+            {currentDraftId && (
+              <div className={publishStyles.rightPanelSection}>
+                <button
+                  type="button"
+                  className={publishStyles.collapseToggle}
+                  onClick={() => setShowVersionHistory((v) => !v)}
+                >
+                  <span className={publishStyles.rightPanelSectionTitle}>
+                    <History size={12} style={{ marginRight: 4 }} />
+                    版本历史
+                  </span>
+                  <span style={{ fontSize: 11, color: 'var(--color-text-muted, #999)' }}>
+                    {showVersionHistory ? '收起' : '展开'}
+                  </span>
+                </button>
+                {showVersionHistory && (
+                  <VersionHistory draftId={currentDraftId} onRestore={handleVersionRestore} />
+                )}
+              </div>
+            )}
 
             <div className={publishStyles.rightPanelSection}>
               <span className={publishStyles.rightPanelSectionTitle}>发布到</span>

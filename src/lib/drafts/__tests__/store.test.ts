@@ -12,12 +12,13 @@ describe('createDraftStore', () => {
     const timestamps = [
       '2026-04-11T06:00:00.000Z',
       '2026-04-11T06:05:00.000Z',
+      '2026-04-11T06:10:00.000Z',
     ];
 
     try {
       const store = createDraftStore({
         createId: () => 'draft-1',
-        now: () => timestamps.shift() ?? '2026-04-11T06:10:00.000Z',
+        now: () => timestamps.shift() ?? '2026-04-11T06:15:00.000Z',
         storagePath,
       });
 
@@ -37,7 +38,7 @@ describe('createDraftStore', () => {
         status: 'ready',
         source: 'manual',
         createdAt: '2026-04-11T06:00:00.000Z',
-        updatedAt: '2026-04-11T06:05:00.000Z',
+        updatedAt: '2026-04-11T06:10:00.000Z',
       });
     } finally {
       rmSync(dataDir, { recursive: true, force: true });
@@ -72,10 +73,11 @@ describe('createDraftStore', () => {
     const timestamps = [
       '2026-04-11T06:00:00.000Z',
       '2026-04-11T06:05:00.000Z',
+      '2026-04-11T06:10:00.000Z',
     ];
     const store = createDraftStore({
       createId: () => 'draft-1',
-      now: () => timestamps.shift() ?? '2026-04-11T06:10:00.000Z',
+      now: () => timestamps.shift() ?? '2026-04-11T06:15:00.000Z',
     });
 
     store.createDraft({
@@ -97,7 +99,7 @@ describe('createDraftStore', () => {
       status: 'ready',
       source: 'ai-news',
       createdAt: '2026-04-11T06:00:00.000Z',
-      updatedAt: '2026-04-11T06:05:00.000Z',
+      updatedAt: '2026-04-11T06:10:00.000Z',
     });
   });
 
@@ -108,10 +110,11 @@ describe('createDraftStore', () => {
       '2026-04-11T06:01:00.000Z',
       '2026-04-11T06:02:00.000Z',
       '2026-04-11T06:03:00.000Z',
+      '2026-04-11T06:04:00.000Z',
     ];
     const store = createDraftStore({
       createId: () => `draft-${nextId++}`,
-      now: () => timestamps.shift() ?? '2026-04-11T06:04:00.000Z',
+      now: () => timestamps.shift() ?? '2026-04-11T06:05:00.000Z',
     });
 
     store.createDraft({ title: 'A', content: 'A body', source: 'manual' });
@@ -124,7 +127,7 @@ describe('createDraftStore', () => {
         id: 'draft-1',
         content: 'A body updated',
         status: 'draft',
-        updatedAt: '2026-04-11T06:02:00.000Z',
+        updatedAt: '2026-04-11T06:03:00.000Z',
       }),
     ]);
     expect(store.listDrafts({ includeArchived: true })).toEqual([
