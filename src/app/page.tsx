@@ -18,6 +18,7 @@ import PublishTimingSuggestion from '@/components/publish/PublishTimingSuggestio
 import SchedulePicker from '@/components/publish/SchedulePicker';
 import EditorialContextCard from '@/components/editor/EditorialContextCard';
 import VersionHistory from '@/components/editor/VersionHistory';
+import TemplatePicker from '@/components/editor/TemplatePicker';
 import AgentPanel from '@/components/agent/AgentPanel';
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
@@ -166,6 +167,12 @@ function HomePageContent() {
                 预览
               </button>
             </div>
+            <TemplatePicker
+              onSelect={(template) => {
+                setTitle(template.title);
+                setContent(template.content);
+              }}
+            />
             <button
               type="button"
               onClick={handleClearClick}
