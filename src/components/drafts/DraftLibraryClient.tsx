@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FileText, RefreshCcw, Newspaper, PenLine, ArrowRightCircle, Trash2, Download, Upload } from 'lucide-react';
+import { FileText, RefreshCcw, Newspaper, PenLine, ArrowRightCircle, Trash2, Download, Upload, Archive } from 'lucide-react';
 import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
 import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
-import { deleteDraft, createDraft } from '@/lib/drafts/client';
+import { deleteDraft, createDraft, updateDraft } from '@/lib/drafts/client';
 import { exportDraftToMarkdown, parseMarkdownToDraft, downloadFile, readTextFile } from '@/lib/drafts/importExport';
 import EmptyState from '@/components/feedback/EmptyState';
 import * as styles from './drafts.css';
@@ -178,6 +178,34 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
     }
   }
 
+  function handleExportSelected() {
+    const selectedDrafts = drafts.filter((d) => selected.has(d.id));
+    for (const draft of selectedDrafts) {
+      const md = exportDraftToMarkdown(draft);
+      const filename = `${draft.title.replace(/[^a-zA-Z0-9一-鿿]/g, '_').slice(0, 40) || 'draft'}.md`;
+      downloadFile(filename, md);
+    }
+  }
+
+  async function handleArchiveSelected() {
+    if (selected.size === 0 || deleting) return;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      await Promise.all(
+        Array.from(selected).map((id) => updateDraft(id, { status: 'archived' })),
+      );
+      setDrafts((prev) =>
+        prev.map((d) => (selected.has(d.id) ? { ...d, status: 'archived' as const } : d)),
+      );
+      onExitEditMode();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : '归档失败，请稍后重试。');
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className={styles.statePanel}>
@@ -229,6 +257,26 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
               disabled={deleting}
             >
               取消
+            </button>
+            <button
+              type="button"
+              className={styles.batchActionButton}
+              onClick={handleExportSelected}
+              disabled={selected.size === 0}
+              title="导出选中稿件"
+            >
+              <Download size={13} />
+              导出
+            </button>
+            <button
+              type="button"
+              className={styles.batchActionButton}
+              onClick={() => void handleArchiveSelected()}
+              disabled={selected.size === 0 || deleting}
+              title="归档选中稿件"
+            >
+              <Archive size={13} />
+              归档
             </button>
             <button
               type="button"

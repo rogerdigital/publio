@@ -696,3 +696,26 @@ export const exportButton = style({
     color: vars.color.text,
   },
 });
+
+export const batchActionButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '5px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: 'transparent',
+  padding: '6px 10px',
+  fontSize: '13px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'all 150ms',
+  ':hover': {
+    background: vars.color.canvasDeep,
+    color: vars.color.text,
+    borderColor: vars.color.borderStrong,
+  },
+  ':disabled': {
+    opacity: 0.4,
+    cursor: 'not-allowed',
+  },
+});
