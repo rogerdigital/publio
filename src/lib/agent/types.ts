@@ -38,7 +38,7 @@ export type WritingAction =
   | 'polish'    // 润色
   | 'continue'; // 续写
 
-export type AgentAction = WritingAction | 'adapt' | 'research' | 'diagnose';
+export type AgentAction = WritingAction | 'adapt' | 'research' | 'diagnose' | 'chat';
 
 // --- Agent Request/Response ---
 

@@ -152,3 +152,105 @@ export const emptyState = style({
   textAlign: 'center',
   padding: '32px 16px',
 });
+
+// ─── Chat Messages ───
+
+export const chatMessages = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+});
+
+export const chatTurn = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '4px',
+});
+
+export const chatTurnRole = style({
+  fontSize: '11px',
+  fontWeight: 600,
+  color: vars.color.textMuted,
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+});
+
+export const chatTurnContent = style({
+  fontSize: '14px',
+  lineHeight: 1.6,
+  color: vars.color.text,
+  whiteSpace: 'pre-wrap',
+  wordBreak: 'break-word',
+  borderRadius: vars.radius.lg,
+  padding: '10px 12px',
+});
+
+export const chatTurnUser = style({
+  background: vars.color.accentSoft,
+});
+
+export const chatTurnAssistant = style({
+  background: vars.color.bgElevated,
+});
+
+// ─── Chat Input ───
+
+export const chatInputWrap = style({
+  display: 'flex',
+  alignItems: 'flex-end',
+  gap: '8px',
+  padding: '12px 16px',
+  borderTop: `1px solid ${vars.color.borderFaint}`,
+});
+
+export const chatInput = style({
+  flex: 1,
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: vars.radius.lg,
+  padding: '8px 10px',
+  fontSize: '13px',
+  lineHeight: 1.5,
+  color: vars.color.text,
+  background: vars.color.surface,
+  resize: 'none',
+  outline: 'none',
+  fontFamily: 'inherit',
+  transition: 'border-color 150ms',
+  ':focus': {
+    borderColor: vars.color.accent,
+  },
+});
+
+export const chatSendButton = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: 32,
+  height: 32,
+  borderRadius: vars.radius.lg,
+  border: 'none',
+  background: vars.color.accent,
+  color: '#ffffff',
+  cursor: 'pointer',
+  flexShrink: 0,
+  transition: 'opacity 150ms',
+  ':hover': {
+    opacity: 0.9,
+  },
+  ':disabled': {
+    opacity: 0.4,
+    cursor: 'not-allowed',
+  },
+});
+
+export const clearChatButton = style({
+  fontSize: '11px',
+  color: vars.color.textMuted,
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  padding: '2px 4px',
+  ':hover': {
+    color: vars.color.text,
+  },
+});
