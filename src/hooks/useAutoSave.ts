@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { updateDraft, ensureDraft } from '@/lib/drafts/client';
+import { useToastStore } from '@/stores/toastStore';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -61,6 +62,7 @@ export function useAutoSave({
       setSaveStatus('saved');
     } catch {
       setSaveStatus('error');
+      useToastStore.getState().addToast('error', '草稿保存失败');
     }
   }
 

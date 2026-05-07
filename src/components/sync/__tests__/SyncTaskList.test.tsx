@@ -13,6 +13,14 @@ vi.mock('@/components/sync/sync.css', () => ({
   emptyHistory: 'emptyHistory',
 }));
 
+vi.mock('@/components/feedback/EmptyState', () => ({
+  default: ({ title }: { title: string }) => createElement('div', null, title),
+}));
+vi.mock('@/components/feedback/EmptyState.css', () => ({}));
+vi.mock('lucide-react', () => ({
+  ClipboardList: () => createElement('svg'),
+}));
+
 describe('SyncTaskList', () => {
   test('renders sync tasks with links to details', async () => {
     const { default: SyncTaskList } = await import('@/components/sync/SyncTaskList');

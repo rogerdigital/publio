@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { PlatformId } from '@/types';
 import { getDraftRegistry } from '@/lib/drafts/registry';
 import { getSyncHistoryStore } from '@/lib/sync/registry';
@@ -12,8 +12,11 @@ import {
 } from '@/lib/publishers/executePublish';
 import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
 import { validateTitle, validateContent, validatePlatforms } from '@/lib/validation';
+import { apiResponse, apiError } from '@/lib/api/response';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const body = await request.json();
     const { draftId, title, content, platforms } = body;
@@ -22,15 +25,13 @@ export async function POST(request: NextRequest) {
         ? body.platformDrafts
         : {};
 
-    // Basic validation
     const titleErr = validateTitle(title);
-    if (titleErr) return NextResponse.json({ error: titleErr }, { status: 400 });
+    if (titleErr) return apiError(titleErr);
     const contentErr = validateContent(content);
-    if (contentErr) return NextResponse.json({ error: contentErr }, { status: 400 });
+    if (contentErr) return apiError(contentErr);
     const platformErr = validatePlatforms(platforms);
-    if (platformErr) return NextResponse.json({ error: platformErr }, { status: 400 });
+    if (platformErr) return apiError(platformErr);
 
-    // Platform-level draft validation
     const adaptations = adaptContentForPlatforms({
       title,
       content,
@@ -43,17 +44,10 @@ export async function POST(request: NextRequest) {
       return !draftTitle.trim() || !draftContent.trim();
     });
     if (notReadyPlatforms.length > 0) {
-      return NextResponse.json(
-        {
-          error: `以下平台内容不完整，无法发布: ${notReadyPlatforms.join(', ')}`,
-          notReadyPlatforms,
-        },
-        { status: 400 }
-      );
+      return apiError(`以下平台内容不完整，无法发布: ${notReadyPlatforms.join(', ')}`, 400, { notReadyPlatforms });
     }
     void adaptations;
 
-    // Create sync task immediately so the UI can redirect to the detail page
     const syncStore = getSyncHistoryStore();
     let syncTask = syncStore.createTask({
       draftId: typeof draftId === 'string' && draftId.trim() ? draftId.trim() : undefined,
@@ -61,8 +55,8 @@ export async function POST(request: NextRequest) {
       platforms: platforms as PlatformId[],
     });
 
-    // Execute publish in the background (fire-and-forget within the same process).
-    // For a personal tool this is sufficient; swap for a real queue later.
+    logger.info('Publish task created', { taskId: syncTask.id, platforms });
+
     void (async () => {
       try {
         const publishResults = await publishToPlatforms(
@@ -93,8 +87,10 @@ export async function POST(request: NextRequest) {
             status: toDraftStatus(syncTask.status),
           });
         }
-      } catch {
-        // Best-effort: mark all still-pending receipts as failed
+
+        logger.info('Publish completed', { taskId: syncTask.id, durationMs: Date.now() - startTime });
+      } catch (err) {
+        logger.error('Publish failed in background', { taskId: syncTask.id, error: err instanceof Error ? err.message : String(err) });
         for (const platform of platforms as PlatformId[]) {
           const receipt = syncStore.getTask(syncTask.id)?.receipts.find(
             (r) => r.platform === platform && r.status === 'pending',
@@ -110,14 +106,9 @@ export async function POST(request: NextRequest) {
       }
     })();
 
-    // Return task ID immediately — client navigates to /sync-tasks/:id
-    return NextResponse.json({ syncTaskId: syncTask.id, syncTask });
+    return apiResponse({ syncTaskId: syncTask.id, syncTask });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : '服务器内部错误',
-      },
-      { status: 500 }
-    );
+    logger.error('Publish request failed', { durationMs: Date.now() - startTime, error: error instanceof Error ? error.message : String(error) });
+    return apiError(error instanceof Error ? error.message : '服务器内部错误', 500);
   }
 }

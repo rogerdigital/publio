@@ -2,6 +2,11 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { createElement } from 'react';
 
+vi.mock('@/components/feedback/EmptyState', () => ({
+  default: ({ title }: { title: string }) => createElement('div', null, title),
+}));
+vi.mock('@/components/feedback/EmptyState.css', () => ({}));
+
 vi.mock('@/components/drafts/drafts.css', () => ({
   draftList: 'draftList',
   draftCard: 'draftCard',

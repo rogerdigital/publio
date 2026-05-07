@@ -6,6 +6,7 @@ import { FileText, RefreshCcw, Newspaper, PenLine, ArrowRightCircle, Trash2 } fr
 import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
 import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
 import { deleteDraft } from '@/lib/drafts/client';
+import EmptyState from '@/components/feedback/EmptyState';
 import * as styles from './drafts.css';
 
 interface DraftsResponse {
@@ -162,18 +163,16 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
 
   if (drafts.length === 0) {
     return (
-      <div className={styles.emptyState}>
-        <div className={styles.emptyIcon}>
-          <FileText size={24} />
-        </div>
-        <p className={styles.stateTitle}>还没有稿件</p>
-        <p className={styles.stateText}>
-          从写作台新建内容，或从选题台把研究底稿加入稿件库。
-        </p>
-        <Link href="/" className={styles.primaryLink}>
-          去写作台
-        </Link>
-      </div>
+      <EmptyState
+        icon={<FileText size={24} />}
+        title="还没有稿件"
+        description="从写作台新建内容，或从选题台把研究底稿加入稿件库。"
+        action={
+          <Link href="/" className={styles.primaryLink}>
+            去写作台
+          </Link>
+        }
+      />
     );
   }
 

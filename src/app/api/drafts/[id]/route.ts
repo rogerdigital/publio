@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getDraftRegistry } from '@/lib/drafts/registry';
 import type { DraftStatus } from '@/lib/drafts/types';
 import { validateTitle, validateContent } from '@/lib/validation';
+import { apiResponse, apiError } from '@/lib/api/response';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,14 +26,14 @@ function isDraftStatus(value: unknown): value is DraftStatus {
 }
 
 function missingDraftResponse() {
-  return NextResponse.json({ error: '稿件不存在' }, { status: 404 });
+  return apiError('稿件不存在', 404);
 }
 
 export async function GET(_request: NextRequest | Request, { params }: DraftRouteContext) {
   const { id } = await params;
   const draft = getDraftRegistry().getDraft(id);
   if (!draft) return missingDraftResponse();
-  return NextResponse.json({ draft });
+  return apiResponse({ draft });
 }
 
 export async function PATCH(request: NextRequest | Request, { params }: DraftRouteContext) {
@@ -42,12 +43,12 @@ export async function PATCH(request: NextRequest | Request, { params }: DraftRou
     const input: Record<string, unknown> = {};
     if (typeof body.title === 'string') {
       const err = validateTitle(body.title);
-      if (err) return NextResponse.json({ error: err }, { status: 400 });
+      if (err) return apiError(err);
       input.title = body.title.trim();
     }
     if (typeof body.content === 'string') {
       const err = validateContent(body.content);
-      if (err) return NextResponse.json({ error: err }, { status: 400 });
+      if (err) return apiError(err);
       input.content = body.content.trim();
     }
     if (isDraftStatus(body.status)) {
@@ -57,12 +58,9 @@ export async function PATCH(request: NextRequest | Request, { params }: DraftRou
     const draft = getDraftRegistry().updateDraft(id, input as any);
     if (!draft) return missingDraftResponse();
 
-    return NextResponse.json({ draft });
+    return apiResponse({ draft });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : '更新稿件失败' },
-      { status: 500 },
-    );
+    return apiError(error instanceof Error ? error.message : '更新稿件失败', 500);
   }
 }
 
@@ -70,5 +68,5 @@ export async function DELETE(_request: NextRequest | Request, { params }: DraftR
   const { id } = await params;
   const draft = getDraftRegistry().archiveDraft(id);
   if (!draft) return missingDraftResponse();
-  return NextResponse.json({ draft });
+  return apiResponse({ draft });
 }

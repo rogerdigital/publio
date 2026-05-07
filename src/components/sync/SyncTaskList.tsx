@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import { ClipboardList } from 'lucide-react';
 
 import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
+import EmptyState from '@/components/feedback/EmptyState';
 import * as styles from './sync.css';
 
 const taskStatusLabels: Record<SyncTaskStatus, string> = {
@@ -28,7 +30,13 @@ interface SyncTaskListProps {
 
 export default function SyncTaskList({ tasks }: SyncTaskListProps) {
   if (tasks.length === 0) {
-    return <p className={styles.emptyHistory}>还没有分发记录</p>;
+    return (
+      <EmptyState
+        icon={<ClipboardList size={24} />}
+        title="还没有分发记录"
+        description="发布内容后，分发记录会出现在这里。"
+      />
+    );
   }
 
   return (

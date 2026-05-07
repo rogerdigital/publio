@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 import { getDraftRegistry } from '@/lib/drafts/registry';
 import { getSyncHistoryStore } from '@/lib/sync/registry';
@@ -9,6 +9,7 @@ import {
   toNextAction,
   toSyncReceiptStatus,
 } from '@/lib/publishers/executePublish';
+import { apiResponse, apiError } from '@/lib/api/response';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,25 +28,24 @@ export async function POST(
   let syncTask = syncStore.getTask(id);
 
   if (!syncTask) {
-    return NextResponse.json({ error: '分发任务不存在' }, { status: 404 });
+    return apiError('分发任务不存在', 404);
   }
   if (!syncTask.draftId) {
-    return NextResponse.json({ error: '分发任务没有关联稿件，无法重试' }, { status: 400 });
+    return apiError('分发任务没有关联稿件，无法重试');
   }
 
   const draft = getDraftRegistry().getDraft(syncTask.draftId);
   if (!draft) {
-    return NextResponse.json({ error: '关联稿件不存在，无法重试' }, { status: 404 });
+    return apiError('关联稿件不存在，无法重试', 404);
   }
 
-  // Only retry genuinely failed receipts — auth-expired needs re-auth, not blind retry
   const retryPlatforms = syncTask.receipts
     .filter((receipt) => receipt.status === 'failed')
     .filter((receipt) => receipt.failureCode !== 'auth-expired')
     .map((receipt) => receipt.platform);
 
   if (retryPlatforms.length === 0) {
-    return NextResponse.json({ error: '没有可重试的平台（需要重新授权的平台请先前往设置页重新连接）' }, { status: 400 });
+    return apiError('没有可重试的平台（需要重新授权的平台请先前往设置页重新连接）');
   }
 
   const publishResults = await publishToPlatforms(
@@ -54,7 +54,6 @@ export async function POST(
     draft.content,
   );
 
-  // Append a retried event before processing results
   syncStore.appendRetryEvent(syncTask.id);
 
   for (const result of publishResults) {
@@ -77,7 +76,7 @@ export async function POST(
     status: toDraftStatus(syncTask.status),
   });
 
-  return NextResponse.json({
+  return apiResponse({
     syncTask,
     retriedPlatforms: retryPlatforms,
     results: publishResults,

@@ -19,6 +19,7 @@ import SurfaceCard from '@/components/layout/SurfaceCard';
 import { getPlatformConnectionProfiles } from '@/lib/platformConnections/profiles';
 import type { PlatformConnectionMode, PlatformConnectionStatus, PlatformConnectionRecord } from '@/lib/platformConnections/types';
 import type { PlatformId } from '@/types';
+import { useToastStore } from '@/stores/toastStore';
 import {
   WechatIcon,
   XiaohongshuIcon,
@@ -276,6 +277,7 @@ function SettingsContent() {
       const data = (await response.json()) as { success?: boolean; error?: string };
       if (!response.ok || !data.success) throw new Error(data.error || '保存失败，请重试');
       setSaved(true);
+      useToastStore.getState().addToast('success', '设置已保存');
       setTimeout(() => setSaved(false), 3000);
 
       // Auto-verify all fully-configured platforms after save

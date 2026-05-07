@@ -5,6 +5,7 @@ import { usePublishStore } from '@/stores/publishStore';
 import { PlatformId, PublishResponse } from '@/types';
 import { SendHorizonal, Loader2, AlertCircle, Clock } from 'lucide-react';
 import { publishButton } from './publish.css';
+import { useToastStore } from '@/stores/toastStore';
 
 const platformLabels: Record<PlatformId, string> = {
   wechat: '微信公众号',
@@ -130,16 +131,19 @@ export default function PublishButton() {
       }
 
       if (!('syncTaskId' in data)) throw new Error('发布结果格式异常，请稍后重试');
+      useToastStore.getState().addToast('success', '发布任务已提交');
 
       // 原地显示发布进度浮层，不跳转
       setLastSyncTaskId(data.syncTaskId);
       openProgressOverlay();
     } catch (error) {
+      const msg = error instanceof Error ? error.message : '网络错误，请重试';
+      useToastStore.getState().addToast('error', msg);
       setResults(
         selectedPlatforms.map((p) => ({
           platform: p,
           status: 'error' as const,
-          message: error instanceof Error ? error.message : '网络错误，请重试',
+          message: msg,
         })),
       );
     }

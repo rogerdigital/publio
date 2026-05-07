@@ -12,6 +12,8 @@ import {
 import { createDraft } from '@/lib/drafts/client';
 import { useAgentStore } from '@/stores/agentStore';
 import type { AgentStreamEvent } from '@/lib/agent/types';
+import EmptyState from '@/components/feedback/EmptyState';
+import { Newspaper } from 'lucide-react';
 import * as styles from './news.css';
 
 // localStorage key for tracking which topic clusters have drafts in this session
@@ -401,12 +403,11 @@ export default function AiNewsPageClient() {
             <p className={styles.stateText}>{error}</p>
           </div>
         ) : allCandidates.length === 0 ? (
-          <div className={styles.stateCardCenter}>
-            <p className={styles.stateTitle}>选题桌暂无内容</p>
-            <p className={styles.stateText}>
-              点击右上角「抓取选题」开始抓取最新 AI 话题信号。
-            </p>
-          </div>
+          <EmptyState
+            icon={<Newspaper size={24} />}
+            title="选题桌暂无内容"
+            description="点击右上角「抓取选题」开始抓取最新 AI 话题信号。"
+          />
         ) : (
           <div className={styles.candidateSections}>
             <CandidateSection

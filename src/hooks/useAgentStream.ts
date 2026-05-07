@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react';
 import { useAgentStore } from '@/stores/agentStore';
+import { useToastStore } from '@/stores/toastStore';
 import type { AgentAction, AgentStreamEvent } from '@/lib/agent/types';
 
 interface StreamRequestOptions {
@@ -32,7 +33,9 @@ export function useAgentStream() {
 
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
-          setError(errData.error || `请求失败 (${response.status})`);
+          const msg = errData.error || `请求失败 (${response.status})`;
+          setError(msg);
+          useToastStore.getState().addToast('error', msg);
           return;
         }
 
@@ -89,7 +92,9 @@ export function useAgentStream() {
           // 用户主动取消，不报错
           return;
         }
-        setError(err instanceof Error ? err.message : '未知错误');
+        const msg = err instanceof Error ? err.message : '未知错误';
+        setError(msg);
+        useToastStore.getState().addToast('error', msg);
       }
     },
     [startStream, appendOutput, finishStream, setError]

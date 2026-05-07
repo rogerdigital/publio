@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { parseEnvFile, serializeEnvFile } from '@/lib/storage/envFile';
+import { apiResponse, apiError } from '@/lib/api/response';
 
 const ENV_FILE = join(process.cwd(), '.env.local');
 
@@ -33,9 +34,9 @@ export async function GET() {
       masked[key] = maskValue(key, value);
     }
 
-    return NextResponse.json(masked);
+    return apiResponse(masked);
   } catch {
-    return NextResponse.json({});
+    return apiResponse({});
   }
 }
 
@@ -61,11 +62,8 @@ export async function PUT(request: NextRequest) {
 
     await writeFile(ENV_FILE, serializeEnvFile(existing), 'utf-8');
 
-    return NextResponse.json({ success: true });
+    return apiResponse({ success: true });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : '保存失败' },
-      { status: 500 }
-    );
+    return apiError(error instanceof Error ? error.message : '保存失败', 500);
   }
 }
