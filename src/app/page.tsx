@@ -19,6 +19,7 @@ import SchedulePicker from '@/components/publish/SchedulePicker';
 import EditorialContextCard from '@/components/editor/EditorialContextCard';
 import VersionHistory from '@/components/editor/VersionHistory';
 import TemplatePicker from '@/components/editor/TemplatePicker';
+import MediaLibrary from '@/components/editor/MediaLibrary';
 import AgentPanel from '@/components/agent/AgentPanel';
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
@@ -171,6 +172,12 @@ function HomePageContent() {
               onSelect={(template) => {
                 setTitle(template.title);
                 setContent(template.content);
+              }}
+            />
+            <MediaLibrary
+              onSelect={(url, filename) => {
+                const insertion = `\n![${filename}](${url})\n`;
+                setContent(content + insertion);
               }}
             />
             <button
