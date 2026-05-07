@@ -59,6 +59,10 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   filterBar: 'filterBar',
   filterChip: (variants: { active?: boolean }) =>
     variants?.active ? 'filterChip-active' : 'filterChip',
+  importButton: 'importButton',
+  exportButton: 'exportButton',
+  tagContainer: 'tagContainer',
+  tagChip: () => 'tagChip',
 }));
 
 describe('DraftLibraryClient', () => {

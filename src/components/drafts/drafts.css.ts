@@ -658,3 +658,41 @@ export const filterChip = recipe({
   },
   defaultVariants: { active: false },
 });
+
+export const importButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: 'transparent',
+  padding: '6px 10px',
+  fontSize: '13px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'background-color 150ms, color 150ms, border-color 150ms',
+  ':hover': {
+    background: vars.color.canvasDeep,
+    color: vars.color.text,
+    borderColor: vars.color.borderStrong,
+  },
+});
+
+export const exportButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: 28,
+  height: 28,
+  borderRadius: vars.radius.lg,
+  border: 'none',
+  background: 'transparent',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  flexShrink: 0,
+  transition: 'background-color 150ms, color 150ms',
+  ':hover': {
+    background: vars.color.bgElevated,
+    color: vars.color.text,
+  },
+});

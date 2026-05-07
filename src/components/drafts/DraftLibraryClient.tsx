@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FileText, RefreshCcw, Newspaper, PenLine, ArrowRightCircle, Trash2 } from 'lucide-react';
+import { FileText, RefreshCcw, Newspaper, PenLine, ArrowRightCircle, Trash2, Download, Upload } from 'lucide-react';
 import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
 import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
-import { deleteDraft } from '@/lib/drafts/client';
+import { deleteDraft, createDraft } from '@/lib/drafts/client';
+import { exportDraftToMarkdown, parseMarkdownToDraft, downloadFile, readTextFile } from '@/lib/drafts/importExport';
 import EmptyState from '@/components/feedback/EmptyState';
 import * as styles from './drafts.css';
 
@@ -118,6 +119,38 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
     };
   }, []);
 
+  function handleExport(draft: ContentDraft) {
+    const md = exportDraftToMarkdown(draft);
+    const filename = `${draft.title.replace(/[^a-zA-Z0-9一-鿿]/g, '_').slice(0, 40) || 'draft'}.md`;
+    downloadFile(filename, md);
+  }
+
+  async function handleImport() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.md,.markdown,.txt';
+    input.multiple = true;
+    input.onchange = async () => {
+      const files = Array.from(input.files ?? []);
+      if (files.length === 0) return;
+
+      try {
+        for (const file of files) {
+          const text = await readTextFile(file);
+          const parsed = parseMarkdownToDraft(text);
+          await createDraft(parsed);
+        }
+        // 重新加载列表
+        const res = await fetch('/api/drafts');
+        const data = (await res.json()) as DraftsResponse;
+        if (data.drafts) setDrafts(data.drafts);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '导入失败');
+      }
+    };
+    input.click();
+  }
+
   function toggleSelect(id: string) {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -212,6 +245,15 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
 
       {!isEditMode && (
         <div className={styles.toolbar}>
+          <button
+            type="button"
+            className={styles.importButton}
+            onClick={() => void handleImport()}
+            title="导入 Markdown 文件"
+          >
+            <Upload size={14} />
+            导入
+          </button>
           <input
             type="text"
             className={styles.searchInput}
@@ -375,6 +417,17 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
                     <span className={styles.syncStatusLabelVariants.default}>尚未分发</span>
                   </div>
                 </div>
+              )}
+
+              {!isEditMode && (
+                <button
+                  type="button"
+                  className={styles.exportButton}
+                  onClick={(e) => { e.stopPropagation(); handleExport(draft); }}
+                  title="导出为 Markdown"
+                >
+                  <Download size={13} />
+                </button>
               )}
             </div>
           );
