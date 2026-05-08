@@ -1,4 +1,5 @@
 import { globalStyle, style } from '@vanilla-extract/css';
+import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/styles/tokens.css';
 
 // MarkdownEditor outer wrapper
@@ -9,6 +10,9 @@ export const editorRoot = style({
 
 // Title input area
 export const titleRow = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px',
   padding: '16px',
   '@media': {
     'screen and (min-width: 640px)': {
@@ -19,7 +23,8 @@ export const titleRow = style({
 
 export const titleInput = style({
   fontFamily: vars.font.serif,
-  width: '100%',
+  flex: 1,
+  minWidth: 0,
   border: 0,
   background: 'transparent',
   fontSize: '24px',
@@ -83,10 +88,13 @@ globalStyle(`${editorWrap} .w-md-editor-text-input`, {
   outline: 'none',
 });
 
-globalStyle(`${editorWrap} .w-md-editor-text-input:focus, ${editorWrap} .w-md-editor-text-input:focus-visible`, {
-  outline: 'none',
-  boxShadow: 'none',
-});
+globalStyle(
+  `${editorWrap} .w-md-editor-text-input:focus, ${editorWrap} .w-md-editor-text-input:focus-visible`,
+  {
+    outline: 'none',
+    boxShadow: 'none',
+  },
+);
 
 globalStyle(`${editorWrap} .w-md-editor-text-input::placeholder`, {
   color: vars.color.textMuted,
@@ -496,5 +504,187 @@ export const recentDraftChip = style({
   ':hover': {
     borderColor: vars.color.borderStrong,
     color: vars.color.text,
+  },
+});
+
+// --- Immersive Writing Mode ---
+
+export const immersiveOverlay = style({
+  position: 'fixed',
+  inset: 0,
+  zIndex: 9999,
+  background: vars.color.canvasDeep,
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+});
+
+export const immersiveToolbar = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '12px 24px',
+  borderBottom: `1px solid ${vars.color.borderFaint}`,
+  flexShrink: 0,
+});
+
+export const immersiveToolbarLabel = style({
+  fontSize: '12px',
+  color: vars.color.textMuted,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+});
+
+export const immersiveToolbarBtn = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  padding: '6px 12px',
+  fontSize: '13px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'color 150ms, border-color 150ms',
+  ':hover': {
+    color: vars.color.text,
+    borderColor: vars.color.borderStrong,
+  },
+});
+
+export const immersiveBody = style({
+  flex: 1,
+  overflowY: 'auto',
+  display: 'flex',
+  justifyContent: 'center',
+  padding: '40px 24px',
+});
+
+export const immersiveInner = style({
+  width: '100%',
+  maxWidth: '720px',
+});
+
+export const immersiveTitleInput = style({
+  fontFamily: vars.font.serif,
+  width: '100%',
+  border: 0,
+  background: 'transparent',
+  fontSize: '32px',
+  lineHeight: 1.3,
+  color: vars.color.text,
+  outline: 'none',
+  marginBottom: '24px',
+  '::placeholder': {
+    color: vars.color.textMuted,
+  },
+});
+
+export const immersiveEditorWrap = style({
+  background: 'transparent',
+  position: 'relative',
+  outline: 'none',
+  fontSize: '18px',
+});
+
+globalStyle(`${immersiveEditorWrap} .w-md-editor`, {
+  border: 'none',
+  borderRadius: 0,
+  boxShadow: 'none !important',
+  background: 'transparent',
+  color: vars.color.text,
+});
+
+globalStyle(`${immersiveEditorWrap} .w-md-editor-toolbar`, {
+  borderTop: 'none',
+  borderBottom: `1px solid ${vars.color.borderFaint}`,
+  background: 'transparent',
+  padding: '6px 0',
+});
+
+globalStyle(`${immersiveEditorWrap} .w-md-editor-text-input`, {
+  fontFamily: vars.font.sans,
+  fontSize: '18px',
+  lineHeight: 1.8,
+  background: 'transparent',
+  color: vars.color.text,
+  outline: 'none',
+});
+
+globalStyle(`${immersiveEditorWrap} .wmde-markdown`, {
+  background: 'transparent',
+  color: vars.color.text,
+  fontSize: '18px',
+  lineHeight: 1.8,
+});
+
+globalStyle(`${immersiveEditorWrap} .w-md-editor-area`, {
+  background: 'transparent',
+});
+
+export const immersiveFooter = style({
+  display: 'flex',
+  justifyContent: 'center',
+  padding: '12px 24px',
+  borderTop: `1px solid ${vars.color.borderFaint}`,
+  flexShrink: 0,
+});
+
+export const immersiveFooterText = style({
+  fontSize: '12px',
+  color: vars.color.textMuted,
+});
+
+export const immersiveEntryBtn = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  borderRadius: vars.radius.lg,
+  border: 'none',
+  background: 'transparent',
+  padding: '4px 8px',
+  fontSize: '12px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'color 150ms',
+  ':hover': {
+    color: vars.color.text,
+  },
+});
+
+// --- Editor Mode Toggle ---
+
+export const modeToggle = style({
+  display: 'inline-flex',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  overflow: 'hidden',
+});
+
+export const modeToggleBtn = recipe({
+  base: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    border: 'none',
+    background: 'transparent',
+    padding: '4px 10px',
+    fontSize: '12px',
+    color: vars.color.textMuted,
+    cursor: 'pointer',
+    transition: 'all 150ms',
+    ':hover': {
+      color: vars.color.text,
+    },
+  },
+  variants: {
+    active: {
+      true: {
+        background: vars.color.bgElevated,
+        color: vars.color.text,
+        fontWeight: 500,
+      },
+    },
   },
 });
