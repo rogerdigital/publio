@@ -1,0 +1,86 @@
+import { style } from '@vanilla-extract/css';
+import { vars } from '@/styles/tokens.css';
+
+export const pageWrap = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '24px',
+});
+
+export const card = style({
+  borderRadius: vars.radius.xl,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  padding: '20px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+});
+
+export const cardHeader = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+});
+
+export const cardKicker = style({
+  fontSize: '11px',
+  fontWeight: 500,
+  textTransform: 'uppercase',
+  letterSpacing: '0.32em',
+  color: vars.color.accent,
+});
+
+export const cardCount = style({
+  fontSize: '13px',
+  color: vars.color.textMuted,
+});
+
+export const statsGrid = style({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(4, 1fr)',
+  gap: '12px',
+  '@media': {
+    'screen and (max-width: 640px)': {
+      gridTemplateColumns: 'repeat(2, 1fr)',
+    },
+  },
+});
+
+export const statItem = style({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '4px',
+  padding: '12px',
+  borderRadius: vars.radius.lg,
+  background: vars.color.bgElevated,
+});
+
+export const statIcon = style({
+  color: vars.color.accent,
+});
+
+export const statValue = style({
+  fontSize: '20px',
+  fontWeight: 700,
+  color: vars.color.text,
+  lineHeight: 1.2,
+});
+
+export const statLabel = style({
+  fontSize: '12px',
+  color: vars.color.textMuted,
+});
+
+export const emptyState = style({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '12px',
+  padding: '48px 24px',
+  color: vars.color.textMuted,
+  fontSize: '14px',
+  textAlign: 'center',
+});
