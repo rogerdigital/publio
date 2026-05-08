@@ -1,5 +1,7 @@
 # Publio
 
+[English](./README.md) | [中文](./README_zh.md)
+
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](./package.json)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](./tsconfig.json)
