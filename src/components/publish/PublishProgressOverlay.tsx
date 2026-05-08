@@ -32,13 +32,20 @@ function StatusIcon({ status }: { status: SyncReceiptStatus }) {
 
 function statusLabel(status: SyncReceiptStatus): string {
   switch (status) {
-    case 'pending': return '等待中';
-    case 'syncing': return '发布中…';
-    case 'draft-created': return '草稿已创建';
-    case 'published': return '已发布';
-    case 'failed': return '失败';
-    case 'needs-action': return '需要处理';
-    default: return status;
+    case 'pending':
+      return '等待中';
+    case 'syncing':
+      return '发布中…';
+    case 'draft-created':
+      return '草稿已创建';
+    case 'published':
+      return '已发布';
+    case 'failed':
+      return '失败';
+    case 'needs-action':
+      return '需要处理';
+    default:
+      return status;
   }
 }
 
@@ -49,18 +56,12 @@ function statusClass(status: SyncReceiptStatus): string {
 }
 
 export default function PublishProgressOverlay() {
-  const {
-    isProgressOverlayOpen,
-    lastSyncTaskId,
-    closeProgressOverlay,
-    setResults,
-  } = usePublishStore();
+  const { isProgressOverlayOpen, lastSyncTaskId, closeProgressOverlay, setResults } =
+    usePublishStore();
   const [syncTask, setSyncTask] = useState<SyncTask | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const isDone = syncTask
-    ? syncTask.receipts.every((r) => isTerminalStatus(r.status))
-    : false;
+  const isDone = syncTask ? syncTask.receipts.every((r) => isTerminalStatus(r.status)) : false;
 
   useEffect(() => {
     if (!isProgressOverlayOpen || !lastSyncTaskId) return;
@@ -71,7 +72,7 @@ export default function PublishProgressOverlay() {
       try {
         const res = await fetch(`/api/sync-tasks/${lastSyncTaskId}`, { cache: 'no-store' });
         if (!res.ok) return;
-        const data = await res.json() as { syncTask: SyncTask };
+        const data = (await res.json()) as { syncTask: SyncTask };
         setSyncTask(data.syncTask);
         setResults(syncTaskToPublishResults(data.syncTask));
         // 所有 receipt 都到终态时停止轮询
@@ -84,7 +85,9 @@ export default function PublishProgressOverlay() {
     }
 
     void fetchTask();
-    intervalRef.current = setInterval(() => { void fetchTask(); }, 2000);
+    intervalRef.current = setInterval(() => {
+      void fetchTask();
+    }, 2000);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);

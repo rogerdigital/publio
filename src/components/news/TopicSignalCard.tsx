@@ -55,17 +55,12 @@ export default function TopicSignalCard({
     <SurfaceCard tone="default" className={styles.card}>
       <article className={styles.cardInner}>
         <div>
-
           {/* 顶部元信息行 */}
           <div className={styles.metaRow}>
             <div className={styles.metaLeft}>
               {/* 序号 */}
-              <span className={styles.indexBadge}>
-                {indexLabel}
-              </span>
-              <span className={styles.topicTag}>
-                {item.topicTags[0] || '行业动态'}
-              </span>
+              <span className={styles.indexBadge}>{indexLabel}</span>
+              <span className={styles.topicTag}>{item.topicTags[0] || '行业动态'}</span>
               <span className={styles.metaDot}>·</span>
               <a
                 href={new URL(item.primarySignal.link).origin}
@@ -82,32 +77,20 @@ export default function TopicSignalCard({
               </span>
             </div>
             {/* 字数/配图 — 右上角 */}
-            {metrics && (
-              <span className={styles.metricsLabel}>
-                {metrics}
-              </span>
-            )}
+            {metrics && <span className={styles.metricsLabel}>{metrics}</span>}
           </div>
 
           {/* 标题 */}
           <div className={styles.headlineBlock}>
-            <h3 className={styles.headline}>
-              {item.title}
-            </h3>
-            <p className={styles.whyNow}>
-              {item.whyNow}
-            </p>
+            <h3 className={styles.headline}>{item.title}</h3>
+            <p className={styles.whyNow}>{item.whyNow}</p>
           </div>
 
           {/* 编辑判断 — 左侧竖线，无内框 */}
           <div className={styles.editorialBar}>
-            <p className={styles.editorialKicker}>
-              编辑判断
-            </p>
+            <p className={styles.editorialKicker}>编辑判断</p>
             <p className={styles.editorialText}>
-              {item.affectedSummary
-                ? `影响对象：${item.affectedSummary}。`
-                : ''}
+              {item.affectedSummary ? `影响对象：${item.affectedSummary}。` : ''}
               推荐切口：{item.angleSummary}。
             </p>
           </div>
@@ -124,7 +107,10 @@ export default function TopicSignalCard({
                 <ScoreBar label="视觉力" value={item.scores.visualReadiness} />
                 <ScoreBar label="创作适" value={item.scores.creatorFit} />
               </div>
-              <span className={styles.scoreHighlight} style={{ alignSelf: 'flex-end', flexShrink: 0 }}>
+              <span
+                className={styles.scoreHighlight}
+                style={{ alignSelf: 'flex-end', flexShrink: 0 }}
+              >
                 {item.totalScore.toFixed(0)} 分
               </span>
             </div>
@@ -187,23 +173,17 @@ export default function TopicSignalCard({
             <div className={styles.briefSection}>
               <div className={styles.briefBlock}>
                 <p className={styles.briefKicker}>事件经过</p>
-                <p className={styles.briefText}>
-                  {brief.whatHappened}
-                </p>
+                <p className={styles.briefText}>{brief.whatHappened}</p>
               </div>
 
               <div className={styles.briefBlockAccent}>
                 <p className={styles.briefKickerAccent}>为什么重要</p>
-                <p className={styles.briefTextDark}>
-                  {brief.whyItMatters}
-                </p>
+                <p className={styles.briefTextDark}>{brief.whyItMatters}</p>
               </div>
 
               <div className={styles.briefBlockPlain}>
                 <p className={styles.briefKicker}>影响了谁</p>
-                <p className={styles.affectedList}>
-                  {brief.whoIsAffected.join(' · ')}
-                </p>
+                <p className={styles.affectedList}>{brief.whoIsAffected.join(' · ')}</p>
               </div>
 
               <div className={styles.briefBlockPlain}>
@@ -225,16 +205,12 @@ export default function TopicSignalCard({
             <div className={styles.briefSection}>
               <div className={styles.briefBlockAccent}>
                 <p className={styles.briefKickerAccent}>✨ AI 深度分析</p>
-                <div
-                  className={styles.briefText}
-                  style={{ whiteSpace: 'pre-wrap' }}
-                >
+                <div className={styles.briefText} style={{ whiteSpace: 'pre-wrap' }}>
                   {deepResearchContent}
                 </div>
               </div>
             </div>
           ) : null}
-
         </div>
       </article>
     </SurfaceCard>

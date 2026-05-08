@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import {
-  scoreAiNewsCluster,
-  type AiNewsCluster,
-} from '@/lib/ai-news/score';
+import { scoreAiNewsCluster, type AiNewsCluster } from '@/lib/ai-news/score';
 
 function createCluster(overrides: Partial<AiNewsCluster>): AiNewsCluster {
   return {
@@ -12,45 +9,7 @@ function createCluster(overrides: Partial<AiNewsCluster>): AiNewsCluster {
     normalizedTitle: overrides.normalizedTitle ?? 'openai 发布 新 模型 gpt x',
     topicTags: overrides.topicTags ?? ['模型与产品发布'],
     entityTokens: overrides.entityTokens ?? ['openai', 'gpt-x', '模型'],
-    signals:
-      overrides.signals ??
-      [
-        {
-          id: 'official',
-          title: 'OpenAI 发布新模型 GPT-X',
-          canonicalTitle: 'openai 发布 新 模型 gpt x',
-          summary: 'OpenAI 官方公布 GPT-X 并开放企业接入。',
-          link: 'https://openai.com/blog/gpt-x',
-          sourceWeight: 5,
-          creatorWeight: 0,
-          sourceName: 'OpenAI',
-          sourceType: 'official',
-          sourceDomain: 'openai.com',
-          publishedAt: '2026-04-05T08:00:00.000Z',
-          fetchedAt: '2026-04-05T08:20:00.000Z',
-          entityTokens: ['openai', 'gpt-x', '模型'],
-          topicTags: ['模型与产品发布'],
-          isOfficialSource: true,
-        },
-        {
-          id: 'media',
-          title: 'OpenAI 推出 GPT-X，新模型面向企业开放',
-          canonicalTitle: 'openai 推出 gpt x 新 模型 面向 企业 开放',
-          summary: '多家媒体跟进报道 OpenAI 新模型发布。',
-          link: 'https://36kr.com/p/123',
-          sourceWeight: 3,
-          creatorWeight: 2,
-          sourceName: '36氪',
-          sourceType: 'media',
-          sourceDomain: '36kr.com',
-          publishedAt: '2026-04-05T08:10:00.000Z',
-          fetchedAt: '2026-04-05T08:25:00.000Z',
-          entityTokens: ['openai', 'gpt-x', '模型'],
-          topicTags: ['模型与产品发布'],
-          isOfficialSource: false,
-        },
-      ],
-    primarySignal: overrides.primarySignal ??
+    signals: overrides.signals ?? [
       {
         id: 'official',
         title: 'OpenAI 发布新模型 GPT-X',
@@ -68,6 +27,41 @@ function createCluster(overrides: Partial<AiNewsCluster>): AiNewsCluster {
         topicTags: ['模型与产品发布'],
         isOfficialSource: true,
       },
+      {
+        id: 'media',
+        title: 'OpenAI 推出 GPT-X，新模型面向企业开放',
+        canonicalTitle: 'openai 推出 gpt x 新 模型 面向 企业 开放',
+        summary: '多家媒体跟进报道 OpenAI 新模型发布。',
+        link: 'https://36kr.com/p/123',
+        sourceWeight: 3,
+        creatorWeight: 2,
+        sourceName: '36氪',
+        sourceType: 'media',
+        sourceDomain: '36kr.com',
+        publishedAt: '2026-04-05T08:10:00.000Z',
+        fetchedAt: '2026-04-05T08:25:00.000Z',
+        entityTokens: ['openai', 'gpt-x', '模型'],
+        topicTags: ['模型与产品发布'],
+        isOfficialSource: false,
+      },
+    ],
+    primarySignal: overrides.primarySignal ?? {
+      id: 'official',
+      title: 'OpenAI 发布新模型 GPT-X',
+      canonicalTitle: 'openai 发布 新 模型 gpt x',
+      summary: 'OpenAI 官方公布 GPT-X 并开放企业接入。',
+      link: 'https://openai.com/blog/gpt-x',
+      sourceWeight: 5,
+      creatorWeight: 0,
+      sourceName: 'OpenAI',
+      sourceType: 'official',
+      sourceDomain: 'openai.com',
+      publishedAt: '2026-04-05T08:00:00.000Z',
+      fetchedAt: '2026-04-05T08:20:00.000Z',
+      entityTokens: ['openai', 'gpt-x', '模型'],
+      topicTags: ['模型与产品发布'],
+      isOfficialSource: true,
+    },
     earliestPublishedAt: overrides.earliestPublishedAt ?? '2026-04-05T08:00:00.000Z',
     latestPublishedAt: overrides.latestPublishedAt ?? '2026-04-05T08:10:00.000Z',
     coverageCount: overrides.coverageCount ?? 2,
@@ -79,10 +73,7 @@ function createCluster(overrides: Partial<AiNewsCluster>): AiNewsCluster {
 
 describe('scoreAiNewsCluster', () => {
   test('给高可信、较新且覆盖度高的话题更高综合分', () => {
-    const scored = scoreAiNewsCluster(
-      createCluster({}),
-      new Date('2026-04-05T10:00:00.000Z'),
-    );
+    const scored = scoreAiNewsCluster(createCluster({}), new Date('2026-04-05T10:00:00.000Z'));
 
     expect(scored.scores.freshness).toBeGreaterThanOrEqual(80);
     expect(scored.scores.credibility).toBeGreaterThanOrEqual(80);
@@ -200,9 +191,7 @@ describe('scoreAiNewsCluster', () => {
     expect(creatorFriendly.scores.visualReadiness).toBeGreaterThan(
       plainSignal.scores.visualReadiness,
     );
-    expect(creatorFriendly.scores.creatorFit).toBeGreaterThan(
-      plainSignal.scores.creatorFit,
-    );
+    expect(creatorFriendly.scores.creatorFit).toBeGreaterThan(plainSignal.scores.creatorFit);
     expect(creatorFriendly.totalScore).toBeGreaterThan(plainSignal.totalScore);
   });
 });

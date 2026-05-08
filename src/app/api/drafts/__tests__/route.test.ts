@@ -1,11 +1,7 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 
 import { GET, POST } from '@/app/api/drafts/route';
-import {
-  DELETE,
-  GET as GET_BY_ID,
-  PATCH,
-} from '@/app/api/drafts/[id]/route';
+import { DELETE, GET as GET_BY_ID, PATCH } from '@/app/api/drafts/[id]/route';
 import { resetDraftRegistryForTests } from '@/lib/drafts/registry';
 
 function createJsonRequest(body: unknown) {
@@ -125,10 +121,7 @@ describe('/api/drafts/[id]', () => {
   test('returns 404 for a missing draft', async () => {
     const context = { params: Promise.resolve({ id: 'missing' }) };
 
-    const response = await GET_BY_ID(
-      new Request('http://localhost/api/drafts/missing'),
-      context,
-    );
+    const response = await GET_BY_ID(new Request('http://localhost/api/drafts/missing'), context);
     const json = await readJson(response);
 
     expect(response.status).toBe(404);

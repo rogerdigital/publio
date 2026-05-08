@@ -25,10 +25,7 @@ export default function WeChatArticlePreview({ title, body }: WeChatArticlePrevi
       </div>
 
       {/* 文章内容 */}
-      <div
-        className={styles.wechatBody}
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <div className={styles.wechatBody} dangerouslySetInnerHTML={{ __html: html }} />
 
       {/* 底部栏 */}
       <div className={styles.wechatFooter}>

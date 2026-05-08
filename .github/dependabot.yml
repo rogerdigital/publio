@@ -1,9 +1,9 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     # Keep Dependabot available for dependency metadata, but do not open
     # routine version update pull requests. Dependency updates are handled
     # manually so project history stays maintainer-authored.

@@ -17,21 +17,24 @@ export function useKeyboardShortcuts({ shortcuts, enabled = true }: UseKeyboardS
   const shortcutsRef = useRef(shortcuts);
   shortcutsRef.current = shortcuts;
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!enabled) return;
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!enabled) return;
 
-    const mod = e.metaKey || e.ctrlKey;
+      const mod = e.metaKey || e.ctrlKey;
 
-    for (const s of shortcutsRef.current) {
-      if (e.key.toLowerCase() !== s.key.toLowerCase()) continue;
-      if (!!s.mod !== mod) continue;
-      if (!!s.shift !== e.shiftKey) continue;
+      for (const s of shortcutsRef.current) {
+        if (e.key.toLowerCase() !== s.key.toLowerCase()) continue;
+        if (!!s.mod !== mod) continue;
+        if (!!s.shift !== e.shiftKey) continue;
 
-      e.preventDefault();
-      s.handler();
-      return;
-    }
-  }, [enabled]);
+        e.preventDefault();
+        s.handler();
+        return;
+      }
+    },
+    [enabled],
+  );
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -39,7 +42,12 @@ export function useKeyboardShortcuts({ shortcuts, enabled = true }: UseKeyboardS
   }, [handleKeyDown]);
 }
 
-export const SHORTCUT_DEFINITIONS: Array<{ key: string; mod?: boolean; shift?: boolean; label: string }> = [
+export const SHORTCUT_DEFINITIONS: Array<{
+  key: string;
+  mod?: boolean;
+  shift?: boolean;
+  label: string;
+}> = [
   { key: 's', mod: true, label: '保存草稿' },
   { key: 'Enter', mod: true, label: '发布' },
   { key: 'p', mod: true, label: '切换预览' },

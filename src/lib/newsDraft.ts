@@ -40,12 +40,7 @@ export function buildResearchDraftMarkdown(params: {
   sections: ResearchDraftSection[];
   llmAnalysis?: string;
 }) {
-  const lines = [
-    params.intro,
-    '',
-    '---',
-    '',
-  ];
+  const lines = [params.intro, '', '---', ''];
 
   params.sections.forEach((section, index) => {
     lines.push(`## ${String(index + 1).padStart(2, '0')}｜${section.title}`);

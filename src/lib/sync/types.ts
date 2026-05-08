@@ -80,5 +80,8 @@ export interface CreateSyncTaskInput {
 }
 
 export type UpdateSyncReceiptInput = Partial<
-  Pick<PlatformSyncReceipt, 'status' | 'message' | 'url' | 'failureCode' | 'failureMessage' | 'nextAction'>
+  Pick<
+    PlatformSyncReceipt,
+    'status' | 'message' | 'url' | 'failureCode' | 'failureMessage' | 'nextAction'
+  >
 >;

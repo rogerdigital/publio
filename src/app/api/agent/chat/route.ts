@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   if (!config) {
     return Response.json(
       { error: 'Agent 未配置，请在设置中填写 AGENT_BASE_URL、AGENT_API_KEY、AGENT_MODEL' },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
@@ -51,17 +51,13 @@ export async function POST(request: NextRequest) {
       systemPrompt += `\n标题：${context.title}`;
     }
     if (context.content) {
-      const truncated = context.content.length > 2000
-        ? context.content.slice(0, 2000) + '...'
-        : context.content;
+      const truncated =
+        context.content.length > 2000 ? context.content.slice(0, 2000) + '...' : context.content;
       systemPrompt += `\n内容：\n${truncated}`;
     }
   }
 
-  const fullMessages: ChatMessage[] = [
-    { role: 'system', content: systemPrompt },
-    ...messages,
-  ];
+  const fullMessages: ChatMessage[] = [{ role: 'system', content: systemPrompt }, ...messages];
 
   const provider = createOpenAIProvider(config);
   const tokens = provider.stream({ messages: fullMessages });

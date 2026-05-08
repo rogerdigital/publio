@@ -21,14 +21,11 @@ export class ZhihuPublisher extends BasePublisher {
     };
 
     // Step 1: Create draft
-    const draftRes = await fetch(
-      'https://zhuanlan.zhihu.com/api/articles/drafts',
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({}),
-      }
-    );
+    const draftRes = await fetch('https://zhuanlan.zhihu.com/api/articles/drafts', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({}),
+    });
 
     if (draftRes.status === 401) {
       throw new Error('知乎 Cookie 已过期，请在设置中更新 Cookie');
@@ -36,10 +33,11 @@ export class ZhihuPublisher extends BasePublisher {
 
     if (draftRes.status === 429) {
       await new Promise((r) => setTimeout(r, 3000));
-      const retryRes = await fetch(
-        'https://zhuanlan.zhihu.com/api/articles/drafts',
-        { method: 'POST', headers, body: JSON.stringify({}) }
-      );
+      const retryRes = await fetch('https://zhuanlan.zhihu.com/api/articles/drafts', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({}),
+      });
       if (!retryRes.ok) {
         throw new Error('知乎请求频率过高，请稍后再试');
       }
@@ -61,36 +59,30 @@ export class ZhihuPublisher extends BasePublisher {
     headers: Record<string, string>,
   ): Promise<PublishOutput> {
     // Step 2: Update draft content
-    const updateRes = await fetch(
-      `https://zhuanlan.zhihu.com/api/articles/${draftId}/draft`,
-      {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify({
-          title: input.title,
-          content: input.htmlContent,
-          topic_url_tokens: [],
-          column_url_token: '',
-        }),
-      }
-    );
+    const updateRes = await fetch(`https://zhuanlan.zhihu.com/api/articles/${draftId}/draft`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({
+        title: input.title,
+        content: input.htmlContent,
+        topic_url_tokens: [],
+        column_url_token: '',
+      }),
+    });
 
     if (!updateRes.ok) {
       throw new Error(`知乎更新草稿内容失败 (${updateRes.status})`);
     }
 
     // Step 3: Publish draft
-    const publishRes = await fetch(
-      `https://zhuanlan.zhihu.com/api/articles/${draftId}/publish`,
-      {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({
-          column: null,
-          commentPermission: 'anyone',
-        }),
-      }
-    );
+    const publishRes = await fetch(`https://zhuanlan.zhihu.com/api/articles/${draftId}/publish`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        column: null,
+        commentPermission: 'anyone',
+      }),
+    });
 
     if (!publishRes.ok) {
       throw new Error(`知乎发布文章失败 (${publishRes.status})`);

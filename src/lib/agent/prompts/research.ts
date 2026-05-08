@@ -41,7 +41,10 @@ export function buildResearchMessages(
   signals: Array<{ title: string; summary: string; source: string; publishedAt?: string }>,
 ): ChatMessage[] {
   const signalList = signals
-    .map((s, i) => `${i + 1}. [${s.source}] ${s.title}\n   ${s.summary}${s.publishedAt ? `\n   发布时间: ${s.publishedAt}` : ''}`)
+    .map(
+      (s, i) =>
+        `${i + 1}. [${s.source}] ${s.title}\n   ${s.summary}${s.publishedAt ? `\n   发布时间: ${s.publishedAt}` : ''}`,
+    )
     .join('\n\n');
 
   return [

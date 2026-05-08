@@ -7,7 +7,10 @@ describe('sync task event log', () => {
     const task = store.createTask({ title: 'Test', platforms: ['wechat'] });
 
     expect(task.events).toHaveLength(1);
-    expect(task.events[0]).toMatchObject({ type: 'created', timestamp: '2024-01-01T00:00:00.000Z' });
+    expect(task.events[0]).toMatchObject({
+      type: 'created',
+      timestamp: '2024-01-01T00:00:00.000Z',
+    });
   });
 
   test('updateReceipt appends platform-succeeded on published status', () => {
@@ -16,7 +19,9 @@ describe('sync task event log', () => {
 
     const updated = store.updateReceipt(task.id, 'wechat', { status: 'published', message: 'ok' });
 
-    expect(updated?.events.some((e) => e.type === 'platform-succeeded' && e.platform === 'wechat')).toBe(true);
+    expect(
+      updated?.events.some((e) => e.type === 'platform-succeeded' && e.platform === 'wechat'),
+    ).toBe(true);
   });
 
   test('updateReceipt appends platform-failed on failed status', () => {
@@ -41,7 +46,9 @@ describe('sync task event log', () => {
 
     const done = store.markPlatformDone(task.id, 'zhihu');
 
-    expect(done?.events.some((e) => e.type === 'manual-completed' && e.platform === 'zhihu')).toBe(true);
+    expect(done?.events.some((e) => e.type === 'manual-completed' && e.platform === 'zhihu')).toBe(
+      true,
+    );
     expect(done?.receipts.find((r) => r.platform === 'zhihu')?.status).toBe('published');
   });
 

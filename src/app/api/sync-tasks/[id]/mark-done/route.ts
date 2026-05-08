@@ -15,12 +15,7 @@ interface MarkDoneRouteContext {
 }
 
 function isPlatformId(value: unknown): value is PlatformId {
-  return (
-    value === 'wechat' ||
-    value === 'xiaohongshu' ||
-    value === 'zhihu' ||
-    value === 'x'
-  );
+  return value === 'wechat' || value === 'xiaohongshu' || value === 'zhihu' || value === 'x';
 }
 
 export async function POST(request: NextRequest | Request, { params }: MarkDoneRouteContext) {

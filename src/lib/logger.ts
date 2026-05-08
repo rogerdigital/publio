@@ -16,7 +16,11 @@ function formatEntry(entry: LogEntry): string {
   return `${prefix} ${message}`;
 }
 
-function createEntry(level: LogLevel, message: string, context?: Record<string, unknown>): LogEntry {
+function createEntry(
+  level: LogLevel,
+  message: string,
+  context?: Record<string, unknown>,
+): LogEntry {
   return { level, message, timestamp: new Date().toISOString(), context };
 }
 

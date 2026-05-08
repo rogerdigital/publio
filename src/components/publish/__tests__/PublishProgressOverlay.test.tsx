@@ -37,7 +37,8 @@ describe('PublishProgressOverlay', () => {
   });
 
   test('settles global publish state when sync task reaches terminal receipts', async () => {
-    const { default: PublishProgressOverlay } = await import('@/components/publish/PublishProgressOverlay');
+    const { default: PublishProgressOverlay } =
+      await import('@/components/publish/PublishProgressOverlay');
     usePublishStore.setState({
       overallStatus: 'publishing',
       isProgressOverlayOpen: true,

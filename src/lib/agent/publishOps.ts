@@ -89,7 +89,10 @@ export function suggestPublishTiming(stats: PublishHistoryStats): string[] {
     .sort((a, b) => b.count - a.count);
 
   if (dayEntries.length > 0) {
-    const topDays = dayEntries.slice(0, 3).map((d) => dayNames[d.day]).join('、');
+    const topDays = dayEntries
+      .slice(0, 3)
+      .map((d) => dayNames[d.day])
+      .join('、');
     suggestions.push(`活跃日：${topDays}`);
   }
 

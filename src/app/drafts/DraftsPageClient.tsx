@@ -45,10 +45,7 @@ export default function DraftsPageClient() {
           </div>
         }
       />
-      <DraftLibraryClient
-        isEditMode={isEditMode}
-        onExitEditMode={() => setIsEditMode(false)}
-      />
+      <DraftLibraryClient isEditMode={isEditMode} onExitEditMode={() => setIsEditMode(false)} />
     </div>
   );
 }

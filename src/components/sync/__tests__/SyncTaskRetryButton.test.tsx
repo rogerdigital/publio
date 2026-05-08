@@ -22,9 +22,7 @@ describe('SyncTaskRetryButton', () => {
   });
 
   test('posts to the retry endpoint and refreshes the page', async () => {
-    const { default: SyncTaskRetryButton } = await import(
-      '@/components/sync/SyncTaskRetryButton'
-    );
+    const { default: SyncTaskRetryButton } = await import('@/components/sync/SyncTaskRetryButton');
     const fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ syncTask: { id: 'sync-1' } }),
@@ -44,9 +42,7 @@ describe('SyncTaskRetryButton', () => {
   });
 
   test('shows the retry API error message', async () => {
-    const { default: SyncTaskRetryButton } = await import(
-      '@/components/sync/SyncTaskRetryButton'
-    );
+    const { default: SyncTaskRetryButton } = await import('@/components/sync/SyncTaskRetryButton');
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({

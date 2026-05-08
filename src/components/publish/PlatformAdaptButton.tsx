@@ -63,7 +63,9 @@ export default function PlatformAdaptButton({ platform, agentEnabled }: Platform
             } else if (event.type === 'done') {
               break;
             }
-          } catch { /* skip */ }
+          } catch {
+            /* skip */
+          }
         }
       }
 

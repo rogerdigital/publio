@@ -11,11 +11,11 @@ export async function POST(request: NextRequest) {
   }
 
   const publisher = new ZhihuPublisher();
-    const result = await publisher.publish({
-      title,
-      markdownContent: content,
-      htmlContent: markdownToStyledHtml(title, content, 'zhihu'),
-    });
+  const result = await publisher.publish({
+    title,
+    markdownContent: content,
+    htmlContent: markdownToStyledHtml(title, content, 'zhihu'),
+  });
 
   return NextResponse.json(result);
 }

@@ -550,12 +550,54 @@ export const syncStatusStepVariants = styleVariants({
 });
 
 export const syncStatusLabelVariants = styleVariants({
-  default: { fontSize: '13px', fontWeight: 500, color: vars.color.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  syncing: { fontSize: '13px', fontWeight: 500, color: vars.color.warningText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  completed: { fontSize: '13px', fontWeight: 500, color: vars.color.successText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  failed: { fontSize: '13px', fontWeight: 500, color: vars.color.errorText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  'needs-action': { fontSize: '13px', fontWeight: 500, color: vars.color.warningText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  partial: { fontSize: '13px', fontWeight: 500, color: vars.color.warningText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  default: {
+    fontSize: '13px',
+    fontWeight: 500,
+    color: vars.color.text,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  syncing: {
+    fontSize: '13px',
+    fontWeight: 500,
+    color: vars.color.warningText,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  completed: {
+    fontSize: '13px',
+    fontWeight: 500,
+    color: vars.color.successText,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  failed: {
+    fontSize: '13px',
+    fontWeight: 500,
+    color: vars.color.errorText,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  'needs-action': {
+    fontSize: '13px',
+    fontWeight: 500,
+    color: vars.color.warningText,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  partial: {
+    fontSize: '13px',
+    fontWeight: 500,
+    color: vars.color.warningText,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
 });
 
 // 搜索栏 + 筛选栏

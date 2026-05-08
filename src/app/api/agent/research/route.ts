@@ -10,10 +10,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   const config = getAgentConfig();
   if (!config) {
-    return Response.json(
-      { error: 'Agent 未配置' },
-      { status: 503 }
-    );
+    return Response.json({ error: 'Agent 未配置' }, { status: 503 });
   }
 
   let body: ResearchAgentRequest;

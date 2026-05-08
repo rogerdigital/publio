@@ -19,10 +19,7 @@ interface RetrySyncTaskRouteContext {
   }>;
 }
 
-export async function POST(
-  _request: NextRequest | Request,
-  { params }: RetrySyncTaskRouteContext,
-) {
+export async function POST(_request: NextRequest | Request, { params }: RetrySyncTaskRouteContext) {
   const { id } = await params;
   const syncStore = getSyncHistoryStore();
   let syncTask = syncStore.getTask(id);
@@ -48,11 +45,7 @@ export async function POST(
     return apiError('没有可重试的平台（需要重新授权的平台请先前往设置页重新连接）');
   }
 
-  const publishResults = await publishToPlatforms(
-    retryPlatforms,
-    draft.title,
-    draft.content,
-  );
+  const publishResults = await publishToPlatforms(retryPlatforms, draft.title, draft.content);
 
   syncStore.appendRetryEvent(syncTask.id);
 
@@ -62,14 +55,15 @@ export async function POST(
     const failureCode = isFailed ? inferFailureCode(result.message) : undefined;
     const nextAction = isFailed && failureCode ? toNextAction(failureCode) : undefined;
 
-    syncTask = syncStore.updateReceipt(syncTask.id, result.platform, {
-      status: receiptStatus,
-      message: result.message,
-      url: result.url,
-      failureCode,
-      failureMessage: isFailed ? (result.message ?? '未知错误') : undefined,
-      nextAction,
-    }) ?? syncTask;
+    syncTask =
+      syncStore.updateReceipt(syncTask.id, result.platform, {
+        status: receiptStatus,
+        message: result.message,
+        url: result.url,
+        failureCode,
+        failureMessage: isFailed ? (result.message ?? '未知错误') : undefined,
+        nextAction,
+      }) ?? syncTask;
   }
 
   getDraftRegistry().updateDraft(draft.id, {

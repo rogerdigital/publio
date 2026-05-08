@@ -65,7 +65,7 @@ export function createOpenAIProvider(config: AgentConfig): LLMProvider {
           if (!response.ok) {
             const errorText = await response.text().catch(() => '');
             const err = new Error(
-              `LLM API error ${response.status}: ${errorText || response.statusText}`
+              `LLM API error ${response.status}: ${errorText || response.statusText}`,
             );
 
             if (isRetryable(response.status) && attempt < MAX_RETRIES) {

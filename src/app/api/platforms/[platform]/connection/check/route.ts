@@ -62,5 +62,11 @@ export async function POST(
 
   const record = store.getRecord(platformId);
 
-  return NextResponse.json({ ok: result.ok, failureReason: result.failureReason, accountName: result.accountName, checkedAt, record });
+  return NextResponse.json({
+    ok: result.ok,
+    failureReason: result.failureReason,
+    accountName: result.accountName,
+    checkedAt,
+    record,
+  });
 }

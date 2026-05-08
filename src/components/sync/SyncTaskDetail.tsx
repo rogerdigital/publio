@@ -49,11 +49,11 @@ const failureCodeLabels: Record<SyncFailureCode, string> = {
   'invalid-content': '内容格式有误',
   'network-error': '网络请求失败',
   'manual-required': '需要手动操作',
-  'unknown': '未知错误',
+  unknown: '未知错误',
 };
 
 const nextActionLabels: Record<SyncNextAction, string> = {
-  'reconnect': '前往设置页重新授权',
+  reconnect: '前往设置页重新授权',
   'wait-and-retry': '稍后重试',
   'fix-content': '修改内容后重新发布',
   'open-platform': '前往平台手动操作',
@@ -62,12 +62,12 @@ const nextActionLabels: Record<SyncNextAction, string> = {
 };
 
 const eventTypeLabels: Record<SyncEventType, string> = {
-  'created': '任务已创建',
+  created: '任务已创建',
   'platform-started': '平台开始分发',
   'platform-succeeded': '平台分发成功',
   'platform-failed': '平台分发失败',
   'platform-needs-action': '平台需要手动处理',
-  'retried': '触发重试',
+  retried: '触发重试',
   'manual-completed': '人工标记完成',
 };
 
@@ -183,7 +183,17 @@ function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; tas
         </button>
       )}
       {diagnosis && (
-        <div style={{ fontSize: '12px', color: '#5c4a3f', whiteSpace: 'pre-wrap', marginTop: 4, padding: '8px', background: '#faf6f2', borderRadius: 6 }}>
+        <div
+          style={{
+            fontSize: '12px',
+            color: '#5c4a3f',
+            whiteSpace: 'pre-wrap',
+            marginTop: 4,
+            padding: '8px',
+            background: '#faf6f2',
+            borderRadius: 6,
+          }}
+        >
           {diagnosis}
           {canRetry && (
             <div style={{ marginTop: 8 }}>
@@ -192,11 +202,19 @@ function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; tas
                 onClick={handleRetry}
                 disabled={retrying}
                 className={styles.receiptLink}
-                style={{ cursor: 'pointer', border: 'none', background: 'none', padding: 0, fontWeight: 500 }}
+                style={{
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: 'none',
+                  padding: 0,
+                  fontWeight: 500,
+                }}
               >
                 {retrying ? '重试中…' : '🔄 智能重试'}
               </button>
-              {retryMessage && <span style={{ marginLeft: 8, fontSize: '11px' }}>{retryMessage}</span>}
+              {retryMessage && (
+                <span style={{ marginLeft: 8, fontSize: '11px' }}>{retryMessage}</span>
+              )}
             </div>
           )}
         </div>
@@ -205,7 +223,10 @@ function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; tas
   );
 }
 
-export default function SyncTaskDetail({ syncTask, agentEnabled: agentEnabledProp }: SyncTaskDetailProps) {
+export default function SyncTaskDetail({
+  syncTask,
+  agentEnabled: agentEnabledProp,
+}: SyncTaskDetailProps) {
   const hasFailedReceipt = syncTask.receipts.some((receipt) => receipt.status === 'failed');
   const [agentChecked, setAgentChecked] = useState(agentEnabledProp ?? false);
 
@@ -225,7 +246,8 @@ export default function SyncTaskDetail({ syncTask, agentEnabled: agentEnabledPro
         <p className={styles.detailEyebrow}>Sync task</p>
         <h2 className={styles.detailTitle}>{syncTask.title}</h2>
         <p className={styles.detailMeta}>
-          {taskStatusLabels[syncTask.status]} · {syncTask.receipts.length} 个平台 · 更新于 {formatTime(syncTask.updatedAt)}
+          {taskStatusLabels[syncTask.status]} · {syncTask.receipts.length} 个平台 · 更新于{' '}
+          {formatTime(syncTask.updatedAt)}
         </p>
       </div>
 
@@ -234,12 +256,11 @@ export default function SyncTaskDetail({ syncTask, agentEnabled: agentEnabledPro
           <article key={receipt.platform} className={styles.receiptCard}>
             <div className={styles.receiptHeader}>
               <p className={styles.receiptPlatform}>{platformLabels[receipt.platform]}</p>
-              <span className={styles.receiptStatus}>
-                {receiptStatusLabels[receipt.status]}
-              </span>
+              <span className={styles.receiptStatus}>{receiptStatusLabels[receipt.status]}</span>
             </div>
             <p className={styles.receiptMessage}>
-              {receipt.message ?? '暂无平台回执信息'} · 第 {receipt.attempts} 次尝试 · {formatTime(receipt.updatedAt)}
+              {receipt.message ?? '暂无平台回执信息'} · 第 {receipt.attempts} 次尝试 ·{' '}
+              {formatTime(receipt.updatedAt)}
             </p>
             {receipt.failureCode ? (
               <p className={styles.receiptFailureReason}>
@@ -248,20 +269,12 @@ export default function SyncTaskDetail({ syncTask, agentEnabled: agentEnabledPro
               </p>
             ) : null}
             {receipt.url ? (
-              <a
-                className={styles.receiptLink}
-                href={receipt.url}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a className={styles.receiptLink} href={receipt.url} target="_blank" rel="noreferrer">
                 打开平台结果
               </a>
             ) : null}
             {receipt.status === 'needs-action' ? (
-              <SyncTaskMarkDoneButton
-                taskId={syncTask.id}
-                platform={receipt.platform}
-              />
+              <SyncTaskMarkDoneButton taskId={syncTask.id} platform={receipt.platform} />
             ) : null}
             {receipt.status === 'failed' && agentEnabled ? (
               <DiagnoseButton receipt={receipt} taskId={syncTask.id} />
@@ -281,9 +294,7 @@ export default function SyncTaskDetail({ syncTask, agentEnabled: agentEnabledPro
                 <span className={styles.eventDot} />
                 <div className={styles.eventBody}>
                   <p className={styles.eventLabel}>{buildEventLabel(event)}</p>
-                  {event.message ? (
-                    <p className={styles.eventTime}>{event.message}</p>
-                  ) : null}
+                  {event.message ? <p className={styles.eventTime}>{event.message}</p> : null}
                   <p className={styles.eventTime}>{formatTime(event.timestamp)}</p>
                 </div>
               </li>

@@ -11,10 +11,7 @@ interface SyncTaskMarkDoneButtonProps {
   platform: PlatformId;
 }
 
-export default function SyncTaskMarkDoneButton({
-  taskId,
-  platform,
-}: SyncTaskMarkDoneButtonProps) {
+export default function SyncTaskMarkDoneButton({ taskId, platform }: SyncTaskMarkDoneButtonProps) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState('');

@@ -11,7 +11,9 @@ export default function ScoreBar({ label, value, max = 100 }: ScoreBarProps) {
 
   return (
     <div className={styles.row}>
-      <span className={styles.label} title={label}>{label}</span>
+      <span className={styles.label} title={label}>
+        {label}
+      </span>
       <div className={styles.track}>
         <div className={styles.fill} style={{ width: `${pct}%` }} />
       </div>

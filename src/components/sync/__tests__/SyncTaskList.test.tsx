@@ -48,9 +48,11 @@ describe('SyncTaskList', () => {
     render(createElement(SyncTaskList, { tasks }));
 
     expect(screen.getByText('稿件标题')).toBeInTheDocument();
-    expect(screen.getByText((_, node) => (
-      node?.textContent === '需要处理 · 1 个平台 · 更新于 2026年4月11日 16:05'
-    ))).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_, node) => node?.textContent === '需要处理 · 1 个平台 · 更新于 2026年4月11日 16:05',
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '查看分发详情' })).toHaveAttribute(
       'href',
       '/sync-tasks/sync-1',

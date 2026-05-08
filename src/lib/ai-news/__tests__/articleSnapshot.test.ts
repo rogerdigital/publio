@@ -18,10 +18,7 @@ describe('extractArticleSnapshotFromHtml', () => {
       </html>
     `;
 
-    const snapshot = extractArticleSnapshotFromHtml(
-      html,
-      'https://example.com/article/1',
-    );
+    const snapshot = extractArticleSnapshotFromHtml(html, 'https://example.com/article/1');
 
     expect(snapshot.imageUrl).toBe('');
     expect(snapshot.imageCount).toBeUndefined();
@@ -44,10 +41,7 @@ describe('extractArticleSnapshotFromHtml', () => {
       </html>
     `;
 
-    const snapshot = extractArticleSnapshotFromHtml(
-      html,
-      'https://example.com/article/1',
-    );
+    const snapshot = extractArticleSnapshotFromHtml(html, 'https://example.com/article/1');
 
     expect(snapshot.imageUrl).toBe('https://example.com/images/cover-1.jpg');
     expect(snapshot.imageCount).toBe(2);

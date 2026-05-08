@@ -23,9 +23,7 @@ vi.mock('@/components/sync/sync.css', () => ({
 }));
 
 vi.mock('@/components/sync/SyncTaskRetryButton', () => ({
-  default: ({ taskId }: { taskId: string }) => (
-    <button type="button">重试失败平台 {taskId}</button>
-  ),
+  default: ({ taskId }: { taskId: string }) => <button type="button">重试失败平台 {taskId}</button>,
 }));
 
 describe('SyncTaskDetail', () => {
@@ -60,23 +58,33 @@ describe('SyncTaskDetail', () => {
     render(createElement(SyncTaskDetail, { syncTask }));
 
     expect(screen.getByText('AI 话题稿件')).toBeInTheDocument();
-    expect(screen.getByText((_, node) => (
-      node?.textContent?.startsWith('部分完成 · 2 个平台 · 更新于 2026年4月11日') === true
-    ))).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_, node) =>
+          node?.textContent?.startsWith('部分完成 · 2 个平台 · 更新于 2026年4月11日') === true,
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByText('微信公众号')).toBeInTheDocument();
     expect(screen.getByText('已发布')).toBeInTheDocument();
-    expect(screen.getByText((_, node) => (
-      node?.textContent?.startsWith('已发布到公众号 · 第 1 次尝试 · 2026年4月11日') === true
-    ))).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_, node) =>
+          node?.textContent?.startsWith('已发布到公众号 · 第 1 次尝试 · 2026年4月11日') === true,
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '打开平台结果' })).toHaveAttribute(
       'href',
       'https://mp.weixin.qq.com/example',
     );
     expect(screen.getByText('知乎')).toBeInTheDocument();
     expect(screen.getByText('失败')).toBeInTheDocument();
-    expect(screen.getByText((_, node) => (
-      node?.textContent?.startsWith('知乎 Cookie 已过期 · 第 2 次尝试 · 2026年4月11日') === true
-    ))).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_, node) =>
+          node?.textContent?.startsWith('知乎 Cookie 已过期 · 第 2 次尝试 · 2026年4月11日') ===
+          true,
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '重试失败平台 sync-1' })).toBeInTheDocument();
   });
 });

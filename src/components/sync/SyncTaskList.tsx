@@ -78,7 +78,8 @@ export default function SyncTaskList({ tasks }: SyncTaskListProps) {
             <div>
               <h2 className={styles.historyTitle}>{task.title}</h2>
               <p className={styles.historyMeta}>
-                {taskStatusLabels[task.status]} · {task.receipts.length} 个平台 · 更新于 {formatTime(task.updatedAt)}
+                {taskStatusLabels[task.status]} · {task.receipts.length} 个平台 · 更新于{' '}
+                {formatTime(task.updatedAt)}
               </p>
             </div>
             <Link className={styles.historyLink} href={`/sync-tasks/${task.id}`}>

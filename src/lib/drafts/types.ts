@@ -1,12 +1,6 @@
 import type { PlatformId } from '@/types';
 
-export type DraftStatus =
-  | 'draft'
-  | 'ready'
-  | 'syncing'
-  | 'synced'
-  | 'failed'
-  | 'archived';
+export type DraftStatus = 'draft' | 'ready' | 'syncing' | 'synced' | 'failed' | 'archived';
 
 export type DraftSource = 'manual' | 'ai-news' | 'import';
 

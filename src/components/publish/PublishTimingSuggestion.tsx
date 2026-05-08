@@ -32,7 +32,9 @@ export default function PublishTimingSuggestion() {
       </span>
       <ul style={{ margin: 0, padding: '4px 0 0 16px', fontSize: '12px', color: '#6b5b4f' }}>
         {suggestions.map((s) => (
-          <li key={s} style={{ marginBottom: 2 }}>{s}</li>
+          <li key={s} style={{ marginBottom: 2 }}>
+            {s}
+          </li>
         ))}
       </ul>
     </div>
