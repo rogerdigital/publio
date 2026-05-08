@@ -20,7 +20,7 @@
   "lint-staged": {
     "*.{ts,tsx}": [
       "prettier --write",
-      "eslint --fix"
+      "env ESLINT_USE_FLAT_CONFIG=false eslint --fix"
     ],
     "*.{css.ts,json}": [
       "prettier --write"
