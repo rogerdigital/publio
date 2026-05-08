@@ -16,8 +16,8 @@ export default function SlashCommandMenu({
 }: SlashCommandMenuProps) {
   if (commands.length === 0) {
     return (
-      <div className={styles.menuOverlay}>
-        <div className={styles.commandItem} style={{ opacity: 0.5 }}>
+      <div className={styles.menuOverlay} role="listbox" aria-label="斜杠命令">
+        <div className={styles.commandItem} style={{ opacity: 0.5 }} role="option" aria-selected="false">
           无匹配命令
         </div>
       </div>
@@ -25,11 +25,13 @@ export default function SlashCommandMenu({
   }
 
   return (
-    <div className={styles.menuOverlay}>
+    <div className={styles.menuOverlay} role="listbox" aria-label="斜杠命令">
       {commands.map((cmd, i) => (
         <button
           key={cmd.key}
           className={styles.commandItem}
+          role="option"
+          aria-selected={i === selectedIndex}
           data-active={i === selectedIndex}
           onMouseDown={(e) => {
             e.preventDefault();
