@@ -11,6 +11,11 @@ vi.mock('next/navigation', () => ({
 vi.mock('@/components/publish/publish.css', () => ({
   publishButton: () => 'publishButton',
 }));
+vi.mock('@/components/publish/publishConfirm.css', () => ({}));
+vi.mock('@/components/publish/PublishConfirmDialog', () => ({
+  default: ({ open, onConfirm }: { open: boolean; onConfirm: () => void }) =>
+    open ? createElement('button', { onClick: onConfirm }, '确认发布') : null,
+}));
 
 describe('PublishButton', () => {
   beforeEach(() => {
@@ -38,7 +43,10 @@ describe('PublishButton', () => {
     vi.stubGlobal('fetch', fetch);
 
     render(createElement(PublishButton));
+    // 第一次点击：打开确认弹窗
     fireEvent.click(screen.getByRole('button', { name: '发布到 4 个平台' }));
+    // 第二次点击：确认发布
+    fireEvent.click(screen.getByText('确认发布'));
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalled();

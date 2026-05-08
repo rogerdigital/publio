@@ -10,6 +10,14 @@ export type DraftStatus =
 
 export type DraftSource = 'manual' | 'ai-news' | 'import';
 
+export interface DraftVersion {
+  id: string;
+  title: string;
+  content: string;
+  savedAt: string;
+  changeSummary?: string;
+}
+
 export interface ContentDraft {
   id: string;
   title: string;
@@ -19,6 +27,8 @@ export interface ContentDraft {
   topicClusterId?: string;
   scheduledAt?: string;
   platforms?: PlatformId[];
+  tags?: string[];
+  versions?: DraftVersion[];
   createdAt: string;
   updatedAt: string;
 }
@@ -33,7 +43,7 @@ export interface CreateDraftInput {
 }
 
 export type UpdateDraftInput = Partial<
-  Pick<ContentDraft, 'title' | 'content' | 'status' | 'scheduledAt' | 'platforms'>
+  Pick<ContentDraft, 'title' | 'content' | 'status' | 'scheduledAt' | 'platforms' | 'tags'>
 >;
 
 export interface ListDraftsOptions {

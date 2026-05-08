@@ -13,6 +13,7 @@ import {
 } from '@/lib/contentStats';
 import { useSlashCommands } from '@/hooks/useSlashCommands';
 import { useAgentStream } from '@/hooks/useAgentStream';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import SlashCommandMenu from './SlashCommandMenu';
 import * as styles from './editor.css';
 
@@ -51,25 +52,13 @@ export default function MarkdownEditor({ activeTab, onSave, agentEnabled = false
   }, []);
 
   // 全局快捷键
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      const mod = e.metaKey || e.ctrlKey;
-      if (mod && e.key === 's') {
-        e.preventDefault();
-        onSave?.();
-      }
-      if (mod && e.key === 'Enter') {
-        e.preventDefault();
-        document.dispatchEvent(new CustomEvent('publio:publish'));
-      }
-      if (mod && e.key === 'p') {
-        e.preventDefault();
-        setActiveTab(activeTab === 'edit' ? 'preview' : 'edit');
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [activeTab, onSave, setActiveTab]);
+  useKeyboardShortcuts({
+    shortcuts: [
+      { key: 's', mod: true, description: '保存草稿', handler: () => onSave?.() },
+      { key: 'Enter', mod: true, description: '发布', handler: () => document.dispatchEvent(new CustomEvent('publio:publish')) },
+      { key: 'p', mod: true, description: '切换预览', handler: () => setActiveTab(activeTab === 'edit' ? 'preview' : 'edit') },
+    ],
+  });
 
   // 监听编辑器 keydown 以处理 slash commands 导航
   useEffect(() => {

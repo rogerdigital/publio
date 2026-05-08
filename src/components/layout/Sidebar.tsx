@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Dancing_Script } from 'next/font/google';
 import { cn } from '@/lib/cn';
+import ThemeToggle from './ThemeToggle';
 import * as styles from './Sidebar.css';
 
 const handwriting = Dancing_Script({ subsets: ['latin'], weight: ['700'] });
@@ -94,6 +95,10 @@ export default function Sidebar() {
               );
             })}
           </nav>
+
+          <div className={styles.themeToggleRow}>
+            <ThemeToggle />
+          </div>
 
           <div className={styles.brandFooter}>
             <p className={cn(handwriting.className, styles.brandName)}>

@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import type { AgentAction, AgentStreamStatus, LLMResearchAnalysis } from '@/lib/agent/types';
+import type { AgentAction, AgentStreamStatus, ChatMessage, LLMResearchAnalysis } from '@/lib/agent/types';
+
+export interface ChatTurn {
+  role: 'user' | 'assistant';
+  content: string;
+}
 
 interface AgentStore {
   // 流式输出状态
@@ -11,8 +16,11 @@ interface AgentStore {
   // AbortController 用于取消正在进行的请求
   abortController: AbortController | null;
 
-  // Research 结果缓存（按 clusterTitle 索引）
-  researchCache: Record<string, LLMResearchAnalysis>;
+  // 多轮对话历史
+  chatMessages: ChatTurn[];
+
+  // Research 结果缓存（按 clusterTitle 索引，带 TTL）
+  researchCache: Record<string, { analysis: LLMResearchAnalysis; cachedAt: number }>;
 
   // Actions
   startStream: (action: AgentAction) => AbortController;
@@ -22,6 +30,10 @@ interface AgentStore {
   abort: () => void;
   reset: () => void;
   cacheResearch: (analysis: LLMResearchAnalysis) => void;
+
+  // Chat actions
+  addChatTurn: (turn: ChatTurn) => void;
+  clearChat: () => void;
 }
 
 export const useAgentStore = create<AgentStore>((set, get) => ({
@@ -30,6 +42,7 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
   error: null,
   activeAction: null,
   abortController: null,
+  chatMessages: [],
   researchCache: {},
 
   startStream: (action) => {
@@ -82,8 +95,18 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
     set((state) => ({
       researchCache: {
         ...state.researchCache,
-        [analysis.clusterTitle]: analysis,
+        [analysis.clusterTitle]: { analysis, cachedAt: Date.now() },
       },
     }));
+  },
+
+  addChatTurn: (turn) => {
+    set((state) => ({
+      chatMessages: [...state.chatMessages, turn],
+    }));
+  },
+
+  clearChat: () => {
+    set({ chatMessages: [] });
   },
 }));

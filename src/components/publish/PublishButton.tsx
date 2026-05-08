@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePublishStore } from '@/stores/publishStore';
 import { PlatformId, PublishResponse } from '@/types';
 import { SendHorizonal, Loader2, AlertCircle, Clock } from 'lucide-react';
 import { publishButton } from './publish.css';
+import { useToastStore } from '@/stores/toastStore';
+import PublishConfirmDialog from './PublishConfirmDialog';
 
 const platformLabels: Record<PlatformId, string> = {
   wechat: '微信公众号',
@@ -48,8 +50,18 @@ export default function PublishButton() {
     notReadyPlatforms.length > 0 ||
     overallStatus === 'publishing';
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const validationErrors = notReadyPlatforms.map(
+    (p) => `${platformLabels[p]} 标题或内容为空`,
+  );
+
   async function handlePublish() {
     if (isDisabled) return;
+    if (!confirmOpen) {
+      setConfirmOpen(true);
+      return;
+    }
+    setConfirmOpen(false);
 
     // 定时发布：创建/更新草稿并设置 scheduledAt
     if (scheduledAt) {
@@ -130,16 +142,19 @@ export default function PublishButton() {
       }
 
       if (!('syncTaskId' in data)) throw new Error('发布结果格式异常，请稍后重试');
+      useToastStore.getState().addToast('success', '发布任务已提交');
 
       // 原地显示发布进度浮层，不跳转
       setLastSyncTaskId(data.syncTaskId);
       openProgressOverlay();
     } catch (error) {
+      const msg = error instanceof Error ? error.message : '网络错误，请重试';
+      useToastStore.getState().addToast('error', msg);
       setResults(
         selectedPlatforms.map((p) => ({
           platform: p,
           status: 'error' as const,
-          message: error instanceof Error ? error.message : '网络错误，请重试',
+          message: msg,
         })),
       );
     }
@@ -169,21 +184,32 @@ export default function PublishButton() {
   }
 
   return (
-    <button
-      onClick={handlePublish}
-      disabled={isDisabled}
-      className={publishButton({ disabled: isDisabled })}
-    >
-      {overallStatus === 'publishing' ? (
-        <Loader2 size={15} className="animate-spin" />
-      ) : scheduledAt ? (
-        <Clock size={15} />
-      ) : notReadyPlatforms.length > 0 ? (
-        <AlertCircle size={15} />
-      ) : (
-        <SendHorizonal size={15} />
-      )}
-      {label}
-    </button>
+    <>
+      <button
+        onClick={handlePublish}
+        disabled={isDisabled}
+        className={publishButton({ disabled: isDisabled })}
+      >
+        {overallStatus === 'publishing' ? (
+          <Loader2 size={15} className="animate-spin" />
+        ) : scheduledAt ? (
+          <Clock size={15} />
+        ) : notReadyPlatforms.length > 0 ? (
+          <AlertCircle size={15} />
+        ) : (
+          <SendHorizonal size={15} />
+        )}
+        {label}
+      </button>
+
+      <PublishConfirmDialog
+        open={confirmOpen}
+        title={title}
+        platforms={selectedPlatforms}
+        validationErrors={validationErrors}
+        onConfirm={handlePublish}
+        onCancel={() => setConfirmOpen(false)}
+      />
+    </>
   );
 }

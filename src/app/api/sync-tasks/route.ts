@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { apiResponse } from '@/lib/api/response';
 
 import { getSyncHistoryStore } from '@/lib/sync/registry';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  return NextResponse.json({
+  return apiResponse({
     syncTasks: getSyncHistoryStore().listTasks(),
   });
 }

@@ -4,6 +4,12 @@ import { createElement } from 'react';
 
 import type { PlatformContentDrafts } from '@/lib/platformAdapters/types';
 
+vi.mock('@/lib/markdown', () => ({
+  markdownToStyledHtml: () => '<p>mocked</p>',
+  markdownToPlainText: (md: string) => md,
+  markdownToHtml: (md: string) => md,
+}));
+
 vi.mock('@/components/publish/publish.css', () => ({
   selectorWrap: 'selectorWrap',
   selectorFooter: 'selectorFooter',
@@ -52,6 +58,31 @@ vi.mock('@/components/publish/publish.css', () => ({
   collapseContent: 'collapseContent',
   collapseChevron: 'collapseChevron',
   collapseChevronOpen: 'collapseChevronOpen',
+  wechatPreviewFrame: 'wechatPreviewFrame',
+  wechatHeader: 'wechatHeader',
+  wechatHeaderLeft: 'wechatHeaderLeft',
+  wechatAvatar: 'wechatAvatar',
+  wechatAuthor: 'wechatAuthor',
+  wechatDate: 'wechatDate',
+  wechatBody: 'wechatBody',
+  wechatFooter: 'wechatFooter',
+  wechatFooterAction: 'wechatFooterAction',
+  xhsCard: 'xhsCard',
+  xhsImageGrid: 'xhsImageGrid',
+  xhsImage: 'xhsImage',
+  xhsContent: 'xhsContent',
+  xhsTitle: 'xhsTitle',
+  xhsText: 'xhsText',
+  xhsTags: 'xhsTags',
+  xhsTag: 'xhsTag',
+  xhsFooter: 'xhsFooter',
+  xhsAuthorRow: 'xhsAuthorRow',
+  xhsAuthorAvatar: 'xhsAuthorAvatar',
+  xhsAuthorName: 'xhsAuthorName',
+  xhsActions: 'xhsActions',
+  xhsActionIcon: 'xhsActionIcon',
+  adaptButton: 'adaptButton',
+  spinIcon: 'spinIcon',
 }));
 
 describe('PlatformPreviewPanel', () => {

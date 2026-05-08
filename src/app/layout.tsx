@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import '@/styles/globals.css';
 import Sidebar from '@/components/layout/Sidebar';
+import ToastContainer from '@/components/feedback/Toast';
+import ShortcutCheatSheet from '@/components/feedback/ShortcutCheatSheet';
 import * as styles from './layout.css';
 
 export const metadata: Metadata = {
@@ -25,6 +27,9 @@ export default function RootLayout({
             {children}
           </main>
         </div>
+
+        <ToastContainer />
+        <ShortcutCheatSheet />
       </body>
     </html>
   );

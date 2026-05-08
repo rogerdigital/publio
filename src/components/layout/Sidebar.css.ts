@@ -231,9 +231,15 @@ export const navDescription = style({
   color: vars.color.textMuted,
 });
 
-export const brandFooter = style({
+export const themeToggleRow = style({
   marginTop: 'auto',
-  paddingTop: '24px',
+  display: 'flex',
+  justifyContent: 'flex-start',
+  paddingTop: '16px',
+});
+
+export const brandFooter = style({
+  paddingTop: '16px',
   paddingBottom: '16px',
 });
 

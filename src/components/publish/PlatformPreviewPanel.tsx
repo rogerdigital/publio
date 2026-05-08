@@ -7,6 +7,8 @@ import type {
   PlatformContentDrafts,
 } from '@/lib/platformAdapters/types';
 import PlatformAdaptButton from './PlatformAdaptButton';
+import WeChatArticlePreview from './WeChatArticlePreview';
+import XhsNotePreview from './XhsNotePreview';
 import * as styles from './publish.css';
 
 const platformLabels: Record<PlatformId, string> = {
@@ -102,7 +104,7 @@ export default function PlatformPreviewPanel({
                 </div>
 
                 {/* 首图预览（外部 URL，无法提前配置 next/image 域名白名单） */}
-                {firstImage ? (
+                {firstImage && platform !== 'wechat' && platform !== 'xiaohongshu' ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={firstImage}
@@ -111,8 +113,22 @@ export default function PlatformPreviewPanel({
                   />
                 ) : null}
 
-                {/* 内容摘要 */}
-                {displayBody ? (
+                {/* 增强预览：微信 */}
+                {platform === 'wechat' && displayBody ? (
+                  <WeChatArticlePreview title={draft.title} body={displayBody} />
+                ) : null}
+
+                {/* 增强预览：小红书 */}
+                {platform === 'xiaohongshu' && displayBody ? (
+                  <XhsNotePreview
+                    title={draft.title}
+                    body={displayBody}
+                    tags={draft.suggestedTags}
+                  />
+                ) : null}
+
+                {/* 通用内容摘要（非微信/小红书） */}
+                {platform !== 'wechat' && platform !== 'xiaohongshu' && displayBody ? (
                   <p className={styles.previewBody}>{createExcerpt(displayBody)}</p>
                 ) : null}
 

@@ -11,6 +11,16 @@ vi.mock('@/components/sync/sync.css', () => ({
   historyMeta: 'historyMeta',
   historyLink: 'historyLink',
   emptyHistory: 'emptyHistory',
+  filterBar: 'filterBar',
+  filterChip: () => 'filterChip',
+}));
+
+vi.mock('@/components/feedback/EmptyState', () => ({
+  default: ({ title }: { title: string }) => createElement('div', null, title),
+}));
+vi.mock('@/components/feedback/EmptyState.css', () => ({}));
+vi.mock('lucide-react', () => ({
+  ClipboardList: () => createElement('svg'),
 }));
 
 describe('SyncTaskList', () => {
