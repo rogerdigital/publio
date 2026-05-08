@@ -49,11 +49,15 @@ const ACTION_PROMPTS: Record<WritingAction, string> = {
 export function buildWritingMessages(
   action: WritingAction,
   content: string,
-  options?: { title?: string; selection?: string }
+  options?: { title?: string; selection?: string; styleDescription?: string },
 ): ChatMessage[] {
-  const messages: ChatMessage[] = [
-    { role: 'system', content: ACTION_PROMPTS[action] },
-  ];
+  let systemPrompt = ACTION_PROMPTS[action];
+
+  if (options?.styleDescription) {
+    systemPrompt += `\n\n用户写作风格参考：\n${options.styleDescription}\n\n请在输出时尽量贴近上述风格。`;
+  }
+
+  const messages: ChatMessage[] = [{ role: 'system', content: systemPrompt }];
 
   let userContent = '';
 
