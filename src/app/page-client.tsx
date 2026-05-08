@@ -1,0 +1,314 @@
+'use client';
+
+import { Suspense, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Eye, Files, SquarePen, Eraser, History } from 'lucide-react';
+import { usePublishStore } from '@/stores/publishStore';
+import { useAgentStore } from '@/stores/agentStore';
+import AppShellHeader from '@/components/layout/AppShellHeader';
+
+const MarkdownEditor = dynamic(() => import('@/components/editor/MarkdownEditor'), {
+  ssr: false,
+  loading: () => (
+    <div style={{ height: 400, borderRadius: 8, background: 'var(--color-bg-elevated, #eee)' }} />
+  ),
+});
+import RecentDraftBar from '@/components/editor/RecentDraftBar';
+import DraftPanel from '@/components/editor/DraftPanel';
+import PlatformSelector from '@/components/publish/PlatformSelector';
+import PublishButton from '@/components/publish/PublishButton';
+import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
+import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
+import PublishProgressOverlay from '@/components/publish/PublishProgressOverlay';
+import PublishTimingSuggestion from '@/components/publish/PublishTimingSuggestion';
+import SchedulePicker from '@/components/publish/SchedulePicker';
+import EditorialContextCard from '@/components/editor/EditorialContextCard';
+import VersionHistory from '@/components/editor/VersionHistory';
+import TemplatePicker from '@/components/editor/TemplatePicker';
+import MediaLibrary from '@/components/editor/MediaLibrary';
+import AgentPanel from '@/components/agent/AgentPanel';
+import * as publishStyles from '@/components/publish/publish.css';
+import { fetchDraftById } from '@/lib/drafts/client';
+import { useAutoSave } from '@/hooks/useAutoSave';
+import type { PlatformId } from '@/types';
+import * as styles from './page.css';
+
+function HomePageContent() {
+  const {
+    title,
+    content,
+    platforms,
+    platformDrafts,
+    syncPlatformDrafts,
+    setTitle,
+    setContent,
+    reset,
+    overallStatus,
+    currentDraftId,
+    setCurrentDraftId,
+    activeTab,
+    setActiveTab,
+  } = usePublishStore();
+  const agentStatus = useAgentStore((s) => s.status);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [draftLoadError, setDraftLoadError] = useState('');
+  const [clearConfirming, setClearConfirming] = useState(false);
+  const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [agentEnabled, setAgentEnabled] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+
+  // 检查 Agent 是否已配置
+  useEffect(() => {
+    fetch('/api/agent/status')
+      .then((r) => r.json())
+      .then((data) => setAgentEnabled(data.available === true))
+      .catch(() => setAgentEnabled(false));
+  }, []);
+  const selectedPlatforms = useMemo(
+    () =>
+      Object.entries(platforms)
+        .filter(([, selected]) => selected)
+        .map(([platform]) => platform as PlatformId),
+    [platforms],
+  );
+
+  const handleDraftCreated = useCallback(
+    (id: string) => {
+      setCurrentDraftId(id);
+      router.replace(`/?draftId=${id}`);
+    },
+    [setCurrentDraftId, router],
+  );
+
+  const { saveStatus, triggerSave } = useAutoSave({
+    title,
+    content,
+    draftId: currentDraftId,
+    onDraftCreated: handleDraftCreated,
+  });
+
+  const handleVersionRestore = useCallback(
+    (version: { title: string; content: string }) => {
+      setTitle(version.title);
+      setContent(version.content);
+    },
+    [setTitle, setContent],
+  );
+
+  const handleNewDraft = useCallback(() => {
+    setTitle('');
+    setContent('');
+    setCurrentDraftId(null);
+    reset();
+    router.replace('/');
+  }, [reset, router, setContent, setTitle, setCurrentDraftId]);
+
+  const handleClearClick = useCallback(() => {
+    if (!clearConfirming) {
+      setClearConfirming(true);
+      clearConfirmTimerRef.current = setTimeout(() => setClearConfirming(false), 3000);
+      return;
+    }
+    if (clearConfirmTimerRef.current) clearTimeout(clearConfirmTimerRef.current);
+    setClearConfirming(false);
+    handleNewDraft();
+  }, [clearConfirming, handleNewDraft]);
+
+  // Defer platform draft sync to avoid blocking typing
+  const deferredTitle = useDeferredValue(title);
+  const deferredContent = useDeferredValue(content);
+
+  useEffect(() => {
+    syncPlatformDrafts();
+  }, [deferredContent, syncPlatformDrafts, deferredTitle]);
+
+  useEffect(() => {
+    const draftId = searchParams.get('draftId');
+    if (!draftId) return;
+
+    const selectedDraftId = draftId;
+    let cancelled = false;
+    setDraftLoadError('');
+
+    async function loadDraft() {
+      try {
+        const draft = await fetchDraftById(selectedDraftId);
+        if (cancelled) return;
+        setTitle(draft.title);
+        setContent(draft.content);
+        setCurrentDraftId(selectedDraftId);
+        reset();
+      } catch (error) {
+        if (!cancelled) {
+          setDraftLoadError(error instanceof Error ? error.message : '稿件读取失败，请稍后重试。');
+        }
+      }
+    }
+
+    void loadDraft();
+    return () => {
+      cancelled = true;
+    };
+  }, [reset, searchParams, setContent, setTitle, setCurrentDraftId]);
+
+  return (
+    <div className={styles.pageWrap}>
+      <AppShellHeader
+        kicker="Compose & publish"
+        title="写作台"
+        description="在一个界面里完成写作、排版预览与多平台分发。"
+        action={
+          <div className={styles.headerActions}>
+            {saveStatus === 'saving' && <span className={styles.saveStatusHint}>保存中…</span>}
+            {saveStatus === 'saved' && <span className={styles.saveStatusHint}>已自动保存</span>}
+            <div className={styles.tabSwitcher}>
+              <button
+                type="button"
+                onClick={() => setActiveTab('edit')}
+                className={styles.tabButton({ active: activeTab === 'edit' })}
+              >
+                <SquarePen size={15} />
+                写作
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('preview')}
+                className={styles.tabButton({ active: activeTab === 'preview' })}
+              >
+                <Eye size={15} />
+                预览
+              </button>
+            </div>
+            <TemplatePicker
+              onSelect={(template) => {
+                setTitle(template.title);
+                setContent(template.content);
+              }}
+            />
+            <MediaLibrary
+              onSelect={(url, filename) => {
+                const insertion = `\n![${filename}](${url})\n`;
+                setContent(content + insertion);
+              }}
+            />
+            <button
+              type="button"
+              onClick={handleClearClick}
+              className={clearConfirming ? styles.newDraftButtonDanger : styles.newDraftButton}
+              title={clearConfirming ? '再次点击确认清空' : '清空写作台'}
+            >
+              <Eraser size={15} />
+              {clearConfirming ? '确认清空？' : '清空'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsPanelOpen((v) => !v)}
+              className={styles.panelToggle({ active: isPanelOpen })}
+              title={isPanelOpen ? '收起草稿' : '展开草稿'}
+            >
+              <Files size={14} />
+              草稿
+            </button>
+          </div>
+        }
+      />
+
+      <div className={styles.editorLayout}>
+        <div className={styles.panelOuter} style={{ width: isPanelOpen ? '216px' : 0 }}>
+          <DraftPanel onNewDraft={handleNewDraft} />
+        </div>
+
+        <div className={styles.mainContentArea}>
+          <div className={styles.editorSection}>
+            {draftLoadError ? (
+              <div className={styles.draftLoadError} role="status">
+                {draftLoadError}
+              </div>
+            ) : null}
+
+            <div className={styles.mobileOnly}>
+              <RecentDraftBar />
+            </div>
+
+            <div className={styles.editorCard}>
+              <MarkdownEditor
+                activeTab={activeTab}
+                onSave={triggerSave}
+                agentEnabled={agentEnabled}
+              />
+            </div>
+          </div>
+
+          {agentStatus !== 'idle' && <AgentPanel />}
+
+          <div className={styles.rightPanel}>
+            <EditorialContextCard />
+
+            {currentDraftId && (
+              <div className={publishStyles.rightPanelSection}>
+                <button
+                  type="button"
+                  className={publishStyles.collapseToggle}
+                  onClick={() => setShowVersionHistory((v) => !v)}
+                >
+                  <span className={publishStyles.rightPanelSectionTitle}>
+                    <History size={12} style={{ marginRight: 4 }} />
+                    版本历史
+                  </span>
+                  <span style={{ fontSize: 11, color: 'var(--color-text-muted, #999)' }}>
+                    {showVersionHistory ? '收起' : '展开'}
+                  </span>
+                </button>
+                {showVersionHistory && (
+                  <VersionHistory draftId={currentDraftId} onRestore={handleVersionRestore} />
+                )}
+              </div>
+            )}
+
+            <div className={publishStyles.rightPanelSection}>
+              <span className={publishStyles.rightPanelSectionTitle}>发布到</span>
+              <PlatformSelector />
+            </div>
+
+            <div className={publishStyles.rightPanelSection}>
+              <SchedulePicker />
+            </div>
+
+            <PublishTimingSuggestion />
+
+            <PlatformPreviewPanel
+              adaptations={platformDrafts}
+              selectedPlatforms={selectedPlatforms}
+              agentEnabled={agentEnabled}
+            />
+
+            <div className={publishStyles.rightPanelSection}>
+              <div className={styles.publishRight}>
+                {overallStatus !== 'idle' && overallStatus !== 'publishing' && (
+                  <button onClick={reset} className={styles.resetLink}>
+                    清除结果
+                  </button>
+                )}
+                <PublishButton />
+              </div>
+
+              {overallStatus !== 'idle' && <PublishStatusPanel />}
+            </div>
+          </div>
+        </div>
+      </div>
+      <PublishProgressOverlay />
+    </div>
+  );
+}
+
+export default function HomePageClient() {
+  return (
+    <Suspense fallback={null}>
+      <HomePageContent />
+    </Suspense>
+  );
+}
