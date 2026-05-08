@@ -82,15 +82,17 @@ export default function PublishStatusPanel() {
                     <div>
                       <span className={styles.platformName}>{platform.name}</span>
                       <div className={styles.platformSubLabel}>
-                        {s === 'success' ? 'Completed' : s === 'error' ? 'Needs attention' : 'In flight'}
+                        {s === 'success'
+                          ? 'Completed'
+                          : s === 'error'
+                            ? 'Needs attention'
+                            : 'In flight'}
                       </div>
                     </div>
                   </div>
 
                   <div className={styles.resultMessage}>
-                    <span className={styles.resultMessageTextVariants[s]}>
-                      {result.message}
-                    </span>
+                    <span className={styles.resultMessageTextVariants[s]}>{result.message}</span>
                   </div>
 
                   <div className={styles.resultActions}>
@@ -101,12 +103,12 @@ export default function PublishStatusPanel() {
                       {result.status === 'draft-created'
                         ? '已建草稿'
                         : result.status === 'needs-action'
-                        ? '待处理'
-                        : s === 'success'
-                        ? '已发布'
-                        : s === 'error'
-                        ? '发布失败'
-                        : '发布中'}
+                          ? '待处理'
+                          : s === 'success'
+                            ? '已发布'
+                            : s === 'error'
+                              ? '发布失败'
+                              : '发布中'}
                     </span>
 
                     {result.url ? (

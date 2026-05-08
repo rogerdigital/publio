@@ -1,9 +1,37 @@
 import { create } from 'zustand';
-import type { AgentAction, AgentStreamStatus, ChatMessage, LLMResearchAnalysis } from '@/lib/agent/types';
+import type {
+  AgentAction,
+  AgentStreamStatus,
+  ChatMessage,
+  LLMResearchAnalysis,
+} from '@/lib/agent/types';
+
+const RESEARCH_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const RESEARCH_CACHE_MAX_ENTRIES = 50;
+const CHAT_STORAGE_KEY = 'publio-agent-chat';
 
 export interface ChatTurn {
   role: 'user' | 'assistant';
   content: string;
+}
+
+function loadChatFromStorage(): ChatTurn[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = sessionStorage.getItem(CHAT_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as ChatTurn[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveChatToStorage(messages: ChatTurn[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+  } catch {
+    // ignore storage errors
+  }
 }
 
 interface AgentStore {
@@ -42,7 +70,7 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
   error: null,
   activeAction: null,
   abortController: null,
-  chatMessages: [],
+  chatMessages: loadChatFromStorage(),
   researchCache: {},
 
   startStream: (action) => {
@@ -92,21 +120,42 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
   },
 
   cacheResearch: (analysis) => {
-    set((state) => ({
-      researchCache: {
-        ...state.researchCache,
-        [analysis.clusterTitle]: { analysis, cachedAt: Date.now() },
-      },
-    }));
+    set((state) => {
+      const now = Date.now();
+      // Remove expired entries
+      const filtered: typeof state.researchCache = {};
+      for (const [key, entry] of Object.entries(state.researchCache)) {
+        if (now - entry.cachedAt <= RESEARCH_CACHE_TTL_MS) {
+          filtered[key] = entry;
+        }
+      }
+      // Enforce LRU limit: remove oldest entries if over capacity
+      const entries = Object.entries(filtered);
+      if (entries.length >= RESEARCH_CACHE_MAX_ENTRIES) {
+        entries.sort((a, b) => a[1].cachedAt - b[1].cachedAt);
+        for (let i = 0; i <= entries.length - RESEARCH_CACHE_MAX_ENTRIES; i++) {
+          delete filtered[entries[i][0]];
+        }
+      }
+      return {
+        researchCache: {
+          ...filtered,
+          [analysis.clusterTitle]: { analysis, cachedAt: now },
+        },
+      };
+    });
   },
 
   addChatTurn: (turn) => {
-    set((state) => ({
-      chatMessages: [...state.chatMessages, turn],
-    }));
+    set((state) => {
+      const updated = [...state.chatMessages, turn];
+      saveChatToStorage(updated);
+      return { chatMessages: updated };
+    });
   },
 
   clearChat: () => {
+    saveChatToStorage([]);
     set({ chatMessages: [] });
   },
 }));

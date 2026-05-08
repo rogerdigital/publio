@@ -16,34 +16,26 @@ export class XiaohongshuPublisher extends BasePublisher {
     const accessToken = await this.getAccessToken(appId, appSecret);
 
     const plainText = markdownToPlainText(input.markdownContent);
-    const truncatedContent =
-      plainText.length > 1000
-        ? plainText.slice(0, 997) + '...'
-        : plainText;
+    const truncatedContent = plainText.length > 1000 ? plainText.slice(0, 997) + '...' : plainText;
 
-    const noteRes = await fetch(
-      'https://open.xiaohongshu.com/api/note/publish',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: input.title.slice(0, 20),
-          content: truncatedContent,
-          note_type: 'normal',
-          image_ids: [],
-        }),
-      }
-    );
+    const noteRes = await fetch('https://open.xiaohongshu.com/api/note/publish', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: input.title.slice(0, 20),
+        content: truncatedContent,
+        note_type: 'normal',
+        image_ids: [],
+      }),
+    });
 
     const noteData = await noteRes.json();
 
     if (noteData.code !== 0 && noteData.code !== 200) {
-      throw new Error(
-        `小红书发布失败: ${noteData.msg || noteData.message || '未知错误'}`
-      );
+      throw new Error(`小红书发布失败: ${noteData.msg || noteData.message || '未知错误'}`);
     }
 
     return {
@@ -61,23 +53,20 @@ export class XiaohongshuPublisher extends BasePublisher {
     const cached = this.getCachedToken('xiaohongshu');
     if (cached) return cached;
 
-    const tokenRes = await fetch(
-      'https://open.xiaohongshu.com/api/oauth/token',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          app_id: appId,
-          app_secret: appSecret,
-          grant_type: 'client_credentials',
-        }),
-      }
-    );
+    const tokenRes = await fetch('https://open.xiaohongshu.com/api/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        app_id: appId,
+        app_secret: appSecret,
+        grant_type: 'client_credentials',
+      }),
+    });
     const tokenData = await tokenRes.json();
 
     if (tokenData.code !== 0 && tokenData.code !== 200) {
       throw new Error(
-        `小红书获取 access_token 失败: ${tokenData.msg || tokenData.message || '未知错误'}`
+        `小红书获取 access_token 失败: ${tokenData.msg || tokenData.message || '未知错误'}`,
       );
     }
 

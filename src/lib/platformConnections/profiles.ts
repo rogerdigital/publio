@@ -14,7 +14,8 @@ export const PLATFORM_CONNECTIONS: PlatformConnectionDefinition[] = [
     mode: 'oauth',
     requiredKeys: ['WECHAT_APP_ID', 'WECHAT_APP_SECRET'],
     connectionLabel: '公众号授权',
-    connectionHint: '微信公众号使用 AppID + AppSecret 直接接入，无需 OAuth 授权。填写凭证后点击「验证连接」确认配置有效。',
+    connectionHint:
+      '微信公众号使用 AppID + AppSecret 直接接入，无需 OAuth 授权。填写凭证后点击「验证连接」确认配置有效。',
   },
   {
     platform: 'xiaohongshu',
@@ -34,14 +35,10 @@ export const PLATFORM_CONNECTIONS: PlatformConnectionDefinition[] = [
   {
     platform: 'x',
     mode: 'oauth',
-    requiredKeys: [
-      'X_API_KEY',
-      'X_API_SECRET',
-      'X_ACCESS_TOKEN',
-      'X_ACCESS_TOKEN_SECRET',
-    ],
+    requiredKeys: ['X_API_KEY', 'X_API_SECRET', 'X_ACCESS_TOKEN', 'X_ACCESS_TOKEN_SECRET'],
     connectionLabel: 'X 授权',
-    connectionHint: '在 developer.x.com → 你的 App → Keys and Tokens → Access Token and Secret 生成 4 个 key（需开启 Read and Write 权限），填入上方字段后点击「验证连接」。',
+    connectionHint:
+      '在 developer.x.com → 你的 App → Keys and Tokens → Access Token and Secret 生成 4 个 key（需开启 Read and Write 权限），填入上方字段后点击「验证连接」。',
   },
 ];
 
@@ -67,18 +64,16 @@ export function getPlatformConnectionProfiles(
       status,
       configuredKeys,
       missingKeys,
-      actionLabel: status === 'connected'
-        ? '重新连接'
-        : definition.mode === 'oauth'
-          ? '一键授权'
-          : '填写登录态',
+      actionLabel:
+        status === 'connected'
+          ? '重新连接'
+          : definition.mode === 'oauth'
+            ? '一键授权'
+            : '填写登录态',
     };
   });
 }
 
-export function getPlatformConnectionProfile(
-  values: Record<string, string>,
-  platform: PlatformId,
-) {
+export function getPlatformConnectionProfile(values: Record<string, string>, platform: PlatformId) {
   return getPlatformConnectionProfiles(values).find((profile) => profile.platform === platform);
 }

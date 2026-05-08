@@ -17,15 +17,18 @@ import {
 import AppShellHeader from '@/components/layout/AppShellHeader';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import { getPlatformConnectionProfiles } from '@/lib/platformConnections/profiles';
-import type { PlatformConnectionMode, PlatformConnectionStatus, PlatformConnectionRecord } from '@/lib/platformConnections/types';
+import type {
+  PlatformConnectionMode,
+  PlatformConnectionStatus,
+  PlatformConnectionRecord,
+} from '@/lib/platformConnections/types';
 import type { PlatformId } from '@/types';
 import { useToastStore } from '@/stores/toastStore';
-import {
-  WechatIcon,
-  XiaohongshuIcon,
-  ZhihuIcon,
-  XIcon,
-} from '@/components/icons/PlatformIcons';
+import { WechatIcon, XiaohongshuIcon, ZhihuIcon, XIcon } from '@/components/icons/PlatformIcons';
+import RssSourceManager from '@/components/settings/RssSourceManager';
+import PromptEditor from '@/components/settings/PromptEditor';
+import BrandProfileForm from '@/components/copilot/BrandProfileForm';
+import StyleProfile from '@/components/copilot/StyleProfile';
 import * as styles from './settings.css';
 
 interface PlatformConfig {
@@ -48,10 +51,20 @@ const platformConfigs: PlatformConfig[] = [
     name: '微信公众号',
     Icon: WechatIcon,
     summary: '文章分发与公众号素材投递',
-    hint: <>前往 <code className={styles.inlineCode}>mp.weixin.qq.com</code> → 开发 → 基本配置，获取 AppID 和 AppSecret</>,
+    hint: (
+      <>
+        前往 <code className={styles.inlineCode}>mp.weixin.qq.com</code> → 开发 → 基本配置，获取
+        AppID 和 AppSecret
+      </>
+    ),
     fields: [
       { key: 'WECHAT_APP_ID', label: 'App ID', type: 'text', placeholder: '输入微信公众号 App ID' },
-      { key: 'WECHAT_APP_SECRET', label: 'App Secret', type: 'password', placeholder: '输入微信公众号 App Secret' },
+      {
+        key: 'WECHAT_APP_SECRET',
+        label: 'App Secret',
+        type: 'password',
+        placeholder: '输入微信公众号 App Secret',
+      },
     ],
   },
   {
@@ -62,8 +75,18 @@ const platformConfigs: PlatformConfig[] = [
     hint: '前往小红书开放平台注册开发者账号并创建应用',
     fields: [
       { key: 'XHS_APP_ID', label: 'App ID', type: 'text', placeholder: '输入小红书 App ID' },
-      { key: 'XHS_APP_SECRET', label: 'App Secret', type: 'password', placeholder: '输入小红书 App Secret' },
-      { key: 'XHS_ACCESS_TOKEN', label: 'Access Token', type: 'password', placeholder: '输入小红书 Access Token（可选，授权后自动写入）' },
+      {
+        key: 'XHS_APP_SECRET',
+        label: 'App Secret',
+        type: 'password',
+        placeholder: '输入小红书 App Secret',
+      },
+      {
+        key: 'XHS_ACCESS_TOKEN',
+        label: 'Access Token',
+        type: 'password',
+        placeholder: '输入小红书 Access Token（可选，授权后自动写入）',
+      },
     ],
   },
   {
@@ -73,7 +96,12 @@ const platformConfigs: PlatformConfig[] = [
     summary: '长文转载与问答场景投递',
     hint: '使用浏览器登录知乎后，在开发者工具的 Network 面板中复制 Cookie',
     fields: [
-      { key: 'ZHIHU_COOKIE', label: 'Cookie', type: 'textarea', placeholder: '从浏览器开发者工具中复制知乎的 Cookie' },
+      {
+        key: 'ZHIHU_COOKIE',
+        label: 'Cookie',
+        type: 'textarea',
+        placeholder: '从浏览器开发者工具中复制知乎的 Cookie',
+      },
     ],
   },
   {
@@ -81,12 +109,32 @@ const platformConfigs: PlatformConfig[] = [
     name: 'X (Twitter)',
     Icon: XIcon,
     summary: '短帖同步与外部扩散',
-    hint: <>前往 <code className={styles.inlineCode}>developer.x.com</code> 创建项目并生成 API Keys 和 Access Tokens</>,
+    hint: (
+      <>
+        前往 <code className={styles.inlineCode}>developer.x.com</code> 创建项目并生成 API Keys 和
+        Access Tokens
+      </>
+    ),
     fields: [
       { key: 'X_API_KEY', label: 'API Key', type: 'text', placeholder: '输入 X API Key' },
-      { key: 'X_API_SECRET', label: 'API Secret', type: 'password', placeholder: '输入 X API Secret' },
-      { key: 'X_ACCESS_TOKEN', label: 'Access Token', type: 'text', placeholder: '输入 X Access Token' },
-      { key: 'X_ACCESS_TOKEN_SECRET', label: 'Access Token Secret', type: 'password', placeholder: '输入 X Access Token Secret' },
+      {
+        key: 'X_API_SECRET',
+        label: 'API Secret',
+        type: 'password',
+        placeholder: '输入 X API Secret',
+      },
+      {
+        key: 'X_ACCESS_TOKEN',
+        label: 'Access Token',
+        type: 'text',
+        placeholder: '输入 X Access Token',
+      },
+      {
+        key: 'X_ACCESS_TOKEN_SECRET',
+        label: 'Access Token Secret',
+        type: 'password',
+        placeholder: '输入 X Access Token Secret',
+      },
     ],
   },
 ];
@@ -134,7 +182,9 @@ function SettingsContent() {
   const [loading, setLoading] = useState(true);
   const [checkStates, setCheckStates] = useState<Record<string, CheckState>>({});
   const [disconnectStates, setDisconnectStates] = useState<Record<string, DisconnectState>>({});
-  const [connectionRecords, setConnectionRecords] = useState<Record<PlatformId, PlatformConnectionRecord>>({} as Record<PlatformId, PlatformConnectionRecord>);
+  const [connectionRecords, setConnectionRecords] = useState<
+    Record<PlatformId, PlatformConnectionRecord>
+  >({} as Record<PlatformId, PlatformConnectionRecord>);
   const connectionProfiles = getPlatformConnectionProfiles(values);
 
   // 检测 OAuth callback 后的 ?connected= 参数
@@ -168,7 +218,10 @@ function SettingsContent() {
         if (recordsRes.ok) {
           const records = (await recordsRes.json()) as PlatformConnectionRecord[];
           if (!cancelled) {
-            const recordMap = Object.fromEntries(records.map((r) => [r.platform, r])) as Record<PlatformId, PlatformConnectionRecord>;
+            const recordMap = Object.fromEntries(records.map((r) => [r.platform, r])) as Record<
+              PlatformId,
+              PlatformConnectionRecord
+            >;
             setConnectionRecords(recordMap);
           }
         }
@@ -182,7 +235,9 @@ function SettingsContent() {
     }
 
     void loadSettings();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   function handleChange(key: string, value: string) {
@@ -196,7 +251,11 @@ function SettingsContent() {
     setShowSecrets((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
-  async function handleConnectionAction(platformId: PlatformId, platformName: string, mode: PlatformConnectionMode) {
+  async function handleConnectionAction(
+    platformId: PlatformId,
+    platformName: string,
+    mode: PlatformConnectionMode,
+  ) {
     setSaved(false);
     setErrorMessage('');
     setNoticeMessage('');
@@ -213,8 +272,14 @@ function SettingsContent() {
     }
 
     try {
-      const res = await fetch(`/api/platforms/${platformId}/connection/oauth/start`, { method: 'POST' });
-      const data = (await res.json()) as { authUrl?: string; error?: string; requiresManualConfig?: boolean };
+      const res = await fetch(`/api/platforms/${platformId}/connection/oauth/start`, {
+        method: 'POST',
+      });
+      const data = (await res.json()) as {
+        authUrl?: string;
+        error?: string;
+        requiresManualConfig?: boolean;
+      };
 
       if (data.requiresManualConfig || !res.ok) {
         setNoticeMessage(data.error || `${platformName} 请填写凭证后点击「验证连接」。`);
@@ -237,10 +302,21 @@ function SettingsContent() {
     setCheckStates((prev) => ({ ...prev, [platformId]: { checking: true } }));
     try {
       const res = await fetch(`/api/platforms/${platformId}/connection/check`, { method: 'POST' });
-      const data = (await res.json()) as { ok: boolean; failureReason?: string; accountName?: string; checkedAt?: string };
+      const data = (await res.json()) as {
+        ok: boolean;
+        failureReason?: string;
+        accountName?: string;
+        checkedAt?: string;
+      };
       setCheckStates((prev) => ({
         ...prev,
-        [platformId]: { checking: false, ok: data.ok, failureReason: data.failureReason, accountName: data.accountName, checkedAt: data.checkedAt },
+        [platformId]: {
+          checking: false,
+          ok: data.ok,
+          failureReason: data.failureReason,
+          accountName: data.accountName,
+          checkedAt: data.checkedAt,
+        },
       }));
     } catch {
       setCheckStates((prev) => ({
@@ -254,7 +330,10 @@ function SettingsContent() {
     setDisconnectStates((prev) => ({ ...prev, [platformId]: { disconnecting: true } }));
     try {
       await fetch(`/api/platforms/${platformId}/connection/disconnect`, { method: 'POST' });
-      setDisconnectStates((prev) => ({ ...prev, [platformId]: { disconnecting: false, done: true } }));
+      setDisconnectStates((prev) => ({
+        ...prev,
+        [platformId]: { disconnecting: false, done: true },
+      }));
       setCheckStates((prev) => ({ ...prev, [platformId]: { checking: false } }));
       setTimeout(() => {
         setDisconnectStates((prev) => ({ ...prev, [platformId]: { disconnecting: false } }));
@@ -317,7 +396,11 @@ function SettingsContent() {
     if (record?.lastCheckedAt) {
       const timeAgo = formatRelativeTime(record.lastCheckedAt);
       if (record.failureReason) {
-        return <p className={styles.checkResultFail}>上次验证（{timeAgo}）失败：{record.failureReason}</p>;
+        return (
+          <p className={styles.checkResultFail}>
+            上次验证（{timeAgo}）失败：{record.failureReason}
+          </p>
+        );
       }
       return (
         <p className={styles.checkResultOk}>
@@ -365,7 +448,9 @@ function SettingsContent() {
         {platformConfigs.map((platform) => {
           const isExpanded = expandedPlatform === platform.id;
           const { Icon } = platform;
-          const connectionProfile = connectionProfiles.find((profile) => profile.platform === platform.id);
+          const connectionProfile = connectionProfiles.find(
+            (profile) => profile.platform === platform.id,
+          );
           const isVerifyOnly = VERIFY_ONLY_PLATFORMS.has(platform.id);
           const record = connectionRecords[platform.id];
           // 账号名：优先用最新 check 结果，其次用持久化 record
@@ -373,7 +458,8 @@ function SettingsContent() {
             (checkStates[platform.id]?.ok && checkStates[platform.id]?.accountName) ||
             (!checkStates[platform.id] && record?.accountName) ||
             null;
-          const isConnected = connectionProfile?.status === 'connected' && !disconnectStates[platform.id]?.done;
+          const isConnected =
+            connectionProfile?.status === 'connected' && !disconnectStates[platform.id]?.done;
 
           return (
             <SurfaceCard key={platform.id} tone="soft" className={styles.accordionCard}>
@@ -400,7 +486,9 @@ function SettingsContent() {
                 </div>
                 <div className={styles.accordionToggle}>
                   {connectionProfile ? (
-                    <span className={`${styles.statusBadge} ${styles.statusBadgeVariants[connectionProfile.status]}`}>
+                    <span
+                      className={`${styles.statusBadge} ${styles.statusBadgeVariants[connectionProfile.status]}`}
+                    >
                       {statusLabels[connectionProfile.status]}
                     </span>
                   ) : null}
@@ -423,7 +511,15 @@ function SettingsContent() {
                       {/* 步骤 1：开发者凭证 */}
                       <div className={styles.oauthStep}>
                         <div className={styles.oauthStepHeader}>
-                          <span className={connectionProfile.status === 'connected' ? styles.oauthStepBadgeActive : styles.oauthStepBadge}>1</span>
+                          <span
+                            className={
+                              connectionProfile.status === 'connected'
+                                ? styles.oauthStepBadgeActive
+                                : styles.oauthStepBadge
+                            }
+                          >
+                            1
+                          </span>
                           <p className={styles.oauthStepTitle}>填写开发者凭证</p>
                         </div>
                         <div className={styles.fieldList}>
@@ -435,7 +531,11 @@ function SettingsContent() {
                               <div className={styles.fieldInputWrap}>
                                 <input
                                   id={field.key}
-                                  type={field.type === 'password' && !showSecrets[field.key] ? 'password' : 'text'}
+                                  type={
+                                    field.type === 'password' && !showSecrets[field.key]
+                                      ? 'password'
+                                      : 'text'
+                                  }
                                   value={values[field.key] || ''}
                                   onChange={(event) => handleChange(field.key, event.target.value)}
                                   placeholder={field.placeholder}
@@ -448,7 +548,11 @@ function SettingsContent() {
                                     aria-label={`${showSecrets[field.key] ? '隐藏' : '显示'} ${field.label}`}
                                     className={styles.eyeButton}
                                   >
-                                    {showSecrets[field.key] ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    {showSecrets[field.key] ? (
+                                      <EyeOff size={16} />
+                                    ) : (
+                                      <Eye size={16} />
+                                    )}
                                   </button>
                                 ) : null}
                               </div>
@@ -461,8 +565,18 @@ function SettingsContent() {
                       {/* 步骤 2：账号授权 / 验证连接 */}
                       <div className={styles.oauthStep}>
                         <div className={styles.oauthStepHeader}>
-                          <span className={connectionProfile.status === 'connected' ? styles.oauthStepBadgeActive : styles.oauthStepBadge}>2</span>
-                          <p className={styles.oauthStepTitle}>{isVerifyOnly ? '验证连接' : '账号授权'}</p>
+                          <span
+                            className={
+                              connectionProfile.status === 'connected'
+                                ? styles.oauthStepBadgeActive
+                                : styles.oauthStepBadge
+                            }
+                          >
+                            2
+                          </span>
+                          <p className={styles.oauthStepTitle}>
+                            {isVerifyOnly ? '验证连接' : '账号授权'}
+                          </p>
                         </div>
                         <p className={styles.oauthStepDesc}>
                           {isVerifyOnly
@@ -480,15 +594,28 @@ function SettingsContent() {
                           <button
                             type="button"
                             className={styles.authorizeButton}
-                            disabled={connectionProfile.missingKeys.length > 0 || checkStates[platform.id]?.checking}
-                            onClick={() => void handleConnectionAction(platform.id, platform.name, connectionProfile.mode)}
+                            disabled={
+                              connectionProfile.missingKeys.length > 0 ||
+                              checkStates[platform.id]?.checking
+                            }
+                            onClick={() =>
+                              void handleConnectionAction(
+                                platform.id,
+                                platform.name,
+                                connectionProfile.mode,
+                              )
+                            }
                           >
                             {isVerifyOnly ? <RefreshCw size={15} /> : <Zap size={15} />}
                             {checkStates[platform.id]?.checking
                               ? '验证中…'
                               : isVerifyOnly
-                                ? connectionProfile.status === 'connected' ? '重新验证' : '验证连接'
-                                : connectionProfile.status === 'connected' ? '重新授权' : '一键授权'}
+                                ? connectionProfile.status === 'connected'
+                                  ? '重新验证'
+                                  : '验证连接'
+                                : connectionProfile.status === 'connected'
+                                  ? '重新授权'
+                                  : '一键授权'}
                           </button>
                           {connectionProfile.status === 'connected' && !isVerifyOnly ? (
                             <>
@@ -508,7 +635,9 @@ function SettingsContent() {
                                 onClick={() => void handleDisconnect(platform.id)}
                               >
                                 <Unplug size={13} />
-                                {disconnectStates[platform.id]?.disconnecting ? '处理中…' : '断开连接'}
+                                {disconnectStates[platform.id]?.disconnecting
+                                  ? '处理中…'
+                                  : '断开连接'}
                               </button>
                             </>
                           ) : null}
@@ -537,7 +666,11 @@ function SettingsContent() {
                               ) : (
                                 <input
                                   id={field.key}
-                                  type={field.type === 'password' && !showSecrets[field.key] ? 'password' : 'text'}
+                                  type={
+                                    field.type === 'password' && !showSecrets[field.key]
+                                      ? 'password'
+                                      : 'text'
+                                  }
                                   value={values[field.key] || ''}
                                   onChange={(event) => handleChange(field.key, event.target.value)}
                                   placeholder={field.placeholder}
@@ -551,7 +684,11 @@ function SettingsContent() {
                                   aria-label={`${showSecrets[field.key] ? '隐藏' : '显示'} ${field.label}`}
                                   className={styles.eyeButton}
                                 >
-                                  {showSecrets[field.key] ? <EyeOff size={16} /> : <Eye size={16} />}
+                                  {showSecrets[field.key] ? (
+                                    <EyeOff size={16} />
+                                  ) : (
+                                    <Eye size={16} />
+                                  )}
                                 </button>
                               ) : null}
                             </div>
@@ -652,12 +789,35 @@ function SettingsContent() {
               填写任意 OpenAI 兼容 API 的地址、密钥和模型名称。三项全部填写并保存后：
             </p>
             <ul className={styles.fieldHint} style={{ margin: '4px 0 0 16px', padding: 0 }}>
-              <li>编辑器输入 <code className={styles.inlineCode}>/</code> 查看 AI 命令（扩写、缩写、改写、润色、续写）</li>
+              <li>
+                编辑器输入 <code className={styles.inlineCode}>/</code> 查看 AI
+                命令（扩写、缩写、改写、润色、续写）
+              </li>
               <li>AI 选题页话题卡出现「深度分析」按钮</li>
               <li>发布预览面板出现「AI 适配」按钮</li>
               <li>分发失败时出现「AI 诊断」按钮</li>
             </ul>
           </div>
+        </SurfaceCard>
+
+        {/* 自定义 RSS 源 */}
+        <SurfaceCard>
+          <RssSourceManager />
+        </SurfaceCard>
+
+        {/* 自定义 AI Prompt */}
+        <SurfaceCard>
+          <PromptEditor />
+        </SurfaceCard>
+
+        {/* 品牌画像 */}
+        <SurfaceCard>
+          <BrandProfileForm />
+        </SurfaceCard>
+
+        {/* 写作风格 */}
+        <SurfaceCard>
+          <StyleProfile />
         </SurfaceCard>
       </div>
     </div>

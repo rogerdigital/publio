@@ -16,8 +16,18 @@ interface StreamRequestOptions {
  * 自动管理 agentStore 的状态更新和 AbortController 生命周期。
  */
 export function useAgentStream() {
-  const { status, output, error, activeAction, startStream, appendOutput, finishStream, setError, abort, reset } =
-    useAgentStore();
+  const {
+    status,
+    output,
+    error,
+    activeAction,
+    startStream,
+    appendOutput,
+    finishStream,
+    setError,
+    abort,
+    reset,
+  } = useAgentStore();
 
   const request = useCallback(
     async ({ url, body, action }: StreamRequestOptions) => {
@@ -44,9 +54,7 @@ export function useAgentStream() {
           return;
         }
 
-        const reader = response.body
-          .pipeThrough(new TextDecoderStream())
-          .getReader();
+        const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
 
         let buffer = '';
 
@@ -97,7 +105,7 @@ export function useAgentStream() {
         useToastStore.getState().addToast('error', msg);
       }
     },
-    [startStream, appendOutput, finishStream, setError]
+    [startStream, appendOutput, finishStream, setError],
   );
 
   return {

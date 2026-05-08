@@ -764,3 +764,139 @@ export const xhsActionIcon = style({
   fontSize: '12px',
   color: '#999',
 });
+
+// ─── Moderation Warning Dialog ───
+
+export const moderationOverlay = style({
+  position: 'fixed',
+  inset: 0,
+  zIndex: 1000,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  background: 'rgba(0, 0, 0, 0.4)',
+  backdropFilter: 'blur(4px)',
+});
+
+export const moderationDialog = style({
+  width: '90%',
+  maxWidth: '440px',
+  borderRadius: vars.radius.xl,
+  background: vars.color.surface,
+  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.16)',
+  overflow: 'hidden',
+});
+
+export const moderationHeader = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  padding: '16px 20px',
+  borderBottom: `1px solid ${vars.color.border}`,
+  color: vars.color.warningText,
+  fontWeight: 600,
+  fontSize: '15px',
+});
+
+export const moderationClose = style({
+  marginLeft: 'auto',
+  background: 'none',
+  border: 'none',
+  padding: '4px',
+  cursor: 'pointer',
+  color: vars.color.textMuted,
+  borderRadius: vars.radius.sm,
+  transition: 'color 150ms',
+  ':hover': { color: vars.color.text },
+});
+
+export const moderationBody = style({
+  padding: '16px 20px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+});
+
+export const moderationSummary = style({
+  margin: 0,
+  fontSize: '14px',
+  color: vars.color.text,
+  lineHeight: 1.5,
+});
+
+export const moderationCategory = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '6px',
+});
+
+export const moderationCategoryLabel = style({
+  fontSize: '11px',
+  fontWeight: 500,
+  textTransform: 'uppercase',
+  letterSpacing: '0.2em',
+  color: vars.color.textMuted,
+});
+
+export const moderationWords = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '6px',
+});
+
+export const moderationWord = style({
+  display: 'inline-block',
+  borderRadius: vars.radius.sm,
+  background: vars.color.warningBg,
+  border: `1px solid ${vars.color.warningBorder}`,
+  padding: '2px 8px',
+  fontSize: '13px',
+  color: vars.color.warningText,
+  fontWeight: 500,
+});
+
+export const moderationHint = style({
+  margin: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+  fontSize: '13px',
+  color: vars.color.warningText,
+  lineHeight: 1.5,
+});
+
+export const moderationActions = style({
+  display: 'flex',
+  gap: '12px',
+  padding: '12px 20px',
+  borderTop: `1px solid ${vars.color.border}`,
+  justifyContent: 'flex-end',
+});
+
+export const moderationCancelBtn = style({
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: 'transparent',
+  padding: '8px 16px',
+  fontSize: '14px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'all 150ms',
+  ':hover': {
+    borderColor: vars.color.borderStrong,
+    color: vars.color.text,
+  },
+});
+
+export const moderationContinueBtn = style({
+  borderRadius: vars.radius.lg,
+  border: '1px solid transparent',
+  background: vars.color.warningText,
+  padding: '8px 16px',
+  fontSize: '14px',
+  fontWeight: 500,
+  color: '#ffffff',
+  cursor: 'pointer',
+  transition: 'filter 150ms',
+  ':hover': { filter: 'brightness(1.1)' },
+});

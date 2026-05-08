@@ -56,7 +56,11 @@ export function useAutoSave({
       if (draftIdRef.current) {
         await updateDraft(draftIdRef.current, { title: currentTitle, content: currentContent });
       } else {
-        const draft = await ensureDraft({ title: currentTitle, content: currentContent, source: 'manual' });
+        const draft = await ensureDraft({
+          title: currentTitle,
+          content: currentContent,
+          source: 'manual',
+        });
         onDraftCreatedRef.current(draft.id);
       }
       setSaveStatus('saved');

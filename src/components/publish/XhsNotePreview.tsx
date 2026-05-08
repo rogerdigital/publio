@@ -35,12 +35,7 @@ export default function XhsNotePreview({ title, body, tags }: XhsNotePreviewProp
         <div className={styles.xhsImageGrid}>
           {images.slice(0, 3).map((src, i) => (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              key={`${i}-${src.slice(0, 30)}`}
-              src={src}
-              alt=""
-              className={styles.xhsImage}
-            />
+            <img key={`${i}-${src.slice(0, 30)}`} src={src} alt="" className={styles.xhsImage} />
           ))}
         </div>
       )}
@@ -48,15 +43,15 @@ export default function XhsNotePreview({ title, body, tags }: XhsNotePreviewProp
       {/* 内容区 */}
       <div className={styles.xhsContent}>
         <p className={styles.xhsTitle}>{title || '未命名笔记'}</p>
-        {displayText && (
-          <p className={styles.xhsText}>{displayText}</p>
-        )}
+        {displayText && <p className={styles.xhsText}>{displayText}</p>}
 
         {/* 标签 */}
         {tags.length > 0 && (
           <div className={styles.xhsTags}>
             {tags.map((tag) => (
-              <span key={tag} className={styles.xhsTag}>#{tag}</span>
+              <span key={tag} className={styles.xhsTag}>
+                #{tag}
+              </span>
             ))}
           </div>
         )}

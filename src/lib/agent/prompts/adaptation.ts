@@ -1,11 +1,27 @@
 import type { PlatformId } from '@/types';
 import type { ChatMessage } from '../types';
+import { getRuleForPlatform } from '@/lib/platformRules/rules';
 
 const SYSTEM_BASE = `你是一个专业的社交媒体内容适配专家。你需要将用户的文章改写为适合目标平台的风格。
 要求：
 - 直接输出适配后的内容，不要添加解释
 - 保留核心信息和观点
 - 输出纯文本或 Markdown（根据平台需要）`;
+
+function buildPlatformConstraints(platform: PlatformId): string {
+  const rule = getRuleForPlatform(platform);
+  if (!rule) return '';
+
+  const parts: string[] = ['\n硬性约束（必须遵守）：'];
+  if (rule.title) {
+    parts.push(`- 标题不超过 ${rule.title.maxLength} 字`);
+  }
+  parts.push(`- 正文不超过 ${rule.content.maxLength} 字`);
+  if (rule.images) {
+    parts.push(`- 图片不超过 ${rule.images.maxCount} 张`);
+  }
+  return parts.join('\n');
+}
 
 const PLATFORM_PROMPTS: Record<PlatformId, string> = {
   wechat: `${SYSTEM_BASE}
@@ -65,9 +81,20 @@ export function buildAdaptationMessages(
   platform: PlatformId,
   title: string,
   content: string,
+  customPrefix?: string,
 ): ChatMessage[] {
+  let systemPrompt = PLATFORM_PROMPTS[platform];
+
+  // Inject platform rules as hard constraints
+  systemPrompt += buildPlatformConstraints(platform);
+
+  // Inject custom prompt prefix if provided
+  if (customPrefix?.trim()) {
+    systemPrompt += `\n\n用户自定义要求：\n${customPrefix.trim()}`;
+  }
+
   return [
-    { role: 'system', content: PLATFORM_PROMPTS[platform] },
+    { role: 'system', content: systemPrompt },
     {
       role: 'user',
       content: `请将以下文章适配为目标平台风格：\n\n标题：${title}\n\n正文：\n${content}`,

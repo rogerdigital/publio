@@ -2,11 +2,26 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FileText, RefreshCcw, Newspaper, PenLine, ArrowRightCircle, Trash2, Download, Upload, Archive } from 'lucide-react';
+import {
+  FileText,
+  RefreshCcw,
+  Newspaper,
+  PenLine,
+  ArrowRightCircle,
+  Trash2,
+  Download,
+  Upload,
+  Archive,
+} from 'lucide-react';
 import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
 import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
 import { deleteDraft, createDraft, updateDraft } from '@/lib/drafts/client';
-import { exportDraftToMarkdown, parseMarkdownToDraft, downloadFile, readTextFile } from '@/lib/drafts/importExport';
+import {
+  exportDraftToMarkdown,
+  parseMarkdownToDraft,
+  downloadFile,
+  readTextFile,
+} from '@/lib/drafts/importExport';
 import EmptyState from '@/components/feedback/EmptyState';
 import * as styles from './drafts.css';
 
@@ -192,9 +207,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
     setDeleting(true);
     setDeleteError('');
     try {
-      await Promise.all(
-        Array.from(selected).map((id) => updateDraft(id, { status: 'archived' })),
-      );
+      await Promise.all(Array.from(selected).map((id) => updateDraft(id, { status: 'archived' })));
       setDrafts((prev) =>
         prev.map((d) => (selected.has(d.id) ? { ...d, status: 'archived' as const } : d)),
       );
@@ -245,9 +258,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
         <div className={styles.editModeBar}>
           <div className={styles.editModeBarLeft}>
             <span className={styles.editModeCount}>已选 {selected.size} 篇</span>
-            {deleteError ? (
-              <span className={styles.deleteErrorText}>{deleteError}</span>
-            ) : null}
+            {deleteError ? <span className={styles.deleteErrorText}>{deleteError}</span> : null}
           </div>
           <div className={styles.editModeBarRight}>
             <button
@@ -325,33 +336,34 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
       )}
 
       {/* 标签筛选 */}
-      {!isEditMode && (() => {
-        const allTags = [...new Set(drafts.flatMap((d) => d.tags ?? []))];
-        if (allTags.length === 0) return null;
-        return (
-          <div className={styles.tagContainer}>
-            {tagFilter && (
-              <button
-                type="button"
-                className={styles.tagChip({ active: false, clickable: true })}
-                onClick={() => setTagFilter('')}
-              >
-                全部标签
-              </button>
-            )}
-            {allTags.map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                className={styles.tagChip({ active: tagFilter === tag, clickable: true })}
-                onClick={() => setTagFilter(tagFilter === tag ? '' : tag)}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        );
-      })()}
+      {!isEditMode &&
+        (() => {
+          const allTags = [...new Set(drafts.flatMap((d) => d.tags ?? []))];
+          if (allTags.length === 0) return null;
+          return (
+            <div className={styles.tagContainer}>
+              {tagFilter && (
+                <button
+                  type="button"
+                  className={styles.tagChip({ active: false, clickable: true })}
+                  onClick={() => setTagFilter('')}
+                >
+                  全部标签
+                </button>
+              )}
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  className={styles.tagChip({ active: tagFilter === tag, clickable: true })}
+                  onClick={() => setTagFilter(tagFilter === tag ? '' : tag)}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          );
+        })()}
 
       <div className={styles.pipelineList}>
         {drafts
@@ -363,123 +375,144 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
           })
           .filter((d) => !tagFilter || (d.tags ?? []).includes(tagFilter))
           .map((draft) => {
-          const syncTask = syncTasks.find((t) => t.draftId === draft.id);
-          const isSelected = selected.has(draft.id);
+            const syncTask = syncTasks.find((t) => t.draftId === draft.id);
+            const isSelected = selected.has(draft.id);
 
-          return (
-            <div
-              key={draft.id}
-              className={
-                isEditMode
-                  ? styles.pipelineRowSelectable({ selected: isSelected })
-                  : styles.pipelineCard
-              }
-              onClick={isEditMode ? () => toggleSelect(draft.id) : undefined}
-              role={isEditMode ? 'checkbox' : undefined}
-              aria-checked={isEditMode ? isSelected : undefined}
-              tabIndex={isEditMode ? 0 : undefined}
-              onKeyDown={isEditMode ? (e) => {
-                if (e.key === ' ' || e.key === 'Enter') {
-                  e.preventDefault();
-                  toggleSelect(draft.id);
+            return (
+              <div
+                key={draft.id}
+                className={
+                  isEditMode
+                    ? styles.pipelineRowSelectable({ selected: isSelected })
+                    : styles.pipelineCard
                 }
-              } : undefined}
-            >
-              {isEditMode && (
-                <input
-                  type="checkbox"
-                  className={styles.draftCardCheckbox}
-                  checked={isSelected}
-                  onChange={() => toggleSelect(draft.id)}
-                  onClick={(e) => e.stopPropagation()}
-                  aria-label={`选择稿件 ${draft.title}`}
-                />
-              )}
-
-              <div className={styles.pipelineStep}>
-                <span className={styles.pipelineStepIcon}>
-                  <Newspaper size={14} />
-                </span>
-                <div className={styles.pipelineStepContent}>
-                  <span className={styles.pipelineStepLabel}>
-                    {sourceLabels[draft.source]}
-                  </span>
-                  {draft.source === 'ai-news' && (
-                    <Link
-                      href="/ai-news"
-                      className={styles.pipelineStepLink}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      重新选题
-                    </Link>
-                  )}
-                </div>
-              </div>
-
-              <ArrowRightCircle size={14} className={styles.pipelineArrow} />
-
-              <div className={styles.pipelineStep}>
-                <span className={styles.pipelineStepIcon}>
-                  <PenLine size={14} />
-                </span>
-                <div className={styles.pipelineStepContent}>
-                  <span className={styles.pipelineStepLabel} title={draft.title}>
-                    {draft.title.length > 24 ? `${draft.title.slice(0, 24)}…` : draft.title}
-                  </span>
-                  <Link
-                    href={`/?draftId=${draft.id}`}
-                    className={styles.pipelineStepLink}
+                onClick={isEditMode ? () => toggleSelect(draft.id) : undefined}
+                role={isEditMode ? 'checkbox' : undefined}
+                aria-checked={isEditMode ? isSelected : undefined}
+                tabIndex={isEditMode ? 0 : undefined}
+                onKeyDown={
+                  isEditMode
+                    ? (e) => {
+                        if (e.key === ' ' || e.key === 'Enter') {
+                          e.preventDefault();
+                          toggleSelect(draft.id);
+                        }
+                      }
+                    : undefined
+                }
+              >
+                {isEditMode && (
+                  <input
+                    type="checkbox"
+                    className={styles.draftCardCheckbox}
+                    checked={isSelected}
+                    onChange={() => toggleSelect(draft.id)}
                     onClick={(e) => e.stopPropagation()}
-                  >
-                    {statusLabels[draft.status]}，去编辑
-                  </Link>
-                </div>
-              </div>
+                    aria-label={`选择稿件 ${draft.title}`}
+                  />
+                )}
 
-              <ArrowRightCircle size={14} className={styles.pipelineArrow} />
-
-              {syncTask ? (
-                <div className={styles.syncStatusStepVariants[syncTask.status in styles.syncStatusStepVariants ? syncTask.status as keyof typeof styles.syncStatusStepVariants : 'default']}>
+                <div className={styles.pipelineStep}>
                   <span className={styles.pipelineStepIcon}>
-                    <FileText size={14} />
+                    <Newspaper size={14} />
                   </span>
                   <div className={styles.pipelineStepContent}>
-                    <span className={styles.syncStatusLabelVariants[syncTask.status in styles.syncStatusLabelVariants ? syncTask.status as keyof typeof styles.syncStatusLabelVariants : 'default']}>
-                      {syncStatusLabels[syncTask.status]}
+                    <span className={styles.pipelineStepLabel}>{sourceLabels[draft.source]}</span>
+                    {draft.source === 'ai-news' && (
+                      <Link
+                        href="/ai-news"
+                        className={styles.pipelineStepLink}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        重新选题
+                      </Link>
+                    )}
+                  </div>
+                </div>
+
+                <ArrowRightCircle size={14} className={styles.pipelineArrow} />
+
+                <div className={styles.pipelineStep}>
+                  <span className={styles.pipelineStepIcon}>
+                    <PenLine size={14} />
+                  </span>
+                  <div className={styles.pipelineStepContent}>
+                    <span className={styles.pipelineStepLabel} title={draft.title}>
+                      {draft.title.length > 24 ? `${draft.title.slice(0, 24)}…` : draft.title}
                     </span>
                     <Link
-                      href={`/sync-tasks/${syncTask.id}`}
+                      href={`/?draftId=${draft.id}`}
                       className={styles.pipelineStepLink}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      查看详情
+                      {statusLabels[draft.status]}，去编辑
                     </Link>
                   </div>
                 </div>
-              ) : (
-                <div className={styles.syncStatusStepVariants.default}>
-                  <span className={styles.pipelineStepIcon}>
-                    <FileText size={14} />
-                  </span>
-                  <div className={styles.pipelineStepContent}>
-                    <span className={styles.syncStatusLabelVariants.default}>尚未分发</span>
-                  </div>
-                </div>
-              )}
 
-              {!isEditMode && (
-                <button
-                  type="button"
-                  className={styles.exportButton}
-                  onClick={(e) => { e.stopPropagation(); handleExport(draft); }}
-                  title="导出为 Markdown"
-                >
-                  <Download size={13} />
-                </button>
-              )}
-            </div>
-          );
-        })}
+                <ArrowRightCircle size={14} className={styles.pipelineArrow} />
+
+                {syncTask ? (
+                  <div
+                    className={
+                      styles.syncStatusStepVariants[
+                        syncTask.status in styles.syncStatusStepVariants
+                          ? (syncTask.status as keyof typeof styles.syncStatusStepVariants)
+                          : 'default'
+                      ]
+                    }
+                  >
+                    <span className={styles.pipelineStepIcon}>
+                      <FileText size={14} />
+                    </span>
+                    <div className={styles.pipelineStepContent}>
+                      <span
+                        className={
+                          styles.syncStatusLabelVariants[
+                            syncTask.status in styles.syncStatusLabelVariants
+                              ? (syncTask.status as keyof typeof styles.syncStatusLabelVariants)
+                              : 'default'
+                          ]
+                        }
+                      >
+                        {syncStatusLabels[syncTask.status]}
+                      </span>
+                      <Link
+                        href={`/sync-tasks/${syncTask.id}`}
+                        className={styles.pipelineStepLink}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        查看详情
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles.syncStatusStepVariants.default}>
+                    <span className={styles.pipelineStepIcon}>
+                      <FileText size={14} />
+                    </span>
+                    <div className={styles.pipelineStepContent}>
+                      <span className={styles.syncStatusLabelVariants.default}>尚未分发</span>
+                    </div>
+                  </div>
+                )}
+
+                {!isEditMode && (
+                  <button
+                    type="button"
+                    className={styles.exportButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExport(draft);
+                    }}
+                    title="导出为 Markdown"
+                  >
+                    <Download size={13} />
+                  </button>
+                )}
+              </div>
+            );
+          })}
       </div>
     </div>
   );

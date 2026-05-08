@@ -33,10 +33,9 @@ export async function GET() {
 
     return apiResponse(data);
   } catch (error) {
-    logger.error('AI news build failed', { error: error instanceof Error ? error.message : String(error) });
-    return apiError(
-      error instanceof Error ? error.message : 'Failed to fetch AI news.',
-      500,
-    );
+    logger.error('AI news build failed', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return apiError(error instanceof Error ? error.message : 'Failed to fetch AI news.', 500);
   }
 }

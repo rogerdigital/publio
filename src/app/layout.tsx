@@ -8,24 +8,17 @@ import * as styles from './layout.css';
 
 export const metadata: Metadata = {
   title: 'Publio',
-  description:
-    'Publish Markdown content to multiple platforms in one workflow.',
+  description: 'Publish Markdown content to multiple platforms in one workflow.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
       <body>
         <div className={styles.shell}>
           <Sidebar />
 
-          <main className={styles.main}>
-            {children}
-          </main>
+          <main className={styles.main}>{children}</main>
         </div>
 
         <ToastContainer />

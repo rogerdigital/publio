@@ -7,6 +7,8 @@ import { SendHorizonal, Loader2, AlertCircle, Clock } from 'lucide-react';
 import { publishButton } from './publish.css';
 import { useToastStore } from '@/stores/toastStore';
 import PublishConfirmDialog from './PublishConfirmDialog';
+import ModerationWarning from './ModerationWarning';
+import type { SensitiveMatch } from '@/lib/moderation/types';
 
 const platformLabels: Record<PlatformId, string> = {
   wechat: '微信公众号',
@@ -32,9 +34,7 @@ export default function PublishButton() {
 
   const handlePublishRef = useRef<typeof handlePublish>(null!);
 
-  const selectedPlatforms = (
-    Object.entries(platforms) as [PlatformId, boolean][]
-  )
+  const selectedPlatforms = (Object.entries(platforms) as [PlatformId, boolean][])
     .filter(([, enabled]) => enabled)
     .map(([id]) => id);
 
@@ -51,9 +51,9 @@ export default function PublishButton() {
     overallStatus === 'publishing';
 
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const validationErrors = notReadyPlatforms.map(
-    (p) => `${platformLabels[p]} 标题或内容为空`,
-  );
+  const [moderationMatches, setModerationMatches] = useState<SensitiveMatch[] | null>(null);
+  const [forcePublish, setForcePublish] = useState(false);
+  const validationErrors = notReadyPlatforms.map((p) => `${platformLabels[p]} 标题或内容为空`);
 
   async function handlePublish() {
     if (isDisabled) return;
@@ -121,27 +121,39 @@ export default function PublishButton() {
           title,
           content,
           platforms: selectedPlatforms,
+          forcePublish,
           platformDrafts: Object.fromEntries(
             selectedPlatforms.map((platform) => [
               platform,
               {
                 title: platformDrafts[platform].title,
-                content: (platformDrafts[platform].aiAdapted && platformDrafts[platform].aiBody)
-                  ? platformDrafts[platform].aiBody
-                  : platformDrafts[platform].body,
+                content:
+                  platformDrafts[platform].aiAdapted && platformDrafts[platform].aiBody
+                    ? platformDrafts[platform].aiBody
+                    : platformDrafts[platform].body,
               },
             ]),
           ),
         }),
       });
-      const data = (await response.json()) as PublishResponse | { error?: string };
+      const data = (await response.json()) as
+        | PublishResponse
+        | { error?: string }
+        | { moderationWarning: true; matches: SensitiveMatch[] };
 
       if (!response.ok) {
         const message = 'error' in data && data.error ? data.error : '发布失败，请稍后重试';
         throw new Error(message);
       }
 
+      // Handle moderation warning
+      if ('moderationWarning' in data && data.moderationWarning) {
+        setModerationMatches(data.matches);
+        return;
+      }
+
       if (!('syncTaskId' in data)) throw new Error('发布结果格式异常，请稍后重试');
+      setForcePublish(false);
       useToastStore.getState().addToast('success', '发布任务已提交');
 
       // 原地显示发布进度浮层，不跳转
@@ -210,6 +222,22 @@ export default function PublishButton() {
         onConfirm={handlePublish}
         onCancel={() => setConfirmOpen(false)}
       />
+
+      {moderationMatches && (
+        <ModerationWarning
+          matches={moderationMatches}
+          onContinue={() => {
+            setModerationMatches(null);
+            setForcePublish(true);
+            // Trigger publish again with forcePublish
+            setTimeout(() => handlePublishRef.current(), 0);
+          }}
+          onCancel={() => {
+            setModerationMatches(null);
+            setForcePublish(false);
+          }}
+        />
+      )}
     </>
   );
 }

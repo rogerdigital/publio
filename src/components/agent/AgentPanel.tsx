@@ -19,10 +19,19 @@ const ACTION_LABELS: Record<string, string> = {
 
 export default function AgentPanel() {
   const {
-    status, output, error, activeAction,
-    chatMessages, addChatTurn, clearChat,
-    startStream, appendOutput, finishStream, setError,
-    abort, reset,
+    status,
+    output,
+    error,
+    activeAction,
+    chatMessages,
+    addChatTurn,
+    clearChat,
+    startStream,
+    appendOutput,
+    finishStream,
+    setError,
+    abort,
+    reset,
   } = useAgentStore();
   const { title, content, setContent } = usePublishStore();
   const [chatInput, setChatInput] = useState('');
@@ -97,9 +106,7 @@ export default function AgentPanel() {
         return;
       }
 
-      const reader = response.body
-        .pipeThrough(new TextDecoderStream())
-        .getReader();
+      const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
 
       let buffer = '';
 
@@ -142,14 +149,29 @@ export default function AgentPanel() {
       setError(msg);
       useToastStore.getState().addToast('error', msg);
     }
-  }, [chatInput, chatMessages, output, status, title, content, addChatTurn, startStream, appendOutput, finishStream, setError]);
+  }, [
+    chatInput,
+    chatMessages,
+    output,
+    status,
+    title,
+    content,
+    addChatTurn,
+    startStream,
+    appendOutput,
+    finishStream,
+    setError,
+  ]);
 
-  const handleChatKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      void handleSendChat();
-    }
-  }, [handleSendChat]);
+  const handleChatKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        void handleSendChat();
+      }
+    },
+    [handleSendChat],
+  );
 
   const actionLabel = activeAction ? ACTION_LABELS[activeAction] || activeAction : 'AI';
   const hasChatHistory = chatMessages.length > 0;
@@ -165,19 +187,18 @@ export default function AgentPanel() {
             <button
               type="button"
               className={styles.clearChatButton}
-              onClick={() => { clearChat(); reset(); }}
+              onClick={() => {
+                clearChat();
+                reset();
+              }}
               title="清空对话"
+              aria-label="清空对话"
             >
               <Trash2 size={11} />
             </button>
           )}
         </span>
-        <button
-          type="button"
-          className={styles.closeButton}
-          onClick={handleClose}
-          title="关闭"
-        >
+        <button type="button" className={styles.closeButton} onClick={handleClose} title="关闭" aria-label="关闭">
           <X size={14} />
         </button>
       </div>
@@ -188,10 +209,10 @@ export default function AgentPanel() {
           <div className={styles.chatMessages}>
             {chatMessages.map((turn, i) => (
               <div key={i} className={styles.chatTurn}>
-                <span className={styles.chatTurnRole}>
-                  {turn.role === 'user' ? '你' : 'AI'}
-                </span>
-                <div className={`${styles.chatTurnContent} ${turn.role === 'user' ? styles.chatTurnUser : styles.chatTurnAssistant}`}>
+                <span className={styles.chatTurnRole}>{turn.role === 'user' ? '你' : 'AI'}</span>
+                <div
+                  className={`${styles.chatTurnContent} ${turn.role === 'user' ? styles.chatTurnUser : styles.chatTurnAssistant}`}
+                >
                   {turn.content}
                 </div>
               </div>
@@ -252,11 +273,7 @@ export default function AgentPanel() {
       {/* 停止生成 */}
       {status === 'streaming' && (
         <div className={styles.panelActions}>
-          <button
-            type="button"
-            className={styles.actionButton}
-            onClick={abort}
-          >
+          <button type="button" className={styles.actionButton} onClick={abort}>
             停止生成
           </button>
         </div>
@@ -280,6 +297,7 @@ export default function AgentPanel() {
             onClick={() => void handleSendChat()}
             disabled={!chatInput.trim()}
             title="发送"
+            aria-label="发送"
           >
             <Send size={14} />
           </button>

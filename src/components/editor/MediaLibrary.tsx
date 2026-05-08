@@ -36,7 +36,9 @@ export default function MediaLibrary({ onSelect }: MediaLibraryProps) {
         if (!cancelled) setLoading(false);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen]);
 
   function handleUpload() {
@@ -55,7 +57,10 @@ export default function MediaLibrary({ onSelect }: MediaLibraryProps) {
           const res = await fetch('/api/upload', { method: 'POST', body: formData });
           if (!res.ok) continue;
           const { url, filename } = await res.json();
-          setUploads((prev) => [{ filename, url, size: file.size, createdAt: new Date().toISOString() }, ...prev]);
+          setUploads((prev) => [
+            { filename, url, size: file.size, createdAt: new Date().toISOString() },
+            ...prev,
+          ]);
         } catch {
           // skip failed uploads
         }
@@ -72,12 +77,7 @@ export default function MediaLibrary({ onSelect }: MediaLibraryProps) {
 
   return (
     <>
-      <button
-        type="button"
-        className={css.trigger}
-        onClick={() => setIsOpen(true)}
-        title="媒体库"
-      >
+      <button type="button" className={css.trigger} onClick={() => setIsOpen(true)} title="媒体库">
         <ImageIcon size={14} />
         媒体库
       </button>
@@ -88,19 +88,11 @@ export default function MediaLibrary({ onSelect }: MediaLibraryProps) {
             <div className={css.modalHeader}>
               <h3 className={css.modalTitle}>媒体库</h3>
               <div className={css.modalHeaderActions}>
-                <button
-                  type="button"
-                  className={css.uploadBtn}
-                  onClick={handleUpload}
-                >
+                <button type="button" className={css.uploadBtn} onClick={handleUpload}>
                   <Upload size={14} />
                   上传图片
                 </button>
-                <button
-                  type="button"
-                  className={css.closeBtn}
-                  onClick={() => setIsOpen(false)}
-                >
+                <button type="button" className={css.closeBtn} onClick={() => setIsOpen(false)}>
                   <X size={16} />
                 </button>
               </div>
@@ -113,11 +105,7 @@ export default function MediaLibrary({ onSelect }: MediaLibraryProps) {
                 <div className={css.emptyState}>
                   <ImageIcon size={32} />
                   <p className={css.emptyText}>暂无上传的图片</p>
-                  <button
-                    type="button"
-                    className={css.uploadBtn}
-                    onClick={handleUpload}
-                  >
+                  <button type="button" className={css.uploadBtn} onClick={handleUpload}>
                     上传第一张图片
                   </button>
                 </div>
@@ -137,11 +125,7 @@ export default function MediaLibrary({ onSelect }: MediaLibraryProps) {
                       title={`${item.filename} (${formatSize(item.size)})`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.url}
-                        alt={item.filename}
-                        className={css.gridImage}
-                      />
+                      <img src={item.url} alt={item.filename} className={css.gridImage} />
                       <span className={css.gridMeta}>{formatSize(item.size)}</span>
                     </button>
                   ))}

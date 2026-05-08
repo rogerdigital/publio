@@ -39,7 +39,9 @@ export default function VersionHistory({ draftId, onRestore }: VersionHistoryPro
         if (!cancelled) setLoading(false);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [draftId]);
 
   if (!draftId) return null;
@@ -50,9 +52,7 @@ export default function VersionHistory({ draftId, onRestore }: VersionHistoryPro
 
       {loading && <p className={css.empty}>加载中...</p>}
 
-      {!loading && versions.length === 0 && (
-        <p className={css.empty}>暂无历史版本</p>
-      )}
+      {!loading && versions.length === 0 && <p className={css.empty}>暂无历史版本</p>}
 
       {[...versions].reverse().map((v) => (
         <div key={v.id} className={css.item} onClick={() => onRestore(v)}>

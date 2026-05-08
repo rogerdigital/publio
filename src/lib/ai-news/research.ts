@@ -21,22 +21,20 @@ function topicHeadline(topicTags: string[]) {
 }
 
 function buildWhyItMatters(cluster: ScoredAiNewsCluster) {
-  const impactObject =
-    cluster.topicTags.includes('算力与芯片')
-      ? '下一阶段的训练成本、推理效率和供给节奏'
-      : cluster.topicTags.includes('资本与商业化')
-        ? '行业对收入兑现和商业化进度的判断'
-        : cluster.topicTags.includes('监管与治理')
-          ? '平台规则、企业决策和市场预期'
-          : '模型能力、产品采用速度和竞争格局';
+  const impactObject = cluster.topicTags.includes('算力与芯片')
+    ? '下一阶段的训练成本、推理效率和供给节奏'
+    : cluster.topicTags.includes('资本与商业化')
+      ? '行业对收入兑现和商业化进度的判断'
+      : cluster.topicTags.includes('监管与治理')
+        ? '平台规则、企业决策和市场预期'
+        : '模型能力、产品采用速度和竞争格局';
 
   const coverageContext =
     cluster.coverageCount >= 5
       ? `已有 ${cluster.coverageCount} 条交叉报道`
       : `当前 ${cluster.coverageCount} 条来源指向同一事件`;
 
-  const sourceContext =
-    cluster.officialSourceCount > 0 ? '含官方信源' : '来自媒体交叉报道';
+  const sourceContext = cluster.officialSourceCount > 0 ? '含官方信源' : '来自媒体交叉报道';
 
   const scoreContext =
     cluster.scores.impact >= 80
@@ -110,9 +108,7 @@ function buildAngles(cluster: ScoredAiNewsCluster): ResearchAngle[] {
 }
 
 function buildBackground(cluster: ScoredAiNewsCluster) {
-  const sourceNames = [
-    ...new Set(cluster.signals.slice(0, 4).map((s) => s.sourceName)),
-  ];
+  const sourceNames = [...new Set(cluster.signals.slice(0, 4).map((s) => s.sourceName))];
 
   return [
     `当前聚合 ${cluster.coverageCount} 条报道，来源包括：${sourceNames.join('、')}。`,
@@ -127,11 +123,7 @@ function buildBackground(cluster: ScoredAiNewsCluster) {
 
 function buildPerspectives(cluster: ScoredAiNewsCluster): ResearchPerspective[] {
   return cluster.signals
-    .filter(
-      (s) =>
-        s.link !== cluster.primarySignal.link &&
-        (!!s.imageUrl || !!(s.summary?.trim())),
-    )
+    .filter((s) => s.link !== cluster.primarySignal.link && (!!s.imageUrl || !!s.summary?.trim()))
     .slice(0, 3)
     .map((s) => ({
       sourceName: s.sourceName,
@@ -166,17 +158,13 @@ function truncateSummary(text: string, maxLen = 200): string {
     cutoff.lastIndexOf('？'),
     cutoff.lastIndexOf('. '),
   );
-  return lastBreak > maxLen * 0.5
-    ? text.slice(0, lastBreak + 1)
-    : `${cutoff.trimEnd()}……`;
+  return lastBreak > maxLen * 0.5 ? text.slice(0, lastBreak + 1) : `${cutoff.trimEnd()}……`;
 }
 
 function buildWhatHappened(cluster: ScoredAiNewsCluster): string {
   const primary = cluster.primarySignal;
   const base = `${primary.sourceName} 报道的核心事件：${primary.title}。`;
-  const summaryPart = primary.summary
-    ? `\n\n> ${truncateSummary(primary.summary)}`
-    : '';
+  const summaryPart = primary.summary ? `\n\n> ${truncateSummary(primary.summary)}` : '';
   const statPart = `\n\n当前已聚合 ${cluster.coverageCount} 条相关报道，最新更新于 ${new Date(cluster.latestPublishedAt).toLocaleString('zh-CN')}。`;
   return `${base}${summaryPart}${statPart}`;
 }

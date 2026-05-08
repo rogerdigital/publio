@@ -6,10 +6,7 @@ import type { AgentStreamEvent } from './types';
  *
  * SSE 格式: `data: {"type":"delta","content":"..."}\n\n`
  */
-export function createSSEResponse(
-  tokens: AsyncIterable<string>,
-  signal?: AbortSignal
-): Response {
+export function createSSEResponse(tokens: AsyncIterable<string>, signal?: AbortSignal): Response {
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
@@ -19,24 +16,18 @@ export function createSSEResponse(
           if (signal?.aborted) break;
 
           const event: AgentStreamEvent = { type: 'delta', content: token };
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify(event)}\n\n`)
-          );
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
         }
 
         // 发送 done 事件
         const doneEvent: AgentStreamEvent = { type: 'done' };
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify(doneEvent)}\n\n`)
-        );
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(doneEvent)}\n\n`));
       } catch (err) {
         const errorEvent: AgentStreamEvent = {
           type: 'error',
           error: err instanceof Error ? err.message : 'Unknown error',
         };
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify(errorEvent)}\n\n`)
-        );
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(errorEvent)}\n\n`));
       } finally {
         controller.close();
       }

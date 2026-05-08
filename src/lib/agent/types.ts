@@ -32,10 +32,10 @@ export interface AgentConfig {
 // --- Agent Actions ---
 
 export type WritingAction =
-  | 'expand'    // 扩写
-  | 'condense'  // 缩写
-  | 'rewrite'   // 改写
-  | 'polish'    // 润色
+  | 'expand' // 扩写
+  | 'condense' // 缩写
+  | 'rewrite' // 改写
+  | 'polish' // 润色
   | 'continue'; // 续写
 
 export type AgentAction = WritingAction | 'adapt' | 'research' | 'diagnose' | 'chat';
@@ -53,6 +53,7 @@ export interface AdaptAgentRequest {
   title: string;
   content: string;
   platform: PlatformId;
+  customPrompt?: string;
 }
 
 export interface ResearchAgentRequest {

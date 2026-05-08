@@ -34,8 +34,6 @@ describe('buildResearchDraftMarkdown', () => {
       ],
     });
 
-    expect(markdown).toContain(
-      '![](https://openai.com/images/gpt-x-cover.jpg)',
-    );
+    expect(markdown).toContain('![](https://openai.com/images/gpt-x-cover.jpg)');
   });
 });

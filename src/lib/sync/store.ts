@@ -7,10 +7,7 @@ import type {
   SyncTaskStatus,
   UpdateSyncReceiptInput,
 } from '@/lib/sync/types';
-import {
-  readJsonFileCollection,
-  writeJsonFileCollection,
-} from '@/lib/storage/jsonFileCollection';
+import { readJsonFileCollection, writeJsonFileCollection } from '@/lib/storage/jsonFileCollection';
 
 interface SyncHistoryStoreOptions {
   createId?: () => string;
@@ -45,7 +42,11 @@ function deriveTaskStatus(receipts: PlatformSyncReceipt[]): SyncTaskStatus {
   if (receipts.some((receipt) => receipt.status === 'failed')) {
     return hasCompletedReceipt ? 'partial' : 'failed';
   }
-  if (receipts.every((receipt) => receipt.status === 'draft-created' || receipt.status === 'published')) {
+  if (
+    receipts.every(
+      (receipt) => receipt.status === 'draft-created' || receipt.status === 'published',
+    )
+  ) {
     return 'completed';
   }
   return 'pending';

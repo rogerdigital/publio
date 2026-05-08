@@ -126,12 +126,7 @@ export default function DraftPanel({ onNewDraft }: Props) {
               >
                 <Pencil size={13} />
               </button>
-              <button
-                type="button"
-                onClick={onNewDraft}
-                className={styles.newBtn}
-                title="新建稿件"
-              >
+              <button type="button" onClick={onNewDraft} className={styles.newBtn} title="新建稿件">
                 <Plus size={14} />
               </button>
             </>
@@ -198,11 +193,10 @@ export default function DraftPanel({ onNewDraft }: Props) {
                     aria-label={`选择 ${draft.title || '无标题'}`}
                   />
                   <div className={styles.itemBody}>
-                    <span className={styles.itemTitle}>
-                      {draft.title || '无标题'}
-                    </span>
+                    <span className={styles.itemTitle}>{draft.title || '无标题'}</span>
                     <span className={styles.itemMeta}>
-                      {statusLabels[draft.status]}{suffix}
+                      {statusLabels[draft.status]}
+                      {suffix}
                     </span>
                   </div>
                 </div>
@@ -215,11 +209,10 @@ export default function DraftPanel({ onNewDraft }: Props) {
                 href={`/?draftId=${draft.id}`}
                 className={styles.item({ active: isActive })}
               >
-                <span className={styles.itemTitle}>
-                  {draft.title || '无标题'}
-                </span>
+                <span className={styles.itemTitle}>{draft.title || '无标题'}</span>
                 <span className={styles.itemMeta}>
-                  {statusLabels[draft.status]}{suffix}
+                  {statusLabels[draft.status]}
+                  {suffix}
                 </span>
               </Link>
             );

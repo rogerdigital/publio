@@ -6,14 +6,13 @@ import { useRouter } from 'next/navigation';
 import TopicDeskHeader from '@/components/news/TopicDeskHeader';
 import TopicSignalCard from '@/components/news/TopicSignalCard';
 import type { AiNewsDeskCandidate } from '@/lib/aiNews';
-import {
-  buildResearchDraftMarkdown,
-} from '@/lib/newsDraft';
+import { buildResearchDraftMarkdown } from '@/lib/newsDraft';
 import { createDraft } from '@/lib/drafts/client';
 import { useAgentStore } from '@/stores/agentStore';
 import type { AgentStreamEvent } from '@/lib/agent/types';
 import EmptyState from '@/components/feedback/EmptyState';
 import { Newspaper } from 'lucide-react';
+import TopicRecommendationPanel from '@/components/copilot/TopicRecommendationPanel';
 import * as styles from './news.css';
 
 // localStorage key for tracking which topic clusters have drafts in this session
@@ -146,81 +145,86 @@ export default function AiNewsPageClient() {
     if (Object.keys(restored).length > 0) {
       setDeepResearchContent((prev) => ({ ...prev, ...restored }));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allCandidates.length]);
 
-  const handleDeepResearch = useCallback(async (item: AiNewsDeskCandidate) => {
-    const clusterId = item.clusterId;
-    setDeepResearchLoading((prev) => ({ ...prev, [clusterId]: true }));
+  const handleDeepResearch = useCallback(
+    async (item: AiNewsDeskCandidate) => {
+      const clusterId = item.clusterId;
+      setDeepResearchLoading((prev) => ({ ...prev, [clusterId]: true }));
 
-    try {
-      const response = await fetch('/api/agent/research', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clusterTitle: item.title,
-          signals: item.signals?.map((s) => ({
-            title: s.title,
-            summary: s.summary || '',
-            source: s.sourceName,
-            publishedAt: s.publishedAt,
-          })) ?? [{
-            title: item.title,
-            summary: item.whyNow,
-            source: item.primarySignal.sourceName,
-            publishedAt: item.primarySignal.publishedAt,
-          }],
-        }),
-      });
+      try {
+        const response = await fetch('/api/agent/research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            clusterTitle: item.title,
+            signals: item.signals?.map((s) => ({
+              title: s.title,
+              summary: s.summary || '',
+              source: s.sourceName,
+              publishedAt: s.publishedAt,
+            })) ?? [
+              {
+                title: item.title,
+                summary: item.whyNow,
+                source: item.primarySignal.sourceName,
+                publishedAt: item.primarySignal.publishedAt,
+              },
+            ],
+          }),
+        });
 
-      if (!response.ok || !response.body) {
-        throw new Error('深度分析请求失败');
-      }
+        if (!response.ok || !response.body) {
+          throw new Error('深度分析请求失败');
+        }
 
-      const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
-      let buffer = '';
-      let accumulated = '';
+        const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+        let buffer = '';
+        let accumulated = '';
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        buffer += value;
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+          buffer += value;
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
 
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          try {
-            const event: AgentStreamEvent = JSON.parse(line.slice(6));
-            if (event.type === 'delta') {
-              accumulated += event.content;
-              setDeepResearchContent((prev) => ({ ...prev, [clusterId]: accumulated }));
-            } else if (event.type === 'error') {
-              throw new Error(event.error);
-            }
-          } catch (e) {
-            if (e instanceof Error && e.message !== '深度分析请求失败') {
-              // skip parse errors
-            } else {
-              throw e;
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try {
+              const event: AgentStreamEvent = JSON.parse(line.slice(6));
+              if (event.type === 'delta') {
+                accumulated += event.content;
+                setDeepResearchContent((prev) => ({ ...prev, [clusterId]: accumulated }));
+              } else if (event.type === 'error') {
+                throw new Error(event.error);
+              }
+            } catch (e) {
+              if (e instanceof Error && e.message !== '深度分析请求失败') {
+                // skip parse errors
+              } else {
+                throw e;
+              }
             }
           }
         }
-      }
 
-      // Cache result
-      cacheResearch({
-        raw: accumulated,
-        clusterTitle: item.title,
-        generatedAt: new Date().toISOString(),
-      });
-    } catch {
-      // On error, clear loading but keep any partial content
-    } finally {
-      setDeepResearchLoading((prev) => ({ ...prev, [clusterId]: false }));
-    }
-  }, [cacheResearch]);
+        // Cache result
+        cacheResearch({
+          raw: accumulated,
+          clusterTitle: item.title,
+          generatedAt: new Date().toISOString(),
+        });
+      } catch {
+        // On error, clear loading but keep any partial content
+      } finally {
+        setDeepResearchLoading((prev) => ({ ...prev, [clusterId]: false }));
+      }
+    },
+    [cacheResearch],
+  );
 
   const writeDraftAndOpenEditor = async (title: string, content: string, clusterId: string) => {
     try {
@@ -340,7 +344,7 @@ export default function AiNewsPageClient() {
     } else {
       void loadNews();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -354,16 +358,24 @@ export default function AiNewsPageClient() {
         refreshing={refreshing}
       />
 
+      {agentEnabled && allCandidates.length > 0 && (
+        <TopicRecommendationPanel
+          clusters={allCandidates}
+          onSelectTopic={(title) => {
+            // Navigate to editor with the recommended topic title
+            void writeDraftAndOpenEditor(
+              title,
+              `> 选题来源：AI 推荐\n\n开始围绕「${title}」撰写内容...`,
+              `recommend-${Date.now()}`,
+            );
+          }}
+        />
+      )}
+
       <div className={styles.contentWrap}>
         {refreshError ? (
-          <div
-            className={styles.refreshErrorBanner}
-            role="status"
-            aria-live="polite"
-          >
-            <p className={styles.refreshErrorKicker}>
-              刷新未更新
-            </p>
+          <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
+            <p className={styles.refreshErrorKicker}>刷新未更新</p>
             <p className={styles.refreshErrorText}>
               {refreshError} 下面保留的是上一次成功加载的内容。
             </p>
@@ -371,17 +383,9 @@ export default function AiNewsPageClient() {
         ) : null}
 
         {draftError ? (
-          <div
-            className={styles.refreshErrorBanner}
-            role="status"
-            aria-live="polite"
-          >
-            <p className={styles.refreshErrorKicker}>
-              转稿未完成
-            </p>
-            <p className={styles.refreshErrorText}>
-              {draftError}
-            </p>
+          <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
+            <p className={styles.refreshErrorKicker}>转稿未完成</p>
+            <p className={styles.refreshErrorText}>{draftError}</p>
           </div>
         ) : null}
 

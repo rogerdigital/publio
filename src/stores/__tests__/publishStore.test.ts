@@ -27,6 +27,4 @@ describe('publishStore platform drafts', () => {
       isReady: true,
     });
   });
-
-
 });

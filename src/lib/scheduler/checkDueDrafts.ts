@@ -35,11 +35,7 @@ export async function checkDueDrafts() {
     });
 
     try {
-      const publishResults = await publishToPlatforms(
-        platforms,
-        draft.title,
-        draft.content,
-      );
+      const publishResults = await publishToPlatforms(platforms, draft.title, draft.content);
 
       for (const result of publishResults) {
         const receiptStatus = toSyncReceiptStatus(result);
@@ -47,14 +43,15 @@ export async function checkDueDrafts() {
         const failureCode = isFailed ? inferFailureCode(result.message) : undefined;
         const nextAction = isFailed && failureCode ? toNextAction(failureCode) : undefined;
 
-        syncTask = syncStore.updateReceipt(syncTask.id, result.platform, {
-          status: receiptStatus,
-          message: result.message,
-          url: result.url,
-          failureCode,
-          failureMessage: isFailed ? (result.message ?? '未知错误') : undefined,
-          nextAction,
-        }) ?? syncTask;
+        syncTask =
+          syncStore.updateReceipt(syncTask.id, result.platform, {
+            status: receiptStatus,
+            message: result.message,
+            url: result.url,
+            failureCode,
+            failureMessage: isFailed ? (result.message ?? '未知错误') : undefined,
+            nextAction,
+          }) ?? syncTask;
       }
 
       getDraftRegistry().updateDraft(draft.id, {

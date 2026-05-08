@@ -24,11 +24,9 @@ const ARTICLE_THEME: Record<
   wechat: {
     article:
       'max-width:580px;margin:0 auto;padding:0 10px 48px;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#e8ddd2;line-height:1.95;letter-spacing:0.02em;',
-    lead:
-      'margin:0 0 24px;padding:18px 18px 0;border-radius:0;background:transparent;border:none;font-size:17px;line-height:1.95;color:#f2e9df;',
+    lead: 'margin:0 0 24px;padding:18px 18px 0;border-radius:0;background:transparent;border:none;font-size:17px;line-height:1.95;color:#f2e9df;',
     paragraph: 'margin:16px 0;font-size:16px;line-height:1.95;color:#ddd0c4;',
-    heading2:
-      'margin:38px 0 16px;font-size:27px;line-height:1.45;font-weight:800;color:#fff4ea;',
+    heading2: 'margin:38px 0 16px;font-size:27px;line-height:1.45;font-weight:800;color:#fff4ea;',
     heading3:
       'margin:28px 0 12px;padding-left:14px;border-left:3px solid #d46f3d;font-size:21px;line-height:1.6;font-weight:700;color:#fff0e3;',
     blockquote:
@@ -37,8 +35,7 @@ const ARTICLE_THEME: Record<
     listItem: 'margin:8px 0;font-size:15px;line-height:1.9;',
     image:
       'display:block;width:100%;margin:24px auto;border-radius:18px;overflow:hidden;border:1px solid #433831;',
-    divider:
-      'margin:30px auto;border:none;border-top:1px dashed #4b4038;max-width:100%;',
+    divider: 'margin:30px auto;border:none;border-top:1px dashed #4b4038;max-width:100%;',
     meta: 'margin:12px 0;font-size:14px;line-height:1.9;color:#b8a799;',
     link: 'color:#ff9160;text-decoration:none;border-bottom:1px solid rgba(255,145,96,0.28);',
     code: 'padding:2px 6px;border-radius:8px;background:#2a221e;color:#ffb089;font-size:0.92em;',
@@ -46,11 +43,9 @@ const ARTICLE_THEME: Record<
   zhihu: {
     article:
       'max-width:760px;margin:0 auto;padding:0 8px;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#1f2329;line-height:1.9;',
-    lead:
-      'margin:0 0 24px;padding:18px 20px;border-radius:16px;background:#f8f9fb;border:1px solid #e6e8eb;font-size:17px;line-height:1.9;color:#39414a;',
+    lead: 'margin:0 0 24px;padding:18px 20px;border-radius:16px;background:#f8f9fb;border:1px solid #e6e8eb;font-size:17px;line-height:1.9;color:#39414a;',
     paragraph: 'margin:18px 0;font-size:16px;line-height:1.95;color:#2d333a;',
-    heading2:
-      'margin:38px 0 14px;font-size:28px;line-height:1.45;font-weight:800;color:#101418;',
+    heading2: 'margin:38px 0 14px;font-size:28px;line-height:1.45;font-weight:800;color:#101418;',
     heading3:
       'margin:26px 0 12px;padding-left:12px;border-left:4px solid #ff6b35;font-size:21px;line-height:1.6;font-weight:700;color:#17202a;',
     blockquote:
@@ -59,8 +54,7 @@ const ARTICLE_THEME: Record<
     listItem: 'margin:8px 0;font-size:15px;line-height:1.9;',
     image:
       'display:block;width:100%;margin:24px auto;border-radius:20px;overflow:hidden;border:1px solid #ececec;',
-    divider:
-      'margin:32px auto;border:none;border-top:1px dashed #d8dde3;max-width:100%;',
+    divider: 'margin:32px auto;border:none;border-top:1px dashed #d8dde3;max-width:100%;',
     meta: 'margin:12px 0;font-size:14px;line-height:1.9;color:#6b7280;',
     link: 'color:#175199;text-decoration:none;border-bottom:1px solid rgba(23,81,153,0.22);',
     code: 'padding:2px 6px;border-radius:8px;background:#f3f4f6;color:#b54708;font-size:0.92em;',
@@ -110,10 +104,7 @@ function sanitizeUrl(value: string | undefined) {
   }
 }
 
-function renderInline(
-  tokens: any[] | undefined,
-  platform?: StyledPlatform,
-): string {
+function renderInline(tokens: any[] | undefined, platform?: StyledPlatform): string {
   if (!tokens || tokens.length === 0) {
     return '';
   }
@@ -235,7 +226,14 @@ function tokenize(markdown: string) {
 }
 
 const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
-  allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'h1', 'h2', 'h3', 'section', 'article']),
+  allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+    'img',
+    'h1',
+    'h2',
+    'h3',
+    'section',
+    'article',
+  ]),
   allowedAttributes: {
     ...sanitizeHtml.defaults.allowedAttributes,
     '*': ['style'],
@@ -263,15 +261,12 @@ export function markdownToStyledHtml(
 
   const contentTokens = hasLeadingTitle ? tokens.slice(1) : tokens;
   const leadIndex = contentTokens.findIndex((token) => token.type === 'paragraph');
-  const leadToken =
-    leadIndex >= 0 ? (contentTokens[leadIndex] as Tokens.Paragraph) : null;
+  const leadToken = leadIndex >= 0 ? (contentTokens[leadIndex] as Tokens.Paragraph) : null;
   const leadHtml = leadToken
     ? `<section style="${ARTICLE_THEME[platform].lead}">${renderInline(leadToken.tokens, platform)}</section>`
     : '';
   const bodyTokens =
-    leadIndex >= 0
-      ? contentTokens.filter((_, index) => index !== leadIndex)
-      : contentTokens;
+    leadIndex >= 0 ? contentTokens.filter((_, index) => index !== leadIndex) : contentTokens;
 
   const hero = `
     <section style="position:relative;overflow:hidden;margin:0 0 28px;padding:18px;border-radius:26px;background:linear-gradient(180deg,#1b1a19 0%,#181715 100%);border:1px solid #2d2926;box-shadow:0 22px 48px rgba(10,10,10,0.26);">
@@ -287,13 +282,16 @@ export function markdownToStyledHtml(
 
   const bodyHtml = tokensToHtml(bodyTokens, platform, { skipFirstH1: true });
 
-  return sanitizeHtml(`
+  return sanitizeHtml(
+    `
     <article style="${ARTICLE_THEME[platform].article}">
       ${hero}
       ${leadHtml}
       ${bodyHtml}
     </article>
-  `, SANITIZE_OPTIONS);
+  `,
+    SANITIZE_OPTIONS,
+  );
 }
 
 export function markdownToPlainText(markdown: string): string {

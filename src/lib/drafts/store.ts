@@ -5,10 +5,7 @@ import type {
   ListDraftsOptions,
   UpdateDraftInput,
 } from '@/lib/drafts/types';
-import {
-  readJsonFileCollection,
-  writeJsonFileCollection,
-} from '@/lib/storage/jsonFileCollection';
+import { readJsonFileCollection, writeJsonFileCollection } from '@/lib/storage/jsonFileCollection';
 
 interface DraftStoreOptions {
   createId?: () => string;
@@ -36,9 +33,7 @@ export function createDraftStore(options: DraftStoreOptions = {}) {
   const initialDrafts = storagePath
     ? readJsonFileCollection<ContentDraft>(storagePath)
     : (options.initialDrafts ?? []);
-  const drafts = new Map<string, ContentDraft>(
-    initialDrafts.map((draft) => [draft.id, draft]),
-  );
+  const drafts = new Map<string, ContentDraft>(initialDrafts.map((draft) => [draft.id, draft]));
 
   function persistDrafts() {
     if (!storagePath) return;

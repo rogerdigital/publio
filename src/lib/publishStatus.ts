@@ -1,8 +1,4 @@
-import type {
-  PlatformPublishResult,
-  PlatformPublishStatus,
-  PublishStatus,
-} from '@/types';
+import type { PlatformPublishResult, PlatformPublishStatus, PublishStatus } from '@/types';
 import type { SyncReceiptStatus, SyncTask } from '@/lib/sync/types';
 
 export type PublishResultDisplayState = 'success' | 'error' | 'publishing';
@@ -21,9 +17,7 @@ export function toPublishResultDisplayState(
   return 'success';
 }
 
-export function resolveOverallPublishStatus(
-  results: PlatformPublishResult[],
-): PublishStatus {
+export function resolveOverallPublishStatus(results: PlatformPublishResult[]): PublishStatus {
   if (results.length === 0) return 'idle';
 
   const hasInFlight = results.some(
@@ -31,9 +25,7 @@ export function resolveOverallPublishStatus(
   );
   if (hasInFlight) return 'publishing';
 
-  const hasError = results.some(
-    (result) => toPublishResultDisplayState(result.status) === 'error',
-  );
+  const hasError = results.some((result) => toPublishResultDisplayState(result.status) === 'error');
   return hasError ? 'error' : 'success';
 }
 

@@ -21,27 +21,16 @@ export default function PageSection({
   ...props
 }: PageSectionProps) {
   return (
-    <section
-      {...props}
-      className={cn(styles.section, className)}
-    >
+    <section {...props} className={cn(styles.section, className)}>
       {(eyebrow || title || description || actions) && (
         <SurfaceCard className={styles.sectionHeader}>
           <div className={styles.sectionHeaderInner}>
             <div className={styles.sectionTextBlock}>
-              {eyebrow ? (
-                <p className={styles.eyebrow}>{eyebrow}</p>
-              ) : null}
-              {title ? (
-                <h2 className={styles.sectionTitle}>{title}</h2>
-              ) : null}
-              {description ? (
-                <p className={styles.sectionDescription}>{description}</p>
-              ) : null}
+              {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
+              {title ? <h2 className={styles.sectionTitle}>{title}</h2> : null}
+              {description ? <p className={styles.sectionDescription}>{description}</p> : null}
             </div>
-            {actions ? (
-              <div className={styles.sectionActions}>{actions}</div>
-            ) : null}
+            {actions ? <div className={styles.sectionActions}>{actions}</div> : null}
           </div>
         </SurfaceCard>
       )}

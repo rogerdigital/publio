@@ -87,9 +87,8 @@ vi.mock('@/components/publish/publish.css', () => ({
 
 describe('PlatformPreviewPanel', () => {
   test('renders selected platform adaptations with warnings and thread parts', async () => {
-    const { default: PlatformPreviewPanel } = await import(
-      '@/components/publish/PlatformPreviewPanel'
-    );
+    const { default: PlatformPreviewPanel } =
+      await import('@/components/publish/PlatformPreviewPanel');
     const adaptations: PlatformContentDrafts = {
       wechat: {
         platform: 'wechat',
@@ -133,10 +132,12 @@ describe('PlatformPreviewPanel', () => {
       },
     };
 
-    render(createElement(PlatformPreviewPanel, {
-      adaptations,
-      selectedPlatforms: ['xiaohongshu', 'x'],
-    }));
+    render(
+      createElement(PlatformPreviewPanel, {
+        adaptations,
+        selectedPlatforms: ['xiaohongshu', 'x'],
+      }),
+    );
 
     expect(screen.getByText('内容配置')).toBeInTheDocument();
     expect(screen.getByText('小红书')).toBeInTheDocument();

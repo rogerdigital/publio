@@ -11,10 +11,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   const config = getAgentConfig();
   if (!config) {
-    return Response.json(
-      { error: 'Agent 未配置' },
-      { status: 503 }
-    );
+    return Response.json({ error: 'Agent 未配置' }, { status: 503 });
   }
 
   let body: AdaptAgentRequest;
@@ -24,7 +21,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: '请求体解析失败' }, { status: 400 });
   }
 
-  const { title, content, platform } = body;
+  const { title, content, platform, customPrompt } = body;
 
   if (!platform || !PLATFORMS.some((p) => p.id === platform)) {
     return Response.json({ error: '无效的平台 ID' }, { status: 400 });
@@ -34,7 +31,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: '内容不能为空' }, { status: 400 });
   }
 
-  const messages = buildAdaptationMessages(platform, title || '', content);
+  const messages = buildAdaptationMessages(platform, title || '', content, customPrompt);
   const provider = createOpenAIProvider(config);
   const tokens = provider.stream({ messages });
 

@@ -16,10 +16,7 @@ export default function SurfaceCard({
   ...props
 }: SurfaceCardProps) {
   return (
-    <div
-      {...props}
-      className={cn(surfaceCard({ tone }), className)}
-    >
+    <div {...props} className={cn(surfaceCard({ tone }), className)}>
       {children}
     </div>
   );

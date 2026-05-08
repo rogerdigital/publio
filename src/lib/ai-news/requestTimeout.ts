@@ -4,10 +4,7 @@ interface FetchTextWithTimeoutOptions {
   headers?: HeadersInit;
 }
 
-export async function fetchTextWithTimeout(
-  url: string,
-  options: FetchTextWithTimeoutOptions = {},
-) {
+export async function fetchTextWithTimeout(url: string, options: FetchTextWithTimeoutOptions = {}) {
   const timeoutMs = options.timeoutMs ?? 8000;
   const fetchImpl = options.fetchImpl ?? fetch;
 

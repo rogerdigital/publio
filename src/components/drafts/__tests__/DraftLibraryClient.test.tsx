@@ -72,44 +72,45 @@ describe('DraftLibraryClient', () => {
   });
 
   test('loads and renders draft cards from the draft API', async () => {
-    const { default: DraftLibraryClient } = await import(
-      '@/components/drafts/DraftLibraryClient'
-    );
+    const { default: DraftLibraryClient } = await import('@/components/drafts/DraftLibraryClient');
     vi.stubGlobal(
       'fetch',
-      vi.fn((url) => Promise.resolve({
-        ok: true,
-        json: async () => url === '/api/sync-tasks'
-          ? ({
-            syncTasks: [
-              {
-                id: 'sync-1',
-                draftId: 'draft-1',
-                title: 'AI 话题稿件',
-                status: 'partial',
-                createdAt: '2026-04-11T00:00:00.000Z',
-                updatedAt: '2026-04-11T00:00:00.000Z',
-                receipts: [
-                  { platform: 'wechat', status: 'published' },
-                  { platform: 'zhihu', status: 'failed' },
-                ],
-              },
-            ],
-          })
-          : ({
-            drafts: [
-              {
-                id: 'draft-1',
-                title: 'AI 话题稿件',
-                content: '这是一篇待同步的稿件正文。',
-                status: 'ready',
-                source: 'ai-news',
-                createdAt: '2026-04-11T00:00:00.000Z',
-                updatedAt: '2026-04-11T00:00:00.000Z',
-              },
-            ],
-          }),
-      })),
+      vi.fn((url) =>
+        Promise.resolve({
+          ok: true,
+          json: async () =>
+            url === '/api/sync-tasks'
+              ? {
+                  syncTasks: [
+                    {
+                      id: 'sync-1',
+                      draftId: 'draft-1',
+                      title: 'AI 话题稿件',
+                      status: 'partial',
+                      createdAt: '2026-04-11T00:00:00.000Z',
+                      updatedAt: '2026-04-11T00:00:00.000Z',
+                      receipts: [
+                        { platform: 'wechat', status: 'published' },
+                        { platform: 'zhihu', status: 'failed' },
+                      ],
+                    },
+                  ],
+                }
+              : {
+                  drafts: [
+                    {
+                      id: 'draft-1',
+                      title: 'AI 话题稿件',
+                      content: '这是一篇待同步的稿件正文。',
+                      status: 'ready',
+                      source: 'ai-news',
+                      createdAt: '2026-04-11T00:00:00.000Z',
+                      updatedAt: '2026-04-11T00:00:00.000Z',
+                    },
+                  ],
+                },
+        }),
+      ),
     );
 
     render(createElement(DraftLibraryClient, { isEditMode: false, onExitEditMode: vi.fn() }));
@@ -137,9 +138,7 @@ describe('DraftLibraryClient', () => {
   });
 
   test('shows an empty state when there are no drafts', async () => {
-    const { default: DraftLibraryClient } = await import(
-      '@/components/drafts/DraftLibraryClient'
-    );
+    const { default: DraftLibraryClient } = await import('@/components/drafts/DraftLibraryClient');
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({

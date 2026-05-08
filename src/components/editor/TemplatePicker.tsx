@@ -38,11 +38,7 @@ export default function TemplatePicker({ onSelect }: TemplatePickerProps) {
           <div className={css.modal} onClick={(e) => e.stopPropagation()}>
             <div className={css.modalHeader}>
               <h3 className={css.modalTitle}>选择模板</h3>
-              <button
-                type="button"
-                className={css.closeBtn}
-                onClick={() => setIsOpen(false)}
-              >
+              <button type="button" className={css.closeBtn} onClick={() => setIsOpen(false)}>
                 <X size={16} />
               </button>
             </div>
@@ -67,7 +63,9 @@ export default function TemplatePicker({ onSelect }: TemplatePickerProps) {
               {selected && (
                 <div className={css.previewPane}>
                   <div className={css.previewHeader}>
-                    <span>{selected.icon} {selected.name}</span>
+                    <span>
+                      {selected.icon} {selected.name}
+                    </span>
                     <button
                       type="button"
                       className={css.useBtn}

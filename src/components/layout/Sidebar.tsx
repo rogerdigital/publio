@@ -2,14 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  Newspaper,
-  PenLine,
-  Settings2,
-  ArrowRight,
-  Library,
-  Send,
-} from 'lucide-react';
+import { Newspaper, PenLine, Settings2, ArrowRight, Library, Send, BarChart3, CalendarDays } from 'lucide-react';
 import { Dancing_Script } from 'next/font/google';
 import { cn } from '@/lib/cn';
 import ThemeToggle from './ThemeToggle';
@@ -43,6 +36,18 @@ const navItems = [
     icon: Send,
   },
   {
+    href: '/analytics',
+    label: '数据看板',
+    description: '追踪已发布内容的阅读、互动数据。',
+    icon: BarChart3,
+  },
+  {
+    href: '/calendar',
+    label: '排期日历',
+    description: '查看稿件排期和发布记录。',
+    icon: CalendarDays,
+  },
+  {
     href: '/settings',
     label: '设置',
     description: '统一管理公众号、小红书、知乎与 X 凭证。',
@@ -60,8 +65,7 @@ export default function Sidebar() {
           <nav className={styles.nav}>
             {navItems.map((item) => {
               const isActive =
-                pathname === item.href ||
-                (item.href !== '/' && pathname.startsWith(item.href));
+                pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
               const Icon = item.icon;
               const state = isActive ? 'active' : 'inactive';
 
@@ -79,17 +83,10 @@ export default function Sidebar() {
 
                   <div className={styles.navText}>
                     <div className={styles.navLabelRow}>
-                      <p className={styles.navLabelVariants[state]}>
-                        {item.label}
-                      </p>
-                      <ArrowRight
-                        size={13}
-                        className={styles.navArrowVariants[state]}
-                      />
+                      <p className={styles.navLabelVariants[state]}>{item.label}</p>
+                      <ArrowRight size={13} className={styles.navArrowVariants[state]} />
                     </div>
-                    <p className={styles.navDescription}>
-                      {item.description}
-                    </p>
+                    <p className={styles.navDescription}>{item.description}</p>
                   </div>
                 </Link>
               );
@@ -101,12 +98,8 @@ export default function Sidebar() {
           </div>
 
           <div className={styles.brandFooter}>
-            <p className={cn(handwriting.className, styles.brandName)}>
-              Publio
-            </p>
-            <p className={styles.brandSlogan}>
-              Write once, publish everywhere.
-            </p>
+            <p className={cn(handwriting.className, styles.brandName)}>Publio</p>
+            <p className={styles.brandSlogan}>Write once, publish everywhere.</p>
             <p className={styles.version}>v0.1.0</p>
           </div>
         </div>
@@ -115,8 +108,7 @@ export default function Sidebar() {
       <nav className={styles.mobileTabBar} aria-label="移动端导航">
         {navItems.map((item) => {
           const isActive =
-            pathname === item.href ||
-            (item.href !== '/' && pathname.startsWith(item.href));
+            pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
           const Icon = item.icon;
           const state = isActive ? 'active' : 'inactive';
 

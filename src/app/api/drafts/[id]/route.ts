@@ -12,14 +12,7 @@ interface DraftRouteContext {
   }>;
 }
 
-const VALID_STATUSES: DraftStatus[] = [
-  'draft',
-  'ready',
-  'syncing',
-  'synced',
-  'failed',
-  'archived',
-];
+const VALID_STATUSES: DraftStatus[] = ['draft', 'ready', 'syncing', 'synced', 'failed', 'archived'];
 
 function isDraftStatus(value: unknown): value is DraftStatus {
   return typeof value === 'string' && VALID_STATUSES.includes(value as DraftStatus);
