@@ -1,6 +1,6 @@
 import {
   readJsonFileCollection,
-  writeJsonFileCollection,
+  writeMergedJsonFileCollection,
 } from '@/lib/storage/jsonFileCollection';
 import { createLocalDataPath } from '@/lib/storage/localDataPath';
 import type { PlatformId } from '@/types';
@@ -18,7 +18,7 @@ function readAll(): CustomPrompt[] {
 }
 
 function writeAll(data: CustomPrompt[]) {
-  writeJsonFileCollection(PROMPTS_FILE, data);
+  writeMergedJsonFileCollection(PROMPTS_FILE, data, (prompt) => prompt.platform);
 }
 
 export function getCustomPrompt(platform: PlatformId | 'global'): string | undefined {
