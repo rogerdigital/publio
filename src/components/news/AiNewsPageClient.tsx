@@ -36,7 +36,7 @@ function saveTopicDraftMap(map: Record<string, string>) {
 }
 
 interface AiNewsResponse {
-  success: boolean;
+  ok: boolean;
   generatedAt?: string;
   totalSignals?: number;
   totalCandidates?: number;
@@ -291,7 +291,7 @@ export default function AiNewsPageClient() {
       const response = await fetch('/api/ai-news', { cache: 'no-store' });
       const data: AiNewsResponse = await response.json();
 
-      if (!response.ok || !data.success || !data.todayCandidates || !data.followCandidates) {
+      if (!response.ok || !data.ok || !data.todayCandidates || !data.followCandidates) {
         throw new Error(data.message || '新闻抓取失败，请稍后重试。');
       }
 
