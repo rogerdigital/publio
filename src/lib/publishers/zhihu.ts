@@ -11,7 +11,7 @@ export class ZhihuPublisher extends BasePublisher {
   }
 
   protected async publishToPlatform(input: PublishInput): Promise<PublishOutput> {
-    const { cookie } = getZhihuConfig();
+    const { cookie, columnToken, topicTokens } = getZhihuConfig();
     const headers = {
       Cookie: cookie,
       'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ export class ZhihuPublisher extends BasePublisher {
         throw new Error('知乎请求频率过高，请稍后再试');
       }
       const retryData = await retryRes.json();
-      return this.continuePublish(retryData.id, input, headers);
+      return this.continuePublish(retryData.id, input, headers, columnToken, topicTokens);
     }
 
     if (!draftRes.ok) {
@@ -50,13 +50,15 @@ export class ZhihuPublisher extends BasePublisher {
     }
 
     const draftData = await draftRes.json();
-    return this.continuePublish(draftData.id, input, headers);
+    return this.continuePublish(draftData.id, input, headers, columnToken, topicTokens);
   }
 
   private async continuePublish(
     draftId: string,
     input: PublishInput,
     headers: Record<string, string>,
+    columnToken: string,
+    topicTokens: string[],
   ): Promise<PublishOutput> {
     // Step 2: Update draft content
     const updateRes = await fetch(`https://zhuanlan.zhihu.com/api/articles/${draftId}/draft`, {
@@ -65,8 +67,8 @@ export class ZhihuPublisher extends BasePublisher {
       body: JSON.stringify({
         title: input.title,
         content: input.htmlContent,
-        topic_url_tokens: [],
-        column_url_token: '',
+        topic_url_tokens: topicTokens,
+        column_url_token: columnToken,
       }),
     });
 
@@ -79,7 +81,7 @@ export class ZhihuPublisher extends BasePublisher {
       method: 'PUT',
       headers,
       body: JSON.stringify({
-        column: null,
+        column: columnToken ? { url_token: columnToken } : null,
         commentPermission: 'anyone',
       }),
     });

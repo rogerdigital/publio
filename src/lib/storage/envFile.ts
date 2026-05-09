@@ -30,6 +30,8 @@ export function serializeEnvFile(values: Record<string, string>): string {
     '',
     '# Zhihu',
     `ZHIHU_COOKIE=${values.ZHIHU_COOKIE || ''}`,
+    `ZHIHU_COLUMN_TOKEN=${values.ZHIHU_COLUMN_TOKEN || ''}`,
+    `ZHIHU_TOPIC_TOKENS=${values.ZHIHU_TOPIC_TOKENS || ''}`,
     '',
     '# X (Twitter)',
     `X_API_KEY=${values.X_API_KEY || ''}`,
