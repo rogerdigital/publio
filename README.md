@@ -80,6 +80,29 @@ All AI features require an OpenAI-compatible API (Zhipu GLM, DeepSeek, Qwen, Ope
 
 ---
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><b>Writing Desk</b></td>
+    <td align="center"><b>AI News Desk</b></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/screenshots/editor.png" alt="Writing Desk" width="480" /></td>
+    <td><img src="./docs/screenshots/ai-news.png" alt="AI News Desk" width="480" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Content Calendar</b></td>
+    <td align="center"><b>Settings</b></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/screenshots/calendar.png" alt="Content Calendar" width="480" /></td>
+    <td><img src="./docs/screenshots/settings.png" alt="Settings" width="480" /></td>
+  </tr>
+</table>
+
+---
+
 ## Quick Start
 
 ### Prerequisites
