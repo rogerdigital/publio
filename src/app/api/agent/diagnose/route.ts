@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { getAgentConfig } from '@/lib/agent/config';
 import { createOpenAIProvider } from '@/lib/agent/provider';
 import { createSSEResponse } from '@/lib/agent/stream';
+import { AGENT_INPUT_LIMITS, limitText, markTruncated } from '@/lib/agent/inputLimits';
 import { buildDiagnoseMessages } from '@/lib/agent/prompts/diagnose';
 import type { DiagnoseAgentRequest } from '@/lib/agent/types';
 
@@ -26,9 +27,19 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: '平台和错误信息不能为空' }, { status: 400 });
   }
 
-  const messages = buildDiagnoseMessages(platform, errorMessage, statusCode, context);
+  const limitedErrorMessage = limitText(errorMessage, AGENT_INPUT_LIMITS.signalSummaryChars);
+  const limitedContext = limitText(context, AGENT_INPUT_LIMITS.diagnoseContextChars);
+  const messages = buildDiagnoseMessages(
+    platform,
+    limitedErrorMessage.value,
+    statusCode,
+    limitedContext.value,
+  );
   const provider = createOpenAIProvider(config);
   const tokens = provider.stream({ messages, maxTokens: 1000 });
 
-  return createSSEResponse(tokens, request.signal);
+  return markTruncated(
+    createSSEResponse(tokens, request.signal),
+    limitedErrorMessage.truncated || limitedContext.truncated,
+  );
 }
