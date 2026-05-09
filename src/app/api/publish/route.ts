@@ -1,15 +1,8 @@
 import { NextRequest } from 'next/server';
 import { PlatformId } from '@/types';
-import { getDraftRegistry } from '@/lib/drafts/registry';
 import { getSyncHistoryStore } from '@/lib/sync/registry';
-import {
-  type PlatformPublishDrafts,
-  inferFailureCode,
-  publishToPlatforms,
-  toDraftStatus,
-  toNextAction,
-  toSyncReceiptStatus,
-} from '@/lib/publishers/executePublish';
+import type { PlatformPublishDrafts } from '@/lib/publishers/executePublish';
+import { runPublishJob } from '@/lib/publishers/publishJobRunner';
 import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
 import { validateTitle, validateContent, validatePlatforms } from '@/lib/validation';
 import { checkContent } from '@/lib/moderation/check';
@@ -70,59 +63,18 @@ export async function POST(request: NextRequest) {
     logger.info('Publish task created', { taskId: syncTask.id, platforms });
 
     void (async () => {
-      try {
-        const publishResults = await publishToPlatforms(
-          platforms as PlatformId[],
-          title,
-          content,
-          platformDrafts,
-        );
-
-        for (const result of publishResults) {
-          const receiptStatus = toSyncReceiptStatus(result);
-          const isFailed = receiptStatus === 'failed';
-          const failureCode = isFailed ? inferFailureCode(result.message) : undefined;
-          const nextAction = isFailed && failureCode ? toNextAction(failureCode) : undefined;
-
-          syncTask =
-            syncStore.updateReceipt(syncTask.id, result.platform, {
-              status: receiptStatus,
-              message: result.message,
-              url: result.url,
-              failureCode,
-              failureMessage: isFailed ? (result.message ?? '未知错误') : undefined,
-              nextAction,
-            }) ?? syncTask;
-        }
-
-        if (syncTask.draftId) {
-          getDraftRegistry().updateDraft(syncTask.draftId, {
-            status: toDraftStatus(syncTask.status),
-          });
-        }
-
-        logger.info('Publish completed', {
-          taskId: syncTask.id,
-          durationMs: Date.now() - startTime,
-        });
-      } catch (err) {
-        logger.error('Publish failed in background', {
-          taskId: syncTask.id,
-          error: err instanceof Error ? err.message : String(err),
-        });
-        for (const platform of platforms as PlatformId[]) {
-          const receipt = syncStore
-            .getTask(syncTask.id)
-            ?.receipts.find((r) => r.platform === platform && r.status === 'pending');
-          if (receipt) {
-            syncStore.updateReceipt(syncTask.id, platform, {
-              status: 'failed',
-              failureCode: 'unknown',
-              failureMessage: '发布过程中发生未知错误',
-            });
-          }
-        }
-      }
+      const result = await runPublishJob({
+        syncTaskId: syncTask.id,
+        title,
+        content,
+        platforms: platforms as PlatformId[],
+        platformDrafts,
+      });
+      syncTask = result.syncTask;
+      logger.info('Publish completed', {
+        taskId: syncTask.id,
+        durationMs: Date.now() - startTime,
+      });
     })();
 
     return apiResponse({ syncTaskId: syncTask.id, syncTask });
