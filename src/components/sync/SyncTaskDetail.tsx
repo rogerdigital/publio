@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { RefreshCw, Sparkles } from 'lucide-react';
 import type { PlatformId } from '@/types';
 import type {
   SyncEvent,
@@ -91,6 +91,130 @@ function formatTime(value: string) {
 interface SyncTaskDetailProps {
   syncTask: SyncTask;
   agentEnabled?: boolean;
+}
+
+interface MetricsData {
+  platforms: Array<{
+    platform: string;
+    views: number;
+    likes: number;
+    comments: number;
+    shares: number;
+    fetchedAt: string;
+  }>;
+}
+
+function MetricsSection({ syncTaskId }: { syncTaskId: string }) {
+  const [metrics, setMetrics] = useState<MetricsData | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    fetch(`/api/metrics?syncTaskId=${syncTaskId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.ok && data.metrics) setMetrics(data.metrics);
+      })
+      .catch(() => {});
+  }, [syncTaskId]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    setMessage('');
+    try {
+      const res = await fetch('/api/metrics/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ syncTaskId }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setMetrics(data.metrics);
+        setMessage('已刷新');
+      } else {
+        setMessage(data.error || '刷新失败');
+      }
+    } catch {
+      setMessage('刷新失败');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const totalViews = metrics?.platforms.reduce((s, p) => s + p.views, 0) ?? 0;
+  const totalLikes = metrics?.platforms.reduce((s, p) => s + p.likes, 0) ?? 0;
+  const lastFetched = metrics?.platforms[0]?.fetchedAt;
+
+  return (
+    <div
+      style={{
+        marginTop: 16,
+        padding: '12px 16px',
+        background: 'var(--color-bg-elevated, #faf6f2)',
+        borderRadius: 8,
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: metrics ? 8 : 0,
+        }}
+      >
+        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text, #3d2e24)' }}>
+          数据指标
+        </span>
+        <button
+          type="button"
+          onClick={handleRefresh}
+          disabled={refreshing}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            padding: '4px 10px',
+            borderRadius: 6,
+            border: 'none',
+            background: 'var(--color-accent, #D97757)',
+            color: '#fff',
+            fontSize: 12,
+            cursor: refreshing ? 'not-allowed' : 'pointer',
+            opacity: refreshing ? 0.6 : 1,
+          }}
+        >
+          <RefreshCw
+            size={12}
+            style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }}
+          />
+          {refreshing ? '刷新中...' : '刷新数据'}
+        </button>
+      </div>
+      {metrics && (
+        <div
+          style={{
+            display: 'flex',
+            gap: 16,
+            fontSize: 12,
+            color: 'var(--color-text-muted, #8c7b6e)',
+          }}
+        >
+          <span>{totalViews} 阅读</span>
+          <span>{totalLikes} 点赞</span>
+          {lastFetched && (
+            <span style={{ marginLeft: 'auto' }}>
+              更新于 {new Date(lastFetched).toLocaleString('zh-CN')}
+            </span>
+          )}
+        </div>
+      )}
+      {message && (
+        <p style={{ fontSize: 11, color: 'var(--color-text-muted, #8c7b6e)', margin: '4px 0 0' }}>
+          {message}
+        </p>
+      )}
+    </div>
+  );
 }
 
 function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; taskId: string }) {
@@ -284,6 +408,8 @@ export default function SyncTaskDetail({
       </div>
 
       {hasFailedReceipt ? <SyncTaskRetryButton taskId={syncTask.id} /> : null}
+
+      <MetricsSection syncTaskId={syncTask.id} />
 
       {syncTask.events && syncTask.events.length > 0 ? (
         <div>
