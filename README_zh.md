@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](./tsconfig.json)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
-[![Tests](https://img.shields.io/badge/tests-115%20passing-brightgreen.svg)](#测试)
+[![Tests](https://img.shields.io/badge/tests-129%20passing-brightgreen.svg)](#测试)
 
 > AI 原生内容运营平台。一次创作，全平台分发。
 
@@ -25,7 +25,8 @@ Publio 是多平台内容分发工具，整合 Markdown 编辑、AI 选题发现
 - **编辑上下文面板** — 标题状态、结构统计、可发布性指标
 - **斜杠命令** — `/ai-expand`、`/ai-condense`、`/ai-rewrite`、`/ai-polish`、`/ai-continue`
 - **版本历史** — 标题/内容变更自动快照，支持回滚
-- **内容模板** — 6 个内置模板快速起草
+- **内容模板** — 6 个内置模板 + 自定义模板 CRUD
+- **GitHub 图床** — 图片上传至 GitHub 仓库作为持久化图床
 
 ### AI Agent 系统
 
@@ -56,7 +57,7 @@ Publio 是多平台内容分发工具，整合 Markdown 编辑、AI 选题发现
 - **发布进度浮层** — 实时状态轮询，逐平台接收回执
 - **分发任务追踪** — 失败诊断、智能重试、手动标记完成
 - **定时发布** — 后端 cron 执行，持久化任务队列
-- **发布后指标** — 阅读量、点赞、评论、分享聚合到分析看板
+- **发布后指标** — 阅读量、点赞、评论、分享聚合到分析看板，支持单任务和全量刷新
 
 ### 内容排期日历
 
@@ -164,6 +165,19 @@ pnpm verify           # lint + test + build
 | `AGENT_MAX_TOKENS` | 可选，默认 2048 |
 | `AGENT_TEMPERATURE` | 可选，默认 0.7 |
 
+### GitHub 图床（可选）
+
+启用图片上传至 GitHub 仓库作为持久化图床。通过设置页或 `.env.local` 配置：
+
+| 变量 | 说明 |
+|------|------|
+| `GITHUB_IMAGE_ENABLED` | 设为 `true` 启用 |
+| `GITHUB_IMAGE_TOKEN` | GitHub personal access token（需 repo scope） |
+| `GITHUB_IMAGE_OWNER` | GitHub 用户名或组织 |
+| `GITHUB_IMAGE_REPO` | 目标仓库名 |
+| `GITHUB_IMAGE_BRANCH` | 可选，默认 `main` |
+| `GITHUB_IMAGE_PATH` | 可选，默认 `images/` |
+
 ---
 
 ## 架构
@@ -188,10 +202,12 @@ src/
 │       ├── publish/                # 发布端点
 │       ├── rss-sources/            # 自定义 RSS CRUD
 │       ├── sync-tasks/             # 分发任务管理
+│       ├── templates/              # 自定义模板 CRUD
+│       ├── upload/                 # 图片上传（GitHub 图床）
 │       └── custom-prompts/         # 自定义 prompt CRUD
 ├── components/
 │   ├── layout/                   # AppShellHeader, Sidebar, SurfaceCard, ThemeToggle
-│   ├── editor/                   # MarkdownEditor, SlashCommandMenu, ImmersiveMode, WYSIWYG 切换
+│   ├── editor/                   # MarkdownEditor, TemplatePicker, SlashCommandMenu, ImmersiveMode, WYSIWYG 切换
 │   ├── news/                     # AiNewsPageClient, TopicSignalCard, ScoreBar
 │   ├── publish/                  # PlatformSelector, PublishButton, ModerationWarning, PreviewPanel
 │   ├── sync/                     # SyncTaskList, SyncTaskDetail
@@ -216,7 +232,9 @@ src/
 │   ├── rss-sources/              # 自定义 RSS 源存储
 │   ├── scheduler/                # 定时发布执行
 │   ├── storage/                  # JSON 文件集合、env 文件工具
-│   └── sync/                     # 分发任务状态机
+│   ├── sync/                     # 分发任务状态机
+│   ├── templates/                # 自定义模板存储
+│   └── upload/                   # GitHub 图片上传
 ├── stores/                       # Zustand stores（publishStore, agentStore, toastStore）
 ├── styles/                       # 设计 token（间距、字号、色彩、圆角）
 └── types/                        # TypeScript 类型定义
@@ -251,7 +269,7 @@ pnpm test           # 运行所有测试
 pnpm test -- --watch  # 监听模式
 ```
 
-37 个测试文件，115 个测试用例，覆盖 stores、API 路由、组件和工具函数。
+40 个测试文件，129 个测试用例，覆盖 stores、API 路由、组件和工具函数。
 
 ---
 

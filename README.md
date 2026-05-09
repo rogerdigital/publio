@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](./tsconfig.json)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
-[![Tests](https://img.shields.io/badge/tests-115%20passing-brightgreen.svg)](#testing)
+[![Tests](https://img.shields.io/badge/tests-129%20passing-brightgreen.svg)](#testing)
 
 > AI-native content operations platform. Write once, publish everywhere.
 
@@ -25,7 +25,8 @@ Publio is a multi-platform content distribution tool that consolidates Markdown 
 - **Editorial context panel** — title status, structural statistics, publishability signals
 - **Slash commands** — `/ai-expand`, `/ai-condense`, `/ai-rewrite`, `/ai-polish`, `/ai-continue`
 - **Version history** — auto-snapshot on title/content changes with restore capability
-- **Content templates** — 6 built-in templates for rapid drafting
+- **Content templates** — 6 built-in templates plus custom template CRUD
+- **GitHub image bed** — upload images to GitHub repo as persistent hosting
 
 ### AI Agent System
 
@@ -56,7 +57,7 @@ All AI features require an OpenAI-compatible API (Zhipu GLM, DeepSeek, Qwen, Ope
 - **Publish progress overlay** — real-time status polling with per-platform receipts
 - **Sync task tracking** — failure diagnosis, smart retry, manual mark-done
 - **Scheduled publish** — backend cron-based execution with persistent task queue
-- **Post-publish metrics** — views, likes, comments, shares aggregated in analytics dashboard
+- **Post-publish metrics** — views, likes, comments, shares aggregated in analytics dashboard with per-task and bulk refresh
 
 ### Content Calendar
 
@@ -164,6 +165,19 @@ All three required to activate AI features:
 | `AGENT_MAX_TOKENS` | Optional, default 2048 |
 | `AGENT_TEMPERATURE` | Optional, default 0.7 |
 
+### GitHub Image Bed (Optional)
+
+Enable image upload to GitHub repo as persistent hosting. Configure via Settings page or `.env.local`:
+
+| Variable | Description |
+|----------|-------------|
+| `GITHUB_IMAGE_ENABLED` | Set to `true` to enable |
+| `GITHUB_IMAGE_TOKEN` | GitHub personal access token with repo scope |
+| `GITHUB_IMAGE_OWNER` | GitHub username or org |
+| `GITHUB_IMAGE_REPO` | Target repository name |
+| `GITHUB_IMAGE_BRANCH` | Optional, default `main` |
+| `GITHUB_IMAGE_PATH` | Optional, default `images/` |
+
 ---
 
 ## Architecture
@@ -188,10 +202,12 @@ src/
 │       ├── publish/                # Publish endpoint
 │       ├── rss-sources/            # Custom RSS CRUD
 │       ├── sync-tasks/             # Sync task management
+│       ├── templates/              # Custom template CRUD
+│       ├── upload/                 # Image upload (GitHub image bed)
 │       └── custom-prompts/         # Custom prompt CRUD
 ├── components/
 │   ├── layout/                   # AppShellHeader, Sidebar, SurfaceCard, ThemeToggle
-│   ├── editor/                   # MarkdownEditor, SlashCommandMenu, ImmersiveMode, WYSIWYG toggle
+│   ├── editor/                   # MarkdownEditor, TemplatePicker, SlashCommandMenu, ImmersiveMode, WYSIWYG toggle
 │   ├── news/                     # AiNewsPageClient, TopicSignalCard, ScoreBar
 │   ├── publish/                  # PlatformSelector, PublishButton, ModerationWarning, PreviewPanel
 │   ├── sync/                     # SyncTaskList, SyncTaskDetail
@@ -216,7 +232,9 @@ src/
 │   ├── rss-sources/              # Custom RSS source storage
 │   ├── scheduler/                # Scheduled publish execution
 │   ├── storage/                  # JSON file collection, env file utilities
-│   └── sync/                     # Distribution task state machine
+│   ├── sync/                     # Distribution task state machine
+│   ├── templates/                # Custom template store
+│   └── upload/                   # GitHub image upload
 ├── stores/                       # Zustand stores (publishStore, agentStore, toastStore)
 ├── styles/                       # Design tokens (spacing, typography, color, radius)
 └── types/                        # TypeScript type definitions
@@ -251,7 +269,7 @@ pnpm test           # run all tests
 pnpm test -- --watch  # watch mode
 ```
 
-115 tests across 37 test files covering stores, API routes, components, and utility functions.
+129 tests across 40 test files covering stores, API routes, components, and utility functions.
 
 ---
 
