@@ -75,6 +75,18 @@ export const platformConfigs: PlatformConfig[] = [
         type: 'textarea',
         placeholder: '从浏览器开发者工具中复制知乎的 Cookie',
       },
+      {
+        key: 'ZHIHU_COLUMN_TOKEN',
+        label: '专栏 Token',
+        type: 'text',
+        placeholder: '可选，知乎专栏 url_token',
+      },
+      {
+        key: 'ZHIHU_TOPIC_TOKENS',
+        label: '话题 Tokens',
+        type: 'text',
+        placeholder: '可选，多个 topic url_token 用英文逗号分隔',
+      },
     ],
   },
   {

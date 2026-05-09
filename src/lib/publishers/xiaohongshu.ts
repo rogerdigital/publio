@@ -1,7 +1,7 @@
 import type { PublishInput, PublishOutput } from './types';
 import { BasePublisher } from './base';
 import { getXhsConfig } from '@/lib/config';
-import { markdownToPlainText } from '@/lib/markdown';
+import { extractMarkdownImageUrls, markdownToPlainText } from '@/lib/markdown';
 
 export class XiaohongshuPublisher extends BasePublisher {
   platform = 'xiaohongshu' as const;
@@ -17,6 +17,7 @@ export class XiaohongshuPublisher extends BasePublisher {
 
     const plainText = markdownToPlainText(input.markdownContent);
     const truncatedContent = plainText.length > 1000 ? plainText.slice(0, 997) + '...' : plainText;
+    const imageUrls = extractMarkdownImageUrls(input.markdownContent).slice(0, 9);
 
     const noteRes = await fetch('https://open.xiaohongshu.com/api/note/publish', {
       method: 'POST',
@@ -27,8 +28,9 @@ export class XiaohongshuPublisher extends BasePublisher {
       body: JSON.stringify({
         title: input.title.slice(0, 20),
         content: truncatedContent,
-        note_type: 'normal',
+        note_type: imageUrls.length > 0 ? 'image' : 'normal',
         image_ids: [],
+        image_urls: imageUrls,
       }),
     });
 

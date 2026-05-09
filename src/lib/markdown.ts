@@ -312,3 +312,29 @@ export function markdownToPlainText(markdown: string): string {
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
+
+export function extractMarkdownImageUrls(markdown: string): string[] {
+  const urls: string[] = [];
+
+  function collect(tokens: TokensList) {
+    for (const token of tokens) {
+      if (token.type === 'image') {
+        const safeSrc = sanitizeUrl(token.href);
+        if (safeSrc && (safeSrc.startsWith('http://') || safeSrc.startsWith('https://'))) {
+          urls.push(safeSrc);
+        }
+      }
+      if ('tokens' in token && Array.isArray(token.tokens)) {
+        collect(token.tokens);
+      }
+      if ('items' in token && Array.isArray(token.items)) {
+        for (const item of token.items) {
+          if (Array.isArray(item.tokens)) collect(item.tokens);
+        }
+      }
+    }
+  }
+
+  collect(tokenize(markdown));
+  return Array.from(new Set(urls));
+}
