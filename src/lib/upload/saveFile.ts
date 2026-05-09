@@ -42,3 +42,11 @@ export function getUploadFilePath(filename: string): string {
   }
   return createLocalDataPath(`uploads/${safe}`);
 }
+
+export async function saveFileWithImageBed(file: File): Promise<{ url: string; filename: string }> {
+  const { isGitHubImageBedEnabled, uploadToGitHub } = await import('./githubUpload');
+  if (isGitHubImageBedEnabled()) {
+    return uploadToGitHub(file);
+  }
+  return saveUploadedFile(file);
+}

@@ -13,9 +13,10 @@ interface UploadEntry {
 
 interface MediaLibraryProps {
   onSelect: (url: string, filename: string) => void;
+  imageBedLabel?: string;
 }
 
-export default function MediaLibrary({ onSelect }: MediaLibraryProps) {
+export default function MediaLibrary({ onSelect, imageBedLabel }: MediaLibraryProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [uploads, setUploads] = useState<UploadEntry[]>([]);
   const [loading, setLoading] = useState(false);
@@ -90,7 +91,7 @@ export default function MediaLibrary({ onSelect }: MediaLibraryProps) {
               <div className={css.modalHeaderActions}>
                 <button type="button" className={css.uploadBtn} onClick={handleUpload}>
                   <Upload size={14} />
-                  上传图片
+                  上传图片{imageBedLabel ? ` (${imageBedLabel})` : ''}
                 </button>
                 <button type="button" className={css.closeBtn} onClick={() => setIsOpen(false)}>
                   <X size={16} />
