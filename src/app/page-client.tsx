@@ -67,6 +67,7 @@ function HomePageContent() {
   const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [agentEnabled, setAgentEnabled] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [imageBedLabel, setImageBedLabel] = useState<string | undefined>(undefined);
 
   // 检查 Agent 是否已配置
   useEffect(() => {
@@ -74,6 +75,21 @@ function HomePageContent() {
       .then((r) => r.json())
       .then((data) => setAgentEnabled(data.available === true))
       .catch(() => setAgentEnabled(false));
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((r) => r.json())
+      .then((data) => {
+        if (
+          data.GITHUB_IMAGE_ENABLED === 'true' &&
+          data.GITHUB_IMAGE_OWNER &&
+          data.GITHUB_IMAGE_REPO
+        ) {
+          setImageBedLabel('GitHub');
+        }
+      })
+      .catch(() => {});
   }, []);
   const selectedPlatforms = useMemo(
     () =>
@@ -199,6 +215,7 @@ function HomePageContent() {
               }}
             />
             <MediaLibrary
+              imageBedLabel={imageBedLabel}
               onSelect={(url, filename) => {
                 const insertion = `\n![${filename}](${url})\n`;
                 setContent(content + insertion);

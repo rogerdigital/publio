@@ -14,6 +14,7 @@ const SECRET_KEYS = [
   'X_API_SECRET',
   'X_ACCESS_TOKEN_SECRET',
   'AGENT_API_KEY',
+  'GITHUB_IMAGE_TOKEN',
 ];
 
 function maskValue(key: string, value: string): string {

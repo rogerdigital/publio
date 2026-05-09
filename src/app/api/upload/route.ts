@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { saveUploadedFile } from '@/lib/upload/saveFile';
+import { saveFileWithImageBed } from '@/lib/upload/saveFile';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '请选择要上传的文件' }, { status: 400 });
     }
 
-    const { url, filename } = await saveUploadedFile(file);
+    const { url, filename } = await saveFileWithImageBed(file);
     return NextResponse.json({ url, filename });
   } catch (error) {
     const message = error instanceof Error ? error.message : '上传失败';
