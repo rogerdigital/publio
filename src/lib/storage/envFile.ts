@@ -43,6 +43,14 @@ export function serializeEnvFile(values: Record<string, string>): string {
     `AGENT_MODEL=${values.AGENT_MODEL || ''}`,
     `AGENT_MAX_TOKENS=${values.AGENT_MAX_TOKENS || ''}`,
     `AGENT_TEMPERATURE=${values.AGENT_TEMPERATURE || ''}`,
+    '',
+    '# GitHub Image Bed',
+    `GITHUB_IMAGE_ENABLED=${values.GITHUB_IMAGE_ENABLED || ''}`,
+    `GITHUB_IMAGE_TOKEN=${values.GITHUB_IMAGE_TOKEN || ''}`,
+    `GITHUB_IMAGE_OWNER=${values.GITHUB_IMAGE_OWNER || ''}`,
+    `GITHUB_IMAGE_REPO=${values.GITHUB_IMAGE_REPO || ''}`,
+    `GITHUB_IMAGE_BRANCH=${values.GITHUB_IMAGE_BRANCH || ''}`,
+    `GITHUB_IMAGE_PATH=${values.GITHUB_IMAGE_PATH || ''}`,
   ];
   return lines.join('\n') + '\n';
 }
