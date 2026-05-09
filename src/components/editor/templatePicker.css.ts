@@ -78,6 +78,66 @@ export const closeBtn = style({
   },
 });
 
+export const saveAsBtn = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 4,
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: 'transparent',
+  padding: '4px 10px',
+  fontSize: '13px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'background-color 150ms, color 150ms, border-color 150ms',
+  ':hover': {
+    background: vars.color.bgElevated,
+    color: vars.color.text,
+    borderColor: vars.color.borderStrong,
+  },
+});
+
+export const saveForm = style({
+  display: 'flex',
+  gap: 8,
+  padding: '12px 20px',
+  borderBottom: `1px solid ${vars.color.border}`,
+  background: vars.color.bgElevated,
+});
+
+export const saveInput = style({
+  flex: 1,
+  padding: '6px 10px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  color: vars.color.text,
+  fontSize: '13px',
+  outline: 'none',
+  ':focus': {
+    borderColor: vars.color.accent,
+  },
+});
+
+export const saveConfirmBtn = style({
+  padding: '6px 16px',
+  borderRadius: vars.radius.lg,
+  border: 'none',
+  background: vars.color.accent,
+  color: '#ffffff',
+  fontSize: '13px',
+  fontWeight: 500,
+  cursor: 'pointer',
+  transition: 'opacity 150ms',
+  ':hover': {
+    opacity: 0.9,
+  },
+  ':disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  },
+});
+
 export const modalBody = style({
   display: 'flex',
   flex: 1,
@@ -93,6 +153,15 @@ export const templateList = style({
   padding: '12px',
   borderRight: `1px solid ${vars.color.border}`,
   overflowY: 'auto',
+});
+
+export const sectionLabel = style({
+  fontSize: '11px',
+  fontWeight: 600,
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  color: vars.color.textMuted,
+  padding: '8px 12px 4px',
 });
 
 export const templateCard = recipe({
@@ -121,8 +190,14 @@ export const templateCard = recipe({
       },
       false: {},
     },
+    variant: {
+      builtIn: {},
+      custom: {
+        borderLeft: `2px solid ${vars.color.accent}`,
+      },
+    },
   },
-  defaultVariants: { active: false },
+  defaultVariants: { active: false, variant: 'builtIn' },
 });
 
 export const templateIcon = style({
@@ -158,6 +233,24 @@ export const previewHeader = style({
   fontSize: '14px',
   fontWeight: 500,
   color: vars.color.text,
+});
+
+export const iconBtn = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: 28,
+  height: 28,
+  borderRadius: vars.radius.lg,
+  border: 'none',
+  background: 'transparent',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'background-color 150ms, color 150ms',
+  ':hover': {
+    background: vars.color.bgElevated,
+    color: vars.color.text,
+  },
 });
 
 export const useBtn = style({
