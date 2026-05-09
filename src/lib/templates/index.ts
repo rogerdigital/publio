@@ -1,11 +1,6 @@
-export interface ContentTemplate {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  title: string;
-  content: string;
-}
+export type { ContentTemplate } from './types';
+
+import type { ContentTemplate } from './types';
 
 export const CONTENT_TEMPLATES: ContentTemplate[] = [
   {

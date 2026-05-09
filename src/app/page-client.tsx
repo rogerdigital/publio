@@ -1,6 +1,14 @@
 'use client';
 
-import { Suspense, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Suspense,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, Files, SquarePen, Eraser, History } from 'lucide-react';
@@ -183,6 +191,8 @@ function HomePageContent() {
               </button>
             </div>
             <TemplatePicker
+              currentTitle={title}
+              currentContent={content}
               onSelect={(template) => {
                 setTitle(template.title);
                 setContent(template.content);
