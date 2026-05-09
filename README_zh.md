@@ -80,6 +80,29 @@ Publio 是多平台内容分发工具，整合 Markdown 编辑、AI 选题发现
 
 ---
 
+## 项目截图
+
+<table>
+  <tr>
+    <td align="center"><b>写作台</b></td>
+    <td align="center"><b>AI 选题台</b></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/screenshots/editor.png" alt="写作台" width="480" /></td>
+    <td><img src="./docs/screenshots/ai-news.png" alt="AI 选题台" width="480" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>内容日历</b></td>
+    <td align="center"><b>设置页</b></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/screenshots/calendar.png" alt="内容日历" width="480" /></td>
+    <td><img src="./docs/screenshots/settings.png" alt="设置页" width="480" /></td>
+  </tr>
+</table>
+
+---
+
 ## 快速开始
 
 ### 环境要求
