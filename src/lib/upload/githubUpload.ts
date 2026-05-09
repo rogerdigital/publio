@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { readFile } from '@/lib/storage/envFile';
 
 const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/gif', 'image/webp']);
 const MAX_SIZE = 5 * 1024 * 1024;
