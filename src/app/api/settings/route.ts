@@ -17,11 +17,68 @@ const SECRET_KEYS = [
   'GITHUB_IMAGE_TOKEN',
 ];
 
+const WRITABLE_KEYS = [
+  'WECHAT_APP_ID',
+  'WECHAT_APP_SECRET',
+  'XHS_APP_ID',
+  'XHS_APP_SECRET',
+  'XHS_ACCESS_TOKEN',
+  'ZHIHU_COOKIE',
+  'X_API_KEY',
+  'X_API_SECRET',
+  'X_ACCESS_TOKEN',
+  'X_ACCESS_TOKEN_SECRET',
+  'AGENT_BASE_URL',
+  'AGENT_API_KEY',
+  'AGENT_MODEL',
+  'AGENT_MAX_TOKENS',
+  'AGENT_TEMPERATURE',
+  'GITHUB_IMAGE_ENABLED',
+  'GITHUB_IMAGE_TOKEN',
+  'GITHUB_IMAGE_OWNER',
+  'GITHUB_IMAGE_REPO',
+  'GITHUB_IMAGE_BRANCH',
+  'GITHUB_IMAGE_PATH',
+] as const;
+
+const writableKeySet = new Set<string>(WRITABLE_KEYS);
+const secretKeySet = new Set<string>(SECRET_KEYS);
+
 function maskValue(key: string, value: string): string {
-  if (SECRET_KEYS.includes(key) && value.length > 4) {
+  if (secretKeySet.has(key) && value.length > 4) {
     return '****' + value.slice(-4);
   }
   return value;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isMaskedSecretValue(key: string, value: string): boolean {
+  return secretKeySet.has(key) && value.startsWith('****');
+}
+
+function validateSettingValue(key: string, value: string): string | null {
+  if (key === 'GITHUB_IMAGE_ENABLED' && value && value !== 'true' && value !== 'false') {
+    return 'GITHUB_IMAGE_ENABLED 必须为 true 或 false';
+  }
+
+  if (key === 'AGENT_MAX_TOKENS' && value) {
+    const parsed = Number(value);
+    if (!Number.isInteger(parsed) || parsed <= 0) {
+      return 'AGENT_MAX_TOKENS 必须为正整数';
+    }
+  }
+
+  if (key === 'AGENT_TEMPERATURE' && value) {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed < 0 || parsed > 2) {
+      return 'AGENT_TEMPERATURE 必须在 0 到 2 之间';
+    }
+  }
+
+  return null;
 }
 
 export async function GET() {
@@ -29,10 +86,11 @@ export async function GET() {
     const content = await readFile(ENV_FILE, 'utf-8');
     const values = parseEnvFile(content);
 
-    // Mask secrets
     const masked: Record<string, string> = {};
-    for (const [key, value] of Object.entries(values)) {
-      masked[key] = maskValue(key, value);
+    for (const key of WRITABLE_KEYS) {
+      if (values[key] !== undefined) {
+        masked[key] = maskValue(key, values[key]);
+      }
     }
 
     return apiResponse(masked);
@@ -44,8 +102,25 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     const newValues = await request.json();
+    if (!isRecord(newValues)) {
+      return apiError('设置内容必须是对象', 400);
+    }
 
-    // Read existing values first
+    const updates: Record<string, string> = {};
+    for (const [key, value] of Object.entries(newValues)) {
+      if (!writableKeySet.has(key)) {
+        return apiError(`不支持的设置项: ${key}`, 400, { key });
+      }
+      if (typeof value !== 'string') {
+        return apiError(`设置项 ${key} 必须是字符串`, 400, { key });
+      }
+      const validationError = validateSettingValue(key, value);
+      if (validationError) {
+        return apiError(validationError, 400, { key });
+      }
+      updates[key] = value;
+    }
+
     let existing: Record<string, string> = {};
     try {
       const content = await readFile(ENV_FILE, 'utf-8');
@@ -54,9 +129,8 @@ export async function PUT(request: NextRequest) {
       // File doesn't exist yet, that's fine
     }
 
-    // Merge: only update non-masked values
-    for (const [key, value] of Object.entries(newValues)) {
-      if (typeof value === 'string' && !value.startsWith('****')) {
+    for (const [key, value] of Object.entries(updates)) {
+      if (!isMaskedSecretValue(key, value)) {
         existing[key] = value;
       }
     }
