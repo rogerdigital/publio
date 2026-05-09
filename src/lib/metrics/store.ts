@@ -1,6 +1,6 @@
 import {
   readJsonFileCollection,
-  writeJsonFileCollection,
+  writeMergedJsonFileCollection,
 } from '@/lib/storage/jsonFileCollection';
 import { createLocalDataPath } from '@/lib/storage/localDataPath';
 import type { SyncTaskMetrics, MetricsSummary } from './types';
@@ -12,7 +12,7 @@ function readAll(): SyncTaskMetrics[] {
 }
 
 function writeAll(data: SyncTaskMetrics[]) {
-  writeJsonFileCollection(METRICS_FILE, data);
+  writeMergedJsonFileCollection(METRICS_FILE, data, (metrics) => metrics.syncTaskId);
 }
 
 export function getMetricsStore() {
@@ -40,22 +40,13 @@ export function getMetricsStore() {
     getSummary(): MetricsSummary {
       const all = readAll();
       return {
-        totalViews: all.reduce(
-          (s, m) => s + m.platforms.reduce((ps, p) => ps + p.views, 0),
-          0,
-        ),
-        totalLikes: all.reduce(
-          (s, m) => s + m.platforms.reduce((ps, p) => ps + p.likes, 0),
-          0,
-        ),
+        totalViews: all.reduce((s, m) => s + m.platforms.reduce((ps, p) => ps + p.views, 0), 0),
+        totalLikes: all.reduce((s, m) => s + m.platforms.reduce((ps, p) => ps + p.likes, 0), 0),
         totalComments: all.reduce(
           (s, m) => s + m.platforms.reduce((ps, p) => ps + p.comments, 0),
           0,
         ),
-        totalShares: all.reduce(
-          (s, m) => s + m.platforms.reduce((ps, p) => ps + p.shares, 0),
-          0,
-        ),
+        totalShares: all.reduce((s, m) => s + m.platforms.reduce((ps, p) => ps + p.shares, 0), 0),
         postCount: all.length,
       };
     },

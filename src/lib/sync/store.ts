@@ -7,7 +7,10 @@ import type {
   SyncTaskStatus,
   UpdateSyncReceiptInput,
 } from '@/lib/sync/types';
-import { readJsonFileCollection, writeJsonFileCollection } from '@/lib/storage/jsonFileCollection';
+import {
+  readJsonFileCollection,
+  writeMergedJsonFileCollection,
+} from '@/lib/storage/jsonFileCollection';
 
 interface SyncHistoryStoreOptions {
   createId?: () => string;
@@ -65,7 +68,7 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
 
   function persistTasks() {
     if (!storagePath) return;
-    writeJsonFileCollection(storagePath, Array.from(tasks.values()));
+    writeMergedJsonFileCollection(storagePath, Array.from(tasks.values()), (task) => task.id);
   }
 
   function appendEvent(task: SyncTask, event: Omit<SyncEvent, 'timestamp'>): SyncTask {

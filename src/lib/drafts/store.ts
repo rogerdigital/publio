@@ -5,7 +5,10 @@ import type {
   ListDraftsOptions,
   UpdateDraftInput,
 } from '@/lib/drafts/types';
-import { readJsonFileCollection, writeJsonFileCollection } from '@/lib/storage/jsonFileCollection';
+import {
+  readJsonFileCollection,
+  writeMergedJsonFileCollection,
+} from '@/lib/storage/jsonFileCollection';
 
 interface DraftStoreOptions {
   createId?: () => string;
@@ -37,7 +40,7 @@ export function createDraftStore(options: DraftStoreOptions = {}) {
 
   function persistDrafts() {
     if (!storagePath) return;
-    writeJsonFileCollection(storagePath, Array.from(drafts.values()));
+    writeMergedJsonFileCollection(storagePath, Array.from(drafts.values()), (draft) => draft.id);
   }
 
   return {

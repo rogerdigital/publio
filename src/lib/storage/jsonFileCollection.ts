@@ -25,3 +25,21 @@ export function writeJsonFileCollection<T>(filePath: string, values: T[]) {
   writeFileSync(tempPath, `${JSON.stringify(values, null, 2)}\n`, 'utf-8');
   renameSync(tempPath, filePath);
 }
+
+export function writeMergedJsonFileCollection<T>(
+  filePath: string,
+  values: T[],
+  getKey: (value: T) => string,
+) {
+  const latestValues = readJsonFileCollection<T>(filePath);
+  const merged = new Map<string, T>();
+
+  for (const value of latestValues) {
+    merged.set(getKey(value), value);
+  }
+  for (const value of values) {
+    merged.set(getKey(value), value);
+  }
+
+  writeJsonFileCollection(filePath, Array.from(merged.values()));
+}
