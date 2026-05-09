@@ -2,6 +2,12 @@ import { NextRequest } from 'next/server';
 import { getAgentConfig } from '@/lib/agent/config';
 import { createOpenAIProvider } from '@/lib/agent/provider';
 import { createSSEResponse } from '@/lib/agent/stream';
+import {
+  AGENT_INPUT_LIMITS,
+  limitResearchSignals,
+  limitText,
+  markTruncated,
+} from '@/lib/agent/inputLimits';
 import { buildResearchMessages } from '@/lib/agent/prompts/research';
 import type { ResearchAgentRequest } from '@/lib/agent/types';
 
@@ -30,9 +36,14 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: '至少需要一条信号' }, { status: 400 });
   }
 
-  const messages = buildResearchMessages(clusterTitle, signals);
+  const limitedClusterTitle = limitText(clusterTitle, AGENT_INPUT_LIMITS.titleChars);
+  const limitedSignals = limitResearchSignals(signals);
+  const messages = buildResearchMessages(limitedClusterTitle.value, limitedSignals.value);
   const provider = createOpenAIProvider(config);
   const tokens = provider.stream({ messages, maxTokens: 3000 });
 
-  return createSSEResponse(tokens, request.signal);
+  return markTruncated(
+    createSSEResponse(tokens, request.signal),
+    limitedClusterTitle.truncated || limitedSignals.truncated,
+  );
 }

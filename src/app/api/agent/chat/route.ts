@@ -2,6 +2,12 @@ import { NextRequest } from 'next/server';
 import { getAgentConfig } from '@/lib/agent/config';
 import { createOpenAIProvider } from '@/lib/agent/provider';
 import { createSSEResponse } from '@/lib/agent/stream';
+import {
+  AGENT_INPUT_LIMITS,
+  limitChatMessages,
+  limitText,
+  markTruncated,
+} from '@/lib/agent/inputLimits';
 import type { ChatMessage } from '@/lib/agent/types';
 
 export const dynamic = 'force-dynamic';
@@ -39,28 +45,38 @@ export async function POST(request: NextRequest) {
 
   const { messages, context } = body;
 
-  if (!messages?.length) {
+  if (!Array.isArray(messages) || messages.length === 0) {
     return Response.json({ error: '消息不能为空' }, { status: 400 });
   }
 
+  const limitedMessages = limitChatMessages(messages);
   // 构建带上下文的系统消息
   let systemPrompt = SYSTEM_PROMPT;
+  let contextTruncated = false;
   if (context?.title || context?.content) {
     systemPrompt += '\n\n当前文章上下文：';
     if (context.title) {
-      systemPrompt += `\n标题：${context.title}`;
+      const limitedTitle = limitText(context.title, AGENT_INPUT_LIMITS.titleChars);
+      contextTruncated = contextTruncated || limitedTitle.truncated;
+      systemPrompt += `\n标题：${limitedTitle.value}`;
     }
     if (context.content) {
-      const truncated =
-        context.content.length > 2000 ? context.content.slice(0, 2000) + '...' : context.content;
-      systemPrompt += `\n内容：\n${truncated}`;
+      const limitedContent = limitText(context.content, AGENT_INPUT_LIMITS.contentChars);
+      contextTruncated = contextTruncated || limitedContent.truncated;
+      systemPrompt += `\n内容：\n${limitedContent.value}`;
     }
   }
 
-  const fullMessages: ChatMessage[] = [{ role: 'system', content: systemPrompt }, ...messages];
+  const fullMessages: ChatMessage[] = [
+    { role: 'system', content: systemPrompt },
+    ...limitedMessages.value,
+  ];
 
   const provider = createOpenAIProvider(config);
   const tokens = provider.stream({ messages: fullMessages });
 
-  return createSSEResponse(tokens, request.signal);
+  return markTruncated(
+    createSSEResponse(tokens, request.signal),
+    limitedMessages.truncated || contextTruncated,
+  );
 }

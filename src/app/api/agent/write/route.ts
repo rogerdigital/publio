@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { getAgentConfig } from '@/lib/agent/config';
 import { createOpenAIProvider } from '@/lib/agent/provider';
 import { createSSEResponse } from '@/lib/agent/stream';
+import { AGENT_INPUT_LIMITS, limitText, markTruncated } from '@/lib/agent/inputLimits';
 import { buildWritingMessages } from '@/lib/agent/prompts/writing';
 import { getStyleProfile } from '@/lib/copilot/styleProfile';
 import type { WritingAction, WritingAgentRequest } from '@/lib/agent/types';
@@ -39,14 +40,20 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: '内容不能为空' }, { status: 400 });
   }
 
+  const limitedContent = limitText(content, AGENT_INPUT_LIMITS.contentChars);
+  const limitedTitle = limitText(title, AGENT_INPUT_LIMITS.titleChars);
+  const limitedSelection = limitText(selection, AGENT_INPUT_LIMITS.selectionChars);
   const styleProfile = getStyleProfile();
-  const messages = buildWritingMessages(action, content, {
-    title,
-    selection,
+  const messages = buildWritingMessages(action, limitedContent.value, {
+    title: limitedTitle.value,
+    selection: limitedSelection.value,
     styleDescription: styleProfile?.description,
   });
   const provider = createOpenAIProvider(config);
   const tokens = provider.stream({ messages });
 
-  return createSSEResponse(tokens, request.signal);
+  return markTruncated(
+    createSSEResponse(tokens, request.signal),
+    limitedContent.truncated || limitedTitle.truncated || limitedSelection.truncated,
+  );
 }
