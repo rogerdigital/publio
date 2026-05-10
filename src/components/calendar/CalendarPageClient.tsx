@@ -44,7 +44,11 @@ function formatDate(d: Date): string {
 }
 
 function isSameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
 }
 
 const typeStyles: Record<string, string> = {
@@ -77,7 +81,9 @@ export default function CalendarPageClient() {
         const evts: CalendarEvent[] = [];
 
         if (draftsRes.ok) {
-          const draftsData = (await draftsRes.json()) as { drafts?: Array<{ id: string; title: string; scheduledAt?: string; status: string }> };
+          const draftsData = (await draftsRes.json()) as {
+            drafts?: Array<{ id: string; title: string; scheduledAt?: string; status: string }>;
+          };
           for (const d of draftsData.drafts ?? []) {
             if (d.scheduledAt) {
               evts.push({
@@ -100,7 +106,9 @@ export default function CalendarPageClient() {
         }
 
         if (syncRes.ok) {
-          const syncData = (await syncRes.json()) as { syncTasks?: Array<{ id: string; title: string; createdAt: string; status: string }> };
+          const syncData = (await syncRes.json()) as {
+            syncTasks?: Array<{ id: string; title: string; createdAt: string; status: string }>;
+          };
           for (const t of syncData.syncTasks ?? []) {
             evts.push({
               id: t.id,
@@ -150,11 +158,7 @@ export default function CalendarPageClient() {
 
   return (
     <div className={styles.pageWrap}>
-      <AppShellHeader
-        kicker="Editorial"
-        title="内容排期"
-        description="查看稿件排期和发布记录。"
-      />
+      <AppShellHeader kicker="Editorial" title="内容排期" description="查看稿件排期和发布记录。" />
 
       <div className={styles.navRow}>
         <button type="button" onClick={prevMonth} className={styles.navBtn} aria-label="上个月">
@@ -191,11 +195,15 @@ export default function CalendarPageClient() {
       </div>
 
       {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>加载中...</div>
+        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+          加载中...
+        </div>
       ) : (
         <div className={styles.calendarGrid}>
           {WEEKDAYS.map((d) => (
-            <div key={d} className={styles.dayHeader}>{d}</div>
+            <div key={d} className={styles.dayHeader}>
+              {d}
+            </div>
           ))}
           {days.map((day) => {
             const dateKey = formatDate(day);

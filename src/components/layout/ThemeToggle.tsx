@@ -31,7 +31,8 @@ export default function ThemeToggle() {
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
-    const initialMode: ThemeMode = stored && ['light', 'dark', 'system'].includes(stored) ? stored : 'system';
+    const initialMode: ThemeMode =
+      stored && ['light', 'dark', 'system'].includes(stored) ? stored : 'system';
     setMode(initialMode);
     applyTheme(resolveEffectiveTheme(initialMode));
 

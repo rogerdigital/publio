@@ -2,7 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Newspaper, PenLine, Settings2, ArrowRight, Library, Send, BarChart3, CalendarDays } from 'lucide-react';
+import {
+  Newspaper,
+  PenLine,
+  Settings2,
+  ArrowRight,
+  Library,
+  Send,
+  BarChart3,
+  CalendarDays,
+} from 'lucide-react';
 import { Dancing_Script } from 'next/font/google';
 import { cn } from '@/lib/cn';
 import ThemeToggle from './ThemeToggle';

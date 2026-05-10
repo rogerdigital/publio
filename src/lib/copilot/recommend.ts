@@ -1,10 +1,7 @@
 import type { BrandProfile, TopicRecommendation } from './types';
 import type { AiNewsCluster } from '@/lib/ai-news/types';
 
-export function buildRecommendPrompt(
-  profile: BrandProfile,
-  clusters: AiNewsCluster[],
-): string {
+export function buildRecommendPrompt(profile: BrandProfile, clusters: AiNewsCluster[]): string {
   const clusterSummary = clusters
     .slice(0, 10)
     .map(
@@ -46,9 +43,7 @@ export function parseRecommendations(raw: string): TopicRecommendation[] {
     const parsed = JSON.parse(match[0]) as TopicRecommendation[];
     return parsed.filter(
       (r) =>
-        typeof r.title === 'string' &&
-        typeof r.reason === 'string' &&
-        typeof r.angle === 'string',
+        typeof r.title === 'string' && typeof r.reason === 'string' && typeof r.angle === 'string',
     );
   } catch {
     return [];

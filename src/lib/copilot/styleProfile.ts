@@ -1,7 +1,4 @@
-import {
-  readJsonFileCollection,
-  writeJsonFileCollection,
-} from '@/lib/storage/jsonFileCollection';
+import { readJsonFileCollection, writeJsonFileCollection } from '@/lib/storage/jsonFileCollection';
 import { createLocalDataPath } from '@/lib/storage/localDataPath';
 
 export interface StyleProfile {

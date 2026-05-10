@@ -142,7 +142,10 @@ export default function PlatformPreviewPanel({
                   <ul className={styles.previewWarningList}>
                     {validation.issues.map((issue, i) => (
                       <li key={i}>
-                        <AlertTriangle size={11} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+                        <AlertTriangle
+                          size={11}
+                          style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }}
+                        />
                         {issue.message}
                         {issue.current !== undefined && issue.limit !== undefined
                           ? ` (${issue.current}/${issue.limit})`

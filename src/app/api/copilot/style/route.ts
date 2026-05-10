@@ -1,7 +1,11 @@
 import { NextRequest } from 'next/server';
 import { getAgentConfig } from '@/lib/agent/config';
 import { createOpenAIProvider } from '@/lib/agent/provider';
-import { getStyleProfile, saveStyleProfile, buildStyleAnalysisPrompt } from '@/lib/copilot/styleProfile';
+import {
+  getStyleProfile,
+  saveStyleProfile,
+  buildStyleAnalysisPrompt,
+} from '@/lib/copilot/styleProfile';
 import { createDraftStore } from '@/lib/drafts/store';
 import { createLocalDataPath } from '@/lib/storage/localDataPath';
 import { apiResponse, apiError } from '@/lib/api/response';
