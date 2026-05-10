@@ -17,7 +17,12 @@ export default function SlashCommandMenu({
   if (commands.length === 0) {
     return (
       <div className={styles.menuOverlay} role="listbox" aria-label="斜杠命令">
-        <div className={styles.commandItem} style={{ opacity: 0.5 }} role="option" aria-selected="false">
+        <div
+          className={styles.commandItem}
+          style={{ opacity: 0.5 }}
+          role="option"
+          aria-selected="false"
+        >
           无匹配命令
         </div>
       </div>

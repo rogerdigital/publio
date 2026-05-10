@@ -1,4 +1,9 @@
-export type SensitiveCategory = 'political' | 'pornographic' | 'violent' | 'advertising' | 'general';
+export type SensitiveCategory =
+  | 'political'
+  | 'pornographic'
+  | 'violent'
+  | 'advertising'
+  | 'general';
 
 export interface SensitiveMatch {
   word: string;

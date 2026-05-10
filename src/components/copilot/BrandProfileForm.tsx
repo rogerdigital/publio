@@ -72,9 +72,7 @@ export default function BrandProfileForm() {
         <Users size={14} />
         <span>品牌画像</span>
       </div>
-      <p className={styles.panelHint}>
-        配置品牌信息后，AI 选题推荐将根据画像匹配适合的内容方向。
-      </p>
+      <p className={styles.panelHint}>配置品牌信息后，AI 选题推荐将根据画像匹配适合的内容方向。</p>
 
       {fields.map((f) => (
         <div key={f.label} className={styles.fieldWrap}>

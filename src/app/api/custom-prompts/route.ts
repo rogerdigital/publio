@@ -1,9 +1,5 @@
 import { NextRequest } from 'next/server';
-import {
-  getAllCustomPrompts,
-  getCustomPrompt,
-  setCustomPrompt,
-} from '@/lib/custom-prompts/store';
+import { getAllCustomPrompts, getCustomPrompt, setCustomPrompt } from '@/lib/custom-prompts/store';
 import { apiResponse, apiError } from '@/lib/api/response';
 
 export async function GET() {

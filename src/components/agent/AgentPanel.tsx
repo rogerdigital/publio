@@ -198,7 +198,13 @@ export default function AgentPanel() {
             </button>
           )}
         </span>
-        <button type="button" className={styles.closeButton} onClick={handleClose} title="关闭" aria-label="关闭">
+        <button
+          type="button"
+          className={styles.closeButton}
+          onClick={handleClose}
+          title="关闭"
+          aria-label="关闭"
+        >
           <X size={14} />
         </button>
       </div>
