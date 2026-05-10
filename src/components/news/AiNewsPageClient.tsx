@@ -1,15 +1,18 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import TopicDeskHeader from '@/components/news/TopicDeskHeader';
 import TopicSignalCard from '@/components/news/TopicSignalCard';
 import type { AiNewsDeskCandidate } from '@/lib/aiNews';
-import {
-  buildResearchDraftMarkdown,
-} from '@/lib/newsDraft';
+import { buildResearchDraftMarkdown } from '@/lib/newsDraft';
 import { createDraft } from '@/lib/drafts/client';
+import { useAgentStore } from '@/stores/agentStore';
+import type { AgentStreamEvent } from '@/lib/agent/types';
+import EmptyState from '@/components/feedback/EmptyState';
+import { Newspaper } from 'lucide-react';
+import TopicRecommendationPanel from '@/components/copilot/TopicRecommendationPanel';
 import * as styles from './news.css';
 
 // localStorage key for tracking which topic clusters have drafts in this session
@@ -33,7 +36,7 @@ function saveTopicDraftMap(map: Record<string, string>) {
 }
 
 interface AiNewsResponse {
-  success: boolean;
+  ok: boolean;
   generatedAt?: string;
   totalSignals?: number;
   totalCandidates?: number;
@@ -113,7 +116,115 @@ export default function AiNewsPageClient() {
   const [briefOpenMap, setBriefOpenMap] = useState<Map<string, boolean>>(cachedBriefOpenMap);
   const hasDeskDataRef = useRef(false);
 
+  // Deep research state
+  const [agentEnabled, setAgentEnabled] = useState(false);
+  const [deepResearchLoading, setDeepResearchLoading] = useState<Record<string, boolean>>({});
+  const [deepResearchContent, setDeepResearchContent] = useState<Record<string, string>>({});
+  const researchCache = useAgentStore((s) => s.researchCache);
+  const cacheResearch = useAgentStore((s) => s.cacheResearch);
+
   const allCandidates = [...todayCandidates, ...followCandidates];
+
+  // Check agent availability on mount
+  useEffect(() => {
+    fetch('/api/agent/status')
+      .then((r) => r.json())
+      .then((d) => setAgentEnabled(d.available === true))
+      .catch(() => setAgentEnabled(false));
+  }, []);
+
+  // Restore cached research results (TTL: 1h)
+  useEffect(() => {
+    const TTL = 60 * 60 * 1000;
+    const restored: Record<string, string> = {};
+    for (const [title, entry] of Object.entries(researchCache)) {
+      if (Date.now() - entry.cachedAt > TTL) continue;
+      const match = allCandidates.find((c) => c.title === title);
+      if (match) restored[match.clusterId] = entry.analysis.raw;
+    }
+    if (Object.keys(restored).length > 0) {
+      setDeepResearchContent((prev) => ({ ...prev, ...restored }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allCandidates.length]);
+
+  const handleDeepResearch = useCallback(
+    async (item: AiNewsDeskCandidate) => {
+      const clusterId = item.clusterId;
+      setDeepResearchLoading((prev) => ({ ...prev, [clusterId]: true }));
+
+      try {
+        const response = await fetch('/api/agent/research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            clusterTitle: item.title,
+            signals: item.signals?.map((s) => ({
+              title: s.title,
+              summary: s.summary || '',
+              source: s.sourceName,
+              publishedAt: s.publishedAt,
+            })) ?? [
+              {
+                title: item.title,
+                summary: item.whyNow,
+                source: item.primarySignal.sourceName,
+                publishedAt: item.primarySignal.publishedAt,
+              },
+            ],
+          }),
+        });
+
+        if (!response.ok || !response.body) {
+          throw new Error('深度分析请求失败');
+        }
+
+        const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+        let buffer = '';
+        let accumulated = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += value;
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try {
+              const event: AgentStreamEvent = JSON.parse(line.slice(6));
+              if (event.type === 'delta') {
+                accumulated += event.content;
+                setDeepResearchContent((prev) => ({ ...prev, [clusterId]: accumulated }));
+              } else if (event.type === 'error') {
+                throw new Error(event.error);
+              }
+            } catch (e) {
+              if (e instanceof Error && e.message !== '深度分析请求失败') {
+                // skip parse errors
+              } else {
+                throw e;
+              }
+            }
+          }
+        }
+
+        // Cache result
+        cacheResearch({
+          raw: accumulated,
+          clusterTitle: item.title,
+          generatedAt: new Date().toISOString(),
+        });
+      } catch {
+        // On error, clear loading but keep any partial content
+      } finally {
+        setDeepResearchLoading((prev) => ({ ...prev, [clusterId]: false }));
+      }
+    },
+    [cacheResearch],
+  );
 
   const writeDraftAndOpenEditor = async (title: string, content: string, clusterId: string) => {
     try {
@@ -162,6 +273,7 @@ export default function AiNewsPageClient() {
           })),
         },
       ],
+      llmAnalysis: deepResearchContent[item.clusterId] || undefined,
     });
     void writeDraftAndOpenEditor(item.title, content, item.clusterId);
   };
@@ -179,7 +291,7 @@ export default function AiNewsPageClient() {
       const response = await fetch('/api/ai-news', { cache: 'no-store' });
       const data: AiNewsResponse = await response.json();
 
-      if (!response.ok || !data.success || !data.todayCandidates || !data.followCandidates) {
+      if (!response.ok || !data.ok || !data.todayCandidates || !data.followCandidates) {
         throw new Error(data.message || '新闻抓取失败，请稍后重试。');
       }
 
@@ -232,7 +344,7 @@ export default function AiNewsPageClient() {
     } else {
       void loadNews();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -246,16 +358,24 @@ export default function AiNewsPageClient() {
         refreshing={refreshing}
       />
 
+      {agentEnabled && allCandidates.length > 0 && (
+        <TopicRecommendationPanel
+          clusters={allCandidates}
+          onSelectTopic={(title) => {
+            // Navigate to editor with the recommended topic title
+            void writeDraftAndOpenEditor(
+              title,
+              `> 选题来源：AI 推荐\n\n开始围绕「${title}」撰写内容...`,
+              `recommend-${Date.now()}`,
+            );
+          }}
+        />
+      )}
+
       <div className={styles.contentWrap}>
         {refreshError ? (
-          <div
-            className={styles.refreshErrorBanner}
-            role="status"
-            aria-live="polite"
-          >
-            <p className={styles.refreshErrorKicker}>
-              刷新未更新
-            </p>
+          <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
+            <p className={styles.refreshErrorKicker}>刷新未更新</p>
             <p className={styles.refreshErrorText}>
               {refreshError} 下面保留的是上一次成功加载的内容。
             </p>
@@ -263,17 +383,9 @@ export default function AiNewsPageClient() {
         ) : null}
 
         {draftError ? (
-          <div
-            className={styles.refreshErrorBanner}
-            role="status"
-            aria-live="polite"
-          >
-            <p className={styles.refreshErrorKicker}>
-              转稿未完成
-            </p>
-            <p className={styles.refreshErrorText}>
-              {draftError}
-            </p>
+          <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
+            <p className={styles.refreshErrorKicker}>转稿未完成</p>
+            <p className={styles.refreshErrorText}>{draftError}</p>
           </div>
         ) : null}
 
@@ -296,12 +408,11 @@ export default function AiNewsPageClient() {
             <p className={styles.stateText}>{error}</p>
           </div>
         ) : allCandidates.length === 0 ? (
-          <div className={styles.stateCardCenter}>
-            <p className={styles.stateTitle}>选题桌暂无内容</p>
-            <p className={styles.stateText}>
-              点击右上角「抓取选题」开始抓取最新 AI 话题信号。
-            </p>
-          </div>
+          <EmptyState
+            icon={<Newspaper size={24} />}
+            title="选题桌暂无内容"
+            description="点击右上角「抓取选题」开始抓取最新 AI 话题信号。"
+          />
         ) : (
           <div className={styles.candidateSections}>
             <CandidateSection
@@ -315,6 +426,10 @@ export default function AiNewsPageClient() {
                 setBriefOpenMap(new Map(cachedBriefOpenMap));
               }}
               onCreateDraft={createSingleNewsDraft}
+              agentEnabled={agentEnabled}
+              onDeepResearch={handleDeepResearch}
+              deepResearchContent={deepResearchContent}
+              deepResearchLoading={deepResearchLoading}
             />
             <CandidateSection
               title="还能追"
@@ -327,6 +442,10 @@ export default function AiNewsPageClient() {
                 setBriefOpenMap(new Map(cachedBriefOpenMap));
               }}
               onCreateDraft={createSingleNewsDraft}
+              agentEnabled={agentEnabled}
+              onDeepResearch={handleDeepResearch}
+              deepResearchContent={deepResearchContent}
+              deepResearchLoading={deepResearchLoading}
             />
           </div>
         )}
@@ -347,6 +466,10 @@ function CandidateSection({
   briefOpenMap,
   onBriefToggle,
   onCreateDraft,
+  agentEnabled,
+  onDeepResearch,
+  deepResearchContent,
+  deepResearchLoading,
 }: {
   title: string;
   items: AiNewsDeskCandidate[];
@@ -355,6 +478,10 @@ function CandidateSection({
   briefOpenMap: Map<string, boolean>;
   onBriefToggle: (clusterId: string, open: boolean) => void;
   onCreateDraft: (item: AiNewsDeskCandidate) => void;
+  agentEnabled: boolean;
+  onDeepResearch: (item: AiNewsDeskCandidate) => void;
+  deepResearchContent: Record<string, string>;
+  deepResearchLoading: Record<string, boolean>;
 }) {
   if (items.length === 0) return null;
 
@@ -371,6 +498,10 @@ function CandidateSection({
           showBrief={briefOpenMap.get(item.clusterId) ?? false}
           onBriefToggle={(open) => onBriefToggle(item.clusterId, open)}
           onCreateDraft={onCreateDraft}
+          agentEnabled={agentEnabled}
+          onDeepResearch={onDeepResearch}
+          deepResearchContent={deepResearchContent[item.clusterId]}
+          deepResearchLoading={deepResearchLoading[item.clusterId] ?? false}
         />
       ))}
     </section>

@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import {
-  buildResearchBrief,
-  type ScoredAiNewsCluster,
-} from '@/lib/ai-news/research';
+import { buildResearchBrief, type ScoredAiNewsCluster } from '@/lib/ai-news/research';
 
 function createScoredCluster(overrides: Partial<ScoredAiNewsCluster>): ScoredAiNewsCluster {
   return {
@@ -12,29 +9,7 @@ function createScoredCluster(overrides: Partial<ScoredAiNewsCluster>): ScoredAiN
     normalizedTitle: overrides.normalizedTitle ?? 'openai 发布 新 模型 gpt x',
     topicTags: overrides.topicTags ?? ['模型与产品发布'],
     entityTokens: overrides.entityTokens ?? ['openai', 'gpt-x', '模型'],
-    signals:
-      overrides.signals ??
-      [
-        {
-          id: 'official',
-          title: 'OpenAI 发布新模型 GPT-X',
-          canonicalTitle: 'openai 发布 新 模型 gpt x',
-          summary: 'OpenAI 官方公布 GPT-X 并开放企业接入。',
-          link: 'https://openai.com/blog/gpt-x',
-          sourceWeight: 5,
-          creatorWeight: 0,
-          sourceName: 'OpenAI',
-          sourceType: 'official',
-          sourceDomain: 'openai.com',
-          publishedAt: '2026-04-05T08:00:00.000Z',
-          fetchedAt: '2026-04-05T08:20:00.000Z',
-          entityTokens: ['openai', 'gpt-x', '模型'],
-          topicTags: ['模型与产品发布'],
-          isOfficialSource: true,
-        },
-      ],
-    primarySignal:
-      overrides.primarySignal ??
+    signals: overrides.signals ?? [
       {
         id: 'official',
         title: 'OpenAI 发布新模型 GPT-X',
@@ -52,21 +27,38 @@ function createScoredCluster(overrides: Partial<ScoredAiNewsCluster>): ScoredAiN
         topicTags: ['模型与产品发布'],
         isOfficialSource: true,
       },
+    ],
+    primarySignal: overrides.primarySignal ?? {
+      id: 'official',
+      title: 'OpenAI 发布新模型 GPT-X',
+      canonicalTitle: 'openai 发布 新 模型 gpt x',
+      summary: 'OpenAI 官方公布 GPT-X 并开放企业接入。',
+      link: 'https://openai.com/blog/gpt-x',
+      sourceWeight: 5,
+      creatorWeight: 0,
+      sourceName: 'OpenAI',
+      sourceType: 'official',
+      sourceDomain: 'openai.com',
+      publishedAt: '2026-04-05T08:00:00.000Z',
+      fetchedAt: '2026-04-05T08:20:00.000Z',
+      entityTokens: ['openai', 'gpt-x', '模型'],
+      topicTags: ['模型与产品发布'],
+      isOfficialSource: true,
+    },
     earliestPublishedAt: overrides.earliestPublishedAt ?? '2026-04-05T08:00:00.000Z',
     latestPublishedAt: overrides.latestPublishedAt ?? '2026-04-05T08:10:00.000Z',
     coverageCount: overrides.coverageCount ?? 2,
     officialSourceCount: overrides.officialSourceCount ?? 1,
     mediaSourceCount: overrides.mediaSourceCount ?? 1,
     creatorSourceCount: overrides.creatorSourceCount ?? 0,
-    scores:
-      overrides.scores ?? {
-        freshness: 88,
-        impact: 84,
-        momentum: 79,
-        credibility: 92,
-        creatorFit: 58,
-        visualReadiness: 28,
-      },
+    scores: overrides.scores ?? {
+      freshness: 88,
+      impact: 84,
+      momentum: 79,
+      credibility: 92,
+      creatorFit: 58,
+      visualReadiness: 28,
+    },
     totalScore: overrides.totalScore ?? 86,
     bucket: overrides.bucket ?? 'today',
   };

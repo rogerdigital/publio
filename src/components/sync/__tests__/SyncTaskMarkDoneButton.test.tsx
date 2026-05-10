@@ -21,19 +21,20 @@ describe('SyncTaskMarkDoneButton', () => {
   });
 
   test('posts the platform mark-done request and refreshes', async () => {
-    const { default: SyncTaskMarkDoneButton } = await import(
-      '@/components/sync/SyncTaskMarkDoneButton'
-    );
+    const { default: SyncTaskMarkDoneButton } =
+      await import('@/components/sync/SyncTaskMarkDoneButton');
     const fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ syncTask: { id: 'sync-1' } }),
     });
     vi.stubGlobal('fetch', fetch);
 
-    render(createElement(SyncTaskMarkDoneButton, {
-      taskId: 'sync-1',
-      platform: 'xiaohongshu',
-    }));
+    render(
+      createElement(SyncTaskMarkDoneButton, {
+        taskId: 'sync-1',
+        platform: 'xiaohongshu',
+      }),
+    );
     fireEvent.click(screen.getByRole('button', { name: '标记已完成' }));
 
     await waitFor(() => {

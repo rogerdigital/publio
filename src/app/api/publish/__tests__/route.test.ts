@@ -7,17 +7,23 @@ import { POST } from '@/app/api/publish/route';
 // Mock all publishers — actual publish happens async, tests only verify task creation
 vi.mock('@/lib/publishers/wechat', () => ({
   WechatPublisher: vi.fn().mockImplementation(() => ({
-    publish: vi.fn().mockResolvedValue({ platform: 'wechat', success: true, message: '草稿已创建' }),
+    publish: vi
+      .fn()
+      .mockResolvedValue({ platform: 'wechat', success: true, message: '草稿已创建' }),
   })),
 }));
 vi.mock('@/lib/publishers/zhihu', () => ({
   ZhihuPublisher: vi.fn().mockImplementation(() => ({
-    publish: vi.fn().mockResolvedValue({ platform: 'zhihu', success: false, message: '登录态过期' }),
+    publish: vi
+      .fn()
+      .mockResolvedValue({ platform: 'zhihu', success: false, message: '登录态过期' }),
   })),
 }));
 vi.mock('@/lib/publishers/xiaohongshu', () => ({
   XiaohongshuPublisher: vi.fn().mockImplementation(() => ({
-    publish: vi.fn().mockResolvedValue({ platform: 'xiaohongshu', success: true, message: '已同步' }),
+    publish: vi
+      .fn()
+      .mockResolvedValue({ platform: 'xiaohongshu', success: true, message: '已同步' }),
   })),
 }));
 vi.mock('@/lib/publishers/x', () => ({

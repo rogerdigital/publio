@@ -1,36 +1,40 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { PlatformId } from '@/types';
-import { getDraftRegistry } from '@/lib/drafts/registry';
 import { getSyncHistoryStore } from '@/lib/sync/registry';
-import {
-  type PlatformPublishDrafts,
-  inferFailureCode,
-  publishToPlatforms,
-  toDraftStatus,
-  toNextAction,
-  toSyncReceiptStatus,
-} from '@/lib/publishers/executePublish';
+import type { PlatformPublishDrafts } from '@/lib/publishers/executePublish';
+import { runPublishJob } from '@/lib/publishers/publishJobRunner';
 import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
 import { validateTitle, validateContent, validatePlatforms } from '@/lib/validation';
+import { checkContent } from '@/lib/moderation/check';
+import { apiResponse, apiError } from '@/lib/api/response';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const body = await request.json();
     const { draftId, title, content, platforms } = body;
     const platformDrafts: PlatformPublishDrafts =
-      body.platformDrafts && typeof body.platformDrafts === 'object'
-        ? body.platformDrafts
-        : {};
+      body.platformDrafts && typeof body.platformDrafts === 'object' ? body.platformDrafts : {};
 
-    // Basic validation
     const titleErr = validateTitle(title);
-    if (titleErr) return NextResponse.json({ error: titleErr }, { status: 400 });
+    if (titleErr) return apiError(titleErr);
     const contentErr = validateContent(content);
-    if (contentErr) return NextResponse.json({ error: contentErr }, { status: 400 });
+    if (contentErr) return apiError(contentErr);
     const platformErr = validatePlatforms(platforms);
-    if (platformErr) return NextResponse.json({ error: platformErr }, { status: 400 });
+    if (platformErr) return apiError(platformErr);
 
-    // Platform-level draft validation
+    // Content moderation check (non-blocking, returns warnings)
+    const moderation = checkContent(`${title}\n${content}`);
+    const forcePublish = body.forcePublish === true;
+    if (!moderation.passed && !forcePublish) {
+      return apiResponse({
+        moderationWarning: true,
+        matches: moderation.matches,
+        message: `检测到 ${moderation.matches.length} 个敏感词，请确认后重试（设置 forcePublish: true 跳过检查）`,
+      });
+    }
+
     const adaptations = adaptContentForPlatforms({
       title,
       content,
@@ -43,17 +47,12 @@ export async function POST(request: NextRequest) {
       return !draftTitle.trim() || !draftContent.trim();
     });
     if (notReadyPlatforms.length > 0) {
-      return NextResponse.json(
-        {
-          error: `以下平台内容不完整，无法发布: ${notReadyPlatforms.join(', ')}`,
-          notReadyPlatforms,
-        },
-        { status: 400 }
-      );
+      return apiError(`以下平台内容不完整，无法发布: ${notReadyPlatforms.join(', ')}`, 400, {
+        notReadyPlatforms,
+      });
     }
     void adaptations;
 
-    // Create sync task immediately so the UI can redirect to the detail page
     const syncStore = getSyncHistoryStore();
     let syncTask = syncStore.createTask({
       draftId: typeof draftId === 'string' && draftId.trim() ? draftId.trim() : undefined,
@@ -61,63 +60,29 @@ export async function POST(request: NextRequest) {
       platforms: platforms as PlatformId[],
     });
 
-    // Execute publish in the background (fire-and-forget within the same process).
-    // For a personal tool this is sufficient; swap for a real queue later.
+    logger.info('Publish task created', { taskId: syncTask.id, platforms });
+
     void (async () => {
-      try {
-        const publishResults = await publishToPlatforms(
-          platforms as PlatformId[],
-          title,
-          content,
-          platformDrafts,
-        );
-
-        for (const result of publishResults) {
-          const receiptStatus = toSyncReceiptStatus(result);
-          const isFailed = receiptStatus === 'failed';
-          const failureCode = isFailed ? inferFailureCode(result.message) : undefined;
-          const nextAction = isFailed && failureCode ? toNextAction(failureCode) : undefined;
-
-          syncTask = syncStore.updateReceipt(syncTask.id, result.platform, {
-            status: receiptStatus,
-            message: result.message,
-            url: result.url,
-            failureCode,
-            failureMessage: isFailed ? (result.message ?? '未知错误') : undefined,
-            nextAction,
-          }) ?? syncTask;
-        }
-
-        if (syncTask.draftId) {
-          getDraftRegistry().updateDraft(syncTask.draftId, {
-            status: toDraftStatus(syncTask.status),
-          });
-        }
-      } catch {
-        // Best-effort: mark all still-pending receipts as failed
-        for (const platform of platforms as PlatformId[]) {
-          const receipt = syncStore.getTask(syncTask.id)?.receipts.find(
-            (r) => r.platform === platform && r.status === 'pending',
-          );
-          if (receipt) {
-            syncStore.updateReceipt(syncTask.id, platform, {
-              status: 'failed',
-              failureCode: 'unknown',
-              failureMessage: '发布过程中发生未知错误',
-            });
-          }
-        }
-      }
+      const result = await runPublishJob({
+        syncTaskId: syncTask.id,
+        title,
+        content,
+        platforms: platforms as PlatformId[],
+        platformDrafts,
+      });
+      syncTask = result.syncTask;
+      logger.info('Publish completed', {
+        taskId: syncTask.id,
+        durationMs: Date.now() - startTime,
+      });
     })();
 
-    // Return task ID immediately — client navigates to /sync-tasks/:id
-    return NextResponse.json({ syncTaskId: syncTask.id, syncTask });
+    return apiResponse({ syncTaskId: syncTask.id, syncTask });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : '服务器内部错误',
-      },
-      { status: 500 }
-    );
+    logger.error('Publish request failed', {
+      durationMs: Date.now() - startTime,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return apiError(error instanceof Error ? error.message : '服务器内部错误', 500);
   }
 }

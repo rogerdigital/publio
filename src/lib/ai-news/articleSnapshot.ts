@@ -118,14 +118,11 @@ function countArticleWords(scope: string) {
   return total > 0 ? total : undefined;
 }
 
-export function extractArticleSnapshotFromHtml(
-  html: string,
-  pageUrl: string,
-): ArticleSnapshot {
+export function extractArticleSnapshotFromHtml(html: string, pageUrl: string): ArticleSnapshot {
   const scope = extractMainScope(html);
   const images = extractImageCandidates(scope, pageUrl);
   const metaImage = extractMetaImage(html, pageUrl);
-  const imageUrls = images.length > 0 ? images : (metaImage ? [metaImage] : []);
+  const imageUrls = images.length > 0 ? images : metaImage ? [metaImage] : [];
 
   return {
     imageUrl: imageUrls[0] ?? '',

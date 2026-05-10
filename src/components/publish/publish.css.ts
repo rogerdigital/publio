@@ -1,6 +1,11 @@
-import { style, styleVariants } from '@vanilla-extract/css';
+import { style, styleVariants, keyframes, globalStyle } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/styles/tokens.css';
+
+const spin = keyframes({
+  from: { transform: 'rotate(0deg)' },
+  to: { transform: 'rotate(360deg)' },
+});
 
 export const selectorWrap = style({
   display: 'flex',
@@ -540,4 +545,358 @@ export const collapseChevron = style({
 
 export const collapseChevronOpen = style({
   transform: 'rotate(180deg)',
+});
+
+// AI 适配按钮
+export const adaptButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  borderRadius: '4px',
+  border: `1px solid ${vars.color.border}`,
+  background: 'transparent',
+  padding: '2px 7px',
+  fontSize: '11px',
+  color: vars.color.accent,
+  cursor: 'pointer',
+  transition: 'all 150ms',
+  ':hover': {
+    background: vars.color.accentSoft,
+    borderColor: vars.color.accent,
+  },
+  ':disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  },
+});
+
+export const adaptButtonRevert = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  borderRadius: '4px',
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.canvasDeep,
+  padding: '2px 7px',
+  fontSize: '11px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'all 150ms',
+  ':hover': {
+    borderColor: vars.color.borderStrong,
+    color: vars.color.text,
+  },
+});
+
+export const spinIcon = style({
+  animation: `${spin} 1s linear infinite`,
+});
+
+// ─── WeChat Article Preview ───
+
+export const wechatPreviewFrame = style({
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: '#ffffff',
+  overflow: 'hidden',
+  maxHeight: 420,
+  overflowY: 'auto',
+});
+
+export const wechatHeader = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '12px 16px',
+  borderBottom: '1px solid #f0f0f0',
+});
+
+export const wechatHeaderLeft = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+});
+
+export const wechatAvatar = style({
+  width: 32,
+  height: 32,
+  borderRadius: '50%',
+  background: '#e0e0e0',
+  flexShrink: 0,
+});
+
+export const wechatAuthor = style({
+  margin: 0,
+  fontSize: '14px',
+  fontWeight: 500,
+  color: '#333',
+  lineHeight: 1.3,
+});
+
+export const wechatDate = style({
+  margin: 0,
+  fontSize: '12px',
+  color: '#999',
+  lineHeight: 1.3,
+});
+
+export const wechatBody = style({
+  padding: '0',
+  fontSize: '15px',
+  lineHeight: 1.8,
+  color: '#333',
+});
+
+globalStyle(`${wechatBody} img`, {
+  maxWidth: '100%',
+  height: 'auto',
+});
+
+export const wechatFooter = style({
+  display: 'flex',
+  justifyContent: 'space-around',
+  padding: '12px 16px',
+  borderTop: '1px solid #f0f0f0',
+});
+
+export const wechatFooterAction = style({
+  fontSize: '13px',
+  color: '#999',
+});
+
+// ─── XHS Note Preview ───
+
+export const xhsCard = style({
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: '#ffffff',
+  overflow: 'hidden',
+});
+
+export const xhsImageGrid = style({
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr 1fr',
+  gap: '2px',
+});
+
+export const xhsImage = style({
+  width: '100%',
+  aspectRatio: '1',
+  objectFit: 'cover',
+  background: '#f5f5f5',
+});
+
+export const xhsContent = style({
+  padding: '10px 12px',
+});
+
+export const xhsTitle = style({
+  margin: '0 0 6px',
+  fontSize: '14px',
+  fontWeight: 600,
+  color: '#333',
+  lineHeight: 1.4,
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+});
+
+export const xhsText = style({
+  margin: '0 0 8px',
+  fontSize: '13px',
+  color: '#666',
+  lineHeight: 1.6,
+  display: '-webkit-box',
+  WebkitLineClamp: 3,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+});
+
+export const xhsTags = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '6px',
+  marginBottom: '8px',
+});
+
+export const xhsTag = style({
+  fontSize: '12px',
+  color: '#ff4757',
+  background: '#fff0f0',
+  padding: '2px 6px',
+  borderRadius: '4px',
+});
+
+export const xhsFooter = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingTop: '8px',
+  borderTop: '1px solid #f5f5f5',
+});
+
+export const xhsAuthorRow = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+});
+
+export const xhsAuthorAvatar = style({
+  width: 20,
+  height: 20,
+  borderRadius: '50%',
+  background: '#e0e0e0',
+});
+
+export const xhsAuthorName = style({
+  fontSize: '12px',
+  color: '#999',
+});
+
+export const xhsActions = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+});
+
+export const xhsActionIcon = style({
+  fontSize: '12px',
+  color: '#999',
+});
+
+// ─── Moderation Warning Dialog ───
+
+export const moderationOverlay = style({
+  position: 'fixed',
+  inset: 0,
+  zIndex: 1000,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  background: 'rgba(0, 0, 0, 0.4)',
+  backdropFilter: 'blur(4px)',
+});
+
+export const moderationDialog = style({
+  width: '90%',
+  maxWidth: '440px',
+  borderRadius: vars.radius.xl,
+  background: vars.color.surface,
+  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.16)',
+  overflow: 'hidden',
+});
+
+export const moderationHeader = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  padding: '16px 20px',
+  borderBottom: `1px solid ${vars.color.border}`,
+  color: vars.color.warningText,
+  fontWeight: 600,
+  fontSize: '15px',
+});
+
+export const moderationClose = style({
+  marginLeft: 'auto',
+  background: 'none',
+  border: 'none',
+  padding: '4px',
+  cursor: 'pointer',
+  color: vars.color.textMuted,
+  borderRadius: vars.radius.sm,
+  transition: 'color 150ms',
+  ':hover': { color: vars.color.text },
+});
+
+export const moderationBody = style({
+  padding: '16px 20px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+});
+
+export const moderationSummary = style({
+  margin: 0,
+  fontSize: '14px',
+  color: vars.color.text,
+  lineHeight: 1.5,
+});
+
+export const moderationCategory = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '6px',
+});
+
+export const moderationCategoryLabel = style({
+  fontSize: '11px',
+  fontWeight: 500,
+  textTransform: 'uppercase',
+  letterSpacing: '0.2em',
+  color: vars.color.textMuted,
+});
+
+export const moderationWords = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '6px',
+});
+
+export const moderationWord = style({
+  display: 'inline-block',
+  borderRadius: vars.radius.sm,
+  background: vars.color.warningBg,
+  border: `1px solid ${vars.color.warningBorder}`,
+  padding: '2px 8px',
+  fontSize: '13px',
+  color: vars.color.warningText,
+  fontWeight: 500,
+});
+
+export const moderationHint = style({
+  margin: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+  fontSize: '13px',
+  color: vars.color.warningText,
+  lineHeight: 1.5,
+});
+
+export const moderationActions = style({
+  display: 'flex',
+  gap: '12px',
+  padding: '12px 20px',
+  borderTop: `1px solid ${vars.color.border}`,
+  justifyContent: 'flex-end',
+});
+
+export const moderationCancelBtn = style({
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: 'transparent',
+  padding: '8px 16px',
+  fontSize: '14px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'all 150ms',
+  ':hover': {
+    borderColor: vars.color.borderStrong,
+    color: vars.color.text,
+  },
+});
+
+export const moderationContinueBtn = style({
+  borderRadius: vars.radius.lg,
+  border: '1px solid transparent',
+  background: vars.color.warningText,
+  padding: '8px 16px',
+  fontSize: '14px',
+  fontWeight: 500,
+  color: '#ffffff',
+  cursor: 'pointer',
+  transition: 'filter 150ms',
+  ':hover': { filter: 'brightness(1.1)' },
 });

@@ -25,14 +25,20 @@ describe('/api/platforms/[platform]/connection/oauth/callback', () => {
   });
 
   test('returns 400 for POST to wechat (OAuth callback must use GET redirect, not POST)', async () => {
-    const res = await POST(makeRequest({ code: 'auth-code-123' }, 'wechat') as any, makeParams('wechat') as any);
+    const res = await POST(
+      makeRequest({ code: 'auth-code-123' }, 'wechat') as any,
+      makeParams('wechat') as any,
+    );
     expect(res.status).toBe(400);
     const json = await res.json();
     expect(json.error).toBeTruthy();
   });
 
   test('returns 400 for POST to xiaohongshu (OAuth callback must use GET redirect, not POST)', async () => {
-    const res = await POST(makeRequest({ code: 'auth-code-123' }, 'xiaohongshu') as any, makeParams('xiaohongshu') as any);
+    const res = await POST(
+      makeRequest({ code: 'auth-code-123' }, 'xiaohongshu') as any,
+      makeParams('xiaohongshu') as any,
+    );
     expect(res.status).toBe(400);
     const json = await res.json();
     expect(json.error).toBeTruthy();

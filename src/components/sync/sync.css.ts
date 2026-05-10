@@ -1,4 +1,5 @@
 import { style } from '@vanilla-extract/css';
+import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/styles/tokens.css';
 
 export const detailPanel = style({
@@ -217,6 +218,44 @@ export const emptyHistory = style({
   color: vars.color.textMuted,
   fontSize: '14px',
   textAlign: 'center',
+});
+
+// 筛选栏
+export const filterBar = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: 6,
+  marginBottom: 16,
+});
+
+export const filterChip = recipe({
+  base: {
+    borderRadius: 999,
+    border: `1px solid ${vars.color.border}`,
+    padding: '4px 12px',
+    fontSize: 12,
+    cursor: 'pointer',
+    transition: 'background-color 150ms, color 150ms, border-color 150ms',
+  },
+  variants: {
+    active: {
+      true: {
+        background: vars.color.accent,
+        borderColor: vars.color.accent,
+        color: '#ffffff',
+        fontWeight: 500,
+      },
+      false: {
+        background: 'transparent',
+        color: vars.color.textMuted,
+        ':hover': {
+          borderColor: vars.color.borderStrong,
+          color: vars.color.text,
+        },
+      },
+    },
+  },
+  defaultVariants: { active: false },
 });
 
 // Event timeline

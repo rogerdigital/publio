@@ -1,12 +1,13 @@
 import type {
   ContentDraft,
   CreateDraftInput,
+  DraftVersion,
   ListDraftsOptions,
   UpdateDraftInput,
 } from '@/lib/drafts/types';
 import {
   readJsonFileCollection,
-  writeJsonFileCollection,
+  writeMergedJsonFileCollection,
 } from '@/lib/storage/jsonFileCollection';
 
 interface DraftStoreOptions {
@@ -35,13 +36,11 @@ export function createDraftStore(options: DraftStoreOptions = {}) {
   const initialDrafts = storagePath
     ? readJsonFileCollection<ContentDraft>(storagePath)
     : (options.initialDrafts ?? []);
-  const drafts = new Map<string, ContentDraft>(
-    initialDrafts.map((draft) => [draft.id, draft]),
-  );
+  const drafts = new Map<string, ContentDraft>(initialDrafts.map((draft) => [draft.id, draft]));
 
   function persistDrafts() {
     if (!storagePath) return;
-    writeJsonFileCollection(storagePath, Array.from(drafts.values()));
+    writeMergedJsonFileCollection(storagePath, Array.from(drafts.values()), (draft) => draft.id);
   }
 
   return {
@@ -73,9 +72,27 @@ export function createDraftStore(options: DraftStoreOptions = {}) {
       const current = drafts.get(id);
       if (!current) return null;
 
+      // 保存版本快照（仅当标题或内容变更时）
+      let versions = current.versions ?? [];
+      if (input.title !== undefined || input.content !== undefined) {
+        const titleChanged = input.title !== undefined && input.title !== current.title;
+        const contentChanged = input.content !== undefined && input.content !== current.content;
+        if (titleChanged || contentChanged) {
+          const version: DraftVersion = {
+            id: `v-${Date.now()}`,
+            title: current.title,
+            content: current.content,
+            savedAt: now(),
+            changeSummary: titleChanged ? '标题变更' : '内容变更',
+          };
+          versions = [...versions, version].slice(-20); // 最多保留 20 个版本
+        }
+      }
+
       const updated: ContentDraft = {
         ...current,
         ...input,
+        versions,
         updatedAt: now(),
       };
 

@@ -110,7 +110,7 @@ export function scoreAiNewsCluster(cluster: AiNewsCluster, now = new Date()): Sc
       scores.momentum * 0.16 +
       scores.credibility * 0.16 +
       scores.visualReadiness * 0.09 +
-      scores.creatorFit * 0.10,
+      scores.creatorFit * 0.1,
   );
 
   return {

@@ -20,7 +20,7 @@ export async function checkWechat(): Promise<CheckResult> {
 
   try {
     const res = await fetch(
-      `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appId}&secret=${appSecret}`
+      `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appId}&secret=${appSecret}`,
     );
     const data = await res.json();
 
@@ -30,7 +30,10 @@ export async function checkWechat(): Promise<CheckResult> {
 
     return { ok: true };
   } catch (error) {
-    return { ok: false, failureReason: `网络请求失败: ${error instanceof Error ? error.message : '未知错误'}` };
+    return {
+      ok: false,
+      failureReason: `网络请求失败: ${error instanceof Error ? error.message : '未知错误'}`,
+    };
   }
 }
 
@@ -41,26 +44,29 @@ export async function checkXiaohongshu(): Promise<CheckResult> {
   }
 
   try {
-    const tokenRes = await fetch(
-      'https://open.xiaohongshu.com/api/oauth/token',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          app_id: appId,
-          app_secret: appSecret,
-          grant_type: 'client_credentials',
-        }),
-      }
-    );
+    const tokenRes = await fetch('https://open.xiaohongshu.com/api/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        app_id: appId,
+        app_secret: appSecret,
+        grant_type: 'client_credentials',
+      }),
+    });
     const tokenData = await tokenRes.json();
     if (tokenData.code !== 0 && tokenData.code !== 200) {
-      return { ok: false, failureReason: `小红书凭证无效: ${tokenData.msg || tokenData.message || '未知错误'}` };
+      return {
+        ok: false,
+        failureReason: `小红书凭证无效: ${tokenData.msg || tokenData.message || '未知错误'}`,
+      };
     }
     const expiresAt = new Date(Date.now() + 7200 * 1000).toISOString();
     return { ok: true, expiresAt };
   } catch (error) {
-    return { ok: false, failureReason: error instanceof Error ? error.message : '获取 access_token 失败' };
+    return {
+      ok: false,
+      failureReason: error instanceof Error ? error.message : '获取 access_token 失败',
+    };
   }
 }
 
@@ -89,7 +95,10 @@ export async function checkZhihu(): Promise<CheckResult> {
     const data = await res.json();
     return { ok: true, accountName: data.name || data.id };
   } catch (error) {
-    return { ok: false, failureReason: `网络请求失败: ${error instanceof Error ? error.message : '未知错误'}` };
+    return {
+      ok: false,
+      failureReason: `网络请求失败: ${error instanceof Error ? error.message : '未知错误'}`,
+    };
   }
 }
 
@@ -109,6 +118,9 @@ export async function checkX(): Promise<CheckResult> {
     const { data } = await client.v2.me();
     return { ok: true, accountName: `@${data.username}` };
   } catch (error) {
-    return { ok: false, failureReason: `X API 凭证无效: ${error instanceof Error ? error.message : '未知错误'}` };
+    return {
+      ok: false,
+      failureReason: `X API 凭证无效: ${error instanceof Error ? error.message : '未知错误'}`,
+    };
   }
 }

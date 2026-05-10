@@ -38,13 +38,9 @@ export function buildResearchDraftMarkdown(params: {
   headline: string;
   intro: string;
   sections: ResearchDraftSection[];
+  llmAnalysis?: string;
 }) {
-  const lines = [
-    params.intro,
-    '',
-    '---',
-    '',
-  ];
+  const lines = [params.intro, '', '---', ''];
 
   params.sections.forEach((section, index) => {
     lines.push(`## ${String(index + 1).padStart(2, '0')}｜${section.title}`);
@@ -118,6 +114,15 @@ export function buildResearchDraftMarkdown(params: {
     lines.push('---');
     lines.push('');
   });
+
+  if (params.llmAnalysis) {
+    lines.push('## AI 深度分析');
+    lines.push('');
+    lines.push(params.llmAnalysis);
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+  }
 
   lines.push('## 写作提示');
   lines.push('');

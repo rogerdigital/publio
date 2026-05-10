@@ -42,7 +42,7 @@ export async function deleteDraft(id: string) {
 
 export async function updateDraft(
   id: string,
-  input: { title?: string; content?: string },
+  input: { title?: string; content?: string; status?: string },
 ): Promise<ContentDraft> {
   const response = await fetch(`/api/drafts/${id}`, {
     method: 'PATCH',

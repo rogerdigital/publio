@@ -3,10 +3,7 @@ import type {
   ConnectionCheckResult,
   PlatformConnectionRecord,
 } from '@/lib/platformConnections/types';
-import {
-  readJsonFileCollection,
-  writeJsonFileCollection,
-} from '@/lib/storage/jsonFileCollection';
+import { readJsonFileCollection, writeJsonFileCollection } from '@/lib/storage/jsonFileCollection';
 
 // Re-export client-safe profile helpers and definitions
 export {

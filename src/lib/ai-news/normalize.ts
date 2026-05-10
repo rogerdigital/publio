@@ -114,9 +114,7 @@ export function extractContentImage(block: string, pageUrl?: string) {
     return resolveUrl(mediaThumbnailMatch[1], pageUrl);
   }
 
-  const enclosureMatch = block.match(
-    /<enclosure[^>]+url="([^"]+)"[^>]+type="image\/[^"]+"/i,
-  );
+  const enclosureMatch = block.match(/<enclosure[^>]+url="([^"]+)"[^>]+type="image\/[^"]+"/i);
   if (enclosureMatch) {
     return resolveUrl(enclosureMatch[1], pageUrl);
   }

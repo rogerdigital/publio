@@ -30,13 +30,17 @@ export async function GET(
   const state = searchParams.get('state') ?? '';
 
   if (!code) {
-    return NextResponse.redirect(new URL(`/settings?error=missing_code&platform=${platformId}`, request.url));
+    return NextResponse.redirect(
+      new URL(`/settings?error=missing_code&platform=${platformId}`, request.url),
+    );
   }
 
   // 验证 state nonce（防 CSRF）
   const noncePlatform = consumeNonce(state);
   if (!noncePlatform || noncePlatform !== platformId) {
-    return NextResponse.redirect(new URL(`/settings?error=invalid_state&platform=${platformId}`, request.url));
+    return NextResponse.redirect(
+      new URL(`/settings?error=invalid_state&platform=${platformId}`, request.url),
+    );
   }
 
   if (platformId === 'xiaohongshu') {
@@ -61,8 +65,12 @@ export async function GET(
       const tokenData = await tokenRes.json();
 
       if (tokenData.code !== 0 && tokenData.code !== 200) {
-        const msg = encodeURIComponent(tokenData.msg || tokenData.message || 'token_exchange_failed');
-        return NextResponse.redirect(new URL(`/settings?error=${msg}&platform=xiaohongshu`, request.url));
+        const msg = encodeURIComponent(
+          tokenData.msg || tokenData.message || 'token_exchange_failed',
+        );
+        return NextResponse.redirect(
+          new URL(`/settings?error=${msg}&platform=xiaohongshu`, request.url),
+        );
       }
 
       const accessToken = tokenData.data?.access_token || tokenData.access_token;
@@ -82,11 +90,15 @@ export async function GET(
       return NextResponse.redirect(new URL('/settings?connected=xiaohongshu', request.url));
     } catch (error) {
       const msg = encodeURIComponent(error instanceof Error ? error.message : 'unknown_error');
-      return NextResponse.redirect(new URL(`/settings?error=${msg}&platform=xiaohongshu`, request.url));
+      return NextResponse.redirect(
+        new URL(`/settings?error=${msg}&platform=xiaohongshu`, request.url),
+      );
     }
   }
 
-  return NextResponse.redirect(new URL(`/settings?error=unsupported_platform&platform=${platformId}`, request.url));
+  return NextResponse.redirect(
+    new URL(`/settings?error=unsupported_platform&platform=${platformId}`, request.url),
+  );
 }
 
 /**
@@ -112,10 +124,7 @@ export async function POST(
   }
 
   if (definition.mode !== 'oauth') {
-    return NextResponse.json(
-      { error: `${platformId} 不支持 OAuth 回调` },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: `${platformId} 不支持 OAuth 回调` }, { status: 400 });
   }
 
   void getConnectionRecordStore;

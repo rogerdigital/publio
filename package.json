@@ -12,12 +12,25 @@
     "check:no-js-source": "tsx scripts/check-no-js-source.ts",
     "lint": "next lint",
     "test": "vitest run",
-    "verify": "pnpm check:no-js-source && pnpm lint && pnpm test && pnpm build"
+    "verify": "pnpm check:no-js-source && pnpm lint && pnpm test && pnpm build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "env ESLINT_USE_FLAT_CONFIG=false eslint --fix"
+    ],
+    "*.{css.ts,json}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@uiw/react-md-editor": "^4.0.4",
     "@vanilla-extract/css": "^1.20.1",
     "@vanilla-extract/recipes": "^0.5.7",
+    "eventsource-parser": "^3.0.8",
     "lucide-react": "^0.468.0",
     "marked": "^15.0.0",
     "next": "15.5.15",
@@ -42,7 +55,11 @@
     "@vanilla-extract/next-plugin": "^2.5.1",
     "eslint": "^9.0.0",
     "eslint-config-next": "^15.1.12",
+    "husky": "^9.1.7",
     "jsdom": "^29.0.1",
+    "lint-staged": "^17.0.2",
+    "playwright": "^1.59.1",
+    "prettier": "^3.8.3",
     "tsx": "^4.21.0",
     "typescript": "^5.0.0",
     "vite": "8.0.5",

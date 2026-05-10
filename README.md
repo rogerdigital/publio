@@ -1,141 +1,289 @@
 # Publio
 
+[English](./README.md) | [中文](./README_zh.md)
+
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](./package.json)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](./tsconfig.json)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
+[![Tests](https://img.shields.io/badge/tests-129%20passing-brightgreen.svg)](#testing)
 
-> Write once, publish everywhere.
+> AI-native content operations platform. Write once, publish everywhere.
 
-多平台内容分发工具——在一个界面里完成 Markdown 写作、AI 选题、一键分发到微信公众号、小红书、知乎、X (Twitter)。
+Publio is a multi-platform content distribution tool that consolidates Markdown editing, AI-powered topic discovery, content adaptation, and one-click publishing into a unified workspace. It supports WeChat Official Account, Xiaohongshu, Zhihu, and X (Twitter).
 
 ---
 
-## 功能概览
+## Features
 
-**写作台**
-- Markdown 编辑器（桌面富编辑 / 移动端降级 textarea），实时字符数、段落、标题层级、预计阅读时长
-- 成稿预览（接近公众号排版效果）
-- 自动保存（停止输入 1s 触发，首次保存自动创建草稿并更新 URL）
-- Editorial context 卡片：标题状态、结构统计、可发布建议
+### Writing Desk
 
-**AI 选题工作台**
-- 从 9 个 RSS 数据源抓取 24h AI 行业动态 → 话题聚类 → 五维评分 → 最多 10 条候选题
-- 每条附带研究底稿（事件经过、重要性、影响方、写作切口、多方视角、配图）
-- 一键转稿到写作台
+- **Rich Markdown editor** with desktop live-preview and mobile fallback
+- **WYSIWYG mode** — toggle between source editing and side-by-side live preview
+- **Immersive writing mode** — full-screen distraction-free editing with centered 720px layout
+- **Auto-save** with 1-second debounce and automatic draft creation
+- **Editorial context panel** — title status, structural statistics, publishability signals
+- **Slash commands** — `/ai-expand`, `/ai-condense`, `/ai-rewrite`, `/ai-polish`, `/ai-continue`
+- **Version history** — auto-snapshot on title/content changes with restore capability
+- **Content templates** — 6 built-in templates plus custom template CRUD
+- **GitHub image bed** — upload images to GitHub repo as persistent hosting
 
-**稿件库**
-- 持久化草稿管理（手动创建 / AI 选题转稿），支持状态跟踪（draft → ready → synced）
-- Pipeline 视图按「来源 → 写作台 → 分发」展示全部稿件，支持批量删除
+### AI Agent System
 
-**多平台发布**
-- 并发发布（Promise.allSettled），支持微信公众号、小红书、知乎、X (Twitter)
-- 发布进度浮层（右下角轮询更新各平台状态）
-- 同步任务追踪：各平台回执、失败原因、重试 / 手动标记完成
-- 各平台内容格式适配（字数校验、样式转换）
+All AI features require an OpenAI-compatible API (Zhipu GLM, DeepSeek, Qwen, OpenAI, Ollama, etc.). Gracefully degrades when unconfigured.
 
-**平台连接管理**
-- 设置页统一管理 API 凭证，OAuth 平台支持一键授权
-- 微信 / X 支持凭证验证，连接状态持久化并展示已连接账号名
+| Capability | Description |
+|-----------|-------------|
+| **Writing Assistant** | Expand, condense, rewrite, polish, continue — via slash commands with streaming output |
+| **Platform Adaptation** | Per-platform content rewrite with rule injection (word count, format constraints) |
+| **Topic Research** | Deep analysis of news clusters with multi-angle insights |
+| **Publish Diagnose** | Failure analysis with actionable retry suggestions |
+| **Content Copilot** | Brand profile-driven topic recommendations based on current news trends |
+| **Style Learning** | Extracts writing style from historical drafts and injects into prompts |
+| **Multi-turn Chat** | Conversational AI panel with session-persistent history |
 
-**响应式导航**
-- 桌面端侧边栏，移动端底部 Tab 栏
+### AI News Desk
 
-## 快速开始
+- Aggregates RSS feeds from 9+ built-in sources plus custom user-defined sources
+- Topic clustering, 6-dimension scoring (freshness, impact, momentum, credibility, visual-readiness, coverage)
+- Research brief per cluster with what happened, why it matters, who is affected, recommended angles
+- One-click conversion to editor draft with research context embedded
 
-### 环境要求
+### Multi-Platform Publishing
+
+- Concurrent publish via `Promise.allSettled` across all selected platforms
+- **Content moderation** — sensitive word detection with pre-publish warning dialog
+- **Platform validation** — automatic rule checking (title length, content limits, format constraints)
+- **Publish progress overlay** — real-time status polling with per-platform receipts
+- **Sync task tracking** — failure diagnosis, smart retry, manual mark-done
+- **Scheduled publish** — backend cron-based execution with persistent task queue
+- **Post-publish metrics** — views, likes, comments, shares aggregated in analytics dashboard with per-task and bulk refresh
+
+### Content Calendar
+
+- Monthly view with event display for drafts, scheduled, published, and failed items
+- Click-through navigation to editor or sync task detail
+
+### Settings & Configuration
+
+- Platform credential management with OAuth flow and connection verification
+- AI Agent configuration (base URL, API key, model) with hot-reload
+- Custom RSS feed source management
+- Custom AI prompt editor (per-platform and global)
+- Brand profile configuration for content copilot
+- Writing style profile with auto-analysis from historical drafts
+
+### Design System
+
+- **Theme toggle** — light / dark / system preference with localStorage persistence
+- **Design tokens** — spacing, typography, color, radius with WCAG AA compliant contrast
+- **Responsive layout** — desktop sidebar navigation, adaptive content areas
+
+---
+
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><b>Writing Desk</b></td>
+    <td align="center"><b>AI News Desk</b></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/screenshots/editor.png" alt="Writing Desk" width="480" /></td>
+    <td><img src="./docs/screenshots/ai-news.png" alt="AI News Desk" width="480" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Content Calendar</b></td>
+    <td align="center"><b>Settings</b></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/screenshots/calendar.png" alt="Content Calendar" width="480" /></td>
+    <td><img src="./docs/screenshots/settings.png" alt="Settings" width="480" /></td>
+  </tr>
+</table>
+
+---
+
+## Quick Start
+
+### Prerequisites
 
 - Node.js >= 18
 - pnpm
 
-### 安装与启动
+### Installation
 
 ```bash
 git clone https://github.com/rogerdigital/publio.git
 cd publio
 pnpm install
-cp .env.example .env.local   # 填入平台凭据（也可启动后在设置页配置）
-pnpm dev                      # 自动清理残留进程和缓存
+cp .env.example .env.local   # configure platform credentials (or set up later in Settings)
+pnpm dev                      # starts with port cleanup and cache clearing
 ```
 
-`pnpm dev` 会先清理残留的 Next.js 开发进程并清空 `.next/cache`。跳过清理用 `pnpm run dev:raw`。
+`pnpm dev` automatically kills残留 Next.js processes and clears `.next/cache`. Use `pnpm run dev:raw` to skip cleanup.
 
-访问 http://localhost:3000 即可使用。
+Open http://localhost:3000.
 
-### 常用命令
+### Commands
 
 ```bash
-pnpm dev          # 开发模式（含端口清理）
-pnpm build        # 生产构建
-pnpm start        # 启动生产服务
-pnpm preview      # 构建 + 启动
-pnpm test         # 运行测试（Vitest）
-pnpm lint         # ESLint 检查
-pnpm verify       # 完整验证（lint + test + build）
+pnpm dev              # development mode (with port cleanup)
+pnpm build            # production build
+pnpm start            # production server
+pnpm preview           # build + start
+pnpm test             # run tests (Vitest)
+pnpm lint             # ESLint
+pnpm format           # Prettier format all files
+pnpm verify           # lint + test + build
 ```
 
-## 架构
+---
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                      Next.js 15 App Router              │
-│                                                         │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐ │
-│  │  写作台   │  │ 稿件库   │  │ AI 选题  │  │  设置   │ │
-│  │  /        │  │ /drafts  │  │ /ai-news │  │/settings│ │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬────┘ │
-│       │              │              │              │      │
-│  ┌────▼──────────────▼──────────────▼──────────────▼───┐ │
-│  │                   Zustand Store                     │ │
-│  │     (content / platforms / draftId / publishState)  │ │
-│  └─────────────────────┬──────────────────────────────┘ │
-│                        │                                 │
-│  ┌─────────────────────▼──────────────────────────────┐ │
-│  │                 API Routes                          │ │
-│  │  drafts · publish · ai-news · sync-tasks · settings │ │
-│  └───┬──────────┬──────────┬──────────┬───────────────┘ │
-│      │          │          │          │                  │
-│  ┌───▼───┐ ┌───▼───┐ ┌───▼───┐ ┌───▼───┐              │
-│  │ WeChat│ │  XHS  │ │ Zhihu │ │   X   │  各平台发布器  │
-│  └───────┘ └───────┘ └───────┘ └───────┘              │
-└─────────────────────────────────────────────────────────┘
+## Configuration
 
-数据存储：JSON 文件（.publio-data/），原子写（.tmp + rename）
-```
+### Platform Credentials
 
-完整目录结构和文件说明见 [CLAUDE.md](./CLAUDE.md)。
+Managed via `.env.local` or the Settings page at runtime:
 
-## 开发
-
-### 技术栈
-
-Next.js 15 (App Router) · React 19 · TypeScript 5 (strict) · vanilla-extract · Zustand 5 · marked 15 · Vitest + Testing Library
-
-### 代码规范
-
-- 路径别名 `@/*` → `./src/*`，类型定义集中在 `src/types/index.ts`
-- 客户端组件标注 `'use client'`，重组件用 `dynamic()` 按需加载
-- 每个组件对应同目录 `.css.ts` 文件，设计 token 集中在 `src/styles/tokens.css.ts`
-- 第一方源码统一 TypeScript，不新增 JS 源文件（生成产物和第三方代码除外）
-
-### 平台凭据
-
-各平台 API 密钥通过 `.env.local` 配置，启动后在设置页也可管理：
-
-| 平台 | 变量 | 获取方式 |
-|------|------|----------|
-| 微信公众号 | `WECHAT_APP_ID`, `WECHAT_APP_SECRET` | [mp.weixin.qq.com](https://mp.weixin.qq.com/) → 开发 → 基本配置 |
-| 小红书 | `XHS_APP_ID`, `XHS_APP_SECRET`, `XHS_ACCESS_TOKEN` | [小红书开放平台](https://open.xiaohongshu.com/) |
-| 知乎 | `ZHIHU_COOKIE` | 浏览器登录后从 DevTools Network 面板复制 Cookie |
+| Platform | Variables | Source |
+|----------|-----------|--------|
+| WeChat | `WECHAT_APP_ID`, `WECHAT_APP_SECRET` | [mp.weixin.qq.com](https://mp.weixin.qq.com/) > Development > Basic Config |
+| Xiaohongshu | `XHS_APP_ID`, `XHS_APP_SECRET`, `XHS_ACCESS_TOKEN` | [Xiaohongshu Open Platform](https://open.xiaohongshu.com/) |
+| Zhihu | `ZHIHU_COOKIE` | Browser DevTools > Network > copy Cookie |
 | X (Twitter) | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET` | [developer.x.com](https://developer.x.com/) |
 
-## Roadmap
+### AI Agent (Optional)
 
-- [ ] 更多平台支持（掘金、CSDN、B 站专栏）
-- [ ] 图片上传与管理（图床集成）
-- [ ] 排版模板系统
-- [ ] 定时发布
-- [ ] 多语言内容适配（AI 辅助翻译）
-- [ ] 数据看板（各平台阅读量、互动数据聚合）
+All three required to activate AI features:
+
+| Variable | Description |
+|----------|-------------|
+| `AGENT_BASE_URL` | OpenAI-compatible endpoint (e.g. `https://api.openai.com/v1`) |
+| `AGENT_API_KEY` | API key for the chosen provider |
+| `AGENT_MODEL` | Model name (e.g. `gpt-4o-mini`, `deepseek-chat`, `glm-4-flash`) |
+| `AGENT_MAX_TOKENS` | Optional, default 2048 |
+| `AGENT_TEMPERATURE` | Optional, default 0.7 |
+
+### GitHub Image Bed (Optional)
+
+Enable image upload to GitHub repo as persistent hosting. Configure via Settings page or `.env.local`:
+
+| Variable | Description |
+|----------|-------------|
+| `GITHUB_IMAGE_ENABLED` | Set to `true` to enable |
+| `GITHUB_IMAGE_TOKEN` | GitHub personal access token with repo scope |
+| `GITHUB_IMAGE_OWNER` | GitHub username or org |
+| `GITHUB_IMAGE_REPO` | Target repository name |
+| `GITHUB_IMAGE_BRANCH` | Optional, default `main` |
+| `GITHUB_IMAGE_PATH` | Optional, default `images/` |
+
+---
+
+## Architecture
+
+```
+src/
+├── app/                        # Next.js App Router
+│   ├── page.tsx                  # Server Component (metadata + shell)
+│   ├── page-client.tsx           # Client Component (editor + panels)
+│   ├── ai-news/                  # AI topic discovery desk
+│   ├── analytics/                # Post-publish metrics dashboard
+│   ├── calendar/                 # Content scheduling calendar
+│   ├── drafts/                   # Draft library
+│   ├── settings/                 # Platform & AI configuration
+│   ├── sync-tasks/               # Distribution task tracking
+│   └── api/                      # Route Handlers
+│       ├── agent/                  # AI endpoints (write, adapt, research, diagnose, chat)
+│       ├── copilot/                # Content copilot (profile, recommend, style)
+│       ├── drafts/                 # Draft CRUD
+│       ├── metrics/                # Metrics collection
+│       ├── platforms/              # Platform connection management
+│       ├── publish/                # Publish endpoint
+│       ├── rss-sources/            # Custom RSS CRUD
+│       ├── sync-tasks/             # Sync task management
+│       ├── templates/              # Custom template CRUD
+│       ├── upload/                 # Image upload (GitHub image bed)
+│       └── custom-prompts/         # Custom prompt CRUD
+├── components/
+│   ├── layout/                   # AppShellHeader, Sidebar, SurfaceCard, ThemeToggle
+│   ├── editor/                   # MarkdownEditor, TemplatePicker, SlashCommandMenu, ImmersiveMode, WYSIWYG toggle
+│   ├── news/                     # AiNewsPageClient, TopicSignalCard, ScoreBar
+│   ├── publish/                  # PlatformSelector, PublishButton, ModerationWarning, PreviewPanel
+│   ├── sync/                     # SyncTaskList, SyncTaskDetail
+│   ├── agent/                    # AgentPanel, AgentStreamOutput
+│   ├── copilot/                  # BrandProfileForm, TopicRecommendationPanel, StyleProfile
+│   ├── analytics/                # MetricsCard
+│   ├── calendar/                 # CalendarPageClient
+│   └── drafts/                   # DraftLibraryClient
+├── hooks/                        # useAutoSave, useSlashCommands, useAgentStream, useImmersiveMode
+├── lib/
+│   ├── agent/                    # LLM provider, streaming, prompt templates
+│   ├── ai-news/                  # RSS aggregation, clustering, scoring
+│   ├── copilot/                  # Brand profile, style learning, topic recommendation
+│   ├── custom-prompts/           # Custom prompt storage
+│   ├── drafts/                   # Draft CRUD with version history
+│   ├── metrics/                  # Post-publish metrics storage
+│   ├── moderation/               # Sensitive word detection
+│   ├── platformAdapters/         # Content format adaptation per platform
+│   ├── platformConnections/      # Connection management & OAuth
+│   ├── platformRules/            # Platform content validation rules
+│   ├── publishers/               # Platform-specific publish logic
+│   ├── rss-sources/              # Custom RSS source storage
+│   ├── scheduler/                # Scheduled publish execution
+│   ├── storage/                  # JSON file collection, env file utilities
+│   ├── sync/                     # Distribution task state machine
+│   ├── templates/                # Custom template store
+│   └── upload/                   # GitHub image upload
+├── stores/                       # Zustand stores (publishStore, agentStore, toastStore)
+├── styles/                       # Design tokens (spacing, typography, color, radius)
+└── types/                        # TypeScript type definitions
+```
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 15 (App Router, React 19) |
+| Language | TypeScript 5 (strict mode) |
+| Styling | vanilla-extract (`@vanilla-extract/css` + `@vanilla-extract/recipes`) |
+| State | Zustand 5 |
+| Editor | @uiw/react-md-editor |
+| Markdown | marked 15 |
+| LLM Streaming | OpenAI-compatible SSE via fetch + ReadableStream |
+| Social API | twitter-api-v2 |
+| Linting | ESLint 9 + eslint-config-next |
+| Formatting | Prettier |
+| Testing | Vitest + Testing Library |
+| Git Hooks | Husky + lint-staged |
+| Package Manager | pnpm |
+
+---
+
+## Testing
+
+```bash
+pnpm test           # run all tests
+pnpm test -- --watch  # watch mode
+```
+
+129 tests across 40 test files covering stores, API routes, components, and utility functions.
+
+---
+
+## Design Tokens
+
+Centralized in `src/styles/tokens.css.ts`:
+
+- **Spacing**: xs(4px) through 4xl(40px)
+- **Typography**: xs(12px) through 4xl(28px), line heights tight/base/relaxed
+- **Color**: warm palette with orange/brown accent (#D97757), WCAG AA compliant contrast
+- **Radius**: sm(4px), md(6px), lg(8px), xl(12px)
+- **Theme**: light, dark, and system-preference modes
+
+---
 
 ## License
 

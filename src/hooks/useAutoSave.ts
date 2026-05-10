@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { updateDraft, ensureDraft } from '@/lib/drafts/client';
+import { useToastStore } from '@/stores/toastStore';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -55,12 +56,17 @@ export function useAutoSave({
       if (draftIdRef.current) {
         await updateDraft(draftIdRef.current, { title: currentTitle, content: currentContent });
       } else {
-        const draft = await ensureDraft({ title: currentTitle, content: currentContent, source: 'manual' });
+        const draft = await ensureDraft({
+          title: currentTitle,
+          content: currentContent,
+          source: 'manual',
+        });
         onDraftCreatedRef.current(draft.id);
       }
       setSaveStatus('saved');
     } catch {
       setSaveStatus('error');
+      useToastStore.getState().addToast('error', '草稿保存失败');
     }
   }
 

@@ -38,9 +38,10 @@ export async function POST(
     return NextResponse.json(
       {
         requiresManualConfig: true,
-        message: platformId === 'wechat'
-          ? '微信公众号使用 AppID + AppSecret 直接接入，无需 OAuth 授权。请填写凭证后点击「验证连接」。'
-          : '请在 developer.x.com 生成 Access Token，填写全部 4 个 key 后点击「验证连接」。',
+        message:
+          platformId === 'wechat'
+            ? '微信公众号使用 AppID + AppSecret 直接接入，无需 OAuth 授权。请填写凭证后点击「验证连接」。'
+            : '请在 developer.x.com 生成 Access Token，填写全部 4 个 key 后点击「验证连接」。',
       },
       { status: 400 },
     );
@@ -50,10 +51,7 @@ export async function POST(
   if (platformId === 'xiaohongshu') {
     const { appId } = getXhsConfig();
     if (!appId) {
-      return NextResponse.json(
-        { error: '请先填写并保存 XHS_APP_ID，再发起授权' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: '请先填写并保存 XHS_APP_ID，再发起授权' }, { status: 400 });
     }
 
     const state = createNonce('xiaohongshu');

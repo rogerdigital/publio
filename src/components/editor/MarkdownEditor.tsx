@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import '@uiw/react-md-editor/markdown-editor.css';
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { Maximize2, Minimize2 } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import { markdownToHtml } from '@/lib/markdown';
 import {
@@ -12,7 +13,11 @@ import {
   estimateReadTime,
 } from '@/lib/contentStats';
 import { useSlashCommands } from '@/hooks/useSlashCommands';
+import { useAgentStream } from '@/hooks/useAgentStream';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useImmersiveMode } from '@/hooks/useImmersiveMode';
 import SlashCommandMenu from './SlashCommandMenu';
+import EditorModeToggle from './EditorModeToggle';
 import * as styles from './editor.css';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
@@ -20,15 +25,22 @@ const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 interface MarkdownEditorProps {
   activeTab: 'edit' | 'preview';
   onSave?: () => Promise<void>;
+  agentEnabled?: boolean;
 }
 
-export default function MarkdownEditor({ activeTab, onSave }: MarkdownEditorProps) {
-  const { title, setTitle, content, setContent, setActiveTab } = usePublishStore();
+export default function MarkdownEditor({
+  activeTab,
+  onSave,
+  agentEnabled = false,
+}: MarkdownEditorProps) {
+  const { title, setTitle, content, setContent, setActiveTab, editorMode } = usePublishStore();
   const [editorHeight, setEditorHeight] = useState<number | undefined>(undefined);
   const [isDesktop, setIsDesktop] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const editorWrapRef = useRef<HTMLDivElement>(null);
-  const slash = useSlashCommands(content, setContent);
+  const slash = useSlashCommands(content, setContent, { agentEnabled });
+  const agent = useAgentStream();
+  const immersive = useImmersiveMode();
 
   useEffect(() => {
     function syncHeight() {
@@ -48,25 +60,23 @@ export default function MarkdownEditor({ activeTab, onSave }: MarkdownEditorProp
   }, []);
 
   // 全局快捷键
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      const mod = e.metaKey || e.ctrlKey;
-      if (mod && e.key === 's') {
-        e.preventDefault();
-        onSave?.();
-      }
-      if (mod && e.key === 'Enter') {
-        e.preventDefault();
-        document.dispatchEvent(new CustomEvent('publio:publish'));
-      }
-      if (mod && e.key === 'p') {
-        e.preventDefault();
-        setActiveTab(activeTab === 'edit' ? 'preview' : 'edit');
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [activeTab, onSave, setActiveTab]);
+  useKeyboardShortcuts({
+    shortcuts: [
+      { key: 's', mod: true, description: '保存草稿', handler: () => onSave?.() },
+      {
+        key: 'Enter',
+        mod: true,
+        description: '发布',
+        handler: () => document.dispatchEvent(new CustomEvent('publio:publish')),
+      },
+      {
+        key: 'p',
+        mod: true,
+        description: '切换预览',
+        handler: () => setActiveTab(activeTab === 'edit' ? 'preview' : 'edit'),
+      },
+    ],
+  });
 
   // 监听编辑器 keydown 以处理 slash commands 导航
   useEffect(() => {
@@ -98,40 +108,49 @@ export default function MarkdownEditor({ activeTab, onSave }: MarkdownEditorProp
     }
   };
 
-  const handleImageUpload = useCallback(async (file: File) => {
-    if (!file.type.startsWith('image/')) return;
-    const formData = new FormData();
-    formData.append('file', file);
-    try {
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
-      if (!res.ok) return;
-      const { url } = await res.json();
-      const insertion = `\n![${file.name}](${url})\n`;
-      setContent(content + insertion);
-    } catch {
-      // 上传失败静默处理
-    }
-  }, [content, setContent]);
-
-  const handlePaste = useCallback((e: React.ClipboardEvent) => {
-    const files = Array.from(e.clipboardData.files).filter((f) => f.type.startsWith('image/'));
-    if (files.length > 0) {
-      e.preventDefault();
-      for (const file of files) {
-        void handleImageUpload(file);
+  const handleImageUpload = useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith('image/')) return;
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        if (!res.ok) return;
+        const { url } = await res.json();
+        const insertion = `\n![${file.name}](${url})\n`;
+        setContent(content + insertion);
+      } catch {
+        // 上传失败静默处理
       }
-    }
-  }, [handleImageUpload]);
+    },
+    [content, setContent],
+  );
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
-    if (files.length > 0) {
-      e.preventDefault();
-      for (const file of files) {
-        void handleImageUpload(file);
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent) => {
+      const files = Array.from(e.clipboardData.files).filter((f) => f.type.startsWith('image/'));
+      if (files.length > 0) {
+        e.preventDefault();
+        for (const file of files) {
+          void handleImageUpload(file);
+        }
       }
-    }
-  }, [handleImageUpload]);
+    },
+    [handleImageUpload],
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
+      if (files.length > 0) {
+        e.preventDefault();
+        for (const file of files) {
+          void handleImageUpload(file);
+        }
+      }
+    },
+    [handleImageUpload],
+  );
 
   const cleanContent = content.trim();
   const previewHtml = markdownToHtml(
@@ -151,6 +170,7 @@ export default function MarkdownEditor({ activeTab, onSave }: MarkdownEditorProp
             placeholder="给文章起个标题"
             className={styles.titleInput}
           />
+          {isDesktop && <EditorModeToggle />}
         </div>
 
         {/* 正文编辑区 */}
@@ -165,7 +185,9 @@ export default function MarkdownEditor({ activeTab, onSave }: MarkdownEditorProp
             if (target.closest('.w-md-editor-toolbar')) return;
             if (target.closest('[data-slash-menu]')) return;
             if (isDesktop) {
-              const textarea = editorWrapRef.current?.querySelector<HTMLTextAreaElement>('textarea.w-md-editor-text-input');
+              const textarea = editorWrapRef.current?.querySelector<HTMLTextAreaElement>(
+                'textarea.w-md-editor-text-input',
+              );
               textarea?.focus();
             } else {
               textareaRef.current?.focus();
@@ -177,7 +199,16 @@ export default function MarkdownEditor({ activeTab, onSave }: MarkdownEditorProp
               <SlashCommandMenu
                 commands={slash.filteredCommands}
                 selectedIndex={slash.selectedIndex}
-                onSelect={(cmd) => slash.selectCommand(cmd)}
+                onSelect={(cmd) => {
+                  const result = slash.selectCommand(cmd);
+                  if (result?.type === 'ai') {
+                    agent.request({
+                      url: '/api/agent/write',
+                      body: { action: result.action, content, title },
+                      action: result.action,
+                    });
+                  }
+                }}
               />
             </div>
           )}
@@ -186,7 +217,7 @@ export default function MarkdownEditor({ activeTab, onSave }: MarkdownEditorProp
               value={content}
               onChange={handleContentChange}
               height={editorHeight}
-              preview="edit"
+              preview={editorMode === 'live' ? 'live' : 'edit'}
               visibleDragbar={false}
             />
           ) : (
@@ -210,6 +241,16 @@ export default function MarkdownEditor({ activeTab, onSave }: MarkdownEditorProp
             <span>{countHeadings(cleanContent)} 标题</span>
             <span className={styles.statsDot}>·</span>
             <span>约 {cleanContent ? estimateReadTime(cleanContent) : '1 分钟'} 阅读</span>
+            <button
+              type="button"
+              onClick={immersive.enter}
+              className={styles.immersiveEntryBtn}
+              aria-label="进入沉浸模式"
+              title="沉浸写作 (Fullscreen)"
+            >
+              <Maximize2 size={13} />
+              沉浸
+            </button>
           </div>
         </div>
       </div>
@@ -230,18 +271,58 @@ export default function MarkdownEditor({ activeTab, onSave }: MarkdownEditorProp
             </div>
             <div className={styles.previewInner}>
               <div className={styles.previewTitleBlock}>
-                <p className={styles.previewKicker}>
-                  文章
-                </p>
-                <h3 className={styles.previewTitle}>
-                  {title || '未命名稿件'}
-                </h3>
+                <p className={styles.previewKicker}>文章</p>
+                <h3 className={styles.previewTitle}>{title || '未命名稿件'}</h3>
               </div>
               <div
                 className={styles.previewContent}
                 dangerouslySetInnerHTML={{ __html: previewHtml }}
               />
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 沉浸式写作模式 */}
+      {immersive.active && (
+        <div className={styles.immersiveOverlay} data-color-mode="light">
+          <div className={styles.immersiveToolbar}>
+            <span className={styles.immersiveToolbarLabel}>沉浸写作</span>
+            <button
+              type="button"
+              onClick={immersive.exit}
+              className={styles.immersiveToolbarBtn}
+              aria-label="退出沉浸模式"
+            >
+              <Minimize2 size={14} />
+              退出
+            </button>
+          </div>
+          <div className={styles.immersiveBody}>
+            <div className={styles.immersiveInner}>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="给文章起个标题"
+                className={styles.immersiveTitleInput}
+              />
+              <div className={styles.immersiveEditorWrap}>
+                <MDEditor
+                  value={content}
+                  onChange={handleContentChange}
+                  height={500}
+                  preview="edit"
+                  visibleDragbar={false}
+                />
+              </div>
+            </div>
+          </div>
+          <div className={styles.immersiveFooter}>
+            <span className={styles.immersiveFooterText}>
+              {countCharacters(cleanContent)} 字符 · {countParagraphs(cleanContent)} 段落 · 约{' '}
+              {cleanContent ? estimateReadTime(cleanContent) : '1 分钟'} 阅读 · ESC 退出
+            </span>
           </div>
         </div>
       )}

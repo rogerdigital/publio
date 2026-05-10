@@ -4,6 +4,12 @@ import { createElement } from 'react';
 
 import type { PlatformContentDrafts } from '@/lib/platformAdapters/types';
 
+vi.mock('@/lib/markdown', () => ({
+  markdownToStyledHtml: () => '<p>mocked</p>',
+  markdownToPlainText: (md: string) => md,
+  markdownToHtml: (md: string) => md,
+}));
+
 vi.mock('@/components/publish/publish.css', () => ({
   selectorWrap: 'selectorWrap',
   selectorFooter: 'selectorFooter',
@@ -52,13 +58,37 @@ vi.mock('@/components/publish/publish.css', () => ({
   collapseContent: 'collapseContent',
   collapseChevron: 'collapseChevron',
   collapseChevronOpen: 'collapseChevronOpen',
+  wechatPreviewFrame: 'wechatPreviewFrame',
+  wechatHeader: 'wechatHeader',
+  wechatHeaderLeft: 'wechatHeaderLeft',
+  wechatAvatar: 'wechatAvatar',
+  wechatAuthor: 'wechatAuthor',
+  wechatDate: 'wechatDate',
+  wechatBody: 'wechatBody',
+  wechatFooter: 'wechatFooter',
+  wechatFooterAction: 'wechatFooterAction',
+  xhsCard: 'xhsCard',
+  xhsImageGrid: 'xhsImageGrid',
+  xhsImage: 'xhsImage',
+  xhsContent: 'xhsContent',
+  xhsTitle: 'xhsTitle',
+  xhsText: 'xhsText',
+  xhsTags: 'xhsTags',
+  xhsTag: 'xhsTag',
+  xhsFooter: 'xhsFooter',
+  xhsAuthorRow: 'xhsAuthorRow',
+  xhsAuthorAvatar: 'xhsAuthorAvatar',
+  xhsAuthorName: 'xhsAuthorName',
+  xhsActions: 'xhsActions',
+  xhsActionIcon: 'xhsActionIcon',
+  adaptButton: 'adaptButton',
+  spinIcon: 'spinIcon',
 }));
 
 describe('PlatformPreviewPanel', () => {
   test('renders selected platform adaptations with warnings and thread parts', async () => {
-    const { default: PlatformPreviewPanel } = await import(
-      '@/components/publish/PlatformPreviewPanel'
-    );
+    const { default: PlatformPreviewPanel } =
+      await import('@/components/publish/PlatformPreviewPanel');
     const adaptations: PlatformContentDrafts = {
       wechat: {
         platform: 'wechat',
@@ -102,10 +132,12 @@ describe('PlatformPreviewPanel', () => {
       },
     };
 
-    render(createElement(PlatformPreviewPanel, {
-      adaptations,
-      selectedPlatforms: ['xiaohongshu', 'x'],
-    }));
+    render(
+      createElement(PlatformPreviewPanel, {
+        adaptations,
+        selectedPlatforms: ['xiaohongshu', 'x'],
+      }),
+    );
 
     expect(screen.getByText('内容配置')).toBeInTheDocument();
     expect(screen.getByText('小红书')).toBeInTheDocument();

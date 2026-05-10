@@ -11,11 +11,11 @@ export async function POST(request: NextRequest) {
   }
 
   const publisher = new WechatPublisher();
-    const result = await publisher.publish({
-      title,
-      markdownContent: content,
-      htmlContent: markdownToStyledHtml(title, content, 'wechat'),
-    });
+  const result = await publisher.publish({
+    title,
+    markdownContent: content,
+    htmlContent: markdownToStyledHtml(title, content, 'wechat'),
+  });
 
   return NextResponse.json(result);
 }

@@ -20,13 +20,9 @@ export default function AppShellHeader({
         <div className={styles.textBlock}>
           <p className={styles.kicker}>{kicker}</p>
           <h1 className={styles.title}>{title}</h1>
-          {description ? (
-            <p className={styles.description}>{description}</p>
-          ) : null}
+          {description ? <p className={styles.description}>{description}</p> : null}
         </div>
-        {action ? (
-          <div className={styles.action}>{action}</div>
-        ) : null}
+        {action ? <div className={styles.action}>{action}</div> : null}
       </div>
     </header>
   );

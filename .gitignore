@@ -27,6 +27,7 @@ Thumbs.db
 
 # AI tools
 .claude/
+.playwright-mcp/
 
 # Project local
 tasks/

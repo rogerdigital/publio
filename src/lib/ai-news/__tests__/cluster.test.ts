@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import {
-  clusterAiNewsSignals,
-  type NormalizedAiNewsSignal,
-} from '@/lib/ai-news/cluster';
+import { clusterAiNewsSignals, type NormalizedAiNewsSignal } from '@/lib/ai-news/cluster';
 
 function createSignal(overrides: Partial<NormalizedAiNewsSignal>): NormalizedAiNewsSignal {
   return {

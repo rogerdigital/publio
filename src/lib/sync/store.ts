@@ -9,7 +9,7 @@ import type {
 } from '@/lib/sync/types';
 import {
   readJsonFileCollection,
-  writeJsonFileCollection,
+  writeMergedJsonFileCollection,
 } from '@/lib/storage/jsonFileCollection';
 
 interface SyncHistoryStoreOptions {
@@ -45,7 +45,11 @@ function deriveTaskStatus(receipts: PlatformSyncReceipt[]): SyncTaskStatus {
   if (receipts.some((receipt) => receipt.status === 'failed')) {
     return hasCompletedReceipt ? 'partial' : 'failed';
   }
-  if (receipts.every((receipt) => receipt.status === 'draft-created' || receipt.status === 'published')) {
+  if (
+    receipts.every(
+      (receipt) => receipt.status === 'draft-created' || receipt.status === 'published',
+    )
+  ) {
     return 'completed';
   }
   return 'pending';
@@ -64,7 +68,7 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
 
   function persistTasks() {
     if (!storagePath) return;
-    writeJsonFileCollection(storagePath, Array.from(tasks.values()));
+    writeMergedJsonFileCollection(storagePath, Array.from(tasks.values()), (task) => task.id);
   }
 
   function appendEvent(task: SyncTask, event: Omit<SyncEvent, 'timestamp'>): SyncTask {
@@ -117,6 +121,9 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
           ...input,
           attempts: receipt.attempts + 1,
           updatedAt: timestamp,
+          ...(input.status === 'published' || input.status === 'draft-created'
+            ? { publishedAt: timestamp }
+            : {}),
         };
       });
 

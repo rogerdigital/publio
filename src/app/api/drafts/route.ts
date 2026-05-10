@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getDraftRegistry } from '@/lib/drafts/registry';
 import type { DraftSource } from '@/lib/drafts/types';
 import { validateTitle, validateContent } from '@/lib/validation';
+import { apiResponse, apiError } from '@/lib/api/response';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +14,7 @@ function isDraftSource(value: unknown): value is DraftSource {
 
 export async function GET() {
   const drafts = getDraftRegistry().listDrafts();
-  return NextResponse.json({ drafts });
+  return apiResponse({ drafts });
 }
 
 export async function POST(request: NextRequest | Request) {
@@ -33,13 +34,13 @@ export async function POST(request: NextRequest | Request) {
     const platforms = Array.isArray(body.platforms) ? body.platforms : undefined;
 
     if (!title || !content) {
-      return NextResponse.json({ error: '标题和内容不能为空' }, { status: 400 });
+      return apiError('标题和内容不能为空');
     }
 
     const titleErr = validateTitle(title);
-    if (titleErr) return NextResponse.json({ error: titleErr }, { status: 400 });
+    if (titleErr) return apiError(titleErr);
     const contentErr = validateContent(content);
-    if (contentErr) return NextResponse.json({ error: contentErr }, { status: 400 });
+    if (contentErr) return apiError(contentErr);
 
     const draft = getDraftRegistry().createDraft({
       title,
@@ -50,11 +51,8 @@ export async function POST(request: NextRequest | Request) {
       platforms,
     });
 
-    return NextResponse.json({ draft }, { status: 201 });
+    return apiResponse({ draft }, 201);
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : '创建稿件失败' },
-      { status: 500 },
-    );
+    return apiError(error instanceof Error ? error.message : '创建稿件失败', 500);
   }
 }

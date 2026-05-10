@@ -16,6 +16,11 @@ export function getXhsConfig() {
 export function getZhihuConfig() {
   return {
     cookie: process.env.ZHIHU_COOKIE || '',
+    columnToken: process.env.ZHIHU_COLUMN_TOKEN || '',
+    topicTokens: (process.env.ZHIHU_TOPIC_TOKENS || '')
+      .split(',')
+      .map((token) => token.trim())
+      .filter(Boolean),
   };
 }
 

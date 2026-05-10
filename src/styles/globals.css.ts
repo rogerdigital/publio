@@ -26,6 +26,7 @@ globalStyle('html', {
   minHeight: '100%',
   background: vars.color.bg,
   colorScheme: 'light',
+  transition: 'background 0.2s ease, color 0.2s ease',
 });
 
 globalStyle('body', {

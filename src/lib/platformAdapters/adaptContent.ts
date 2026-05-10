@@ -57,7 +57,9 @@ function createWarnings(platform: PlatformId, title: string, body: string, threa
         warnings.push(`小红书标题建议控制在 ${XHS_TITLE_MAX} 字以内`);
       }
       if (body.trim().length > XHS_BODY_MAX) {
-        warnings.push(`小红书正文建议控制在 ${XHS_BODY_MAX} 字以内（当前 ${body.trim().length} 字）`);
+        warnings.push(
+          `小红书正文建议控制在 ${XHS_BODY_MAX} 字以内（当前 ${body.trim().length} 字）`,
+        );
       }
       break;
     case 'zhihu':
@@ -104,8 +106,4 @@ export function adaptContentForPlatforms(input: AdaptContentInput): PlatformCont
   return drafts;
 }
 
-export type {
-  AdaptContentInput,
-  PlatformContentDraft,
-  PlatformContentDrafts,
-};
+export type { AdaptContentInput, PlatformContentDraft, PlatformContentDrafts };

@@ -1,9 +1,7 @@
 import { create } from 'zustand';
 import { PlatformId, PlatformPublishResult, PLATFORMS, PublishStatus } from '@/types';
 import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
-import type {
-  PlatformContentDrafts,
-} from '@/lib/platformAdapters/types';
+import type { PlatformContentDrafts } from '@/lib/platformAdapters/types';
 import { resolveOverallPublishStatus } from '@/lib/publishStatus';
 
 interface PublishStore {
@@ -24,6 +22,8 @@ interface PublishStore {
 
   platformDrafts: PlatformContentDrafts;
   syncPlatformDrafts: () => void;
+  setAIAdaptedContent: (platform: PlatformId, aiBody: string) => void;
+  revertAIDraft: (platform: PlatformId) => void;
 
   overallStatus: PublishStatus;
   results: PlatformPublishResult[];
@@ -39,6 +39,9 @@ interface PublishStore {
 
   scheduledAt: string | null;
   setScheduledAt: (value: string | null) => void;
+
+  editorMode: 'source' | 'live';
+  setEditorMode: (mode: 'source' | 'live') => void;
 }
 
 const platformIds = PLATFORMS.map((platform) => platform.id);
@@ -72,7 +75,10 @@ export const usePublishStore = create<PublishStore>((set) => ({
     })),
   setAllPlatforms: (checked) =>
     set(() => ({
-      platforms: Object.fromEntries(platformIds.map((id) => [id, checked])) as Record<PlatformId, boolean>,
+      platforms: Object.fromEntries(platformIds.map((id) => [id, checked])) as Record<
+        PlatformId,
+        boolean
+      >,
     })),
 
   platformDrafts: emptyPlatformDrafts,
@@ -85,6 +91,38 @@ export const usePublishStore = create<PublishStore>((set) => ({
       }),
     })),
 
+  setAIAdaptedContent: (platform, aiBody) =>
+    set((state) => {
+      const draft = state.platformDrafts[platform];
+      return {
+        platformDrafts: {
+          ...state.platformDrafts,
+          [platform]: {
+            ...draft,
+            aiBody,
+            aiAdapted: true,
+            originalBody: draft.originalBody || draft.body,
+          },
+        },
+      };
+    }),
+
+  revertAIDraft: (platform) =>
+    set((state) => {
+      const draft = state.platformDrafts[platform];
+      return {
+        platformDrafts: {
+          ...state.platformDrafts,
+          [platform]: {
+            ...draft,
+            aiBody: undefined,
+            aiAdapted: false,
+            originalBody: undefined,
+          },
+        },
+      };
+    }),
+
   overallStatus: 'idle',
   results: [],
   setPublishing: () => set({ overallStatus: 'publishing', results: [] }),
@@ -93,7 +131,8 @@ export const usePublishStore = create<PublishStore>((set) => ({
       results,
       overallStatus: resolveOverallPublishStatus(results),
     }),
-  reset: () => set({ overallStatus: 'idle', results: [], lastSyncTaskId: null, isProgressOverlayOpen: false }),
+  reset: () =>
+    set({ overallStatus: 'idle', results: [], lastSyncTaskId: null, isProgressOverlayOpen: false }),
 
   lastSyncTaskId: null,
   isProgressOverlayOpen: false,
@@ -103,4 +142,20 @@ export const usePublishStore = create<PublishStore>((set) => ({
 
   scheduledAt: null,
   setScheduledAt: (value) => set({ scheduledAt: value }),
+
+  editorMode: (() => {
+    try {
+      return (localStorage.getItem('publio-editor-mode') as 'source' | 'live') || 'source';
+    } catch {
+      return 'source';
+    }
+  })(),
+  setEditorMode: (mode) => {
+    try {
+      localStorage.setItem('publio-editor-mode', mode);
+    } catch {
+      // ignore
+    }
+    set({ editorMode: mode });
+  },
 }));

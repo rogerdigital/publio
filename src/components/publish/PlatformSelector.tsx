@@ -2,13 +2,14 @@
 
 import { usePublishStore } from '@/stores/publishStore';
 import { PLATFORMS, PlatformId } from '@/types';
+import { WechatIcon, XiaohongshuIcon, ZhihuIcon, XIcon } from '@/components/icons/PlatformIcons';
 import {
-  WechatIcon,
-  XiaohongshuIcon,
-  ZhihuIcon,
-  XIcon,
-} from '@/components/icons/PlatformIcons';
-import { selectorWrap, platformLabel, srOnly, selectorFooter, selectorToggleAll } from './publish.css';
+  selectorWrap,
+  platformLabel,
+  srOnly,
+  selectorFooter,
+  selectorToggleAll,
+} from './publish.css';
 
 const platformIconMap: Record<PlatformId, React.ComponentType<{ size?: number }>> = {
   wechat: WechatIcon,
@@ -31,10 +32,7 @@ export default function PlatformSelector() {
           const checked = platforms[platform.id as PlatformId];
 
           return (
-            <label
-              key={platform.id}
-              className={platformLabel({ checked })}
-            >
+            <label key={platform.id} className={platformLabel({ checked })}>
               <input
                 type="checkbox"
                 checked={checked}

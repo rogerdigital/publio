@@ -1,7 +1,4 @@
-import {
-  clusterAiNewsSignals,
-  type NormalizedAiNewsSignal,
-} from '@/lib/ai-news/cluster';
+import { clusterAiNewsSignals, type NormalizedAiNewsSignal } from '@/lib/ai-news/cluster';
 import { fetchArticleSnapshot, type ArticleSnapshot } from '@/lib/ai-news/articleSnapshot';
 import { fetchTextWithTimeout } from '@/lib/ai-news/requestTimeout';
 import {
@@ -15,6 +12,7 @@ import {
 import { buildResearchBrief } from '@/lib/ai-news/research';
 import { scoreAiNewsCluster } from '@/lib/ai-news/score';
 import { AI_NEWS_SOURCES } from '@/lib/ai-news/sources';
+import { getEnabledCustomSources } from '@/lib/rss-sources/store';
 import type {
   AiNewsDesk,
   AiNewsDeskCandidate,
@@ -42,8 +40,7 @@ async function fetchSourceSignals(source: AiNewsSource, cutoffTime: number) {
         extractTagValue(block, 'pubDate') ||
         extractTagValue(block, 'published') ||
         extractTagValue(block, 'updated');
-      const summary =
-        extractTagValue(block, 'description') || extractTagValue(block, 'summary');
+      const summary = extractTagValue(block, 'description') || extractTagValue(block, 'summary');
 
       const normalized = normalizeAiNewsSignal({
         title: rawTitle,
@@ -99,10 +96,7 @@ function shuffleCandidates(candidates: AiNewsDeskCandidate[]): AiNewsDeskCandida
   return result;
 }
 
-function diversifyCandidates(
-  sorted: AiNewsDeskCandidate[],
-  total: number,
-): AiNewsDeskCandidate[] {
+function diversifyCandidates(sorted: AiNewsDeskCandidate[], total: number): AiNewsDeskCandidate[] {
   // 按域名分组（保留组内原有分数顺序）
   const byDomain = new Map<string, AiNewsDeskCandidate[]>();
   for (const candidate of sorted) {
@@ -147,7 +141,9 @@ async function hydrateCandidateImages(candidates: AiNewsDeskCandidate[]) {
   return Promise.all(
     candidates.map(async (candidate) => {
       const primaryLink = candidate.primarySignal.link;
-      const hasPrimaryImage = !!(candidate.researchBrief.imageUrl || candidate.primarySignal.imageUrl);
+      const hasPrimaryImage = !!(
+        candidate.researchBrief.imageUrl || candidate.primarySignal.imageUrl
+      );
       const hasPrimaryMetrics =
         typeof candidate.primarySignal.articleWordCount === 'number' ||
         typeof candidate.primarySignal.articleImageCount === 'number';
@@ -171,8 +167,10 @@ async function hydrateCandidateImages(candidates: AiNewsDeskCandidate[]) {
       ]);
 
       const primaryImageUrl = needsPrimary
-        ? (primarySnapshot.imageUrl || candidate.researchBrief.imageUrl || candidate.primarySignal.imageUrl)
-        : (candidate.primarySignal.imageUrl || candidate.researchBrief.imageUrl);
+        ? primarySnapshot.imageUrl ||
+          candidate.researchBrief.imageUrl ||
+          candidate.primarySignal.imageUrl
+        : candidate.primarySignal.imageUrl || candidate.researchBrief.imageUrl;
       const articleWordCount = needsPrimary
         ? (primarySnapshot.wordCount ?? candidate.primarySignal.articleWordCount)
         : candidate.primarySignal.articleWordCount;
@@ -237,8 +235,18 @@ async function hydrateCandidateImages(candidates: AiNewsDeskCandidate[]) {
 
 export async function fetchAiNewsSignals(hours = 24) {
   const cutoffTime = Date.now() - hours * 60 * 60 * 1000;
+
+  // Merge built-in + custom sources
+  const customSources: AiNewsSource[] = getEnabledCustomSources().map((s) => ({
+    name: s.name,
+    url: s.url,
+    sourceType: 'community' as const,
+    weight: 3,
+  }));
+  const allSources = [...AI_NEWS_SOURCES, ...customSources];
+
   const results = await Promise.allSettled(
-    AI_NEWS_SOURCES.map((source) => fetchSourceSignals(source, cutoffTime)),
+    allSources.map((source) => fetchSourceSignals(source, cutoffTime)),
   );
 
   return results.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));

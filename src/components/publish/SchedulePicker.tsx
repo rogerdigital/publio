@@ -24,11 +24,7 @@ export default function SchedulePicker() {
           className={styles.input}
         />
         {scheduledAt && (
-          <button
-            type="button"
-            onClick={() => setScheduledAt(null)}
-            className={styles.clearBtn}
-          >
+          <button type="button" onClick={() => setScheduledAt(null)} className={styles.clearBtn}>
             取消
           </button>
         )}
