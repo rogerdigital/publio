@@ -35,9 +35,12 @@ All AI features require an OpenAI-compatible API (Zhipu GLM, DeepSeek, Qwen, Ope
 | Capability | Description |
 |-----------|-------------|
 | **Writing Assistant** | Expand, condense, rewrite, polish, continue — via slash commands with streaming output |
-| **Platform Adaptation** | Per-platform content rewrite with rule injection (word count, format constraints) |
+| **Platform Adaptation** | Per-platform content rewrite with rule injection and change summary explaining adaptation decisions |
 | **Topic Research** | Deep analysis of news clusters with multi-angle insights |
-| **Publish Diagnose** | Failure analysis with actionable retry suggestions |
+| **Signal Review** | AI-powered inbox triage: surfaces high-value signals, suggests combinations, recommends actions |
+| **Topic Writing Pack** | Generates structured writing packs (background, facts, angles, audience, counter-arguments, structure) |
+| **Brief Assist** | Generate full Brief from topic, rewrite thesis, fill outline, generate platform plan |
+| **Publish Diagnose** | Structured failure diagnosis (root cause, evidence, fix steps, retry recommendation) with event timeline context |
 | **Content Copilot** | Brand profile-driven topic recommendations based on current news trends |
 | **Style Learning** | Extracts writing style from historical drafts and injects into prompts |
 | **Multi-turn Chat** | Conversational AI panel with session-persistent history |
