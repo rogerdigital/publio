@@ -1,8 +1,9 @@
 'use client';
 
-import { XCircle, CheckCircle2 } from 'lucide-react';
+import { XCircle, AlertTriangle, Info, Loader2 } from 'lucide-react';
 import type { PlatformId } from '@/types';
 import { PLATFORMS } from '@/types';
+import type { PublishCheckResult } from '@/lib/publishChecks/types';
 import * as css from './publishConfirm.css';
 
 const platformLabelMap: Record<PlatformId, string> = Object.fromEntries(
@@ -17,6 +18,9 @@ interface PublishConfirmDialogProps {
   onCancel: () => void;
   validating?: boolean;
   validationErrors?: string[];
+  checkResults?: PublishCheckResult[];
+  canPublish?: boolean;
+  hasWarnings?: boolean;
 }
 
 export default function PublishConfirmDialog({
@@ -27,10 +31,17 @@ export default function PublishConfirmDialog({
   onCancel,
   validating = false,
   validationErrors = [],
+  checkResults,
+  canPublish = true,
+  hasWarnings = false,
 }: PublishConfirmDialogProps) {
   if (!open) return null;
 
-  const hasErrors = validationErrors.length > 0;
+  const hasLegacyErrors = validationErrors.length > 0;
+  const errors = checkResults?.filter((c) => c.severity === 'error') ?? [];
+  const warnings = checkResults?.filter((c) => c.severity === 'warning') ?? [];
+  const infos = checkResults?.filter((c) => c.severity === 'info') ?? [];
+  const isBlocked = !canPublish || hasLegacyErrors;
 
   return (
     <div className={css.overlay} onClick={onCancel}>
@@ -53,11 +64,50 @@ export default function PublishConfirmDialog({
           </div>
         </div>
 
-        {hasErrors && (
+        {validating && (
+          <div className={css.infoSection}>
+            <p className={css.infoItem}>
+              <Loader2 size={13} /> 正在检查发布就绪状态…
+            </p>
+          </div>
+        )}
+
+        {hasLegacyErrors && (
           <div className={css.errorSection}>
             {validationErrors.map((err, i) => (
               <p key={i} className={css.errorItem}>
                 <XCircle size={13} /> {err}
+              </p>
+            ))}
+          </div>
+        )}
+
+        {errors.length > 0 && (
+          <div className={css.errorSection}>
+            {errors.map((check) => (
+              <p key={check.id} className={css.errorItem}>
+                <XCircle size={13} /> {check.message}
+                {check.nextAction ? ` → ${check.nextAction}` : ''}
+              </p>
+            ))}
+          </div>
+        )}
+
+        {warnings.length > 0 && (
+          <div className={css.warningSection}>
+            {warnings.map((check) => (
+              <p key={check.id} className={css.warningItem}>
+                <AlertTriangle size={13} /> {check.message}
+              </p>
+            ))}
+          </div>
+        )}
+
+        {infos.length > 0 && (
+          <div className={css.infoSection}>
+            {infos.map((check) => (
+              <p key={check.id} className={css.infoItem}>
+                <Info size={13} /> {check.message}
               </p>
             ))}
           </div>
@@ -69,11 +119,17 @@ export default function PublishConfirmDialog({
           </button>
           <button
             type="button"
-            className={css.confirmBtn({ disabled: hasErrors || validating })}
+            className={css.confirmBtn({ disabled: isBlocked || validating })}
             onClick={onConfirm}
-            disabled={hasErrors || validating}
+            disabled={isBlocked || validating}
           >
-            {validating ? '校验中...' : hasErrors ? '内容待补全' : '确认发布'}
+            {validating
+              ? '校验中...'
+              : isBlocked
+                ? '内容待补全'
+                : hasWarnings
+                  ? '确认发布（有警告）'
+                  : '确认发布'}
           </button>
         </div>
       </div>
