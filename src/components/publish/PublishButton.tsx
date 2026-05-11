@@ -26,6 +26,7 @@ export default function PublishButton() {
     platformDrafts,
     overallStatus,
     scheduledAt,
+    variantIds,
     setPublishing,
     setResults,
     setLastSyncTaskId,
@@ -122,6 +123,9 @@ export default function PublishButton() {
           content,
           platforms: selectedPlatforms,
           forcePublish,
+          variantIds: Object.fromEntries(
+            selectedPlatforms.filter((p) => variantIds[p]).map((p) => [p, variantIds[p]]),
+          ),
           platformDrafts: Object.fromEntries(
             selectedPlatforms.map((platform) => [
               platform,

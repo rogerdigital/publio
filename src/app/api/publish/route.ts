@@ -6,6 +6,7 @@ import { runPublishJob } from '@/lib/publishers/publishJobRunner';
 import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
 import { validateTitle, validateContent, validatePlatforms } from '@/lib/validation';
 import { checkContent } from '@/lib/moderation/check';
+import { getPlatformVariantRegistry } from '@/lib/platformVariants/registry';
 import { apiResponse, apiError } from '@/lib/api/response';
 import { logger } from '@/lib/logger';
 
@@ -13,8 +14,8 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
   try {
     const body = await request.json();
-    const { draftId, title, content, platforms } = body;
-    const platformDrafts: PlatformPublishDrafts =
+    const { draftId, title, content, platforms, variantIds } = body;
+    let platformDrafts: PlatformPublishDrafts =
       body.platformDrafts && typeof body.platformDrafts === 'object' ? body.platformDrafts : {};
 
     const titleErr = validateTitle(title);
@@ -23,6 +24,22 @@ export async function POST(request: NextRequest) {
     if (contentErr) return apiError(contentErr);
     const platformErr = validatePlatforms(platforms);
     if (platformErr) return apiError(platformErr);
+
+    // Resolve platform content from PlatformVariants if variantIds provided
+    const resolvedVariantIds: Record<string, string> = {};
+    if (variantIds && typeof variantIds === 'object') {
+      const variantRegistry = getPlatformVariantRegistry();
+      for (const platform of platforms as PlatformId[]) {
+        const vid = variantIds[platform];
+        if (vid) {
+          const variant = variantRegistry.getVariant(vid);
+          if (variant) {
+            platformDrafts[platform] = { title: variant.title, content: variant.content };
+            resolvedVariantIds[platform] = vid;
+          }
+        }
+      }
+    }
 
     // Content moderation check (non-blocking, returns warnings)
     const moderation = checkContent(`${title}\n${content}`);
@@ -69,6 +86,7 @@ export async function POST(request: NextRequest) {
         content,
         platforms: platforms as PlatformId[],
         platformDrafts,
+        variantIds: resolvedVariantIds,
       });
       syncTask = result.syncTask;
       logger.info('Publish completed', {
