@@ -38,6 +38,7 @@ import VersionHistory from '@/components/editor/VersionHistory';
 import TemplatePicker from '@/components/editor/TemplatePicker';
 import MediaLibrary from '@/components/editor/MediaLibrary';
 import AgentPanel from '@/components/agent/AgentPanel';
+import TodayWorkbench from '@/components/workbench/TodayWorkbench';
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
 import { useAutoSave } from '@/hooks/useAutoSave';
@@ -267,6 +268,8 @@ function HomePageContent() {
           </div>
         }
       />
+
+      <TodayWorkbench />
 
       <div className={styles.editorLayout}>
         <div className={styles.panelOuter} style={{ width: isPanelOpen ? '216px' : 0 }}>
