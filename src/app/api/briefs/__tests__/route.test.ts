@@ -60,6 +60,7 @@ describe('/api/briefs', () => {
     topicStore.createTopic({ title: '测试选题', signalIds: ['sig-1'] });
     signalStore.createSignal({
       title: '测试信号',
+      summary: '测试信号概述',
       sourceType: 'rss',
       sourceId: 'src-1',
       url: 'https://example.com/signal',

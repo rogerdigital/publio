@@ -67,7 +67,6 @@ function createCluster(overrides: Partial<AiNewsCluster>): AiNewsCluster {
     coverageCount: overrides.coverageCount ?? 2,
     officialSourceCount: overrides.officialSourceCount ?? 1,
     mediaSourceCount: overrides.mediaSourceCount ?? 1,
-    creatorSourceCount: overrides.creatorSourceCount ?? 1,
   };
 }
 

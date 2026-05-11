@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { NextRequest } from 'next/server';
 
 import { resetDraftRegistryForTests } from '@/lib/drafts/registry';
 import { resetSyncHistoryStoreForTests } from '@/lib/sync/registry';
@@ -34,7 +35,7 @@ vi.mock('@/lib/publishers/x', () => ({
 }));
 
 function createJsonRequest(body: unknown) {
-  return new Request('http://localhost/api/publish', {
+  return new NextRequest('http://localhost/api/publish', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
