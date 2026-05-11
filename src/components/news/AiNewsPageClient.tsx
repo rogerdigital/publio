@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 
 import TopicDeskHeader from '@/components/news/TopicDeskHeader';
 import TopicSignalCard from '@/components/news/TopicSignalCard';
+import SignalInbox from '@/components/news/SignalInbox';
+import TopicLibrary from '@/components/news/TopicLibrary';
+import SignalReviewPanel from '@/components/news/SignalReviewPanel';
 import type { AiNewsDeskCandidate } from '@/lib/aiNews';
 import { buildResearchDraftMarkdown } from '@/lib/newsDraft';
 import { createDraft } from '@/lib/drafts/client';
@@ -115,6 +118,9 @@ export default function AiNewsPageClient() {
   const [topicDraftMap, setTopicDraftMap] = useState<Record<string, string>>({});
   const [briefOpenMap, setBriefOpenMap] = useState<Map<string, boolean>>(cachedBriefOpenMap);
   const hasDeskDataRef = useRef(false);
+
+  // Tab state: 选题台 vs 资讯 Inbox vs 选题库
+  const [viewTab, setViewTab] = useState<'desk' | 'inbox' | 'topics'>('desk');
 
   // Deep research state
   const [agentEnabled, setAgentEnabled] = useState(false);
@@ -372,84 +378,114 @@ export default function AiNewsPageClient() {
         />
       )}
 
-      <div className={styles.contentWrap}>
-        {refreshError ? (
-          <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
-            <p className={styles.refreshErrorKicker}>刷新未更新</p>
-            <p className={styles.refreshErrorText}>
-              {refreshError} 下面保留的是上一次成功加载的内容。
-            </p>
-          </div>
-        ) : null}
-
-        {draftError ? (
-          <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
-            <p className={styles.refreshErrorKicker}>转稿未完成</p>
-            <p className={styles.refreshErrorText}>{draftError}</p>
-          </div>
-        ) : null}
-
-        {loading ? (
-          <div className={styles.skeletonList}>
-            {[0, 1].map((i) => (
-              <div key={i} className={styles.skeletonCard}>
-                <div className={styles.skeletonInner}>
-                  <div className={styles.skeletonLineShort} />
-                  <div className={styles.skeletonLineTall} />
-                  <div className={styles.skeletonLineFull} />
-                  <div className={styles.skeletonLineMid} />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : error && allCandidates.length === 0 ? (
-          <div className={styles.stateCard}>
-            <p className={styles.stateTitle}>新闻抓取失败</p>
-            <p className={styles.stateText}>{error}</p>
-          </div>
-        ) : allCandidates.length === 0 ? (
-          <EmptyState
-            icon={<Newspaper size={24} />}
-            title="选题桌暂无内容"
-            description="点击右上角「抓取选题」开始抓取最新 AI 话题信号。"
-          />
-        ) : (
-          <div className={styles.candidateSections}>
-            <CandidateSection
-              title="今天能发"
-              items={todayCandidates}
-              offset={0}
-              topicDraftMap={topicDraftMap}
-              briefOpenMap={briefOpenMap}
-              onBriefToggle={(clusterId, open) => {
-                cachedBriefOpenMap.set(clusterId, open);
-                setBriefOpenMap(new Map(cachedBriefOpenMap));
-              }}
-              onCreateDraft={createSingleNewsDraft}
-              agentEnabled={agentEnabled}
-              onDeepResearch={handleDeepResearch}
-              deepResearchContent={deepResearchContent}
-              deepResearchLoading={deepResearchLoading}
-            />
-            <CandidateSection
-              title="还能追"
-              items={followCandidates}
-              offset={todayCandidates.length}
-              topicDraftMap={topicDraftMap}
-              briefOpenMap={briefOpenMap}
-              onBriefToggle={(clusterId, open) => {
-                cachedBriefOpenMap.set(clusterId, open);
-                setBriefOpenMap(new Map(cachedBriefOpenMap));
-              }}
-              onCreateDraft={createSingleNewsDraft}
-              agentEnabled={agentEnabled}
-              onDeepResearch={handleDeepResearch}
-              deepResearchContent={deepResearchContent}
-              deepResearchLoading={deepResearchLoading}
-            />
-          </div>
-        )}
+      <div className={styles.tabRow}>
+        <button
+          className={styles.tabButton({ active: viewTab === 'desk' })}
+          onClick={() => setViewTab('desk')}
+        >
+          选题台
+        </button>
+        <button
+          className={styles.tabButton({ active: viewTab === 'inbox' })}
+          onClick={() => setViewTab('inbox')}
+        >
+          资讯 Inbox
+        </button>
+        <button
+          className={styles.tabButton({ active: viewTab === 'topics' })}
+          onClick={() => setViewTab('topics')}
+        >
+          选题库
+        </button>
       </div>
+
+      {viewTab === 'inbox' ? (
+        <>
+          <SignalInbox />
+          {agentEnabled && <SignalReviewPanel />}
+        </>
+      ) : viewTab === 'topics' ? (
+        <TopicLibrary />
+      ) : (
+        <div className={styles.contentWrap}>
+          {refreshError ? (
+            <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
+              <p className={styles.refreshErrorKicker}>刷新未更新</p>
+              <p className={styles.refreshErrorText}>
+                {refreshError} 下面保留的是上一次成功加载的内容。
+              </p>
+            </div>
+          ) : null}
+
+          {draftError ? (
+            <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
+              <p className={styles.refreshErrorKicker}>转稿未完成</p>
+              <p className={styles.refreshErrorText}>{draftError}</p>
+            </div>
+          ) : null}
+
+          {loading ? (
+            <div className={styles.skeletonList}>
+              {[0, 1].map((i) => (
+                <div key={i} className={styles.skeletonCard}>
+                  <div className={styles.skeletonInner}>
+                    <div className={styles.skeletonLineShort} />
+                    <div className={styles.skeletonLineTall} />
+                    <div className={styles.skeletonLineFull} />
+                    <div className={styles.skeletonLineMid} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error && allCandidates.length === 0 ? (
+            <div className={styles.stateCard}>
+              <p className={styles.stateTitle}>新闻抓取失败</p>
+              <p className={styles.stateText}>{error}</p>
+            </div>
+          ) : allCandidates.length === 0 ? (
+            <EmptyState
+              icon={<Newspaper size={24} />}
+              title="选题桌暂无内容"
+              description="点击右上角「抓取选题」开始抓取最新 AI 话题信号。"
+            />
+          ) : (
+            <div className={styles.candidateSections}>
+              <CandidateSection
+                title="今天能发"
+                items={todayCandidates}
+                offset={0}
+                topicDraftMap={topicDraftMap}
+                briefOpenMap={briefOpenMap}
+                onBriefToggle={(clusterId, open) => {
+                  cachedBriefOpenMap.set(clusterId, open);
+                  setBriefOpenMap(new Map(cachedBriefOpenMap));
+                }}
+                onCreateDraft={createSingleNewsDraft}
+                agentEnabled={agentEnabled}
+                onDeepResearch={handleDeepResearch}
+                deepResearchContent={deepResearchContent}
+                deepResearchLoading={deepResearchLoading}
+              />
+              <CandidateSection
+                title="还能追"
+                items={followCandidates}
+                offset={todayCandidates.length}
+                topicDraftMap={topicDraftMap}
+                briefOpenMap={briefOpenMap}
+                onBriefToggle={(clusterId, open) => {
+                  cachedBriefOpenMap.set(clusterId, open);
+                  setBriefOpenMap(new Map(cachedBriefOpenMap));
+                }}
+                onCreateDraft={createSingleNewsDraft}
+                agentEnabled={agentEnabled}
+                onDeepResearch={handleDeepResearch}
+                deepResearchContent={deepResearchContent}
+                deepResearchLoading={deepResearchLoading}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
