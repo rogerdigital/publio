@@ -41,11 +41,15 @@ export function toSyncReceiptStatus(result: PlatformPublishResult): SyncReceiptS
 export function inferFailureCode(message: string | undefined): SyncFailureCode {
   if (!message) return 'unknown';
   const lower = message.toLowerCase();
+  if (lower.includes('缺少') || lower.includes('missing') || lower.includes('not configured')) {
+    return 'auth-missing';
+  }
   if (
     lower.includes('auth') ||
     lower.includes('token') ||
     lower.includes('unauthorized') ||
-    lower.includes('401')
+    lower.includes('401') ||
+    lower.includes('expired')
   ) {
     return 'auth-expired';
   }
@@ -57,6 +61,9 @@ export function inferFailureCode(message: string | undefined): SyncFailureCode {
   ) {
     return 'rate-limited';
   }
+  if (lower.includes('rejected') || lower.includes('违规') || lower.includes('sensitive')) {
+    return 'content-rejected';
+  }
   if (
     lower.includes('content') ||
     lower.includes('invalid') ||
@@ -64,6 +71,14 @@ export function inferFailureCode(message: string | undefined): SyncFailureCode {
     lower.includes('400')
   ) {
     return 'invalid-content';
+  }
+  if (
+    lower.includes('unavailable') ||
+    lower.includes('503') ||
+    lower.includes('502') ||
+    lower.includes('maintenance')
+  ) {
+    return 'platform-unavailable';
   }
   if (
     lower.includes('network') ||
@@ -78,13 +93,19 @@ export function inferFailureCode(message: string | undefined): SyncFailureCode {
 
 export function toNextAction(failureCode: SyncFailureCode): SyncNextAction {
   switch (failureCode) {
+    case 'auth-missing':
+      return 'reconnect';
     case 'auth-expired':
       return 'reconnect';
     case 'rate-limited':
       return 'wait-and-retry';
+    case 'content-rejected':
+      return 'fix-content';
     case 'invalid-content':
       return 'fix-content';
     case 'network-error':
+      return 'wait-and-retry';
+    case 'platform-unavailable':
       return 'wait-and-retry';
     case 'manual-required':
       return 'open-platform';

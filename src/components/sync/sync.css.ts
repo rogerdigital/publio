@@ -132,6 +132,12 @@ export const retryMessage = style({
   fontSize: '13px',
 });
 
+export const retryHint = style({
+  margin: '4px 0 0',
+  fontSize: '12px',
+  color: vars.color.textMuted,
+});
+
 export const inlineActionButton = style({
   width: 'fit-content',
   border: `1px solid ${vars.color.border}`,

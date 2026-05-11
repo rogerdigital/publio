@@ -17,10 +17,13 @@ export type SyncTaskStatus =
   | 'needs-action';
 
 export type SyncFailureCode =
+  | 'auth-missing'
   | 'auth-expired'
   | 'rate-limited'
   | 'invalid-content'
+  | 'content-rejected'
   | 'network-error'
+  | 'platform-unavailable'
   | 'manual-required'
   | 'unknown';
 

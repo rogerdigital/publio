@@ -44,10 +44,13 @@ const receiptStatusLabels: Record<SyncReceiptStatus, string> = {
 };
 
 const failureCodeLabels: Record<SyncFailureCode, string> = {
+  'auth-missing': '凭证未配置',
   'auth-expired': '授权已过期',
   'rate-limited': '触发频率限制',
   'invalid-content': '内容格式有误',
+  'content-rejected': '内容被平台拒绝',
   'network-error': '网络请求失败',
+  'platform-unavailable': '平台暂不可用',
   'manual-required': '需要手动操作',
   unknown: '未知错误',
 };
@@ -60,6 +63,12 @@ const nextActionLabels: Record<SyncNextAction, string> = {
   'mark-done': '人工确认完成',
   'contact-support': '联系平台客服',
 };
+
+const retryableFailureCodes: Set<SyncFailureCode> = new Set([
+  'rate-limited',
+  'network-error',
+  'platform-unavailable',
+]);
 
 const eventTypeLabels: Record<SyncEventType, string> = {
   created: '任务已创建',
@@ -407,7 +416,17 @@ export default function SyncTaskDetail({
         ))}
       </div>
 
-      {hasFailedReceipt ? <SyncTaskRetryButton taskId={syncTask.id} /> : null}
+      {hasFailedReceipt ? (
+        <>
+          <SyncTaskRetryButton taskId={syncTask.id} />
+          <p className={styles.retryHint}>
+            适用于：
+            {Array.from(retryableFailureCodes)
+              .map((c) => failureCodeLabels[c])
+              .join('、')}
+          </p>
+        </>
+      ) : null}
 
       <MetricsSection syncTaskId={syncTask.id} />
 
