@@ -9,6 +9,7 @@ import { useToastStore } from '@/stores/toastStore';
 import PublishConfirmDialog from './PublishConfirmDialog';
 import ModerationWarning from './ModerationWarning';
 import type { SensitiveMatch } from '@/lib/moderation/types';
+import type { PublishCheckResult } from '@/lib/publishChecks/types';
 
 const platformLabels: Record<PlatformId, string> = {
   wechat: '微信公众号',
@@ -26,6 +27,7 @@ export default function PublishButton() {
     platformDrafts,
     overallStatus,
     scheduledAt,
+    variantIds,
     setPublishing,
     setResults,
     setLastSyncTaskId,
@@ -53,12 +55,49 @@ export default function PublishButton() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [moderationMatches, setModerationMatches] = useState<SensitiveMatch[] | null>(null);
   const [forcePublish, setForcePublish] = useState(false);
+  const [checkResults, setCheckResults] = useState<PublishCheckResult[] | undefined>(undefined);
+  const [checkCanPublish, setCheckCanPublish] = useState(true);
+  const [checkHasWarnings, setCheckHasWarnings] = useState(false);
+  const [checking, setChecking] = useState(false);
   const validationErrors = notReadyPlatforms.map((p) => `${platformLabels[p]} 标题或内容为空`);
+
+  async function runPrePublishCheck() {
+    setChecking(true);
+    try {
+      const res = await fetch('/api/publish/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          content,
+          platforms: selectedPlatforms,
+          draftId: currentDraftId ?? undefined,
+          variantIds: Object.fromEntries(
+            selectedPlatforms.filter((p) => variantIds[p]).map((p) => [p, variantIds[p]]),
+          ),
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCheckResults(data.checks);
+        setCheckCanPublish(data.canPublish);
+        setCheckHasWarnings(data.hasWarnings);
+      }
+    } catch {
+      // If check fails, allow publish to proceed
+    } finally {
+      setChecking(false);
+    }
+  }
 
   async function handlePublish() {
     if (isDisabled) return;
     if (!confirmOpen) {
       setConfirmOpen(true);
+      setCheckResults(undefined);
+      setCheckCanPublish(true);
+      setCheckHasWarnings(false);
+      runPrePublishCheck();
       return;
     }
     setConfirmOpen(false);
@@ -122,6 +161,9 @@ export default function PublishButton() {
           content,
           platforms: selectedPlatforms,
           forcePublish,
+          variantIds: Object.fromEntries(
+            selectedPlatforms.filter((p) => variantIds[p]).map((p) => [p, variantIds[p]]),
+          ),
           platformDrafts: Object.fromEntries(
             selectedPlatforms.map((platform) => [
               platform,
@@ -219,6 +261,10 @@ export default function PublishButton() {
         title={title}
         platforms={selectedPlatforms}
         validationErrors={validationErrors}
+        validating={checking}
+        checkResults={checkResults}
+        canPublish={checkCanPublish}
+        hasWarnings={checkHasWarnings}
         onConfirm={handlePublish}
         onCancel={() => setConfirmOpen(false)}
       />

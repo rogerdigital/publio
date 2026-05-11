@@ -49,12 +49,21 @@ const ACTION_PROMPTS: Record<WritingAction, string> = {
 export function buildWritingMessages(
   action: WritingAction,
   content: string,
-  options?: { title?: string; selection?: string; styleDescription?: string },
+  options?: {
+    title?: string;
+    selection?: string;
+    styleDescription?: string;
+    briefContext?: string;
+  },
 ): ChatMessage[] {
   let systemPrompt = ACTION_PROMPTS[action];
 
   if (options?.styleDescription) {
     systemPrompt += `\n\n用户写作风格参考：\n${options.styleDescription}\n\n请在输出时尽量贴近上述风格。`;
+  }
+
+  if (options?.briefContext) {
+    systemPrompt += `\n\n写作上下文（Brief）：\n${options.briefContext}\n\n请在输出时参考上述上下文，确保内容符合核心观点、面向目标读者、遵循大纲结构。`;
   }
 
   const messages: ChatMessage[] = [{ role: 'system', content: systemPrompt }];

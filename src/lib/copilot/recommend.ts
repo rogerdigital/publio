@@ -1,7 +1,15 @@
 import type { BrandProfile, TopicRecommendation } from './types';
 import type { AiNewsCluster } from '@/lib/ai-news/types';
 
-export function buildRecommendPrompt(profile: BrandProfile, clusters: AiNewsCluster[]): string {
+export interface RecommendContext {
+  recentPerformance?: string;
+}
+
+export function buildRecommendPrompt(
+  profile: BrandProfile,
+  clusters: AiNewsCluster[],
+  context?: RecommendContext,
+): string {
   const clusterSummary = clusters
     .slice(0, 10)
     .map(
@@ -10,7 +18,7 @@ export function buildRecommendPrompt(profile: BrandProfile, clusters: AiNewsClus
     )
     .join('\n');
 
-  return `你是一位资深内容运营顾问。请根据以下品牌画像和当前热点新闻，推荐 3-5 个适合该品牌的内容选题。
+  let prompt = `你是一位资深内容运营顾问。请根据以下品牌画像和当前热点新闻，推荐 3-5 个适合该品牌的内容选题。
 
 ## 品牌画像
 - 品牌名：${profile.brandName}
@@ -20,7 +28,17 @@ export function buildRecommendPrompt(profile: BrandProfile, clusters: AiNewsClus
 - 内容风格：${profile.contentStyle}
 
 ## 当前热点新闻
-${clusterSummary}
+${clusterSummary}`;
+
+  if (context?.recentPerformance) {
+    prompt += `
+
+## 近期内容表现
+${context.recentPerformance}
+注意：低表现选题方向不应直接回避，而是给出风险提示和改进角度。`;
+  }
+
+  prompt += `
 
 ## 输出格式
 请严格按以下 JSON 数组格式输出，不要输出其他内容：
@@ -33,6 +51,8 @@ ${clusterSummary}
     "relatedSignals": ["相关新闻标题1", "相关新闻标题2"]
   }
 ]`;
+
+  return prompt;
 }
 
 export function parseRecommendations(raw: string): TopicRecommendation[] {

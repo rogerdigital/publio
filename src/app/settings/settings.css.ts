@@ -130,6 +130,13 @@ export const accordionAccountName = style({
   color: vars.color.successText,
 });
 
+export const accordionMissingFields = style({
+  margin: 0,
+  marginTop: '3px',
+  fontSize: '13px',
+  color: vars.color.warningText,
+});
+
 export const accordionToggle = style({
   display: 'flex',
   flexShrink: 0,

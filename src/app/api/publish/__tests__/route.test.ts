@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { resetDraftRegistryForTests } from '@/lib/drafts/registry';
 import { resetSyncHistoryStoreForTests } from '@/lib/sync/registry';
+import { resetPlatformVariantRegistryForTests } from '@/lib/platformVariants/registry';
 import { POST } from '@/app/api/publish/route';
 
 // Mock all publishers — actual publish happens async, tests only verify task creation
@@ -114,5 +115,32 @@ describe('/api/publish', () => {
     expect(response.status).toBe(400);
     const json = await readJson(response);
     expect(json.notReadyPlatforms).toContain('wechat');
+  });
+
+  test('uses platform variant content when variantIds provided', async () => {
+    const variantStore = resetPlatformVariantRegistryForTests({
+      createId: () => 'v-wechat',
+      now: () => '2026-04-11T08:00:00.000Z',
+    });
+    variantStore.createVariant({
+      draftId: 'draft-1',
+      platform: 'wechat',
+      title: '公众号专属标题',
+      content: '公众号专属正文',
+    });
+
+    const response = await POST(
+      createJsonRequest({
+        draftId: 'draft-1',
+        title: '通用标题',
+        content: '通用正文',
+        platforms: ['wechat'],
+        variantIds: { wechat: 'v-wechat' },
+      }),
+    );
+    const json = await readJson(response);
+
+    expect(response.status).toBe(200);
+    expect(json.syncTaskId).toBe('sync-1');
   });
 });

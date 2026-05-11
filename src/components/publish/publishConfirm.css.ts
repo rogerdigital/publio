@@ -83,6 +83,42 @@ export const errorItem = style({
   lineHeight: 1.6,
 });
 
+export const warningSection = style({
+  marginBottom: 16,
+  padding: 12,
+  borderRadius: vars.radius.lg,
+  background: vars.color.warningBg,
+  border: `1px solid ${vars.color.warningBorder}`,
+});
+
+export const warningItem = style({
+  margin: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 6,
+  fontSize: 13,
+  color: vars.color.warningText,
+  lineHeight: 1.6,
+});
+
+export const infoSection = style({
+  marginBottom: 16,
+  padding: 12,
+  borderRadius: vars.radius.lg,
+  background: vars.color.bgElevated,
+  border: `1px solid ${vars.color.border}`,
+});
+
+export const infoItem = style({
+  margin: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 6,
+  fontSize: 13,
+  color: vars.color.textMuted,
+  lineHeight: 1.6,
+});
+
 export const actions = style({
   display: 'flex',
   justifyContent: 'flex-end',

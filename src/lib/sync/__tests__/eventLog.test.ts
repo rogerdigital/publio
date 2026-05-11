@@ -13,6 +13,37 @@ describe('sync task event log', () => {
     });
   });
 
+  test('appendTaskEvent adds checked event after created', () => {
+    const store = createSyncHistoryStore({ now: () => '2024-01-01T00:00:00.000Z' });
+    const task = store.createTask({ title: 'Test', platforms: ['wechat'] });
+
+    const updated = store.appendTaskEvent(task.id, { type: 'checked', message: '审核通过' });
+
+    expect(updated?.events).toHaveLength(2);
+    expect(updated?.events[1]).toMatchObject({ type: 'checked', message: '审核通过' });
+  });
+
+  test('appendTaskEvent adds started event', () => {
+    const store = createSyncHistoryStore({ now: () => '2024-01-01T00:00:00.000Z' });
+    const task = store.createTask({ title: 'Test', platforms: ['wechat'] });
+
+    const updated = store.appendTaskEvent(task.id, { type: 'started' });
+
+    expect(updated?.events).toHaveLength(2);
+    expect(updated?.events[1]).toMatchObject({ type: 'started' });
+  });
+
+  test('updateReceipt with syncing status appends platform-started event', () => {
+    const store = createSyncHistoryStore({ now: () => '2024-01-01T00:00:00.000Z' });
+    const task = store.createTask({ title: 'Test', platforms: ['wechat'] });
+
+    const updated = store.updateReceipt(task.id, 'wechat', { status: 'syncing' });
+
+    expect(
+      updated?.events.some((e) => e.type === 'platform-started' && e.platform === 'wechat'),
+    ).toBe(true);
+  });
+
   test('updateReceipt appends platform-succeeded on published status', () => {
     const store = createSyncHistoryStore({ now: () => '2024-01-01T00:00:00.000Z' });
     const task = store.createTask({ title: 'Test', platforms: ['wechat'] });
@@ -59,5 +90,31 @@ describe('sync task event log', () => {
     const updated = store.appendRetryEvent(task.id);
 
     expect(updated?.events.some((e) => e.type === 'retried')).toBe(true);
+  });
+
+  test('events maintain chronological append order', () => {
+    let tick = 0;
+    const store = createSyncHistoryStore({
+      now: () => `2024-01-01T00:00:0${tick++}.000Z`,
+    });
+    const task = store.createTask({ title: 'Full flow', platforms: ['wechat', 'x'] });
+
+    store.appendTaskEvent(task.id, { type: 'checked', message: '通过' });
+    store.appendTaskEvent(task.id, { type: 'started' });
+    store.updateReceipt(task.id, 'wechat', { status: 'syncing' });
+    store.updateReceipt(task.id, 'wechat', { status: 'published', message: 'ok' });
+    store.updateReceipt(task.id, 'x', { status: 'failed', failureMessage: 'err' });
+
+    const final = store.getTask(task.id)!;
+    const types = final.events.map((e) => e.type);
+
+    expect(types).toEqual([
+      'created',
+      'checked',
+      'started',
+      'platform-started',
+      'platform-succeeded',
+      'platform-failed',
+    ]);
   });
 });

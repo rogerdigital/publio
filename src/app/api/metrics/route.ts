@@ -17,7 +17,9 @@ export async function GET(request: NextRequest) {
 
     const all = store.getAll();
     const summary = store.getSummary();
-    return apiResponse({ metrics: all, summary });
+    const byPlatform = store.aggregateByPlatform();
+    const byTopic = store.aggregateByTopic();
+    return apiResponse({ metrics: all, summary, byPlatform, byTopic });
   } catch (error) {
     return apiError(error instanceof Error ? error.message : '服务器内部错误', 500);
   }

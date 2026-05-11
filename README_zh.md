@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](./tsconfig.json)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
-[![Tests](https://img.shields.io/badge/tests-129%20passing-brightgreen.svg)](#测试)
+[![Tests](https://img.shields.io/badge/tests-332%20passing-brightgreen.svg)](#测试)
 
 > AI 原生内容运营平台。一次创作，全平台分发。
 
@@ -15,6 +15,18 @@ Publio 是多平台内容分发工具，整合 Markdown 编辑、AI 选题发现
 ---
 
 ## 功能特性
+
+### 内容工作流
+
+Publio 核心工作流覆盖内容创作全生命周期：
+
+1. **信号收件箱** — 从 RSS 源摄入新闻信号，手动添加或 AI 发现
+2. **选题库** — 将信号晋升为跟踪选题，生命周期管理（活跃 → 休眠 → 归档）
+3. **写作大纲** — 每个选题的结构化 Brief：论点、大纲、平台发布计划
+4. **写作台** — Markdown 编辑器 + AI 写作辅助、斜杠命令、自动保存
+5. **渠道版本** — 每个平台独立的内容版本（同步、AI 适配、手动编辑）
+6. **多平台发布** — 并发发布 + 进度追踪 + 定时发布
+7. **内容复盘** — 发布后指标 → AI 复盘 → 经验沉淀 → 反哺推荐
 
 ### 写作台
 
@@ -45,6 +57,8 @@ Publio 是多平台内容分发工具，整合 Markdown 编辑、AI 选题发现
 ### AI 选题台
 
 - 聚合 9+ 内置 RSS 源 + 用户自定义源
+- **信号收件箱** — 分类处理信号（置顶、忽略、晋升为选题）
+- **选题库** — 生命周期管理、关联 Brief、追踪表现
 - 话题聚类，六维评分（新鲜度、影响力、势能、可信度、视觉就绪度、覆盖度）
 - 每个聚合话题生成研究底稿：发生了什么、为什么重要、影响谁、推荐角度
 - 一键转换为编辑器草稿，研究上下文自动嵌入
@@ -52,6 +66,8 @@ Publio 是多平台内容分发工具，整合 Markdown 编辑、AI 选题发现
 ### 多平台发布
 
 - `Promise.allSettled` 并发发布至所有已选平台
+- **渠道版本** — 每个平台拥有独立的内容版本（从主稿同步、AI 适配、或手动编辑）
+- **版本状态追踪** — 已同步 / AI 适配 / 已编辑 / 已检查 / 已排期 / 已发布
 - **内容审核** — 敏感词检测，发布前弹窗警告
 - **平台校验** — 自动规则检查（标题长度、内容限制、格式约束）
 - **发布进度浮层** — 实时状态轮询，逐平台接收回执
@@ -63,6 +79,17 @@ Publio 是多平台内容分发工具，整合 Markdown 编辑、AI 选题发现
 
 - 月视图展示草稿、定时发布、已发布、失败事件
 - 点击跳转编辑器或分发任务详情
+
+### 今日工作台
+
+- 统一面板展示各流程阶段的待办项
+- 待处理信号、活跃选题、未完成 Brief、待发布版本、进行中任务
+- 直接链接跳转至各工作流
+
+### 数据管理
+
+- **自动迁移** — schema 版本化，结构变更前自动备份
+- **工作空间导入导出** — 导出所有实体（信号、选题、Brief、草稿、版本、任务、复盘）为 JSON；导入支持 dry-run 预览和合并语义
 
 ### 设置与配置
 
@@ -194,9 +221,15 @@ src/
 │   ├── settings/                 # 平台与 AI 配置
 │   ├── sync-tasks/               # 分发任务追踪
 │   └── api/                      # Route Handlers
-│       ├── agent/                  # AI 端点（写作、适配、研究、诊断、对话）
+│       ├── agent/                  # AI 端点（写作、适配、研究、诊断、对话、复盘）
 │       ├── copilot/                # 内容 Copilot（画像、推荐、风格）
+│       ├── signals/                # Signal 收件箱 CRUD
+│       ├── topics/                 # Topic 库 CRUD
+│       ├── briefs/                 # Brief CRUD
 │       ├── drafts/                 # 草稿 CRUD
+│       ├── feedback/               # 内容复盘 CRUD
+│       ├── export/                 # 工作空间导出
+│       ├── import/                 # 工作空间导入
 │       ├── metrics/                # 指标采集
 │       ├── platforms/              # 平台连接管理
 │       ├── publish/                # 发布端点
@@ -219,19 +252,25 @@ src/
 ├── hooks/                        # useAutoSave, useSlashCommands, useAgentStream, useImmersiveMode
 ├── lib/
 │   ├── agent/                    # LLM provider、流式传输、prompt 模板
-│   ├── ai-news/                  # RSS 聚合、聚类、评分
+│   ├── ai-news/                  # RSS 聚合、聚类、评分、信号持久化
+│   ├── signals/                  # Signal 收件箱存储
+│   ├── topics/                   # Topic 库存储
+│   ├── briefs/                   # Brief 存储
 │   ├── copilot/                  # 品牌画像、风格学习、选题推荐
 │   ├── custom-prompts/           # 自定义 prompt 存储
 │   ├── drafts/                   # 草稿 CRUD（含版本历史）
-│   ├── metrics/                  # 发布后指标存储
+│   ├── export/                   # 工作空间导入导出
+│   ├── feedback/                 # 内容复盘存储
+│   ├── metrics/                  # 发布后指标与聚合
 │   ├── moderation/               # 敏感词检测
 │   ├── platformAdapters/         # 按平台适配内容格式
 │   ├── platformConnections/      # 连接管理与 OAuth
 │   ├── platformRules/            # 平台内容校验规则
+│   ├── platformVariants/         # 渠道版本存储
 │   ├── publishers/               # 平台发布逻辑
 │   ├── rss-sources/              # 自定义 RSS 源存储
 │   ├── scheduler/                # 定时发布执行
-│   ├── storage/                  # JSON 文件集合、env 文件工具
+│   ├── storage/                  # JSON 文件集合、env 文件、数据迁移
 │   ├── sync/                     # 分发任务状态机
 │   ├── templates/                # 自定义模板存储
 │   └── upload/                   # GitHub 图片上传
@@ -269,7 +308,7 @@ pnpm test           # 运行所有测试
 pnpm test -- --watch  # 监听模式
 ```
 
-40 个测试文件，129 个测试用例，覆盖 stores、API 路由、组件和工具函数。
+64 个测试文件，332 个测试用例，覆盖 stores、API 路由、组件和工具函数。
 
 ---
 

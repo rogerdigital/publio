@@ -3,10 +3,16 @@ import type { ChatMessage } from '../types';
 import { getRuleForPlatform } from '@/lib/platformRules/rules';
 
 const SYSTEM_BASE = `你是一个专业的社交媒体内容适配专家。你需要将用户的文章改写为适合目标平台的风格。
+
 要求：
-- 直接输出适配后的内容，不要添加解释
+- 输出严格 JSON 格式（不要 Markdown code fence）
+- 格式如下：
+{
+  "content": "适配后的完整内容（纯文本或 Markdown，根据平台需要）",
+  "changeSummary": "适配说明：简要描述标题处理、结构变化、长度调整、语气变化、标签/话题处理（2-4 句话）"
+}
 - 保留核心信息和观点
-- 输出纯文本或 Markdown（根据平台需要）`;
+- 只输出 JSON，不要额外解释`;
 
 function buildPlatformConstraints(platform: PlatformId): string {
   const rule = getRuleForPlatform(platform);

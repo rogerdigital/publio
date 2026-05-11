@@ -17,10 +17,13 @@ export type SyncTaskStatus =
   | 'needs-action';
 
 export type SyncFailureCode =
+  | 'auth-missing'
   | 'auth-expired'
   | 'rate-limited'
   | 'invalid-content'
+  | 'content-rejected'
   | 'network-error'
+  | 'platform-unavailable'
   | 'manual-required'
   | 'unknown';
 
@@ -34,6 +37,9 @@ export type SyncNextAction =
 
 export type SyncEventType =
   | 'created'
+  | 'checked'
+  | 'queued'
+  | 'started'
   | 'platform-started'
   | 'platform-succeeded'
   | 'platform-failed'

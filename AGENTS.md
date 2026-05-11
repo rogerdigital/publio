@@ -33,76 +33,87 @@ src/
 ├── app/                    # Next.js App Router 页面
 │   ├── layout.tsx            # 根布局（Sidebar + main）
 │   ├── page.tsx              # 首页：写作台（编辑器 + Agent 面板 + 发布面板）
-│   ├── ai-news/
-│   │   ├── page.tsx          # AI 选题工作台（SSR metadata）
-│   │   └── error.tsx         # 错误边界
-│   ├── drafts/
-│   │   ├── page.tsx          # 稿件库页
-│   │   └── DraftsPageClient.tsx
-│   ├── settings/
-│   │   └── page.tsx          # 设置页（平台凭证 + AI Agent 配置）
+│   ├── ai-news/              # AI 选题工作台
+│   ├── drafts/               # 稿件库
+│   ├── analytics/            # 数据看板
+│   ├── calendar/             # 内容日历
+│   ├── settings/             # 设置页
 │   ├── sync-tasks/           # 分发记录
-│   │   ├── page.tsx
-│   │   └── [id]/page.tsx
 │   └── api/                  # API Routes
 │       ├── ai-news/route.ts
 │       ├── publish/route.ts
 │       ├── settings/route.ts
+│       ├── signals/            # Signal 收件箱 CRUD
+│       ├── topics/             # Topic 库 CRUD
+│       ├── briefs/             # Brief CRUD
 │       ├── drafts/             # 草稿 CRUD
-│       │   ├── route.ts
-│       │   └── [id]/route.ts
-│       ├── sync-tasks/         # 分发任务
-│       │   ├── route.ts
-│       │   └── [id]/
-│       │       ├── route.ts
-│       │       ├── mark-done/route.ts
-│       │       └── retry/route.ts
+│       │   └── [id]/variants/    # 渠道版本 CRUD
+│       ├── feedback/           # 内容复盘 CRUD
+│       ├── export/             # 工作空间导出
+│       ├── import/             # 工作空间导入
+│       ├── metrics/            # 指标采集与聚合
+│       ├── sync-tasks/         # 分发任务管理
 │       ├── agent/              # AI Agent SSE endpoints
-│       │   ├── status/route.ts   # GET — 检查 Agent 可用性
-│       │   ├── write/route.ts    # POST — 写作辅助（扩写/缩写/改写/润色/续写）
-│       │   ├── adapt/route.ts    # POST — 平台内容适配
-│       │   ├── research/route.ts # POST — 深度选题分析
-│       │   └── diagnose/route.ts # POST — 发布失败诊断
+│       │   ├── status/route.ts
+│       │   ├── write/route.ts
+│       │   ├── adapt/route.ts
+│       │   ├── research/route.ts
+│       │   ├── diagnose/route.ts
+│       │   └── feedback/route.ts
+│       ├── copilot/            # 内容 Copilot
 │       └── platforms/          # 平台连接管理
-│           └── [platform]/connection/
 ├── components/
 │   ├── layout/               # AppShellHeader, Sidebar, SurfaceCard
-│   ├── editor/               # MarkdownEditor, DraftPanel, EditorialContextCard
-│   ├── news/                 # AiNewsPageClient, TopicSignalCard, ScoreBar
-│   ├── publish/              # PlatformSelector, PublishButton, PlatformPreviewPanel,
-│   │                         # PlatformAdaptButton, PublishTimingSuggestion
-│   ├── sync/                 # SyncTaskList, SyncTaskDetail (含 DiagnoseButton)
+│   ├── editor/               # MarkdownEditor, DraftPanel, EditorialContextCard, WritingBriefCard
+│   ├── news/                 # AiNewsPageClient, TopicSignalCard, ScoreBar, SignalInbox, TopicLibrary
+│   ├── publish/              # PlatformSelector, PublishButton, PlatformPreviewPanel
+│   ├── sync/                 # SyncTaskList, SyncTaskDetail
 │   ├── agent/                # AgentPanel, AgentStreamOutput
+│   ├── analytics/            # MetricsCard, ContentInsightPanel, TopicPerformanceTable
+│   ├── copilot/              # TopicRecommendationPanel
+│   ├── workbench/            # TodayWorkbench
+│   ├── feedback/             # EmptyState, ErrorState
 │   └── drafts/               # DraftLibraryClient
 ├── hooks/
 │   ├── useAutoSave.ts
-│   ├── useSlashCommands.ts   # 编辑器 slash commands（含 AI 命令）
-│   └── useAgentStream.ts     # SSE 消费 hook（fetch + AbortController）
+│   ├── useSlashCommands.ts
+│   └── useAgentStream.ts
 ├── lib/
 │   ├── agent/                # AI Agent 核心
-│   │   ├── types.ts            # AgentAction, ChatMessage, LLMProvider 等
-│   │   ├── config.ts           # 从 .env.local 实时读取 Agent 配置
-│   │   ├── provider.ts         # OpenAI-compatible streaming provider
-│   │   ├── stream.ts           # createSSEResponse — Next.js SSE 封装
-│   │   ├── publishOps.ts       # 发布历史聚合 + 时间建议
+│   │   ├── types.ts
+│   │   ├── config.ts
+│   │   ├── context.ts          # Agent 上下文注入
+│   │   ├── provider.ts
+│   │   ├── stream.ts
+│   │   ├── publishOps.ts
 │   │   └── prompts/
-│   │       ├── writing.ts        # 扩写/缩写/改写/润色/续写 prompt
-│   │       ├── adaptation.ts     # 各平台风格适配 prompt
-│   │       ├── research.ts       # 深度选题分析 prompt
-│   │       └── diagnose.ts       # 发布失败诊断 prompt
-│   ├── ai-news/              # RSS → 聚类 → 评分 → 研究底稿
+│   │       ├── writing.ts
+│   │       ├── adaptation.ts
+│   │       ├── research.ts
+│   │       ├── diagnose.ts
+│   │       └── feedback.ts
+│   ├── ai-news/              # RSS → 聚类 → 评分 → 信号持久化
+│   ├── signals/              # Signal 存储与 CRUD
+│   ├── topics/               # Topic 库存储与 CRUD
+│   ├── briefs/               # Brief 存储与 CRUD
 │   ├── drafts/               # 草稿 CRUD（JSON 文件）
+│   ├── platformVariants/     # 渠道版本存储
+│   ├── feedback/             # 内容复盘存储
+│   ├── metrics/              # 指标存储与聚合
+│   ├── export/               # 工作空间导入导出
+│   ├── copilot/              # 品牌画像、风格学习、选题推荐
 │   ├── sync/                 # 分发任务状态机
 │   ├── publishers/           # 各平台发布器
 │   ├── platformAdapters/     # 内容格式适配
 │   ├── platformConnections/  # 连接管理
-│   ├── storage/              # jsonFileCollection, envFile
+│   ├── storage/              # jsonFileCollection, envFile, migrations
+│   │   └── migrations/         # 数据迁移框架
 │   ├── markdown.ts
-│   ├── newsDraft.ts          # 研究底稿 → Markdown 草稿（支持 LLM 分析融入）
+│   ├── newsDraft.ts
 │   └── config.ts
 ├── stores/
 │   ├── publishStore.ts       # 编辑器内容、平台选择、发布状态
-│   └── agentStore.ts         # Agent 流式输出状态 + researchCache
+│   └── agentStore.ts         # Agent 流式输出状态
 ├── styles/
 │   └── tokens.css.ts         # 设计 token
 └── types/
@@ -158,10 +169,12 @@ pnpm verify           # lint + test + build
 ### Patterns
 - **平台配置**: `src/lib/config.ts`
 - **RSS 聚合**: 多源 RSS → 聚类 → 六维评分 → 排序 → 研究底稿
+- **信号流**: RSS → Signal → Topic → Brief → Draft → Variant → Publish → Feedback
 - **发布流程**: 编辑器 → 选平台 → fire-and-forget → 浮层轮询
 - **AI 写作**: Slash command → SSE → Agent Panel → 插入/替换/复制
 - **自动保存**: 停止输入 1s 触发，首次保存自动创建草稿
-- **数据存储**: JSON 文件（`.publio-data/`），原子写
+- **数据存储**: JSON 文件（`.publio-data/`），原子写，schema 版本化迁移
+- **工作空间备份**: 导入导出全量实体，导入前 dry-run 预览
 
 ## Environment Variables
 

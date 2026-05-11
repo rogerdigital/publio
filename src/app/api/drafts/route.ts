@@ -27,6 +27,14 @@ export async function POST(request: NextRequest | Request) {
       typeof body.topicClusterId === 'string' && body.topicClusterId.trim()
         ? body.topicClusterId.trim()
         : undefined;
+    const topicId =
+      typeof body.topicId === 'string' && body.topicId.trim() ? body.topicId.trim() : undefined;
+    const briefId =
+      typeof body.briefId === 'string' && body.briefId.trim() ? body.briefId.trim() : undefined;
+    const contentGoal =
+      typeof body.contentGoal === 'string' && body.contentGoal.trim()
+        ? body.contentGoal.trim()
+        : undefined;
     const scheduledAt =
       typeof body.scheduledAt === 'string' && body.scheduledAt.trim()
         ? body.scheduledAt.trim()
@@ -47,6 +55,9 @@ export async function POST(request: NextRequest | Request) {
       content,
       source,
       topicClusterId,
+      topicId,
+      briefId,
+      contentGoal,
       scheduledAt,
       platforms,
     });

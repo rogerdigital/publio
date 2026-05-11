@@ -1,6 +1,7 @@
 import type { PlatformId, PlatformPublishResult } from '@/types';
 import { getDraftRegistry } from '@/lib/drafts/registry';
 import { getSyncHistoryStore } from '@/lib/sync/registry';
+import { getPlatformVariantRegistry } from '@/lib/platformVariants/registry';
 import type { SyncTask } from '@/lib/sync/types';
 import {
   type PlatformPublishDrafts,
@@ -17,6 +18,7 @@ export interface RunPublishJobInput {
   content: string;
   platforms: PlatformId[];
   platformDrafts?: PlatformPublishDrafts;
+  variantIds?: Record<string, string>;
   clearScheduledAt?: boolean;
 }
 
@@ -57,6 +59,23 @@ function applyPublishResults(syncTask: SyncTask, results: PlatformPublishResult[
   return updatedTask;
 }
 
+function markVariantsPublished(
+  platforms: PlatformId[],
+  results: PlatformPublishResult[],
+  variantIds?: Record<string, string>,
+) {
+  if (!variantIds) return;
+  const variantRegistry = getPlatformVariantRegistry();
+  for (let i = 0; i < platforms.length; i++) {
+    const platform = platforms[i];
+    const result = results[i];
+    const vid = variantIds[platform];
+    if (vid && result && (result.status === 'success' || result.status === 'published')) {
+      variantRegistry.updateVariant(vid, { status: 'published' });
+    }
+  }
+}
+
 export async function runPublishJob(input: RunPublishJobInput): Promise<RunPublishJobResult> {
   const syncStore = getSyncHistoryStore();
   let syncTask = syncStore.getTask(input.syncTaskId);
@@ -65,6 +84,7 @@ export async function runPublishJob(input: RunPublishJobInput): Promise<RunPubli
   }
 
   try {
+    syncStore.appendTaskEvent(input.syncTaskId, { type: 'started' });
     const results = await publishToPlatforms(
       input.platforms,
       input.title,
@@ -73,6 +93,7 @@ export async function runPublishJob(input: RunPublishJobInput): Promise<RunPubli
     );
     syncTask = applyPublishResults(syncTask, results);
     updateDraftFromTask(syncTask, input.clearScheduledAt);
+    markVariantsPublished(input.platforms, results, input.variantIds);
     return { syncTask, results };
   } catch (error) {
     const message = error instanceof Error ? error.message : '发布过程中发生未知错误';

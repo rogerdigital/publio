@@ -4,6 +4,8 @@
  */
 import { TwitterApi } from 'twitter-api-v2';
 import { getWechatConfig, getXhsConfig, getZhihuConfig, getXConfig } from '@/lib/config';
+import type { PlatformId } from '@/types';
+import type { PlatformHealthStatus, PlatformConnectionProfile } from './types';
 
 export interface CheckResult {
   ok: boolean;
@@ -123,4 +125,51 @@ export async function checkX(): Promise<CheckResult> {
       failureReason: `X API 凭证无效: ${error instanceof Error ? error.message : '未知错误'}`,
     };
   }
+}
+
+const platformCheckers: Record<PlatformId, () => Promise<CheckResult>> = {
+  wechat: checkWechat,
+  xiaohongshu: checkXiaohongshu,
+  zhihu: checkZhihu,
+  x: checkX,
+};
+
+export async function getHealthStatuses(
+  profiles: PlatformConnectionProfile[],
+): Promise<PlatformHealthStatus[]> {
+  const results: PlatformHealthStatus[] = [];
+
+  for (const profile of profiles) {
+    const configured = profile.missingKeys.length === 0;
+    const now = new Date().toISOString();
+
+    if (!configured) {
+      results.push({
+        platform: profile.platform,
+        configured: false,
+        valid: false,
+        lastCheckedAt: now,
+        missingFields: profile.missingKeys,
+        nextAction: `填写: ${profile.missingKeys.join(', ')}`,
+      });
+      continue;
+    }
+
+    const checker = platformCheckers[profile.platform];
+    const checkResult = await checker();
+
+    results.push({
+      platform: profile.platform,
+      configured: true,
+      valid: checkResult.ok,
+      expiresAt: checkResult.expiresAt,
+      lastCheckedAt: now,
+      missingFields: [],
+      nextAction: checkResult.ok ? '已就绪' : '重新配置凭证',
+      accountName: checkResult.accountName,
+      failureReason: checkResult.failureReason,
+    });
+  }
+
+  return results;
 }

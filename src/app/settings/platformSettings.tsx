@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react';
 import { WechatIcon, XiaohongshuIcon, ZhihuIcon, XIcon } from '@/components/icons/PlatformIcons';
-import type { PlatformConnectionStatus } from '@/lib/platformConnections/types';
+import type {
+  PlatformConnectionStatus,
+  PlatformHealthStatus,
+} from '@/lib/platformConnections/types';
 import type { PlatformId } from '@/types';
 import * as styles from './settings.css';
 
@@ -140,4 +143,17 @@ export function formatRelativeTime(iso: string): string {
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours} 小时前`;
   return `${Math.floor(hours / 24)} 天前`;
+}
+
+export function getHealthSummary(health: PlatformHealthStatus): {
+  label: string;
+  tone: 'ok' | 'warn' | 'error';
+} {
+  if (!health.configured) {
+    return { label: `缺少配置：${health.missingFields.join(', ')}`, tone: 'error' };
+  }
+  if (!health.valid) {
+    return { label: health.failureReason || '凭证无效', tone: 'warn' };
+  }
+  return { label: health.accountName ? `${health.accountName} · 已就绪` : '已就绪', tone: 'ok' };
 }

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Lightbulb, TrendingUp, TrendingDown, Minus, Loader2 } from 'lucide-react';
 import type { TopicRecommendation } from '@/lib/copilot/types';
 import type { AiNewsCluster } from '@/lib/ai-news/types';
+import type { MetricsSummary } from '@/lib/metrics/types';
 import { useAgentStream } from '@/hooks/useAgentStream';
 import { parseRecommendations } from '@/lib/copilot/recommend';
 import * as styles from './copilot.css';
@@ -29,7 +30,17 @@ export default function TopicRecommendationPanel({ clusters, onSelectTopic }: Pr
   const [recommendations, setRecommendations] = useState<TopicRecommendation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [perfSummary, setPerfSummary] = useState<MetricsSummary | null>(null);
   const agent = useAgentStream();
+
+  useEffect(() => {
+    fetch('/api/metrics')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.summary && data.summary.postCount > 0) setPerfSummary(data.summary);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleRecommend = async () => {
     setLoading(true);
@@ -102,6 +113,13 @@ export default function TopicRecommendationPanel({ clusters, onSelectTopic }: Pr
         <span>AI 选题推荐</span>
       </div>
       <p className={styles.panelHint}>基于品牌画像 + 当前热点，推荐适合你的内容选题。</p>
+
+      {perfSummary && (
+        <p className={styles.panelHint} style={{ fontSize: 11 }}>
+          近期表现：{perfSummary.postCount} 篇已发布，累计 {perfSummary.totalViews.toLocaleString()}{' '}
+          阅读、{perfSummary.totalLikes.toLocaleString()} 赞
+        </p>
+      )}
 
       {recommendations.length === 0 && !loading && (
         <button
