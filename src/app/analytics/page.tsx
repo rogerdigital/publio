@@ -4,11 +4,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { BarChart3, RefreshCw } from 'lucide-react';
 import AppShellHeader from '@/components/layout/AppShellHeader';
 import MetricsCard from '@/components/analytics/MetricsCard';
-import type { MetricsSummary } from '@/lib/metrics/types';
+import ContentInsightPanel from '@/components/analytics/ContentInsightPanel';
+import TopicPerformanceTable from '@/components/analytics/TopicPerformanceTable';
+import type { MetricsSummary, SyncTaskMetrics, AggregateMetrics } from '@/lib/metrics/types';
 import * as styles from '@/components/analytics/analytics.css';
 
 export default function AnalyticsPage() {
   const [summary, setSummary] = useState<MetricsSummary | null>(null);
+  const [metrics, setMetrics] = useState<SyncTaskMetrics[]>([]);
+  const [byPlatform, setByPlatform] = useState<Record<string, AggregateMetrics>>({});
+  const [byTopic, setByTopic] = useState<Record<string, AggregateMetrics>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [refreshProgress, setRefreshProgress] = useState('');
@@ -18,6 +23,9 @@ export default function AnalyticsPage() {
       .then((r) => r.json())
       .then((data) => {
         if (data.summary) setSummary(data.summary);
+        if (data.metrics) setMetrics(data.metrics);
+        if (data.byPlatform) setByPlatform(data.byPlatform);
+        if (data.byTopic) setByTopic(data.byTopic);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -106,12 +114,18 @@ export default function AnalyticsPage() {
       {loading ? (
         <div className={styles.emptyState}>加载中...</div>
       ) : summary && summary.postCount > 0 ? (
-        <MetricsCard summary={summary} />
+        <>
+          <MetricsCard summary={summary} />
+          <TopicPerformanceTable byTopic={byTopic} byPlatform={byPlatform} />
+          <ContentInsightPanel metrics={metrics} />
+        </>
       ) : (
         <div className={styles.emptyState}>
           <BarChart3 size={32} />
           <p>暂无发布数据</p>
-          <p style={{ fontSize: 13 }}>发布内容后，数据将自动回收到这里。</p>
+          <p style={{ fontSize: 13 }}>
+            发布内容后，数据将自动回收到这里。也可手动录入复盘来积累洞察。
+          </p>
         </div>
       )}
     </div>

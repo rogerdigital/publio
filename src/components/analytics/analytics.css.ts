@@ -84,3 +84,74 @@ export const emptyState = style({
   fontSize: '14px',
   textAlign: 'center',
 });
+
+export const insightSection = style({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+  gap: '16px',
+});
+
+export const insightBlock = style({
+  borderRadius: vars.radius.xl,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  padding: '16px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+});
+
+export const insightTitle = style({
+  fontSize: '12px',
+  fontWeight: 600,
+  textTransform: 'uppercase',
+  letterSpacing: '0.08em',
+  color: vars.color.textMuted,
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+});
+
+export const insightList = style({
+  listStyle: 'none',
+  margin: 0,
+  padding: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '8px',
+});
+
+export const insightItem = style({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '8px 10px',
+  borderRadius: vars.radius.md,
+  background: vars.color.bgElevated,
+});
+
+export const insightItemTitle = style({
+  fontSize: '13px',
+  color: vars.color.text,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  maxWidth: '200px',
+});
+
+export const insightItemMeta = style({
+  fontSize: '12px',
+  color: vars.color.textMuted,
+  whiteSpace: 'nowrap',
+});
+
+export const table = style({
+  width: '100%',
+  borderCollapse: 'collapse',
+  fontSize: '13px',
+});
+
+export const topicIdCell = style({
+  fontFamily: 'monospace',
+  fontSize: '12px',
+});
