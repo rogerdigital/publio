@@ -10,6 +10,7 @@ import {
 } from '@/lib/agent/inputLimits';
 import { getBrandProfile } from '@/lib/copilot/profile';
 import { buildRecommendPrompt } from '@/lib/copilot/recommend';
+import { getMetricsStore } from '@/lib/metrics/store';
 import type { AiNewsCluster } from '@/lib/ai-news/types';
 import type { ChatMessage } from '@/lib/agent/types';
 
@@ -51,7 +52,19 @@ export async function POST(request: NextRequest) {
     return limited.truncated && key in limitedProfile;
   });
   const limitedClusters = limitRecommendationClusters(body.clusters);
-  const prompt = buildRecommendPrompt(limitedProfile, limitedClusters.value);
+
+  const metricsStore = getMetricsStore();
+  const summary = metricsStore.getSummary();
+  let recentPerformance: string | undefined;
+  if (summary.postCount > 0) {
+    const byPlatform = metricsStore.aggregateByPlatform();
+    const platformSummary = Object.entries(byPlatform)
+      .map(([p, agg]) => `${p}: ${agg.views} 阅读/${agg.likes} 赞 (${agg.postCount} 篇)`)
+      .join('；');
+    recentPerformance = `共 ${summary.postCount} 篇，${summary.totalViews} 阅读、${summary.totalLikes} 赞。渠道分布：${platformSummary}`;
+  }
+
+  const prompt = buildRecommendPrompt(limitedProfile, limitedClusters.value, { recentPerformance });
   const messages: ChatMessage[] = [{ role: 'user', content: prompt }];
   const provider = createOpenAIProvider(config);
   const tokens = provider.stream({ messages, temperature: 0.7 });

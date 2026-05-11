@@ -10,9 +10,11 @@ import {
   Lightbulb,
   PenLine,
   Sparkles,
+  TrendingUp,
 } from 'lucide-react';
 import type { Topic, TopicStatus } from '@/lib/topics/types';
 import type { Signal } from '@/lib/signals/types';
+import type { AggregateMetrics } from '@/lib/metrics/types';
 import BriefEditor from '@/components/briefs/BriefEditor';
 import TopicPackPanel from '@/components/news/TopicPackPanel';
 import * as styles from './TopicLibrary.css';
@@ -55,6 +57,7 @@ export default function TopicLibrary() {
   const [agentEnabled, setAgentEnabled] = useState(false);
   const [packTopicId, setPackTopicId] = useState<string | null>(null);
   const [topicSignals, setTopicSignals] = useState<Record<string, Signal[]>>({});
+  const [topicPerf, setTopicPerf] = useState<Record<string, AggregateMetrics>>({});
 
   const fetchTopics = useCallback(async () => {
     setError('');
@@ -83,6 +86,15 @@ export default function TopicLibrary() {
       .then((r) => r.json())
       .then((d) => setAgentEnabled(d.available === true))
       .catch(() => setAgentEnabled(false));
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/metrics')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.byTopic) setTopicPerf(data.byTopic);
+      })
+      .catch(() => {});
   }, []);
 
   const handleOpenPack = async (topic: Topic) => {
@@ -294,6 +306,22 @@ export default function TopicLibrary() {
                       {PLATFORM_LABELS[p] || p}
                     </span>
                   ))}
+                </div>
+              )}
+
+              {topicPerf[topic.id] && (
+                <div className={styles.topicMeta}>
+                  <TrendingUp size={12} />
+                  <span>
+                    历史表现：{topicPerf[topic.id].views.toLocaleString()} 阅读 ·{' '}
+                    {topicPerf[topic.id].likes.toLocaleString()} 赞
+                    {topicPerf[topic.id].postCount > 1 && ` · ${topicPerf[topic.id].postCount} 篇`}
+                  </span>
+                  {topicPerf[topic.id].views < 50 && topicPerf[topic.id].postCount > 0 && (
+                    <span style={{ color: 'var(--color-warning, #c77c2e)', fontSize: 11 }}>
+                      低表现风险
+                    </span>
+                  )}
                 </div>
               )}
 
