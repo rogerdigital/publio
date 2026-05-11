@@ -14,14 +14,26 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Agent 未配置' }, { status: 503 });
   }
 
-  let body: DiagnoseAgentRequest;
+  let body: DiagnoseAgentRequest & {
+    events?: Array<{ type: string; message?: string; timestamp: string }>;
+    variantSnapshot?: { title?: string; contentLength?: number; status?: string };
+    publishCheckResult?: string;
+  };
   try {
     body = await request.json();
   } catch {
     return Response.json({ error: '请求体解析失败' }, { status: 400 });
   }
 
-  const { platform, errorMessage, statusCode, context } = body;
+  const {
+    platform,
+    errorMessage,
+    statusCode,
+    context,
+    events,
+    variantSnapshot,
+    publishCheckResult,
+  } = body;
 
   if (!platform || !errorMessage?.trim()) {
     return Response.json({ error: '平台和错误信息不能为空' }, { status: 400 });
@@ -34,9 +46,12 @@ export async function POST(request: NextRequest) {
     limitedErrorMessage.value,
     statusCode,
     limitedContext.value,
+    events?.slice(0, 20),
+    variantSnapshot,
+    publishCheckResult,
   );
   const provider = createOpenAIProvider(config);
-  const tokens = provider.stream({ messages, maxTokens: 1000 });
+  const tokens = provider.stream({ messages, maxTokens: 1500 });
 
   return markTruncated(
     createSSEResponse(tokens, request.signal),

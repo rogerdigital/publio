@@ -229,13 +229,28 @@ function MetricsSection({ syncTaskId }: { syncTaskId: string }) {
   );
 }
 
-function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; taskId: string }) {
+function DiagnoseButton({
+  receipt,
+  taskId,
+  events,
+}: {
+  receipt: PlatformSyncReceipt;
+  taskId: string;
+  events?: SyncEvent[];
+}) {
   const [loading, setLoading] = useState(false);
-  const [diagnosis, setDiagnosis] = useState(receipt.diagnosis || '');
+  const [diagnosis, setDiagnosis] = useState<{
+    rootCause: string;
+    evidence: string[];
+    fixSteps: string[];
+    shouldRetry: boolean;
+    retryReason: string;
+  } | null>(null);
+  const [rawDiagnosis, setRawDiagnosis] = useState(receipt.diagnosis || '');
   const [retrying, setRetrying] = useState(false);
   const [retryMessage, setRetryMessage] = useState('');
 
-  const canRetry = diagnosis.includes('可重试：是');
+  const canRetry = diagnosis?.shouldRetry ?? rawDiagnosis.includes('可重试：是');
 
   const handleRetry = async () => {
     setRetrying(true);
@@ -265,12 +280,19 @@ function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; tas
           platform: receipt.platform,
           errorMessage: receipt.failureMessage || receipt.message || '未知错误',
           statusCode: undefined,
-          context: receipt.failureCode ? `failureCode: ${receipt.failureCode}` : undefined,
+          context: receipt.failureCode || undefined,
+          events: events?.map((e) => ({
+            type: e.type,
+            message: e.message,
+            timestamp: e.timestamp,
+          })),
+          variantSnapshot: undefined,
+          publishCheckResult: undefined,
         }),
       });
 
       if (!response.ok || !response.body) {
-        setDiagnosis('诊断请求失败');
+        setRawDiagnosis('诊断请求失败');
         return;
       }
 
@@ -290,15 +312,29 @@ function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; tas
             const event: AgentStreamEvent = JSON.parse(line.slice(6));
             if (event.type === 'delta') {
               accumulated += event.content;
-              setDiagnosis(accumulated);
+              setRawDiagnosis(accumulated);
             }
           } catch {
             // skip
           }
         }
       }
+
+      // Try parsing structured JSON
+      const jsonStart = accumulated.indexOf('{');
+      const jsonEnd = accumulated.lastIndexOf('}');
+      if (jsonStart >= 0 && jsonEnd > jsonStart) {
+        try {
+          const parsed = JSON.parse(accumulated.slice(jsonStart, jsonEnd + 1));
+          if (parsed.rootCause) {
+            setDiagnosis(parsed);
+          }
+        } catch {
+          // keep raw text
+        }
+      }
     } catch {
-      setDiagnosis('诊断失败，请稍后重试');
+      setRawDiagnosis('诊断失败，请稍后重试');
     } finally {
       setLoading(false);
     }
@@ -306,7 +342,7 @@ function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; tas
 
   return (
     <div style={{ marginTop: 8 }}>
-      {!diagnosis && (
+      {!rawDiagnosis && !diagnosis && (
         <button
           type="button"
           onClick={handleDiagnose}
@@ -318,7 +354,70 @@ function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; tas
           {loading ? '诊断中…' : 'AI 诊断'}
         </button>
       )}
-      {diagnosis && (
+      {diagnosis ? (
+        <div
+          style={{
+            fontSize: '12px',
+            color: '#5c4a3f',
+            marginTop: 4,
+            padding: '10px 12px',
+            background: '#faf6f2',
+            borderRadius: 6,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+          }}
+        >
+          <div>
+            <strong>根因：</strong>
+            {diagnosis.rootCause}
+          </div>
+          {diagnosis.evidence.length > 0 && (
+            <div>
+              <strong>证据：</strong>
+              <ul style={{ margin: '4px 0 0', paddingLeft: 16 }}>
+                {diagnosis.evidence.map((e, i) => (
+                  <li key={i}>{e}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div>
+            <strong>修复步骤：</strong>
+            <ol style={{ margin: '4px 0 0', paddingLeft: 16 }}>
+              {diagnosis.fixSteps.map((s, i) => (
+                <li key={i}>{s}</li>
+              ))}
+            </ol>
+          </div>
+          <div>
+            <strong>建议重试：</strong>
+            {diagnosis.shouldRetry ? '是' : '否'} — {diagnosis.retryReason}
+          </div>
+          {canRetry && (
+            <div>
+              <button
+                type="button"
+                onClick={handleRetry}
+                disabled={retrying}
+                className={styles.receiptLink}
+                style={{
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: 'none',
+                  padding: 0,
+                  fontWeight: 500,
+                }}
+              >
+                {retrying ? '重试中…' : '智能重试'}
+              </button>
+              {retryMessage && (
+                <span style={{ marginLeft: 8, fontSize: '11px' }}>{retryMessage}</span>
+              )}
+            </div>
+          )}
+        </div>
+      ) : rawDiagnosis ? (
         <div
           style={{
             fontSize: '12px',
@@ -330,7 +429,7 @@ function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; tas
             borderRadius: 6,
           }}
         >
-          {diagnosis}
+          {rawDiagnosis}
           {canRetry && (
             <div style={{ marginTop: 8 }}>
               <button
@@ -346,7 +445,7 @@ function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; tas
                   fontWeight: 500,
                 }}
               >
-                {retrying ? '重试中…' : '🔄 智能重试'}
+                {retrying ? '重试中…' : '智能重试'}
               </button>
               {retryMessage && (
                 <span style={{ marginLeft: 8, fontSize: '11px' }}>{retryMessage}</span>
@@ -354,7 +453,7 @@ function DiagnoseButton({ receipt, taskId }: { receipt: PlatformSyncReceipt; tas
             </div>
           )}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -413,7 +512,21 @@ export default function SyncTaskDetail({
               <SyncTaskMarkDoneButton taskId={syncTask.id} platform={receipt.platform} />
             ) : null}
             {receipt.status === 'failed' && agentEnabled ? (
-              <DiagnoseButton receipt={receipt} taskId={syncTask.id} />
+              <DiagnoseButton receipt={receipt} taskId={syncTask.id} events={syncTask.events} />
+            ) : receipt.status === 'failed' && !agentEnabled && receipt.failureCode ? (
+              <div
+                style={{
+                  marginTop: 8,
+                  fontSize: 12,
+                  color: '#5c4a3f',
+                  padding: '8px',
+                  background: '#faf6f2',
+                  borderRadius: 6,
+                }}
+              >
+                <strong>建议：</strong>
+                {nextActionLabels[receipt.nextAction || 'contact-support']}
+              </div>
             ) : null}
           </article>
         ))}
