@@ -28,10 +28,12 @@ import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
 import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
+import PlatformVariantPanel from '@/components/publish/PlatformVariantPanel';
 import PublishProgressOverlay from '@/components/publish/PublishProgressOverlay';
 import PublishTimingSuggestion from '@/components/publish/PublishTimingSuggestion';
 import SchedulePicker from '@/components/publish/SchedulePicker';
 import EditorialContextCard from '@/components/editor/EditorialContextCard';
+import WritingBriefCard from '@/components/editor/WritingBriefCard';
 import VersionHistory from '@/components/editor/VersionHistory';
 import TemplatePicker from '@/components/editor/TemplatePicker';
 import MediaLibrary from '@/components/editor/MediaLibrary';
@@ -55,6 +57,9 @@ function HomePageContent() {
     overallStatus,
     currentDraftId,
     setCurrentDraftId,
+    currentBriefId,
+    setCurrentBriefId,
+    setCurrentTopicId,
     activeTab,
     setActiveTab,
   } = usePublishStore();
@@ -126,9 +131,19 @@ function HomePageContent() {
     setTitle('');
     setContent('');
     setCurrentDraftId(null);
+    setCurrentBriefId(null);
+    setCurrentTopicId(null);
     reset();
     router.replace('/');
-  }, [reset, router, setContent, setTitle, setCurrentDraftId]);
+  }, [
+    reset,
+    router,
+    setContent,
+    setTitle,
+    setCurrentDraftId,
+    setCurrentBriefId,
+    setCurrentTopicId,
+  ]);
 
   const handleClearClick = useCallback(() => {
     if (!clearConfirming) {
@@ -164,6 +179,8 @@ function HomePageContent() {
         setTitle(draft.title);
         setContent(draft.content);
         setCurrentDraftId(selectedDraftId);
+        setCurrentBriefId(draft.briefId ?? null);
+        setCurrentTopicId(draft.topicId ?? null);
         reset();
       } catch (error) {
         if (!cancelled) {
@@ -176,7 +193,15 @@ function HomePageContent() {
     return () => {
       cancelled = true;
     };
-  }, [reset, searchParams, setContent, setTitle, setCurrentDraftId]);
+  }, [
+    reset,
+    searchParams,
+    setContent,
+    setTitle,
+    setCurrentDraftId,
+    setCurrentBriefId,
+    setCurrentTopicId,
+  ]);
 
   return (
     <div className={styles.pageWrap}>
@@ -274,6 +299,8 @@ function HomePageContent() {
           <div className={styles.rightPanel}>
             <EditorialContextCard />
 
+            {currentBriefId && <WritingBriefCard briefId={currentBriefId} />}
+
             {currentDraftId && (
               <div className={publishStyles.rightPanelSection}>
                 <button
@@ -311,6 +338,16 @@ function HomePageContent() {
               selectedPlatforms={selectedPlatforms}
               agentEnabled={agentEnabled}
             />
+
+            {currentDraftId && (
+              <div className={publishStyles.rightPanelSection}>
+                <span className={publishStyles.rightPanelSectionTitle}>渠道版本</span>
+                <PlatformVariantPanel
+                  selectedPlatforms={selectedPlatforms}
+                  agentEnabled={agentEnabled}
+                />
+              </div>
+            )}
 
             <div className={publishStyles.rightPanelSection}>
               <div className={styles.publishRight}>
