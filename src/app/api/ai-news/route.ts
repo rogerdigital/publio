@@ -2,6 +2,7 @@ import { buildAiNewsDesk } from '@/lib/aiNews';
 import { getCached, setCache } from '@/lib/cache';
 import { apiResponse, apiError } from '@/lib/api/response';
 import { logger } from '@/lib/logger';
+import { persistSignalsFromDesk } from '@/lib/ai-news/persistSignals';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,11 @@ export async function GET() {
   try {
     const desk = await buildAiNewsDesk(24, 40, DISPLAY_SIZE);
 
+    const allNormalizedSignals = [...desk.todayCandidates, ...desk.followCandidates].flatMap(
+      (candidate) => candidate.signals,
+    );
+    const signalIds = persistSignalsFromDesk(allNormalizedSignals);
+
     const data = {
       generatedAt: desk.generatedAt,
       totalSignals: desk.totalSignals,
@@ -26,6 +32,7 @@ export async function GET() {
       todayCandidates: desk.todayCandidates,
       followCandidates: desk.followCandidates,
       selectedResearch: desk.selectedResearch,
+      signalIds,
     };
 
     setCache(cacheKey, data, CACHE_TTL);
