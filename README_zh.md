@@ -47,10 +47,14 @@ Publio 核心工作流覆盖内容创作全生命周期：
 | 能力 | 说明 |
 |------|------|
 | **写作助手** | 扩写、缩写、改写、润色、续写 — 斜杠命令触发，流式输出 |
-| **平台适配** | 按平台规则重写内容（字数、格式约束） |
+| **平台适配** | 按平台规则重写内容，附带适配决策说明 |
 | **选题研究** | 新闻聚合深度分析，多角度洞察 |
-| **发布诊断** | 失败原因分析，可操作重试建议 |
-| **内容 Copilot** | 基于品牌画像 + 当前热点的选题推荐 |
+| **信号审阅** | AI 驱动收件箱分诊：高价值信号、组合建议、行动推荐 |
+| **选题写作包** | 生成结构化写作素材（背景、事实、角度、受众、反论、结构） |
+| **Brief 辅助** | 从选题生成 Brief、改写论点、填充大纲、生成渠道计划 |
+| **发布诊断** | 失败原因分析（根因、证据、修复步骤、重试建议） |
+| **内容复盘** | 基于指标生成表现总结、有效因素、问题和建议 |
+| **内容 Copilot** | 基于品牌画像 + 当前热点 + 历史表现的选题推荐 |
 | **风格学习** | 从历史草稿提取写作风格，注入 prompt |
 | **多轮对话** | 会话持久化的 AI 对话面板 |
 
@@ -74,6 +78,13 @@ Publio 核心工作流覆盖内容创作全生命周期：
 - **分发任务追踪** — 失败诊断、智能重试、手动标记完成
 - **定时发布** — 后端 cron 执行，持久化任务队列
 - **发布后指标** — 阅读量、点赞、评论、分享聚合到分析看板，支持单任务和全量刷新
+
+### 内容复盘
+
+- **复盘存储** — 每篇草稿/版本/选题的结构化复盘，含经验和后续行动
+- **AI 复盘 Agent** — 生成表现总结、有效因素、问题和可操作建议
+- **分析洞察** — 按渠道和按选题聚合表、表现最佳内容、待复盘内容
+- **复盘驱动推荐** — 选题库展示历史表现；低表现选题提示风险而非压制；写作 Brief 关联相关复盘；AI 推荐融入近期表现上下文
 
 ### 内容排期日历
 
@@ -108,29 +119,6 @@ Publio 核心工作流覆盖内容创作全生命周期：
 
 ---
 
-## 项目截图
-
-<table>
-  <tr>
-    <td align="center"><b>写作台</b></td>
-    <td align="center"><b>AI 选题台</b></td>
-  </tr>
-  <tr>
-    <td><img src="./docs/screenshots/editor.png" alt="写作台" width="480" /></td>
-    <td><img src="./docs/screenshots/ai-news.png" alt="AI 选题台" width="480" /></td>
-  </tr>
-  <tr>
-    <td align="center"><b>内容日历</b></td>
-    <td align="center"><b>设置页</b></td>
-  </tr>
-  <tr>
-    <td><img src="./docs/screenshots/calendar.png" alt="内容日历" width="480" /></td>
-    <td><img src="./docs/screenshots/settings.png" alt="设置页" width="480" /></td>
-  </tr>
-</table>
-
----
-
 ## 快速开始
 
 ### 环境要求
@@ -144,9 +132,10 @@ Publio 核心工作流覆盖内容创作全生命周期：
 git clone https://github.com/rogerdigital/publio.git
 cd publio
 pnpm install
-cp .env.example .env.local   # 配置平台凭证（也可稍后在设置页配置）
 pnpm dev                      # 启动开发（含端口清理和缓存清除）
 ```
+
+首次启动后在设置页（`/settings`）配置平台凭证和 AI Agent。
 
 `pnpm dev` 自动清理残留 Next.js 进程并清除 `.next/cache`。使用 `pnpm run dev:raw` 跳过清理。
 
@@ -240,13 +229,16 @@ src/
 │       └── custom-prompts/         # 自定义 prompt CRUD
 ├── components/
 │   ├── layout/                   # AppShellHeader, Sidebar, SurfaceCard, ThemeToggle
-│   ├── editor/                   # MarkdownEditor, TemplatePicker, SlashCommandMenu, ImmersiveMode, WYSIWYG 切换
-│   ├── news/                     # AiNewsPageClient, TopicSignalCard, ScoreBar
+│   ├── editor/                   # MarkdownEditor, WritingBriefCard, TemplatePicker, SlashCommandMenu
+│   ├── news/                     # SignalInbox, TopicLibrary, TopicSignalCard, ScoreBar
+│   ├── briefs/                   # BriefOutlineEditor, BriefSourceList
 │   ├── publish/                  # PlatformSelector, PublishButton, ModerationWarning, PreviewPanel
 │   ├── sync/                     # SyncTaskList, SyncTaskDetail
 │   ├── agent/                    # AgentPanel, AgentStreamOutput
 │   ├── copilot/                  # BrandProfileForm, TopicRecommendationPanel, StyleProfile
-│   ├── analytics/                # MetricsCard
+│   ├── analytics/                # MetricsCard, ContentInsightPanel, TopicPerformanceTable
+│   ├── workbench/                # TodayWorkbench
+│   ├── feedback/                 # EmptyState, ErrorState
 │   ├── calendar/                 # CalendarPageClient
 │   └── drafts/                   # DraftLibraryClient
 ├── hooks/                        # useAutoSave, useSlashCommands, useAgentStream, useImmersiveMode
