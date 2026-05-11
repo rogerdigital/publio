@@ -12,6 +12,8 @@ export interface PlatformMetrics {
 export interface SyncTaskMetrics {
   syncTaskId: string;
   draftId?: string;
+  variantId?: string;
+  topicId?: string;
   title: string;
   publishedAt: string;
   platforms: PlatformMetrics[];
@@ -23,4 +25,19 @@ export interface MetricsSummary {
   totalComments: number;
   totalShares: number;
   postCount: number;
+}
+
+export interface AggregateMetrics {
+  views: number;
+  likes: number;
+  comments: number;
+  shares: number;
+  postCount: number;
+}
+
+export interface AggregateOptions {
+  topicId?: string;
+  platform?: PlatformId;
+  from?: string;
+  to?: string;
 }

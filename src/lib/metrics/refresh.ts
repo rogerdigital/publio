@@ -1,12 +1,10 @@
 import { getMetricsStore } from './store';
 import { getSyncHistoryStore } from '@/lib/sync/registry';
+import { getDraftRegistry } from '@/lib/drafts/registry';
 import { PLATFORM_FETCHERS, extractPlatformId } from './fetchers';
 import type { PlatformMetrics, SyncTaskMetrics } from './types';
 import type { PlatformId } from '@/types';
 
-/**
- * Refresh metrics for a single sync task by fetching from all published platforms.
- */
 export async function refreshMetricsForTask(syncTaskId: string): Promise<SyncTaskMetrics | null> {
   const syncStore = getSyncHistoryStore();
   const task = syncStore.getTask(syncTaskId);
@@ -40,9 +38,17 @@ export async function refreshMetricsForTask(syncTaskId: string): Promise<SyncTas
 
   if (platformMetrics.length === 0) return null;
 
+  let topicId: string | undefined;
+  if (task.draftId) {
+    const draftStore = getDraftRegistry();
+    const draft = draftStore.getDraft(task.draftId);
+    if (draft?.topicId) topicId = draft.topicId;
+  }
+
   const metricsData: SyncTaskMetrics = {
     syncTaskId: task.id,
     draftId: task.draftId,
+    topicId,
     title: task.title,
     publishedAt: task.receipts.find((r) => r.publishedAt)?.publishedAt ?? task.updatedAt,
     platforms: platformMetrics,
