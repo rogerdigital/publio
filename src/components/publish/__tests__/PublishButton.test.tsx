@@ -49,10 +49,13 @@ describe('PublishButton', () => {
     fireEvent.click(screen.getByText('确认发布'));
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalled();
+      expect(fetch).toHaveBeenCalledTimes(2);
     });
-    const [, init] = fetch.mock.calls[0] as [string, RequestInit];
-    const payload = JSON.parse(init.body as string);
+    const publishCall = fetch.mock.calls.find(([url]: [string]) => url === '/api/publish') as [
+      string,
+      RequestInit,
+    ];
+    const payload = JSON.parse(publishCall[1].body as string);
 
     expect(payload.draftId).toBe('draft-42');
     expect(payload.platformDrafts.wechat).toMatchObject({

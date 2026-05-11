@@ -16,10 +16,19 @@ vi.mock('@/components/sync/sync.css', () => ({
   receiptPlatform: 'receiptPlatform',
   receiptStatus: 'receiptStatus',
   receiptMessage: 'receiptMessage',
+  receiptFailureReason: 'receiptFailureReason',
   receiptLink: 'receiptLink',
   retryPanel: 'retryPanel',
   retryButton: 'retryButton',
   retryMessage: 'retryMessage',
+  retryHint: 'retryHint',
+  eventTimelineTitle: 'eventTimelineTitle',
+  eventTimeline: 'eventTimeline',
+  eventItem: 'eventItem',
+  eventDot: 'eventDot',
+  eventBody: 'eventBody',
+  eventLabel: 'eventLabel',
+  eventTime: 'eventTime',
 }));
 
 vi.mock('@/components/sync/SyncTaskRetryButton', () => ({
