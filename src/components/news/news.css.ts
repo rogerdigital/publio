@@ -42,6 +42,39 @@ export const contentWrap = style({
   gap: '20px',
 });
 
+export const tabRow = style({
+  display: 'flex',
+  gap: '4px',
+  borderBottom: `1px solid ${vars.color.border}`,
+  paddingBottom: '0',
+});
+
+export const tabButton = recipe({
+  base: {
+    fontSize: '14px',
+    padding: '8px 16px',
+    border: 'none',
+    borderBottom: '2px solid transparent',
+    background: 'transparent',
+    cursor: 'pointer',
+    color: vars.color.textMuted,
+    fontWeight: '400',
+    transition: 'all 0.15s ease',
+    ':hover': {
+      color: vars.color.text,
+    },
+  },
+  variants: {
+    active: {
+      true: {
+        color: vars.color.text,
+        fontWeight: '500',
+        borderBottomColor: vars.color.accent,
+      },
+    },
+  },
+});
+
 // refresh error banner
 export const refreshErrorBanner = style({
   borderRadius: vars.radius.xl,
