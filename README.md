@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](./tsconfig.json)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
-[![Tests](https://img.shields.io/badge/tests-129%20passing-brightgreen.svg)](#testing)
+[![Tests](https://img.shields.io/badge/tests-332%20passing-brightgreen.svg)](#testing)
 
 > AI-native content operations platform. Write once, publish everywhere.
 
@@ -15,6 +15,18 @@ Publio is a multi-platform content distribution tool that consolidates Markdown 
 ---
 
 ## Features
+
+### Content Workflow
+
+Publio's core workflow follows the full lifecycle of content creation:
+
+1. **Signal Inbox** — Ingest news signals from RSS feeds, manually add or AI-discover
+2. **Topic Library** — Promote signals to tracked topics with lifecycle management (active → dormant → archived)
+3. **Writing Brief** — Structured brief per topic: thesis, outline, platform publishing plan
+4. **Writing Desk** — Markdown editor with AI writing assistance, slash commands, auto-save
+5. **Platform Variants** — Per-platform content versions (synced, AI-adapted, or manually edited)
+6. **Multi-Platform Publish** — Concurrent publish with progress tracking and scheduled delivery
+7. **Feedback Loop** — Post-publish metrics → AI review → learnings → feed back into recommendations
 
 ### Writing Desk
 
@@ -48,6 +60,8 @@ All AI features require an OpenAI-compatible API (Zhipu GLM, DeepSeek, Qwen, Ope
 ### AI News Desk
 
 - Aggregates RSS feeds from 9+ built-in sources plus custom user-defined sources
+- **Signal Inbox** — triage incoming signals (pin, dismiss, promote to topic)
+- **Topic Library** — manage topics with lifecycle states, link to briefs, track performance
 - Topic clustering, 6-dimension scoring (freshness, impact, momentum, credibility, visual-readiness, coverage)
 - Research brief per cluster with what happened, why it matters, who is affected, recommended angles
 - One-click conversion to editor draft with research context embedded
@@ -75,6 +89,17 @@ All AI features require an OpenAI-compatible API (Zhipu GLM, DeepSeek, Qwen, Ope
 
 - Monthly view with event display for drafts, scheduled, published, and failed items
 - Click-through navigation to editor or sync task detail
+
+### Today's Workbench
+
+- Unified dashboard showing pending items across all workflow stages
+- Pending signals, active topics, incomplete briefs, draft-ready variants, in-progress tasks
+- Direct action links to jump into each workflow
+
+### Data Management
+
+- **Auto-migration** — schema versioning with automatic backup before structural changes
+- **Workspace export/import** — export all entities (signals, topics, briefs, drafts, variants, tasks, feedback) as JSON bundle; import with dry-run preview and merge semantics
 
 ### Settings & Configuration
 
@@ -187,9 +212,15 @@ src/
 │   ├── settings/                 # Platform & AI configuration
 │   ├── sync-tasks/               # Distribution task tracking
 │   └── api/                      # Route Handlers
-│       ├── agent/                  # AI endpoints (write, adapt, research, diagnose, chat)
+│       ├── agent/                  # AI endpoints (write, adapt, research, diagnose, chat, feedback)
 │       ├── copilot/                # Content copilot (profile, recommend, style)
+│       ├── briefs/                 # Brief CRUD
+│       ├── signals/                # Signal inbox CRUD
+│       ├── topics/                 # Topic library CRUD
 │       ├── drafts/                 # Draft CRUD
+│       ├── feedback/               # Feedback CRUD
+│       ├── export/                 # Workspace export
+│       ├── import/                 # Workspace import (with dry-run)
 │       ├── metrics/                # Metrics collection
 │       ├── platforms/              # Platform connection management
 │       ├── publish/                # Publish endpoint
@@ -212,21 +243,27 @@ src/
 ├── hooks/                        # useAutoSave, useSlashCommands, useAgentStream, useImmersiveMode
 ├── lib/
 │   ├── agent/                    # LLM provider, streaming, prompt templates
-│   ├── ai-news/                  # RSS aggregation, clustering, scoring
+│   ├── ai-news/                  # RSS aggregation, clustering, scoring, signal persistence
+│   ├── briefs/                   # Writing brief storage and CRUD
 │   ├── copilot/                  # Brand profile, style learning, topic recommendation
 │   ├── custom-prompts/           # Custom prompt storage
 │   ├── drafts/                   # Draft CRUD with version history
-│   ├── metrics/                  # Post-publish metrics storage
+│   ├── export/                   # Workspace export/import logic
+│   ├── feedback/                 # Content feedback storage
+│   ├── metrics/                  # Post-publish metrics with aggregation
 │   ├── moderation/               # Sensitive word detection
 │   ├── platformAdapters/         # Content format adaptation per platform
 │   ├── platformConnections/      # Connection management & OAuth
 │   ├── platformRules/            # Platform content validation rules
+│   ├── platformVariants/         # Per-platform content version registry
 │   ├── publishers/               # Platform-specific publish logic
 │   ├── rss-sources/              # Custom RSS source storage
 │   ├── scheduler/                # Scheduled publish execution
-│   ├── storage/                  # JSON file collection, env file utilities
+│   ├── signals/                  # Signal inbox storage
+│   ├── storage/                  # JSON file collection, env file, migrations
 │   ├── sync/                     # Distribution task state machine
 │   ├── templates/                # Custom template store
+│   ├── topics/                   # Topic library storage
 │   └── upload/                   # GitHub image upload
 ├── stores/                       # Zustand stores (publishStore, agentStore, toastStore)
 ├── styles/                       # Design tokens (spacing, typography, color, radius)
@@ -262,7 +299,7 @@ pnpm test           # run all tests
 pnpm test -- --watch  # watch mode
 ```
 
-129 tests across 40 test files covering stores, API routes, components, and utility functions.
+332 tests across 64 test files covering stores, API routes, components, and utility functions.
 
 ---
 
