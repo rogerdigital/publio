@@ -118,10 +118,6 @@ All AI features require an OpenAI-compatible API (Zhipu GLM, DeepSeek, Qwen, Ope
 
 ---
 
-## Screenshots
-
----
-
 ## Quick Start
 
 ### Prerequisites
@@ -135,11 +131,12 @@ All AI features require an OpenAI-compatible API (Zhipu GLM, DeepSeek, Qwen, Ope
 git clone https://github.com/rogerdigital/publio.git
 cd publio
 pnpm install
-cp .env.example .env.local   # configure platform credentials (or set up later in Settings)
 pnpm dev                      # starts with port cleanup and cache clearing
 ```
 
-`pnpm dev` automatically kills残留 Next.js processes and clears `.next/cache`. Use `pnpm run dev:raw` to skip cleanup.
+Configure platform credentials and AI agent in Settings (`/settings`) after first launch.
+
+`pnpm dev` automatically kills stale Next.js processes and clears `.next/cache`. Use `pnpm run dev:raw` to skip cleanup.
 
 Open http://localhost:3000.
 
@@ -231,13 +228,16 @@ src/
 │       └── custom-prompts/         # Custom prompt CRUD
 ├── components/
 │   ├── layout/                   # AppShellHeader, Sidebar, SurfaceCard, ThemeToggle
-│   ├── editor/                   # MarkdownEditor, TemplatePicker, SlashCommandMenu, ImmersiveMode, WYSIWYG toggle
-│   ├── news/                     # AiNewsPageClient, TopicSignalCard, ScoreBar
+│   ├── editor/                   # MarkdownEditor, WritingBriefCard, TemplatePicker, SlashCommandMenu
+│   ├── news/                     # SignalInbox, TopicLibrary, TopicSignalCard, ScoreBar
+│   ├── briefs/                   # BriefOutlineEditor, BriefSourceList
 │   ├── publish/                  # PlatformSelector, PublishButton, ModerationWarning, PreviewPanel
 │   ├── sync/                     # SyncTaskList, SyncTaskDetail
 │   ├── agent/                    # AgentPanel, AgentStreamOutput
 │   ├── copilot/                  # BrandProfileForm, TopicRecommendationPanel, StyleProfile
-│   ├── analytics/                # MetricsCard
+│   ├── analytics/                # MetricsCard, ContentInsightPanel, TopicPerformanceTable
+│   ├── workbench/                # TodayWorkbench
+│   ├── feedback/                 # EmptyState, ErrorState
 │   ├── calendar/                 # CalendarPageClient
 │   └── drafts/                   # DraftLibraryClient
 ├── hooks/                        # useAutoSave, useSlashCommands, useAgentStream, useImmersiveMode
