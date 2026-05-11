@@ -6,312 +6,76 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](./tsconfig.json)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
-[![Tests](https://img.shields.io/badge/tests-332%20passing-brightgreen.svg)](#testing)
+[![Tests](https://img.shields.io/badge/tests-332%20passing-brightgreen.svg)](#development)
 
 > AI-native content operations platform. Write once, publish everywhere.
 
-Publio is a multi-platform content distribution tool that consolidates Markdown editing, AI-powered topic discovery, content adaptation, and one-click publishing into a unified workspace. It supports WeChat Official Account, Xiaohongshu, Zhihu, and X (Twitter).
-
----
-
-## Features
-
-### Content Workflow
-
-Publio's core workflow follows the full lifecycle of content creation:
-
-1. **Signal Inbox** — Ingest news signals from RSS feeds, manually add or AI-discover
-2. **Topic Library** — Promote signals to tracked topics with lifecycle management (active → dormant → archived)
-3. **Writing Brief** — Structured brief per topic: thesis, outline, platform publishing plan
-4. **Writing Desk** — Markdown editor with AI writing assistance, slash commands, auto-save
-5. **Platform Variants** — Per-platform content versions (synced, AI-adapted, or manually edited)
-6. **Multi-Platform Publish** — Concurrent publish with progress tracking and scheduled delivery
-7. **Feedback Loop** — Post-publish metrics → AI review → learnings → feed back into recommendations
-
-### Writing Desk
-
-- **Rich Markdown editor** with desktop live-preview and mobile fallback
-- **WYSIWYG mode** — toggle between source editing and side-by-side live preview
-- **Immersive writing mode** — full-screen distraction-free editing with centered 720px layout
-- **Auto-save** with 1-second debounce and automatic draft creation
-- **Editorial context panel** — title status, structural statistics, publishability signals
-- **Slash commands** — `/ai-expand`, `/ai-condense`, `/ai-rewrite`, `/ai-polish`, `/ai-continue`
-- **Version history** — auto-snapshot on title/content changes with restore capability
-- **Content templates** — 6 built-in templates plus custom template CRUD
-- **GitHub image bed** — upload images to GitHub repo as persistent hosting
-
-### AI Agent System
-
-All AI features require an OpenAI-compatible API (Zhipu GLM, DeepSeek, Qwen, OpenAI, Ollama, etc.). Gracefully degrades when unconfigured.
-
-| Capability | Description |
-|-----------|-------------|
-| **Writing Assistant** | Expand, condense, rewrite, polish, continue — via slash commands with streaming output |
-| **Platform Adaptation** | Per-platform content rewrite with rule injection and change summary explaining adaptation decisions |
-| **Topic Research** | Deep analysis of news clusters with multi-angle insights |
-| **Signal Review** | AI-powered inbox triage: surfaces high-value signals, suggests combinations, recommends actions |
-| **Topic Writing Pack** | Generates structured writing packs (background, facts, angles, audience, counter-arguments, structure) |
-| **Brief Assist** | Generate full Brief from topic, rewrite thesis, fill outline, generate platform plan |
-| **Publish Diagnose** | Structured failure diagnosis (root cause, evidence, fix steps, retry recommendation) with event timeline context |
-| **Content Copilot** | Brand profile-driven topic recommendations based on current news trends |
-| **Style Learning** | Extracts writing style from historical drafts and injects into prompts |
-| **Multi-turn Chat** | Conversational AI panel with session-persistent history |
-
-### AI News Desk
-
-- Aggregates RSS feeds from 9+ built-in sources plus custom user-defined sources
-- **Signal Inbox** — triage incoming signals (pin, dismiss, promote to topic)
-- **Topic Library** — manage topics with lifecycle states, link to briefs, track performance
-- Topic clustering, 6-dimension scoring (freshness, impact, momentum, credibility, visual-readiness, coverage)
-- Research brief per cluster with what happened, why it matters, who is affected, recommended angles
-- One-click conversion to editor draft with research context embedded
-
-### Multi-Platform Publishing
-
-- Concurrent publish via `Promise.allSettled` across all selected platforms
-- **Platform Variants** — each platform gets an independent content version (synced from main draft, AI-adapted, or manually edited)
-- **Variant status tracking** — synced / adapted / edited / checked / scheduled / published
-- **Content moderation** — sensitive word detection with pre-publish warning dialog
-- **Platform validation** — automatic rule checking (title length, content limits, format constraints)
-- **Publish progress overlay** — real-time status polling with per-platform receipts
-- **Sync task tracking** — failure diagnosis, smart retry, manual mark-done
-- **Scheduled publish** — backend cron-based execution with persistent task queue
-- **Post-publish metrics** — views, likes, comments, shares aggregated in analytics dashboard with per-task and bulk refresh
-
-### Content Feedback Loop
-
-- **Feedback storage** — structured feedback per draft/variant/topic with learnings and next-actions
-- **AI review agent** — generates performance summary, effective factors, issues, and actionable suggestions
-- **Analytics insights** — per-platform and per-topic aggregation tables, top performers, review candidates
-- **Feedback-driven recommendations** — topic library shows historical performance; low-performing topics get risk hints rather than suppression; writing briefs surface related feedback; AI recommendations include recent performance context
-
-### Content Calendar
-
-- Monthly view with event display for drafts, scheduled, published, and failed items
-- Click-through navigation to editor or sync task detail
-
-### Today's Workbench
-
-- Unified dashboard showing pending items across all workflow stages
-- Pending signals, active topics, incomplete briefs, draft-ready variants, in-progress tasks
-- Direct action links to jump into each workflow
-
-### Data Management
-
-- **Auto-migration** — schema versioning with automatic backup before structural changes
-- **Workspace export/import** — export all entities (signals, topics, briefs, drafts, variants, tasks, feedback) as JSON bundle; import with dry-run preview and merge semantics
-
-### Settings & Configuration
-
-- Platform credential management with OAuth flow and connection verification
-- AI Agent configuration (base URL, API key, model) with hot-reload
-- Custom RSS feed source management
-- Custom AI prompt editor (per-platform and global)
-- Brand profile configuration for content copilot
-- Writing style profile with auto-analysis from historical drafts
-
-### Design System
-
-- **Theme toggle** — light / dark / system preference with localStorage persistence
-- **Design tokens** — spacing, typography, color, radius with WCAG AA compliant contrast
-- **Responsive layout** — desktop sidebar navigation, adaptive content areas
+- **Full lifecycle workflow** — from topic discovery to post-publish review, all in one workspace
+- **AI-powered writing** — expand, condense, rewrite, polish, continue via slash commands with streaming output
+- **Multi-platform publish** — concurrent delivery to WeChat, Xiaohongshu, Zhihu, and X (Twitter)
+- **Provider-agnostic AI** — works with any OpenAI-compatible API (GLM, DeepSeek, Qwen, OpenAI, Ollama)
 
 ---
 
 ## Quick Start
 
-### Prerequisites
-
-- Node.js >= 18
-- pnpm
-
-### Installation
-
 ```bash
 git clone https://github.com/rogerdigital/publio.git
 cd publio
 pnpm install
-pnpm dev                      # starts with port cleanup and cache clearing
+pnpm dev
 ```
 
-Configure platform credentials and AI agent in Settings (`/settings`) after first launch.
+Open http://localhost:3000. Configure platform credentials and AI agent in Settings (`/settings`).
 
-`pnpm dev` automatically kills stale Next.js processes and clears `.next/cache`. Use `pnpm run dev:raw` to skip cleanup.
+---
 
-Open http://localhost:3000.
+## Workflow
 
-### Commands
+**Signal Inbox** → **Topic Library** → **Writing Brief** → **Writing Desk** → **Platform Variants** → **Publish** → **Feedback Loop**
 
-```bash
-pnpm dev              # development mode (with port cleanup)
-pnpm build            # production build
-pnpm start            # production server
-pnpm preview           # build + start
-pnpm test             # run tests (Vitest)
-pnpm lint             # ESLint
-pnpm format           # Prettier format all files
-pnpm verify           # lint + test + build
-```
+Each stage feeds the next. Signals are promoted to topics, topics get structured briefs, briefs guide drafts, drafts are adapted per-platform, published concurrently, and post-publish metrics feed back into recommendations.
+
+---
+
+## Features
+
+### Writing Desk
+
+Rich Markdown editor with live preview, immersive full-screen mode, auto-save, slash commands for AI writing assistance, version history with restore, and content templates. GitHub image bed for persistent image hosting.
+
+### AI Agent System
+
+Writing assistant (5 slash commands), platform content adaptation, topic research with multi-angle insights, signal inbox triage, structured writing packs, brief generation, publish failure diagnosis, content review, and style learning from historical drafts. All streaming, all optional.
+
+### Multi-Platform Publishing
+
+Concurrent publish with progress tracking. Each platform gets an independent content variant — synced, AI-adapted, or manually edited. Includes content moderation, platform validation rules, scheduled delivery, failure diagnosis with smart retry, and post-publish metrics aggregation.
+
+### Topic Discovery
+
+Aggregates 9+ RSS sources plus custom feeds. Signal inbox with triage actions, topic library with lifecycle management, 6-dimension scoring, research briefs per cluster, and one-click conversion to editor drafts with context embedded.
 
 ---
 
 ## Configuration
 
-### Platform Credentials
-
-Managed via `.env.local` or the Settings page at runtime:
-
-| Platform | Variables | Source |
-|----------|-----------|--------|
-| WeChat | `WECHAT_APP_ID`, `WECHAT_APP_SECRET` | [mp.weixin.qq.com](https://mp.weixin.qq.com/) > Development > Basic Config |
-| Xiaohongshu | `XHS_APP_ID`, `XHS_APP_SECRET`, `XHS_ACCESS_TOKEN` | [Xiaohongshu Open Platform](https://open.xiaohongshu.com/) |
-| Zhihu | `ZHIHU_COOKIE` | Browser DevTools > Network > copy Cookie |
-| X (Twitter) | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET` | [developer.x.com](https://developer.x.com/) |
-
-### AI Agent (Optional)
-
-All three required to activate AI features:
-
-| Variable | Description |
-|----------|-------------|
-| `AGENT_BASE_URL` | OpenAI-compatible endpoint (e.g. `https://api.openai.com/v1`) |
-| `AGENT_API_KEY` | API key for the chosen provider |
-| `AGENT_MODEL` | Model name (e.g. `gpt-4o-mini`, `deepseek-chat`, `glm-4-flash`) |
-| `AGENT_MAX_TOKENS` | Optional, default 2048 |
-| `AGENT_TEMPERATURE` | Optional, default 0.7 |
-
-### GitHub Image Bed (Optional)
-
-Enable image upload to GitHub repo as persistent hosting. Configure via Settings page or `.env.local`:
-
-| Variable | Description |
-|----------|-------------|
-| `GITHUB_IMAGE_ENABLED` | Set to `true` to enable |
-| `GITHUB_IMAGE_TOKEN` | GitHub personal access token with repo scope |
-| `GITHUB_IMAGE_OWNER` | GitHub username or org |
-| `GITHUB_IMAGE_REPO` | Target repository name |
-| `GITHUB_IMAGE_BRANCH` | Optional, default `main` |
-| `GITHUB_IMAGE_PATH` | Optional, default `images/` |
+See [docs/configuration.md](./docs/configuration.md) for platform credentials, AI agent setup, and GitHub image bed.
 
 ---
 
-## Architecture
+## Development
 
-```
-src/
-├── app/                        # Next.js App Router
-│   ├── page.tsx                  # Server Component (metadata + shell)
-│   ├── page-client.tsx           # Client Component (editor + panels)
-│   ├── ai-news/                  # AI topic discovery desk
-│   ├── analytics/                # Post-publish metrics dashboard
-│   ├── calendar/                 # Content scheduling calendar
-│   ├── drafts/                   # Draft library
-│   ├── settings/                 # Platform & AI configuration
-│   ├── sync-tasks/               # Distribution task tracking
-│   └── api/                      # Route Handlers
-│       ├── agent/                  # AI endpoints (write, adapt, research, diagnose, chat, feedback)
-│       ├── copilot/                # Content copilot (profile, recommend, style)
-│       ├── briefs/                 # Brief CRUD
-│       ├── signals/                # Signal inbox CRUD
-│       ├── topics/                 # Topic library CRUD
-│       ├── drafts/                 # Draft CRUD
-│       ├── feedback/               # Feedback CRUD
-│       ├── export/                 # Workspace export
-│       ├── import/                 # Workspace import (with dry-run)
-│       ├── metrics/                # Metrics collection
-│       ├── platforms/              # Platform connection management
-│       ├── publish/                # Publish endpoint
-│       ├── rss-sources/            # Custom RSS CRUD
-│       ├── sync-tasks/             # Sync task management
-│       ├── templates/              # Custom template CRUD
-│       ├── upload/                 # Image upload (GitHub image bed)
-│       └── custom-prompts/         # Custom prompt CRUD
-├── components/
-│   ├── layout/                   # AppShellHeader, Sidebar, SurfaceCard, ThemeToggle
-│   ├── editor/                   # MarkdownEditor, WritingBriefCard, TemplatePicker, SlashCommandMenu
-│   ├── news/                     # SignalInbox, TopicLibrary, TopicSignalCard, ScoreBar
-│   ├── briefs/                   # BriefOutlineEditor, BriefSourceList
-│   ├── publish/                  # PlatformSelector, PublishButton, ModerationWarning, PreviewPanel
-│   ├── sync/                     # SyncTaskList, SyncTaskDetail
-│   ├── agent/                    # AgentPanel, AgentStreamOutput
-│   ├── copilot/                  # BrandProfileForm, TopicRecommendationPanel, StyleProfile
-│   ├── analytics/                # MetricsCard, ContentInsightPanel, TopicPerformanceTable
-│   ├── workbench/                # TodayWorkbench
-│   ├── feedback/                 # EmptyState, ErrorState
-│   ├── calendar/                 # CalendarPageClient
-│   └── drafts/                   # DraftLibraryClient
-├── hooks/                        # useAutoSave, useSlashCommands, useAgentStream, useImmersiveMode
-├── lib/
-│   ├── agent/                    # LLM provider, streaming, prompt templates
-│   ├── ai-news/                  # RSS aggregation, clustering, scoring, signal persistence
-│   ├── briefs/                   # Writing brief storage and CRUD
-│   ├── copilot/                  # Brand profile, style learning, topic recommendation
-│   ├── custom-prompts/           # Custom prompt storage
-│   ├── drafts/                   # Draft CRUD with version history
-│   ├── export/                   # Workspace export/import logic
-│   ├── feedback/                 # Content feedback storage
-│   ├── metrics/                  # Post-publish metrics with aggregation
-│   ├── moderation/               # Sensitive word detection
-│   ├── platformAdapters/         # Content format adaptation per platform
-│   ├── platformConnections/      # Connection management & OAuth
-│   ├── platformRules/            # Platform content validation rules
-│   ├── platformVariants/         # Per-platform content version registry
-│   ├── publishers/               # Platform-specific publish logic
-│   ├── rss-sources/              # Custom RSS source storage
-│   ├── scheduler/                # Scheduled publish execution
-│   ├── signals/                  # Signal inbox storage
-│   ├── storage/                  # JSON file collection, env file, migrations
-│   ├── sync/                     # Distribution task state machine
-│   ├── templates/                # Custom template store
-│   ├── topics/                   # Topic library storage
-│   └── upload/                   # GitHub image upload
-├── stores/                       # Zustand stores (publishStore, agentStore, toastStore)
-├── styles/                       # Design tokens (spacing, typography, color, radius)
-└── types/                        # TypeScript type definitions
-```
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 15 (App Router, React 19) |
-| Language | TypeScript 5 (strict mode) |
-| Styling | vanilla-extract (`@vanilla-extract/css` + `@vanilla-extract/recipes`) |
-| State | Zustand 5 |
-| Editor | @uiw/react-md-editor |
-| Markdown | marked 15 |
-| LLM Streaming | OpenAI-compatible SSE via fetch + ReadableStream |
-| Social API | twitter-api-v2 |
-| Linting | ESLint 9 + eslint-config-next |
-| Formatting | Prettier |
-| Testing | Vitest + Testing Library |
-| Git Hooks | Husky + lint-staged |
-| Package Manager | pnpm |
-
----
-
-## Testing
+Built with Next.js 15 (App Router), TypeScript 5 (strict), vanilla-extract, and Zustand.
 
 ```bash
-pnpm test           # run all tests
-pnpm test -- --watch  # watch mode
+pnpm dev              # development (with port cleanup)
+pnpm build            # production build
+pnpm test             # run tests (Vitest, 332 passing)
+pnpm lint             # ESLint
+pnpm format           # Prettier
+pnpm verify           # lint + test + build
 ```
-
-332 tests across 64 test files covering stores, API routes, components, and utility functions.
-
----
-
-## Design Tokens
-
-Centralized in `src/styles/tokens.css.ts`:
-
-- **Spacing**: xs(4px) through 4xl(40px)
-- **Typography**: xs(12px) through 4xl(28px), line heights tight/base/relaxed
-- **Color**: warm palette with orange/brown accent (#D97757), WCAG AA compliant contrast
-- **Radius**: sm(4px), md(6px), lg(8px), xl(12px)
-- **Theme**: light, dark, and system-preference modes
 
 ---
 
