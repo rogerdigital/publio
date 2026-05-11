@@ -36,3 +36,15 @@ export interface ConnectionCheckResult {
   failureReason?: string;
   checkedAt: string;
 }
+
+export interface PlatformHealthStatus {
+  platform: PlatformId;
+  configured: boolean;
+  valid: boolean;
+  expiresAt?: string;
+  lastCheckedAt?: string;
+  missingFields: string[];
+  nextAction: string;
+  accountName?: string;
+  failureReason?: string;
+}

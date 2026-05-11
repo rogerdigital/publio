@@ -358,6 +358,10 @@ function SettingsContent() {
                       <CheckCircle2 size={11} />
                       {connectedAccountName}
                     </p>
+                  ) : connectionProfile && connectionProfile.missingKeys.length > 0 ? (
+                    <p className={styles.accordionMissingFields}>
+                      缺少：{connectionProfile.missingKeys.join(', ')}
+                    </p>
                   ) : (
                     <p className={styles.accordionSummary}>{platform.summary}</p>
                   )}
