@@ -64,6 +64,13 @@ All AI features require an OpenAI-compatible API (Zhipu GLM, DeepSeek, Qwen, Ope
 - **Scheduled publish** — backend cron-based execution with persistent task queue
 - **Post-publish metrics** — views, likes, comments, shares aggregated in analytics dashboard with per-task and bulk refresh
 
+### Content Feedback Loop
+
+- **Feedback storage** — structured feedback per draft/variant/topic with learnings and next-actions
+- **AI review agent** — generates performance summary, effective factors, issues, and actionable suggestions
+- **Analytics insights** — per-platform and per-topic aggregation tables, top performers, review candidates
+- **Feedback-driven recommendations** — topic library shows historical performance; low-performing topics get risk hints rather than suppression; writing briefs surface related feedback; AI recommendations include recent performance context
+
 ### Content Calendar
 
 - Monthly view with event display for drafts, scheduled, published, and failed items
