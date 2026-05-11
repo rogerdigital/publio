@@ -32,6 +32,7 @@ interface VariantCardData {
   status: VariantStatus;
   generatedByAgent: boolean;
   manuallyEdited: boolean;
+  changeSummary?: string;
 }
 
 interface PlatformVariantPanelProps {
@@ -65,6 +66,7 @@ export default function PlatformVariantPanel({
         status: v.status,
         generatedByAgent: v.generatedByAgent,
         manuallyEdited: v.manuallyEdited,
+        changeSummary: v.changeSummary,
       };
       setVariantId(v.platform, v.id);
     }
@@ -193,6 +195,12 @@ export default function PlatformVariantPanel({
                     <GitCommitHorizontal size={10} /> 主稿同步
                   </span>
                 )}
+              </div>
+            )}
+
+            {variant?.changeSummary && (
+              <div className={styles.changeSummary}>
+                <Sparkles size={10} /> {variant.changeSummary}
               </div>
             )}
 

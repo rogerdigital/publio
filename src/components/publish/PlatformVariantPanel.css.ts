@@ -197,3 +197,16 @@ export const validationList = style({
   lineHeight: 1.6,
   color: vars.color.errorText,
 });
+
+export const changeSummary = style({
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: '4px',
+  fontSize: '11px',
+  lineHeight: 1.5,
+  color: vars.color.accent,
+  padding: '6px 8px',
+  borderRadius: vars.radius.sm,
+  background: `${vars.color.accent}08`,
+  border: `1px solid ${vars.color.accent}20`,
+});

@@ -15,20 +15,24 @@ interface PlatformAdaptButtonProps {
 async function saveVariant(
   platform: PlatformId,
   adaptedContent: string,
+  changeSummary: string,
   draftId: string | null,
   variantId: string | null,
   setVariantId: (platform: PlatformId, id: string | null) => void,
 ) {
+  const patchBody = {
+    content: adaptedContent,
+    status: 'adapted',
+    generatedByAgent: true,
+    manuallyEdited: false,
+    changeSummary,
+  };
+
   if (variantId) {
     await fetch(`/api/platform-variants/${variantId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        content: adaptedContent,
-        status: 'adapted',
-        generatedByAgent: true,
-        manuallyEdited: false,
-      }),
+      body: JSON.stringify(patchBody),
     });
   } else if (draftId) {
     const res = await fetch(`/api/drafts/${draftId}/variants`, {
@@ -44,11 +48,7 @@ async function saveVariant(
         await fetch(`/api/platform-variants/${created.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            content: adaptedContent,
-            status: 'adapted',
-            generatedByAgent: true,
-          }),
+          body: JSON.stringify(patchBody),
         });
       }
     }
@@ -122,8 +122,33 @@ export default function PlatformAdaptButton({ platform, agentEnabled }: Platform
       }
 
       if (accumulated) {
-        setAIAdaptedContent(platform, accumulated);
-        saveVariant(platform, accumulated, currentDraftId, variantIds[platform], setVariantId);
+        let adaptedContent = accumulated;
+        let changeSummary = '';
+
+        // Try parsing as JSON {content, changeSummary}
+        const jsonStart = accumulated.indexOf('{');
+        const jsonEnd = accumulated.lastIndexOf('}');
+        if (jsonStart >= 0 && jsonEnd > jsonStart) {
+          try {
+            const parsed = JSON.parse(accumulated.slice(jsonStart, jsonEnd + 1));
+            if (parsed.content) {
+              adaptedContent = parsed.content;
+              changeSummary = parsed.changeSummary || '';
+            }
+          } catch {
+            // fallback: treat entire response as content (backwards compatible)
+          }
+        }
+
+        setAIAdaptedContent(platform, adaptedContent);
+        saveVariant(
+          platform,
+          adaptedContent,
+          changeSummary,
+          currentDraftId,
+          variantIds[platform],
+          setVariantId,
+        );
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
