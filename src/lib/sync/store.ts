@@ -138,7 +138,9 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
       };
 
       // Append per-platform event based on the new receipt status
-      if (input.status === 'published' || input.status === 'draft-created') {
+      if (input.status === 'syncing') {
+        updated = appendEvent(updated, { type: 'platform-started', platform });
+      } else if (input.status === 'published' || input.status === 'draft-created') {
         updated = appendEvent(updated, { type: 'platform-succeeded', platform });
       } else if (input.status === 'failed') {
         updated = appendEvent(updated, {
@@ -188,6 +190,16 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
       if (!current) return null;
 
       const updated = appendEvent(current, { type: 'retried' });
+      tasks.set(taskId, updated);
+      persistTasks();
+      return updated;
+    },
+
+    appendTaskEvent(taskId: string, event: Omit<SyncEvent, 'timestamp'>) {
+      const current = tasks.get(taskId);
+      if (!current) return null;
+
+      const updated = appendEvent(current, event);
       tasks.set(taskId, updated);
       persistTasks();
       return updated;

@@ -77,6 +77,11 @@ export async function POST(request: NextRequest) {
       platforms: platforms as PlatformId[],
     });
 
+    syncStore.appendTaskEvent(syncTask.id, {
+      type: 'checked',
+      message: forcePublish ? '内容审核通过（强制）' : '内容审核通过',
+    });
+
     logger.info('Publish task created', { taskId: syncTask.id, platforms });
 
     void (async () => {

@@ -84,6 +84,7 @@ export async function runPublishJob(input: RunPublishJobInput): Promise<RunPubli
   }
 
   try {
+    syncStore.appendTaskEvent(input.syncTaskId, { type: 'started' });
     const results = await publishToPlatforms(
       input.platforms,
       input.title,

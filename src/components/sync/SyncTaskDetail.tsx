@@ -72,6 +72,9 @@ const retryableFailureCodes: Set<SyncFailureCode> = new Set([
 
 const eventTypeLabels: Record<SyncEventType, string> = {
   created: '任务已创建',
+  checked: '发布检查完成',
+  queued: '任务已入队',
+  started: '开始执行',
   'platform-started': '平台开始分发',
   'platform-succeeded': '平台分发成功',
   'platform-failed': '平台分发失败',

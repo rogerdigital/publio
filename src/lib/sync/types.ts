@@ -37,6 +37,9 @@ export type SyncNextAction =
 
 export type SyncEventType =
   | 'created'
+  | 'checked'
+  | 'queued'
+  | 'started'
   | 'platform-started'
   | 'platform-succeeded'
   | 'platform-failed'
