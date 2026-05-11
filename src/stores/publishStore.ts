@@ -13,6 +13,15 @@ interface PublishStore {
   currentDraftId: string | null;
   setCurrentDraftId: (id: string | null) => void;
 
+  currentTopicId: string | null;
+  currentBriefId: string | null;
+  setCurrentTopicId: (id: string | null) => void;
+  setCurrentBriefId: (id: string | null) => void;
+
+  variantIds: Record<PlatformId, string | null>;
+  setVariantId: (platform: PlatformId, id: string | null) => void;
+  resetVariantIds: () => void;
+
   activeTab: 'edit' | 'preview';
   setActiveTab: (tab: 'edit' | 'preview') => void;
 
@@ -59,6 +68,17 @@ export const usePublishStore = create<PublishStore>((set) => ({
 
   currentDraftId: null,
   setCurrentDraftId: (id) => set({ currentDraftId: id }),
+
+  currentTopicId: null,
+  currentBriefId: null,
+  setCurrentTopicId: (id) => set({ currentTopicId: id }),
+  setCurrentBriefId: (id) => set({ currentBriefId: id }),
+
+  variantIds: { wechat: null, xiaohongshu: null, zhihu: null, x: null },
+  setVariantId: (platform, id) =>
+    set((state) => ({ variantIds: { ...state.variantIds, [platform]: id } })),
+  resetVariantIds: () =>
+    set({ variantIds: { wechat: null, xiaohongshu: null, zhihu: null, x: null } }),
 
   activeTab: 'edit',
   setActiveTab: (tab) => set({ activeTab: tab }),
