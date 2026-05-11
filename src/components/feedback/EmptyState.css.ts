@@ -37,3 +37,10 @@ export const description = style({
   lineHeight: 1.75,
   color: vars.color.textMuted,
 });
+
+export const actions = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  marginTop: 8,
+});
