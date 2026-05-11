@@ -12,8 +12,60 @@ interface PlatformAdaptButtonProps {
   agentEnabled: boolean;
 }
 
+async function saveVariant(
+  platform: PlatformId,
+  adaptedContent: string,
+  draftId: string | null,
+  variantId: string | null,
+  setVariantId: (platform: PlatformId, id: string | null) => void,
+) {
+  if (variantId) {
+    await fetch(`/api/platform-variants/${variantId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: adaptedContent,
+        status: 'adapted',
+        generatedByAgent: true,
+        manuallyEdited: false,
+      }),
+    });
+  } else if (draftId) {
+    const res = await fetch(`/api/drafts/${draftId}/variants`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platforms: [platform] }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const created = data.variants?.[0];
+      if (created) {
+        setVariantId(platform, created.id);
+        await fetch(`/api/platform-variants/${created.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: adaptedContent,
+            status: 'adapted',
+            generatedByAgent: true,
+          }),
+        });
+      }
+    }
+  }
+}
+
 export default function PlatformAdaptButton({ platform, agentEnabled }: PlatformAdaptButtonProps) {
-  const { title, content, platformDrafts, setAIAdaptedContent, revertAIDraft } = usePublishStore();
+  const {
+    title,
+    content,
+    platformDrafts,
+    setAIAdaptedContent,
+    revertAIDraft,
+    currentDraftId,
+    variantIds,
+    setVariantId,
+  } = usePublishStore();
   const [adapting, setAdapting] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -71,6 +123,7 @@ export default function PlatformAdaptButton({ platform, agentEnabled }: Platform
 
       if (accumulated) {
         setAIAdaptedContent(platform, accumulated);
+        saveVariant(platform, accumulated, currentDraftId, variantIds[platform], setVariantId);
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
@@ -78,7 +131,7 @@ export default function PlatformAdaptButton({ platform, agentEnabled }: Platform
       setAdapting(false);
       abortRef.current = null;
     }
-  }, [title, content, platform, setAIAdaptedContent]);
+  }, [title, content, platform, setAIAdaptedContent, currentDraftId, variantIds, setVariantId]);
 
   const handleRevert = useCallback(() => {
     revertAIDraft(platform);
