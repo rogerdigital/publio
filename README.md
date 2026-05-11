@@ -52,6 +52,8 @@ All AI features require an OpenAI-compatible API (Zhipu GLM, DeepSeek, Qwen, Ope
 ### Multi-Platform Publishing
 
 - Concurrent publish via `Promise.allSettled` across all selected platforms
+- **Platform Variants** — each platform gets an independent content version (synced from main draft, AI-adapted, or manually edited)
+- **Variant status tracking** — synced / adapted / edited / checked / scheduled / published
 - **Content moderation** — sensitive word detection with pre-publish warning dialog
 - **Platform validation** — automatic rule checking (title length, content limits, format constraints)
 - **Publish progress overlay** — real-time status polling with per-platform receipts
