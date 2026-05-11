@@ -51,7 +51,7 @@ describe('PublishButton', () => {
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledTimes(2);
     });
-    const publishCall = fetch.mock.calls.find(([url]: [string]) => url === '/api/publish') as [
+    const publishCall = fetch.mock.calls.find((call) => call[0] === '/api/publish') as [
       string,
       RequestInit,
     ];

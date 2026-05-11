@@ -50,7 +50,6 @@ function createScoredCluster(overrides: Partial<ScoredAiNewsCluster>): ScoredAiN
     coverageCount: overrides.coverageCount ?? 2,
     officialSourceCount: overrides.officialSourceCount ?? 1,
     mediaSourceCount: overrides.mediaSourceCount ?? 1,
-    creatorSourceCount: overrides.creatorSourceCount ?? 0,
     scores: overrides.scores ?? {
       freshness: 88,
       impact: 84,

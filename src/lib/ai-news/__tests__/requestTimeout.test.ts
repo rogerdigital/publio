@@ -4,7 +4,7 @@ import { fetchTextWithTimeout } from '@/lib/ai-news/requestTimeout';
 
 describe('fetchTextWithTimeout', () => {
   test('上游请求长期不返回时会在超时后尽快失败', async () => {
-    const fetchMock = vi.fn(() => new Promise(() => undefined));
+    const fetchMock = vi.fn(() => new Promise(() => undefined)) as unknown as typeof fetch;
 
     await expect(
       fetchTextWithTimeout('https://example.com/feed.xml', {

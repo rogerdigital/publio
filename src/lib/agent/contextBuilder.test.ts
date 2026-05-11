@@ -18,6 +18,7 @@ function makeSignal(overrides: Partial<Signal> = {}): Signal {
     capturedAt: '2026-05-10T00:00:00.000Z',
     status: 'new',
     tags: ['AI'],
+    score: { freshness: 80, relevance: 70, credibility: 85, writingPotential: 75, audienceFit: 60 },
     createdAt: '2026-05-10T00:00:00.000Z',
     updatedAt: '2026-05-10T00:00:00.000Z',
     ...overrides,
@@ -28,9 +29,14 @@ function makeTopic(overrides: Partial<Topic> = {}): Topic {
   return {
     id: 'topic-1',
     title: '大模型落地',
+    angle: '',
+    summary: '',
     signalIds: ['sig-1'],
-    status: 'active',
+    status: 'idea',
     tags: ['AI'],
+    recommendedPlatforms: [],
+    writingValue: 0,
+    urgency: 0,
     createdAt: '2026-05-10T00:00:00.000Z',
     updatedAt: '2026-05-10T00:00:00.000Z',
     ...overrides,
@@ -47,6 +53,7 @@ function makeBrief(overrides: Partial<Brief> = {}): Brief {
     tone: '专业',
     outline: [{ heading: '引言', purpose: '铺垫', evidenceSignalIds: [] }],
     sourceLinks: [{ title: '来源A', url: 'https://a.com' }],
+    platformPlan: [],
     createdAt: '2026-05-10T00:00:00.000Z',
     updatedAt: '2026-05-10T00:00:00.000Z',
     ...overrides,
@@ -58,7 +65,7 @@ function makeDraft(overrides: Partial<ContentDraft> = {}): ContentDraft {
     id: 'draft-1',
     title: '测试稿件',
     content: '稿件正文内容',
-    status: 'editing',
+    status: 'draft',
     source: 'manual',
     createdAt: '2026-05-10T00:00:00.000Z',
     updatedAt: '2026-05-10T00:00:00.000Z',
@@ -144,7 +151,7 @@ describe('formatAgentContext', () => {
     expect(text).toContain('选题：话题A');
     expect(text).toContain('角度：技术落地');
     expect(text).toContain('核心观点：核心观点');
-    expect(text).toContain('稿件[editing]：测试稿件');
+    expect(text).toContain('稿件[draft]：测试稿件');
   });
 
   test('handles empty context', () => {

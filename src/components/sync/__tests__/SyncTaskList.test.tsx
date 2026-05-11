@@ -34,6 +34,7 @@ describe('SyncTaskList', () => {
         status: 'needs-action',
         createdAt: '2026-04-11T08:00:00.000Z',
         updatedAt: '2026-04-11T08:05:00.000Z',
+        events: [],
         receipts: [
           {
             platform: 'xiaohongshu',

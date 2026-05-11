@@ -41,9 +41,8 @@ jobs:
       - name: Format check
         run: pnpm format:check
 
-      # TODO: enable after fixing existing type errors
-      # - name: Type check
-      #   run: pnpm tsc --noEmit
+      - name: Type check
+        run: pnpm tsc --noEmit
 
   test:
     name: Test
