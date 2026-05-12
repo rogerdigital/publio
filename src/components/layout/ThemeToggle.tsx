@@ -10,7 +10,7 @@ const STORAGE_KEY = 'publio-theme';
 type ThemeMode = 'light' | 'dark' | 'system';
 
 function getSystemPreference(): 'light' | 'dark' {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined') return 'dark';
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
@@ -32,7 +32,7 @@ export default function ThemeToggle() {
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
     const initialMode: ThemeMode =
-      stored && ['light', 'dark', 'system'].includes(stored) ? stored : 'system';
+      stored && ['light', 'dark', 'system'].includes(stored) ? stored : 'dark';
     setMode(initialMode);
     applyTheme(resolveEffectiveTheme(initialMode));
 

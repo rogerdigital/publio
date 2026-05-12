@@ -94,7 +94,7 @@ export const item = recipe({
       },
       false: {
         ':hover': {
-          background: 'rgba(0,0,0,0.04)',
+          background: vars.color.surfaceStrong,
         },
       },
     },
@@ -211,7 +211,7 @@ export const itemSelectable = recipe({
       },
       false: {
         ':hover': {
-          background: 'rgba(0,0,0,0.04)',
+          background: vars.color.surfaceStrong,
         },
       },
     },

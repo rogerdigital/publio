@@ -16,7 +16,7 @@ export const surfaceCard = recipe({
         background: vars.color.bgElevated,
       },
       accent: {
-        background: 'rgba(255, 246, 237, 0.92)',
+        background: vars.color.accentSoft,
       },
     },
   },
