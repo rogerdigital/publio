@@ -6,26 +6,32 @@ export const container = style({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: 12,
+  gap: 14,
   minHeight: 280,
   borderRadius: vars.radius.xl,
-  border: `1px dashed ${vars.color.borderStrong}`,
-  background: vars.color.surface,
-  padding: '32px',
+  background: vars.color.glassSurface,
+  backdropFilter: 'blur(12px)',
+  WebkitBackdropFilter: 'blur(12px)',
+  border: `1px solid ${vars.color.glassBorder}`,
+  padding: '40px 32px',
   textAlign: 'center',
 });
 
 export const icon = style({
   width: 40,
   height: 40,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '50%',
+  background: vars.color.bgElevated,
   color: vars.color.textMuted,
-  opacity: 0.6,
 });
 
 export const title = style({
   margin: 0,
-  fontFamily: vars.font.serif,
-  fontSize: 20,
+  fontSize: vars.fontSize.lg,
+  fontWeight: 500,
   lineHeight: 1.35,
   color: vars.color.text,
 });
@@ -33,7 +39,7 @@ export const title = style({
 export const description = style({
   margin: 0,
   maxWidth: '30rem',
-  fontSize: 14,
+  fontSize: vars.fontSize.sm,
   lineHeight: 1.75,
   color: vars.color.textMuted,
 });

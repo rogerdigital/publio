@@ -4,19 +4,31 @@ import { vars } from '@/styles/tokens.css';
 export const surfaceCard = recipe({
   base: {
     borderRadius: vars.radius.xl,
-    border: `1px solid ${vars.color.border}`,
+    border: `1px solid ${vars.color.glassBorder}`,
     color: vars.color.text,
+    background: vars.color.glassSurface,
+    backdropFilter: 'blur(20px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+    boxShadow: vars.shadow.sm,
   },
   variants: {
     tone: {
-      default: {
-        background: vars.color.surface,
-      },
+      default: {},
       soft: {
         background: vars.color.bgElevated,
       },
       accent: {
-        background: vars.color.accentSoft,
+        background: vars.color.surfaceDark,
+        border: 'none',
+        color: vars.color.surfaceDarkText,
+      },
+      purple: {},
+      cream: {},
+      lime: {},
+      dark: {
+        background: vars.color.surfaceDark,
+        border: 'none',
+        color: vars.color.surfaceDarkText,
       },
     },
   },

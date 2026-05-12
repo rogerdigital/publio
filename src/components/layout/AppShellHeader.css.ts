@@ -3,10 +3,9 @@ import { vars } from '@/styles/tokens.css';
 
 export const header = style({
   width: '100%',
-  paddingTop: '8px',
+  paddingTop: '4px',
   paddingBottom: '16px',
-  marginBottom: '4px',
-  borderBottom: `1px solid ${vars.color.border}`,
+  marginBottom: '8px',
 });
 
 export const inner = style({
@@ -21,30 +20,24 @@ export const textBlock = style({
 });
 
 export const kicker = style({
-  fontSize: '11px',
+  fontSize: vars.fontSize.xs,
   fontWeight: 500,
-  textTransform: 'uppercase',
   letterSpacing: vars.tracking.kicker,
-  color: vars.color.accent,
+  color: vars.color.textMuted,
 });
 
 export const title = style({
-  fontFamily: vars.font.serif,
-  marginTop: '8px',
-  fontSize: '26px',
-  lineHeight: 1.3,
+  marginTop: '6px',
+  fontSize: vars.fontSize['3xl'],
+  fontWeight: 600,
+  lineHeight: 1.2,
   color: vars.color.text,
-  '@media': {
-    'screen and (min-width: 640px)': {
-      fontSize: '32px',
-    },
-  },
 });
 
 export const description = style({
   marginTop: '8px',
   maxWidth: '48rem',
-  fontSize: '14px',
+  fontSize: vars.fontSize.sm,
   lineHeight: 1.75,
   color: vars.color.textMuted,
 });

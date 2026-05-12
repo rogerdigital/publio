@@ -7,14 +7,14 @@ const shimmer = keyframes({
   '100%': { backgroundPosition: '200% 0' },
 });
 
-const shimmerGradient = `linear-gradient(90deg, ${vars.color.bgElevated} 25%, ${vars.color.canvasDeep} 50%, ${vars.color.bgElevated} 75%)`;
+const shimmerGradient = `linear-gradient(90deg, ${vars.color.bgElevated} 25%, ${vars.color.surfaceStrong} 50%, ${vars.color.bgElevated} 75%)`;
 
 export const skeleton = recipe({
   base: {
     background: shimmerGradient,
     backgroundSize: '200% 100%',
-    animation: `${shimmer} 1.5s ease-in-out infinite`,
-    borderRadius: vars.radius.lg,
+    animation: `${shimmer} 1.8s ease-in-out infinite`,
+    borderRadius: vars.radius.md,
   },
   variants: {
     shape: {
@@ -34,6 +34,7 @@ export const skeleton = recipe({
       rect: {
         width: '100%',
         height: 120,
+        borderRadius: vars.radius.lg,
       },
     },
   },
