@@ -104,7 +104,7 @@ export const publishButton = recipe({
       },
       false: {
         background: vars.color.accent,
-        color: '#ffffff',
+        color: vars.color.surfaceDarkText,
         ':hover': {
           filter: 'brightness(1.05)',
         },
@@ -149,9 +149,9 @@ export const panelKicker = style({
 });
 
 export const panelTitle = style({
-  fontFamily: vars.font.serif,
   marginTop: '4px',
   fontSize: '18px',
+  fontWeight: 600,
   lineHeight: 1.3,
   color: vars.color.text,
 });
@@ -298,7 +298,7 @@ export const statusBadgeVariants = styleVariants({
     gap: '6px',
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.successBorder}`,
-    background: '#ffffff',
+    background: vars.color.surface,
     padding: '4px 10px',
     fontSize: '11px',
     fontWeight: 500,
@@ -310,7 +310,7 @@ export const statusBadgeVariants = styleVariants({
     gap: '6px',
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.errorBorder}`,
-    background: '#ffffff',
+    background: vars.color.surface,
     padding: '4px 10px',
     fontSize: '11px',
     fontWeight: 500,
@@ -322,7 +322,7 @@ export const statusBadgeVariants = styleVariants({
     gap: '6px',
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.border}`,
-    background: '#ffffff',
+    background: vars.color.surface,
     padding: '4px 10px',
     fontSize: '11px',
     fontWeight: 500,
@@ -502,10 +502,13 @@ export const previewThreadList = style({
 
 // 右侧面板区块容器
 export const rightPanelSection = style({
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
-  padding: '12px 14px',
+  borderRadius: vars.radius.xl,
+  background: vars.color.glassSurface,
+  backdropFilter: 'blur(20px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+  border: `1px solid ${vars.color.glassBorder}`,
+  boxShadow: vars.shadow.sm,
+  padding: '14px 16px',
   display: 'flex',
   flexDirection: 'column',
   gap: '10px',
@@ -895,7 +898,7 @@ export const moderationContinueBtn = style({
   padding: '8px 16px',
   fontSize: '14px',
   fontWeight: 500,
-  color: '#ffffff',
+  color: vars.color.surfaceDarkText,
   cursor: 'pointer',
   transition: 'filter 150ms',
   ':hover': { filter: 'brightness(1.1)' },

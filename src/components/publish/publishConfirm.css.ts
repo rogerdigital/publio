@@ -148,7 +148,7 @@ export const confirmBtn = recipe({
     padding: '8px 16px',
     fontSize: 14,
     fontWeight: 600,
-    color: '#ffffff',
+    color: vars.color.surfaceDarkText,
     cursor: 'pointer',
     ':hover': {
       background: vars.color.signal,
