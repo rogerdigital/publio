@@ -56,10 +56,7 @@ export const signalCard = style({
   borderRadius: vars.radius.xl,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
-  transition: 'border-color 0.15s ease',
-  ':hover': {
-    borderColor: vars.color.borderStrong,
-  },
+  boxShadow: vars.shadow.sm,
 });
 
 export const signalHeader = style({

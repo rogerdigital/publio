@@ -10,7 +10,7 @@ export const row = style({
 export const label = style({
   width: '48px',
   flexShrink: 0,
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
@@ -20,22 +20,23 @@ export const label = style({
 export const track = style({
   flex: 1,
   height: '4px',
-  background: vars.color.canvasDeep,
+  background: vars.color.bgElevated,
   borderRadius: '2px',
   overflow: 'hidden',
 });
 
 export const fill = style({
   height: '100%',
-  background: vars.color.accent,
+  background: vars.color.surfaceDark,
   borderRadius: '2px',
-  transition: 'width 400ms ease',
+  transition: `width ${vars.transition.slow}`,
 });
 
 export const value = style({
-  width: '24px',
+  width: '28px',
   flexShrink: 0,
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
+  fontWeight: 500,
   textAlign: 'right',
-  color: vars.color.textMuted,
+  color: vars.color.text,
 });

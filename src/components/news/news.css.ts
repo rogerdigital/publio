@@ -14,7 +14,7 @@ export const refreshButton = recipe({
     padding: '8px 16px',
     fontSize: '14px',
     fontWeight: 500,
-    color: '#ffffff',
+    color: vars.color.surfaceDarkText,
     transition: 'filter 150ms',
     ':disabled': {
       cursor: 'not-allowed',
@@ -283,7 +283,6 @@ export const headlineBlock = style({
 });
 
 export const headline = style({
-  fontFamily: vars.font.serif,
   fontSize: '20px',
   fontWeight: 600,
   lineHeight: 1.4,
@@ -377,7 +376,7 @@ export const actionButton = recipe({
       },
       primary: {
         background: vars.color.accent,
-        color: '#ffffff',
+        color: vars.color.surfaceDarkText,
         ':hover': {
           filter: 'brightness(1.05)',
         },

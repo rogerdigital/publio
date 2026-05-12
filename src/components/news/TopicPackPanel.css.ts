@@ -4,9 +4,10 @@ import { vars } from '@/styles/tokens.css';
 export const container = style({
   marginTop: '12px',
   padding: '16px',
-  borderRadius: vars.radius.xl,
+  borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
-  background: vars.color.bgElevated,
+  background: vars.color.surface,
+  boxShadow: vars.shadow.sm,
   display: 'flex',
   flexDirection: 'column',
   gap: '12px',

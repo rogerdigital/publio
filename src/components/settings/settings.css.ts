@@ -5,14 +5,15 @@ import { vars } from '@/styles/tokens.css';
 export const sectionGroup = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '12px',
+  gap: '16px',
+  padding: '20px',
 });
 
 export const sectionHeader = style({
   display: 'flex',
   alignItems: 'center',
   gap: '8px',
-  fontSize: '14px',
+  fontSize: vars.fontSize.sm,
   fontWeight: 600,
   color: vars.color.text,
 });
@@ -33,16 +34,16 @@ export const sourceForm = style({
 export const sourceInput = style({
   flex: 1,
   minWidth: '140px',
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
-  padding: '8px 12px',
-  fontSize: '13px',
+  borderRadius: vars.radius.md,
+  border: 'none',
+  background: vars.color.glassInput,
+  padding: '10px 14px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.text,
   outline: 'none',
-  transition: 'border-color 150ms',
+  transition: `border-color ${vars.transition.fast}`,
   ':focus': {
-    borderColor: vars.color.accent,
+    border: `1px solid ${vars.color.glassInputFocus}`,
   },
 });
 
@@ -50,16 +51,16 @@ export const sourceAddBtn = style({
   display: 'inline-flex',
   alignItems: 'center',
   gap: '4px',
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.accent}`,
-  background: vars.color.accent,
-  padding: '8px 14px',
+  borderRadius: vars.radius.md,
+  border: 'none',
+  background: vars.color.surfaceDark,
+  padding: '10px 14px',
   fontSize: '13px',
   fontWeight: 500,
-  color: '#ffffff',
+  color: vars.color.surfaceDarkText,
   cursor: 'pointer',
   transition: 'filter 150ms',
-  ':hover': { filter: 'brightness(1.1)' },
+  ':hover': { filter: 'brightness(1.2)' },
 });
 
 export const sourceError = style({
@@ -80,9 +81,14 @@ export const sourceItem = style({
   justifyContent: 'space-between',
   gap: '12px',
   padding: '10px 12px',
-  borderRadius: vars.radius.lg,
+  borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.border}`,
-  background: vars.color.bgElevated,
+  background: vars.color.surface,
+  boxShadow: vars.shadow.sm,
+  transition: `box-shadow ${vars.transition.fast}`,
+  ':hover': {
+    boxShadow: vars.shadow.md,
+  },
 });
 
 export const sourceInfo = style({
@@ -155,14 +161,14 @@ export const promptTab = recipe({
     fontSize: '13px',
     color: vars.color.textMuted,
     cursor: 'pointer',
-    transition: 'all 150ms',
+    transition: `all ${vars.transition.fast}`,
   },
   variants: {
     active: {
       true: {
-        borderColor: vars.color.accent,
-        background: vars.color.accent,
-        color: '#ffffff',
+        borderColor: vars.color.surfaceDark,
+        background: vars.color.surfaceDark,
+        color: vars.color.surfaceDarkText,
       },
     },
   },
@@ -170,18 +176,18 @@ export const promptTab = recipe({
 
 export const promptTextarea = style({
   width: '100%',
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
-  padding: '10px 12px',
+  borderRadius: vars.radius.md,
+  border: 'none',
+  background: vars.color.glassInput,
+  padding: '10px 14px',
   fontSize: '13px',
   color: vars.color.text,
   lineHeight: 1.6,
   resize: 'vertical',
   outline: 'none',
-  transition: 'border-color 150ms',
+  transition: `border-color ${vars.transition.fast}`,
   ':focus': {
-    borderColor: vars.color.accent,
+    border: `1px solid ${vars.color.glassInputFocus}`,
   },
 });
 

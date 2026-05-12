@@ -17,16 +17,16 @@ export const fieldLabel = style({
 
 export const fieldInput = style({
   width: '100%',
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
-  padding: '8px 12px',
+  borderRadius: vars.radius.md,
+  border: 'none',
+  background: vars.color.glassInput,
+  padding: '10px 14px',
   fontSize: '13px',
   color: vars.color.text,
   outline: 'none',
-  transition: 'border-color 150ms',
+  transition: `border-color ${vars.transition.fast}`,
   ':focus': {
-    borderColor: vars.color.accent,
+    border: `1px solid ${vars.color.glassInputFocus}`,
   },
 });
 
@@ -40,7 +40,7 @@ export const saveBtn = style({
   padding: '8px 14px',
   fontSize: '13px',
   fontWeight: 500,
-  color: '#ffffff',
+  color: vars.color.surfaceDarkText,
   cursor: 'pointer',
   transition: 'filter 150ms',
   alignSelf: 'flex-start',
@@ -81,7 +81,7 @@ export const recommendBtn = style({
   padding: '8px 16px',
   fontSize: '13px',
   fontWeight: 500,
-  color: '#ffffff',
+  color: vars.color.surfaceDarkText,
   cursor: 'pointer',
   transition: 'filter 150ms',
   alignSelf: 'flex-start',
@@ -119,13 +119,14 @@ export const recommendList = style({
 });
 
 export const recommendCard = style({
-  borderRadius: vars.radius.lg,
+  borderRadius: vars.radius.xl,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
   padding: '14px',
   display: 'flex',
   flexDirection: 'column',
   gap: '8px',
+  boxShadow: vars.shadow.sm,
 });
 
 export const recommendTitle = style({
@@ -197,17 +198,19 @@ export const refreshBtn = style({
 
 export const textarea = style({
   width: '100%',
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
-  padding: '10px 12px',
+  borderRadius: vars.radius.md,
+  border: 'none',
+  background: vars.color.glassInput,
+  padding: '10px 14px',
   fontSize: '13px',
   color: vars.color.text,
   lineHeight: 1.6,
   resize: 'vertical',
   outline: 'none',
-  transition: 'border-color 150ms',
-  ':focus': { borderColor: vars.color.accent },
+  transition: `border-color ${vars.transition.fast}`,
+  ':focus': {
+    border: `1px solid ${vars.color.glassInputFocus}`,
+  },
 });
 
 export const buttonRow = style({

@@ -13,6 +13,7 @@ export const draftCard = style({
   borderRadius: vars.radius.xl,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
+  boxShadow: vars.shadow.sm,
   padding: '18px',
   '@media': {
     'screen and (min-width: 760px)': {
@@ -35,13 +36,13 @@ export const draftMetaRow = style({
 });
 
 export const statusBadge = style({
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.accentSoft,
-  padding: '5px 10px',
-  fontSize: '12px',
-  fontWeight: 500,
-  color: vars.color.signal,
+  borderRadius: '999px',
+  border: 'none',
+  background: vars.color.bgElevated,
+  padding: '4px 10px',
+  fontSize: '11px',
+  fontWeight: 600,
+  color: vars.color.textMuted,
 });
 
 export const sourceBadge = style({
@@ -61,8 +62,8 @@ export const updatedTime = style({
 
 export const draftTitle = style({
   margin: 0,
-  fontFamily: vars.font.serif,
-  fontSize: '22px',
+  fontSize: '20px',
+  fontWeight: 600,
   lineHeight: 1.35,
   color: vars.color.text,
 });
@@ -192,7 +193,7 @@ export const primaryLink = style({
   padding: '10px 16px',
   fontSize: '14px',
   fontWeight: 500,
-  color: '#ffffff',
+  color: vars.color.surfaceDarkText,
   textDecoration: 'none',
 });
 
@@ -611,15 +612,15 @@ export const toolbar = style({
 export const searchInput = style({
   flex: 1,
   minWidth: 200,
-  padding: '6px 12px',
+  padding: '10px 14px',
   fontSize: 13,
-  border: `1px solid ${vars.color.border}`,
-  borderRadius: vars.radius.lg,
-  background: vars.color.surface,
+  border: 'none',
+  borderRadius: vars.radius.md,
+  background: vars.color.glassInput,
   color: vars.color.text,
   outline: 'none',
   ':focus': {
-    borderColor: vars.color.accent,
+    border: `1px solid ${vars.color.glassInputFocus}`,
   },
   '::placeholder': {
     color: vars.color.textMuted,
@@ -683,9 +684,9 @@ export const filterChip = recipe({
   variants: {
     active: {
       true: {
-        background: vars.color.accent,
-        borderColor: vars.color.accent,
-        color: '#ffffff',
+        background: vars.color.surfaceDark,
+        borderColor: vars.color.surfaceDark,
+        color: vars.color.surfaceDarkText,
         fontWeight: 500,
       },
       false: {

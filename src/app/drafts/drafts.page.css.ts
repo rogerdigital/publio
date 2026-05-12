@@ -22,7 +22,7 @@ export const newDraftLink = style({
   padding: '8px 14px',
   fontSize: '14px',
   fontWeight: 500,
-  color: '#ffffff',
+  color: vars.color.surfaceDarkText,
   textDecoration: 'none',
   transition: 'opacity 150ms',
   ':hover': {
