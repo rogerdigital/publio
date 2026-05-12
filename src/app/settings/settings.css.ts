@@ -36,7 +36,7 @@ export const saveButton = style({
   padding: '10px 20px',
   fontSize: '14px',
   fontWeight: 500,
-  color: '#ffffff',
+  color: vars.color.surfaceDarkText,
   transition: 'filter 150ms',
   ':hover': {
     filter: 'brightness(1.05)',
@@ -470,7 +470,7 @@ export const oauthStepBadgeActive = style({
   border: `1px solid ${vars.color.accent}`,
   fontSize: '11px',
   fontWeight: 700,
-  color: '#ffffff',
+  color: vars.color.surfaceDarkText,
   letterSpacing: '0.02em',
 });
 
@@ -505,7 +505,7 @@ export const authorizeButton = style({
   padding: '10px 20px',
   fontSize: '14px',
   fontWeight: 600,
-  color: '#ffffff',
+  color: vars.color.surfaceDarkText,
   transition: 'filter 150ms',
   ':hover': {
     filter: 'brightness(1.05)',

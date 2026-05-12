@@ -5,22 +5,20 @@ import { vars } from '@/styles/tokens.css';
 export const pageWrap = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '24px',
+  gap: '20px',
 });
 
-// 最外层 flex 容器：草稿抽屉 + 主内容区
 export const editorLayout = style({
   display: 'flex',
   alignItems: 'stretch',
   gap: '16px',
 });
 
-// 草稿抽屉外层：控制宽度动画，移动端隐藏
 export const panelOuter = style({
   display: 'none',
   flexShrink: 0,
   overflow: 'hidden',
-  transition: 'width 220ms cubic-bezier(0.4, 0, 0.2, 1)',
+  transition: `width ${vars.transition.base}`,
   '@media': {
     'screen and (min-width: 1024px)': {
       display: 'block',
@@ -28,7 +26,6 @@ export const panelOuter = style({
   },
 });
 
-// 主内容区域：移动端单列，桌面端双列（编辑区 + 右侧控制面板）
 export const mainContentArea = style({
   flex: 1,
   minWidth: 0,
@@ -44,7 +41,6 @@ export const mainContentArea = style({
   },
 });
 
-// 左侧编辑内容区（撑满剩余宽度）
 export const editorSection = style({
   flex: 1,
   minWidth: 0,
@@ -53,7 +49,6 @@ export const editorSection = style({
   gap: '16px',
 });
 
-// 右侧固定控制面板（桌面端 sticky，移动端退化为底部区块）
 export const rightPanel = style({
   display: 'flex',
   flexDirection: 'column',
@@ -63,12 +58,11 @@ export const rightPanel = style({
       width: '280px',
       flexShrink: 0,
       position: 'sticky',
-      top: '24px',
+      top: '28px',
     },
   },
 });
 
-// 仅移动端显示（< 1024px）
 export const mobileOnly = style({
   '@media': {
     'screen and (min-width: 1024px)': {
@@ -80,7 +74,11 @@ export const mobileOnly = style({
 export const editorCard = style({
   overflow: 'hidden',
   borderRadius: vars.radius.xl,
-  background: vars.color.surface,
+  background: vars.color.glassSurface,
+  backdropFilter: 'blur(20px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+  border: `1px solid ${vars.color.glassBorder}`,
+  boxShadow: vars.shadow.sm,
   outline: 'none',
 });
 
@@ -89,7 +87,7 @@ export const draftLoadError = style({
   border: `1px solid ${vars.color.errorBorder}`,
   background: vars.color.errorBg,
   padding: '12px 14px',
-  fontSize: '14px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.errorText,
 });
 
@@ -109,40 +107,42 @@ export const publishRight = style({
 });
 
 export const resetLink = style({
-  fontSize: '14px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   textDecoration: 'underline',
-  transition: 'color 150ms',
+  transition: `color ${vars.transition.fast}`,
   ':hover': {
     color: vars.color.text,
   },
 });
 
-// Tab switcher
 export const tabSwitcher = style({
   display: 'inline-flex',
-  borderRadius: vars.radius.lg,
+  borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '2px',
+  padding: '3px',
 });
 
 export const tabButton = recipe({
   base: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '8px',
-    borderRadius: '6px',
+    gap: '6px',
+    borderRadius: vars.radius.sm,
     border: 'none',
     padding: '6px 12px',
-    fontSize: '14px',
-    transition: 'background-color 150ms, color 150ms',
+    fontSize: vars.fontSize.sm,
+    fontWeight: 500,
+    cursor: 'pointer',
+    transition: `all ${vars.transition.fast}`,
   },
   variants: {
     active: {
       true: {
-        background: vars.color.accent,
-        color: '#ffffff',
+        background: vars.color.surfaceDark,
+        color: vars.color.surfaceDarkText,
+        boxShadow: vars.shadow.sm,
       },
       false: {
         background: 'transparent',
@@ -158,7 +158,6 @@ export const tabButton = recipe({
   },
 });
 
-// Header 右侧操作区（Tab switcher + 面板切换）
 export const headerActions = style({
   display: 'flex',
   alignItems: 'center',
@@ -169,18 +168,18 @@ export const newDraftButton = style({
   display: 'inline-flex',
   alignItems: 'center',
   gap: '6px',
-  borderRadius: vars.radius.lg,
+  borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
   padding: '6px 10px',
-  fontSize: '14px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',
-  transition: 'background-color 150ms, color 150ms, border-color 150ms',
+  transition: `all ${vars.transition.fast}`,
   ':hover': {
-    background: vars.color.canvasDeep,
-    color: vars.color.text,
-    borderColor: vars.color.borderStrong,
+    background: vars.color.accentSoft,
+    color: vars.color.accent,
+    borderColor: vars.color.accent,
   },
 });
 
@@ -188,39 +187,38 @@ export const newDraftButtonDanger = style({
   display: 'inline-flex',
   alignItems: 'center',
   gap: '6px',
-  borderRadius: vars.radius.lg,
+  borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.errorBorder}`,
   background: vars.color.errorBg,
   padding: '6px 10px',
-  fontSize: '14px',
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.errorText,
   cursor: 'pointer',
-  transition: 'background-color 150ms, color 150ms, border-color 150ms',
+  transition: `all ${vars.transition.fast}`,
 });
 
-// 面板切换按钮，仅桌面端显示（带文字标签，避免与复制按钮混淆）
 export const panelToggle = recipe({
   base: {
     display: 'none',
     cursor: 'pointer',
     gap: '6px',
-    transition: 'background-color 150ms, color 150ms, border-color 150ms',
+    transition: `all ${vars.transition.fast}`,
     ':hover': {
-      background: vars.color.canvasDeep,
-      color: vars.color.text,
-      borderColor: vars.color.borderStrong,
+      background: vars.color.accentSoft,
+      color: vars.color.accent,
+      borderColor: vars.color.accent,
     },
     '@media': {
       'screen and (min-width: 1024px)': {
         display: 'inline-flex',
         alignItems: 'center',
-        borderRadius: vars.radius.lg,
+        borderRadius: vars.radius.md,
         border: `1px solid ${vars.color.border}`,
         background: 'transparent',
         color: vars.color.textMuted,
         padding: '6px 10px',
-        fontSize: '14px',
+        fontSize: vars.fontSize.sm,
       },
     },
   },
@@ -229,11 +227,11 @@ export const panelToggle = recipe({
       true: {
         background: vars.color.accentSoft,
         color: vars.color.accent,
-        borderColor: vars.color.accentSoft,
+        borderColor: vars.color.accent,
         ':hover': {
           background: vars.color.accentSoft,
           color: vars.color.accent,
-          borderColor: vars.color.accentSoft,
+          borderColor: vars.color.accent,
         },
       },
       false: {},
@@ -242,9 +240,8 @@ export const panelToggle = recipe({
   defaultVariants: { active: false },
 });
 
-// 自动保存状态提示
 export const saveStatusHint = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
   display: 'none',
   '@media': {

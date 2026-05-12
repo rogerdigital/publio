@@ -1,115 +1,116 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Newspaper,
   PenLine,
   Settings2,
-  ArrowRight,
   Library,
   Send,
   BarChart3,
   CalendarDays,
+  ChevronsRight,
+  ChevronsLeft,
 } from 'lucide-react';
-import { Dancing_Script } from 'next/font/google';
 import { cn } from '@/lib/cn';
 import ThemeToggle from './ThemeToggle';
+import Logo from './Logo';
 import * as styles from './Sidebar.css';
 
-const handwriting = Dancing_Script({ subsets: ['latin'], weight: ['700'] });
+const STORAGE_KEY = 'publio-sidebar-expanded';
 
 const navItems = [
-  {
-    href: '/ai-news',
-    label: '选题台',
-    description: '聚合 AI 热点，提炼可转化的内容线索。',
-    icon: Newspaper,
-  },
-  {
-    href: '/',
-    label: '写作台',
-    description: 'Markdown 写作、排版预览与发布一体化。',
-    icon: PenLine,
-  },
-  {
-    href: '/drafts',
-    label: '稿件库',
-    description: '管理所有草稿，追踪从选题到分发的完整链路。',
-    icon: Library,
-  },
-  {
-    href: '/sync-tasks',
-    label: '分发记录',
-    description: '查看各平台发布回执、失败原因与重试入口。',
-    icon: Send,
-  },
-  {
-    href: '/analytics',
-    label: '数据看板',
-    description: '追踪已发布内容的阅读、互动数据。',
-    icon: BarChart3,
-  },
-  {
-    href: '/calendar',
-    label: '排期日历',
-    description: '查看稿件排期和发布记录。',
-    icon: CalendarDays,
-  },
-  {
-    href: '/settings',
-    label: '设置',
-    description: '统一管理公众号、小红书、知乎与 X 凭证。',
-    icon: Settings2,
-  },
+  { href: '/ai-news', label: '选题台', icon: Newspaper },
+  { href: '/', label: '写作台', icon: PenLine },
+  { href: '/drafts', label: '稿件库', icon: Library },
+  { href: '/sync-tasks', label: '分发记录', icon: Send },
+  { href: '/analytics', label: '数据看板', icon: BarChart3 },
+  { href: '/calendar', label: '排期日历', icon: CalendarDays },
+  { href: '/settings', label: '设置', icon: Settings2 },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === 'true') setExpanded(true);
+  }, []);
+
+  const toggle = () => {
+    setExpanded((prev) => {
+      const next = !prev;
+      localStorage.setItem(STORAGE_KEY, String(next));
+      return next;
+    });
+  };
+
+  const variant = expanded ? 'expanded' : 'collapsed';
 
   return (
     <>
-      <aside className={styles.sidebar}>
-        <div className={styles.inner}>
-          <nav className={styles.nav}>
-            {navItems.map((item) => {
-              const isActive =
-                pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
-              const Icon = item.icon;
-              const state = isActive ? 'active' : 'inactive';
+      <aside className={cn(styles.sidebarBase, styles.sidebarVariants[variant])}>
+        <div className={styles.brand}>
+          {expanded ? (
+            <>
+              <div className={styles.brandLeft}>
+                <span className={styles.brandLogo}>
+                  <Logo size={28} />
+                </span>
+                <span className={styles.brandName}>Publio</span>
+              </div>
+              <button
+                type="button"
+                className={styles.collapseToggle}
+                onClick={toggle}
+                title="收起侧边栏"
+              >
+                <ChevronsLeft size={14} />
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className={styles.collapseToggle}
+              onClick={toggle}
+              title="展开侧边栏"
+            >
+              <ChevronsRight size={14} />
+            </button>
+          )}
+        </div>
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(styles.navItemBase, styles.navItemVariants[state])}
-                >
-                  <span className={styles.navIndicator[state]} />
+        <nav className={styles.nav}>
+          {navItems.map((item) => {
+            const isActive =
+              pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+            const Icon = item.icon;
+            const state = isActive ? 'active' : 'inactive';
 
-                  <div className={cn(styles.navIconBase, styles.navIconVariants[state])}>
-                    <Icon size={14} />
-                  </div>
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(styles.navItemBase, styles.navItemVariants[state])}
+              >
+                <span className={cn(styles.navIconBase, styles.navIconVariants[state])}>
+                  <Icon size={20} />
+                </span>
+                <span className={cn(styles.navLabel, styles.navLabelVariants[state])}>
+                  {item.label}
+                </span>
+                <span className={styles.navTooltip}>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
 
-                  <div className={styles.navText}>
-                    <div className={styles.navLabelRow}>
-                      <p className={styles.navLabelVariants[state]}>{item.label}</p>
-                      <ArrowRight size={13} className={styles.navArrowVariants[state]} />
-                    </div>
-                    <p className={styles.navDescription}>{item.description}</p>
-                  </div>
-                </Link>
-              );
-            })}
-          </nav>
-
+        <div className={styles.footer}>
           <div className={styles.themeToggleRow}>
             <ThemeToggle />
-          </div>
-
-          <div className={styles.brandFooter}>
-            <p className={cn(handwriting.className, styles.brandName)}>Publio</p>
-            <p className={styles.brandSlogan}>Write once, publish everywhere.</p>
-            <p className={styles.version}>v0.1.0</p>
           </div>
         </div>
       </aside>

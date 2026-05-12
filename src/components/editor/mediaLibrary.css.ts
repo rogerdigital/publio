@@ -90,7 +90,7 @@ export const uploadBtn = style({
   borderRadius: vars.radius.lg,
   border: 'none',
   background: vars.color.accent,
-  color: '#ffffff',
+  color: vars.color.surfaceDarkText,
   padding: '6px 12px',
   fontSize: '13px',
   fontWeight: 500,

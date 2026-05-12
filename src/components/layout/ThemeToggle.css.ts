@@ -7,14 +7,14 @@ export const toggle = style({
   justifyContent: 'center',
   width: 36,
   height: 36,
-  border: `1px solid ${vars.color.border}`,
-  borderRadius: vars.radius.lg,
+  border: 'none',
+  borderRadius: '50%',
   background: 'transparent',
   color: vars.color.textMuted,
   cursor: 'pointer',
-  transition: 'border-color 150ms, color 150ms',
+  transition: `all ${vars.transition.fast}`,
   ':hover': {
-    borderColor: vars.color.borderStrong,
     color: vars.color.text,
+    background: vars.color.accentSoft,
   },
 });

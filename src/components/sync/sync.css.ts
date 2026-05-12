@@ -5,9 +5,10 @@ import { vars } from '@/styles/tokens.css';
 export const detailPanel = style({
   display: 'grid',
   gap: '18px',
-  borderRadius: vars.radius.xl,
+  borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
+  boxShadow: vars.shadow.sm,
   padding: '20px',
 });
 
@@ -27,8 +28,8 @@ export const detailEyebrow = style({
 
 export const detailTitle = style({
   margin: 0,
-  fontFamily: vars.font.serif,
-  fontSize: '28px',
+  fontSize: '26px',
+  fontWeight: 600,
   lineHeight: 1.25,
   color: vars.color.text,
 });
@@ -69,11 +70,11 @@ export const receiptPlatform = style({
 });
 
 export const receiptStatus = style({
-  borderRadius: vars.radius.lg,
+  borderRadius: '999px',
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
-  padding: '4px 9px',
-  fontSize: '12px',
+  padding: '3px 10px',
+  fontSize: '11px',
   fontWeight: 600,
   color: vars.color.signal,
 });
@@ -116,7 +117,7 @@ export const retryButton = style({
   borderRadius: vars.radius.lg,
   background: vars.color.accent,
   padding: '10px 14px',
-  color: '#ffffff',
+  color: vars.color.surfaceDarkText,
   cursor: 'pointer',
   fontSize: '14px',
   fontWeight: 700,
@@ -175,6 +176,7 @@ export const historyCard = style({
   borderRadius: vars.radius.xl,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
+  boxShadow: vars.shadow.sm,
   padding: '18px',
   '@media': {
     'screen and (min-width: 760px)': {
@@ -186,9 +188,9 @@ export const historyCard = style({
 
 export const historyTitle = style({
   margin: 0,
-  fontFamily: vars.font.serif,
   color: vars.color.text,
-  fontSize: '22px',
+  fontSize: '20px',
+  fontWeight: 700,
   lineHeight: 1.35,
 });
 
@@ -246,9 +248,9 @@ export const filterChip = recipe({
   variants: {
     active: {
       true: {
-        background: vars.color.accent,
-        borderColor: vars.color.accent,
-        color: '#ffffff',
+        background: vars.color.surfaceDark,
+        borderColor: vars.color.surfaceDark,
+        color: vars.color.surfaceDarkText,
         fontWeight: 500,
       },
       false: {

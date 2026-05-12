@@ -13,16 +13,16 @@ export const calendarGrid = style({
   gridTemplateColumns: 'repeat(7, 1fr)',
   gap: '1px',
   background: vars.color.borderFaint,
-  borderRadius: vars.radius.lg,
+  borderRadius: vars.radius.xl,
   overflow: 'hidden',
-  border: `1px solid ${vars.color.borderFaint}`,
+  boxShadow: vars.shadow.sm,
 });
 
 export const dayHeader = style({
-  padding: '8px 4px',
+  padding: '10px 4px',
   textAlign: 'center',
-  fontSize: '12px',
-  fontWeight: 500,
+  fontSize: vars.fontSize.xs,
+  fontWeight: 600,
   color: vars.color.textMuted,
   background: vars.color.bgElevated,
 });
@@ -34,6 +34,10 @@ export const dayCell = style({
   display: 'flex',
   flexDirection: 'column',
   gap: '2px',
+  transition: `background ${vars.transition.fast}`,
+  ':hover': {
+    background: vars.color.bgElevated,
+  },
   '@media': {
     'screen and (min-width: 768px)': {
       minHeight: '120px',
@@ -43,7 +47,7 @@ export const dayCell = style({
 });
 
 export const dayCellToday = style({
-  background: 'rgba(217, 119, 87, 0.04)',
+  background: vars.color.accentSoft,
 });
 
 export const dayCellOutside = style({
@@ -51,7 +55,7 @@ export const dayCellOutside = style({
 });
 
 export const dayNumber = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   fontWeight: 500,
   color: vars.color.textMuted,
   padding: '2px 4px',
@@ -60,13 +64,14 @@ export const dayNumber = style({
 
 export const dayNumberToday = style({
   borderRadius: '50%',
-  background: vars.color.accent,
-  color: '#ffffff',
-  width: '22px',
-  height: '22px',
+  background: vars.color.surfaceDark,
+  color: vars.color.surfaceDarkText,
+  width: '24px',
+  height: '24px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  fontWeight: 700,
 });
 
 export const eventChip = style({
@@ -78,32 +83,28 @@ export const eventChip = style({
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   cursor: 'pointer',
-  transition: 'filter 150ms',
+  transition: `filter ${vars.transition.fast}`,
   ':hover': { filter: 'brightness(0.95)' },
 });
 
 export const eventScheduled = style({
-  background: 'rgba(217, 119, 87, 0.12)',
-  color: vars.color.accent,
-  border: `1px solid rgba(217, 119, 87, 0.2)`,
+  background: vars.color.surfaceDark,
+  color: vars.color.surfaceDarkText,
 });
 
 export const eventDraft = style({
   background: vars.color.bgElevated,
   color: vars.color.textMuted,
-  border: `1px solid ${vars.color.border}`,
 });
 
 export const eventPublished = style({
-  background: 'rgba(76, 175, 80, 0.1)',
-  color: '#2e7d32',
-  border: `1px solid rgba(76, 175, 80, 0.2)`,
+  background: vars.color.successBg,
+  color: vars.color.successText,
 });
 
 export const eventFailed = style({
-  background: 'rgba(244, 67, 54, 0.08)',
-  color: '#c62828',
-  border: `1px solid rgba(244, 67, 54, 0.15)`,
+  background: vars.color.errorBg,
+  color: vars.color.errorText,
 });
 
 export const navRow = style({
@@ -116,22 +117,22 @@ export const navBtn = style({
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
+  borderRadius: vars.radius.md,
+  border: 'none',
+  background: 'transparent',
   width: '32px',
   height: '32px',
   cursor: 'pointer',
   color: vars.color.textMuted,
-  transition: 'color 150ms, border-color 150ms',
+  transition: `all ${vars.transition.fast}`,
   ':hover': {
     color: vars.color.text,
-    borderColor: vars.color.borderStrong,
+    background: vars.color.bgElevated,
   },
 });
 
 export const monthLabel = style({
-  fontSize: '16px',
+  fontSize: vars.fontSize.lg,
   fontWeight: 600,
   color: vars.color.text,
   minWidth: '140px',
@@ -139,22 +140,25 @@ export const monthLabel = style({
 });
 
 export const todayBtn = style({
-  borderRadius: vars.radius.lg,
+  borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
   padding: '4px 12px',
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',
-  transition: 'color 150ms',
-  ':hover': { color: vars.color.text },
+  transition: `all ${vars.transition.fast}`,
+  ':hover': {
+    color: vars.color.accent,
+    borderColor: vars.color.accent,
+  },
 });
 
 export const legend = style({
   display: 'flex',
   flexWrap: 'wrap',
   gap: '12px',
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 

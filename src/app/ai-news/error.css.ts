@@ -67,7 +67,7 @@ export const retryButton = style({
   padding: '10px 20px',
   fontSize: '14px',
   fontWeight: 500,
-  color: '#ffffff',
+  color: vars.color.surfaceDarkText,
   transition: 'filter 150ms',
   ':hover': {
     filter: 'brightness(1.05)',
