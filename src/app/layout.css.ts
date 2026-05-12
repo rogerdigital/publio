@@ -18,14 +18,15 @@ export const main = style({
   flex: 1,
   padding: '16px',
   paddingBottom: 'calc(16px + 57px + env(safe-area-inset-bottom))',
+  animation: 'fadeIn 200ms ease-out',
   '@media': {
     'screen and (min-width: 640px)': {
-      padding: '16px 24px',
-      paddingBottom: 'calc(16px + 57px + env(safe-area-inset-bottom))',
+      padding: '20px 24px',
+      paddingBottom: 'calc(20px + 57px + env(safe-area-inset-bottom))',
     },
     'screen and (min-width: 1024px)': {
-      padding: '24px 32px',
-      paddingBottom: '24px',
+      padding: '28px 36px',
+      paddingBottom: '28px',
     },
   },
 });
