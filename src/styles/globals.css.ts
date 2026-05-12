@@ -25,7 +25,7 @@ globalStyle('*', {
 globalStyle('html', {
   minHeight: '100%',
   background: vars.color.bg,
-  colorScheme: 'light',
+  colorScheme: 'dark light',
   transition: 'background 0.2s ease, color 0.2s ease',
 });
 
@@ -40,18 +40,17 @@ globalStyle('body', {
 
 globalStyle('::selection', {
   color: vars.color.text,
-  background: 'rgba(217, 119, 87, 0.18)',
+  background: vars.color.accentSoft,
 });
 
 globalStyle(':focus-visible:not(input):not(textarea):not(select)', {
   outline: `2px solid ${vars.color.accent}`,
   outlineOffset: '2px',
-  outlineColor: 'rgba(217, 119, 87, 0.6)',
 });
 
 globalStyle('input:focus-visible, textarea:focus-visible, select:focus-visible', {
   outline: 'none',
-  boxShadow: `0 0 0 2px rgba(217, 119, 87, 0.4)`,
+  boxShadow: `0 0 0 2px ${vars.color.accent}`,
 });
 
 globalStyle('button, input, textarea, select', {

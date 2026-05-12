@@ -262,5 +262,5 @@ export const version = style({
   textTransform: 'uppercase',
   letterSpacing: '0.28em',
   textAlign: 'right',
-  color: 'rgba(19, 19, 20, 0.32)',
+  color: vars.color.textMuted,
 });

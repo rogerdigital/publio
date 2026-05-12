@@ -280,14 +280,14 @@ globalStyle(`${previewContent} blockquote`, {
   margin: '20px 0',
   borderRadius: '18px',
   border: `1px solid ${vars.color.border}`,
-  background: 'rgba(250, 244, 237, 0.9)',
+  background: vars.color.bgElevated,
   padding: '16px 20px',
   color: vars.color.textMuted,
 });
 
 globalStyle(`${previewContent} code`, {
   borderRadius: '8px',
-  background: 'rgba(238, 223, 208, 0.55)',
+  background: vars.color.accentSoft,
   padding: '2px 6px',
   fontSize: '0.94em',
 });
@@ -382,7 +382,7 @@ export const contextBadges = style({
 export const contextBadgeNeutral = style({
   borderRadius: '999px',
   border: `1px solid ${vars.color.border}`,
-  background: 'rgba(255, 255, 255, 0.80)',
+  background: vars.color.surface,
   padding: '4px 12px',
   fontSize: '12px',
   color: vars.color.textMuted,
@@ -391,7 +391,7 @@ export const contextBadgeNeutral = style({
 export const contextBadgeAccent = style({
   borderRadius: '999px',
   border: `1px solid ${vars.color.border}`,
-  background: 'rgba(255, 246, 237, 0.92)',
+  background: vars.color.accentSoft,
   padding: '4px 12px',
   fontSize: '12px',
   color: vars.color.accent,
@@ -400,7 +400,7 @@ export const contextBadgeAccent = style({
 export const titleBlock = style({
   borderRadius: '18px',
   border: `1px solid ${vars.color.border}`,
-  background: 'rgba(255, 252, 247, 0.86)',
+  background: vars.color.bgElevated,
   padding: '12px 16px',
 });
 
@@ -422,7 +422,7 @@ export const titleBlockValue = style({
 export const titleBlockEmpty = style({
   borderRadius: '18px',
   border: `1px dashed ${vars.color.borderStrong}`,
-  background: 'rgba(255, 252, 247, 0.68)',
+  background: vars.color.bgElevated,
   padding: '12px 16px',
   fontSize: '14px',
   lineHeight: 1.75,
@@ -443,7 +443,7 @@ export const statsGrid = style({
 export const statPill = style({
   borderRadius: '16px',
   border: `1px solid ${vars.color.border}`,
-  background: 'rgba(255, 252, 247, 0.82)',
+  background: vars.color.bgElevated,
   padding: '8px 12px',
 });
 
