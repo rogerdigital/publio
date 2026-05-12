@@ -8,9 +8,10 @@ export const pageWrap = style({
 });
 
 export const card = style({
-  borderRadius: vars.radius.xl,
+  borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
+  boxShadow: vars.shadow.sm,
   padding: '20px',
   display: 'flex',
   flexDirection: 'column',
@@ -24,15 +25,14 @@ export const cardHeader = style({
 });
 
 export const cardKicker = style({
-  fontSize: '11px',
+  fontSize: vars.fontSize.xs,
   fontWeight: 500,
-  textTransform: 'uppercase',
-  letterSpacing: '0.32em',
+  letterSpacing: vars.tracking.kicker,
   color: vars.color.accent,
 });
 
 export const cardCount = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
 });
 
@@ -51,10 +51,10 @@ export const statItem = style({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: '4px',
-  padding: '12px',
+  gap: '6px',
+  padding: '16px 12px',
   borderRadius: vars.radius.lg,
-  background: vars.color.bgElevated,
+  background: vars.color.surface,
 });
 
 export const statIcon = style({
@@ -62,14 +62,14 @@ export const statIcon = style({
 });
 
 export const statValue = style({
-  fontSize: '20px',
-  fontWeight: 700,
+  fontSize: '32px',
+  fontWeight: 300,
   color: vars.color.text,
-  lineHeight: 1.2,
+  lineHeight: 1,
 });
 
 export const statLabel = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
@@ -81,7 +81,7 @@ export const emptyState = style({
   gap: '12px',
   padding: '48px 24px',
   color: vars.color.textMuted,
-  fontSize: '14px',
+  fontSize: vars.fontSize.sm,
   textAlign: 'center',
 });
 
@@ -92,7 +92,7 @@ export const insightSection = style({
 });
 
 export const insightBlock = style({
-  borderRadius: vars.radius.xl,
+  borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
   padding: '16px',
@@ -102,7 +102,7 @@ export const insightBlock = style({
 });
 
 export const insightTitle = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   fontWeight: 600,
   textTransform: 'uppercase',
   letterSpacing: '0.08em',
@@ -127,11 +127,12 @@ export const insightItem = style({
   alignItems: 'center',
   padding: '8px 10px',
   borderRadius: vars.radius.md,
-  background: vars.color.bgElevated,
+  background: vars.color.surface,
+  border: `1px solid ${vars.color.borderFaint}`,
 });
 
 export const insightItemTitle = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.text,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -140,7 +141,7 @@ export const insightItemTitle = style({
 });
 
 export const insightItemMeta = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
   whiteSpace: 'nowrap',
 });
@@ -148,10 +149,10 @@ export const insightItemMeta = style({
 export const table = style({
   width: '100%',
   borderCollapse: 'collapse',
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
 });
 
 export const topicIdCell = style({
-  fontFamily: 'monospace',
-  fontSize: '12px',
+  fontFamily: vars.font.mono,
+  fontSize: vars.fontSize.xs,
 });
