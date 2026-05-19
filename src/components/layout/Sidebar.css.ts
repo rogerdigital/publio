@@ -80,9 +80,10 @@ export const brandLogo = style({
 });
 
 export const brandName = style({
-  fontSize: '15px',
+  fontSize: '20px',
   fontWeight: 700,
-  color: vars.color.text,
+  fontFamily: 'var(--font-caveat), cursive',
+  color: '#D97757',
   lineHeight: 1,
   opacity: 0,
   width: 0,
@@ -229,6 +230,12 @@ export const footer = style({
   alignItems: 'center',
   justifyContent: 'center',
   paddingTop: '12px',
+  selectors: {
+    [`${sidebarVariants.expanded} &`]: {
+      justifyContent: 'flex-start',
+      paddingLeft: '12px',
+    },
+  },
 });
 
 export const themeToggleRow = style({
