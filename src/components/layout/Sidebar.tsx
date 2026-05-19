@@ -22,13 +22,13 @@ import * as styles from './Sidebar.css';
 const STORAGE_KEY = 'publio-sidebar-expanded';
 
 const navItems = [
-  { href: '/ai-news', label: '选题台', icon: Newspaper },
-  { href: '/', label: '写作台', icon: PenLine },
-  { href: '/drafts', label: '稿件库', icon: Library },
-  { href: '/sync-tasks', label: '分发记录', icon: Send },
-  { href: '/analytics', label: '数据看板', icon: BarChart3 },
-  { href: '/calendar', label: '排期日历', icon: CalendarDays },
-  { href: '/settings', label: '设置', icon: Settings2 },
+  { href: '/ai-news', label: '选题台', icon: Newspaper, color: '#F97316' },
+  { href: '/', label: '写作台', icon: PenLine, color: '#3B82F6' },
+  { href: '/drafts', label: '稿件库', icon: Library, color: '#8B5CF6' },
+  { href: '/sync-tasks', label: '分发记录', icon: Send, color: '#EC4899' },
+  { href: '/analytics', label: '数据看板', icon: BarChart3, color: '#14B8A6' },
+  { href: '/calendar', label: '排期日历', icon: CalendarDays, color: '#EAB308' },
+  { href: '/settings', label: '设置', icon: Settings2, color: '#6B7280' },
 ];
 
 export default function Sidebar() {
@@ -97,7 +97,7 @@ export default function Sidebar() {
                 className={cn(styles.navItemBase, styles.navItemVariants[state])}
               >
                 <span className={cn(styles.navIconBase, styles.navIconVariants[state])}>
-                  <Icon size={20} />
+                  <Icon size={20} color={isActive ? undefined : item.color} />
                 </span>
                 <span className={cn(styles.navLabel, styles.navLabelVariants[state])}>
                   {item.label}
@@ -110,7 +110,7 @@ export default function Sidebar() {
 
         <div className={styles.footer}>
           <div className={styles.themeToggleRow}>
-            <ThemeToggle />
+            <ThemeToggle expanded={expanded} />
           </div>
         </div>
       </aside>
@@ -129,7 +129,7 @@ export default function Sidebar() {
               className={styles.mobileTabItem[state]}
               aria-current={isActive ? 'page' : undefined}
             >
-              <Icon size={20} />
+              <Icon size={20} color={isActive ? undefined : item.color} />
               <span className={styles.mobileTabLabel[state]}>{item.label}</span>
             </Link>
           );

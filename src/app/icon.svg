@@ -1,16 +1,9 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- 背景 -->
-  <rect width="64" height="64" rx="16" fill="#F5EDE4"/>
-  <!-- P 字母主体 -->
-  <text
-    x="11"
-    y="50"
-    font-family="Georgia, 'Times New Roman', serif"
-    font-size="52"
-    font-style="italic"
-    font-weight="700"
-    fill="#D97757"
-  >P</text>
-  <!-- 右下角装饰点 -->
-  <circle cx="50" cy="50" r="5" fill="#D97757" opacity="0.35"/>
+<svg width="64" height="64" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="32" height="32" rx="8" fill="#F5EDE4"/>
+  <!-- 笔尖主体 -->
+  <path d="M13 4Q9 16 16 29Q23 16 19 4Z" fill="#D97757"/>
+  <!-- 呼吸孔 -->
+  <circle cx="16" cy="11" r="2" fill="white" opacity="0.85"/>
+  <!-- 中缝 -->
+  <line x1="16" y1="13" x2="16" y2="29" stroke="white" stroke-width="0.8" opacity="0.5"/>
 </svg>
