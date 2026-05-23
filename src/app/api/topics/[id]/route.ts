@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getTopicRegistry } from '@/lib/topics/registry';
-import type { TopicStatus } from '@/lib/topics/types';
+import type { TopicStatus, UpdateTopicInput } from '@/lib/topics/types';
 import { apiResponse, apiError } from '@/lib/api/response';
 
 export const dynamic = 'force-dynamic';
@@ -68,7 +68,7 @@ export async function PATCH(request: NextRequest | Request, { params }: TopicRou
       input.urgency = body.urgency;
     }
 
-    const topic = getTopicRegistry().updateTopic(id, input as any);
+    const topic = getTopicRegistry().updateTopic(id, input as UpdateTopicInput);
     if (!topic) return apiError('选题不存在或状态转换不合法', 404);
 
     return apiResponse({ topic });

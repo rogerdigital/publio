@@ -8,6 +8,7 @@ import type {
   BriefPlatformPlan,
   BriefSourceLink,
 } from '@/lib/briefs/types';
+import type { PlatformId } from '@/types';
 import type { AgentStreamEvent } from '@/lib/agent/types';
 import type { BriefAction } from '@/lib/agent/prompts/brief';
 import BriefOutlineEditor from './BriefOutlineEditor';
@@ -225,7 +226,7 @@ export default function BriefEditor({ briefId, onSaved }: BriefEditorProps) {
               estimatedLength: number;
             }>
           ).map((p) => ({
-            platform: p.platform as any,
+            platform: p.platform as PlatformId,
             intent: p.intent,
             estimatedLength: p.estimatedLength || 0,
           })),
@@ -253,7 +254,7 @@ export default function BriefEditor({ briefId, onSaved }: BriefEditorProps) {
               estimatedLength: number;
             }>
           ).map((p) => ({
-            platform: p.platform as any,
+            platform: p.platform as PlatformId,
             intent: p.intent,
             estimatedLength: p.estimatedLength || 0,
           })),

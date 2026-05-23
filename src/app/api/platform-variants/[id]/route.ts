@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getPlatformVariantRegistry } from '@/lib/platformVariants/registry';
-import type { VariantStatus } from '@/lib/platformVariants/types';
+import type { VariantStatus, UpdatePlatformVariantInput } from '@/lib/platformVariants/types';
 import { apiResponse, apiError } from '@/lib/api/response';
 
 export const dynamic = 'force-dynamic';
@@ -57,7 +57,10 @@ export async function PATCH(request: NextRequest | Request, { params }: VariantR
       input.changeSummary = body.changeSummary;
     }
 
-    const variant = getPlatformVariantRegistry().updateVariant(id, input as any);
+    const variant = getPlatformVariantRegistry().updateVariant(
+      id,
+      input as UpdatePlatformVariantInput,
+    );
     if (!variant) return apiError('渠道版本不存在', 404);
 
     return apiResponse({ variant });
