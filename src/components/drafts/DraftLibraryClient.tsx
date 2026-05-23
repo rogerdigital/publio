@@ -438,7 +438,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
                   </span>
                   <div className={styles.pipelineStepContent}>
                     <span className={styles.pipelineStepLabel} title={draft.title}>
-                      {draft.title.length > 24 ? `${draft.title.slice(0, 24)}…` : draft.title}
+                      {draft.title || '无标题'}
                     </span>
                     <Link
                       href={`/?draftId=${draft.id}`}
