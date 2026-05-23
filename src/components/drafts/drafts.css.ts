@@ -762,3 +762,112 @@ export const batchActionButton = style({
     cursor: 'not-allowed',
   },
 });
+
+// View mode toggle
+export const viewToggle = style({
+  display: 'inline-flex',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  overflow: 'hidden',
+});
+
+export const viewToggleButton = recipe({
+  base: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 32,
+    height: 32,
+    border: 'none',
+    background: 'transparent',
+    color: vars.color.textMuted,
+    cursor: 'pointer',
+    transition: 'background-color 150ms, color 150ms',
+    ':hover': {
+      color: vars.color.text,
+    },
+  },
+  variants: {
+    active: {
+      true: {
+        background: vars.color.accentSoft,
+        color: vars.color.signal,
+      },
+    },
+  },
+  defaultVariants: { active: false },
+});
+
+// Compact list view
+export const compactList = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '2px',
+});
+
+export const compactRow = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+  padding: '10px 12px',
+  borderRadius: vars.radius.md,
+  transition: 'background-color 150ms',
+  ':hover': {
+    background: vars.color.surface,
+  },
+});
+
+export const compactTitle = style({
+  flex: 1,
+  minWidth: 0,
+  fontSize: '14px',
+  fontWeight: 500,
+  color: vars.color.text,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
+export const compactStatus = style({
+  flexShrink: 0,
+  fontSize: '12px',
+  color: vars.color.textMuted,
+});
+
+export const compactTime = style({
+  flexShrink: 0,
+  fontSize: '12px',
+  color: vars.color.textMuted,
+});
+
+// Load more
+export const loadMoreWrap = style({
+  display: 'flex',
+  justifyContent: 'center',
+  padding: '16px 0',
+});
+
+export const loadMoreButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: 'transparent',
+  padding: '8px 20px',
+  fontSize: '13px',
+  color: vars.color.textMuted,
+  cursor: 'pointer',
+  transition: 'border-color 150ms, color 150ms',
+  ':hover': {
+    borderColor: vars.color.borderStrong,
+    color: vars.color.text,
+  },
+});
+
+export const loadMoreCount = style({
+  fontSize: '12px',
+  color: vars.color.textMuted,
+  textAlign: 'center',
+  paddingTop: '4px',
+});

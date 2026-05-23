@@ -12,6 +12,9 @@ import {
   Download,
   Upload,
   Archive,
+  LayoutList,
+  Columns3,
+  ChevronDown,
 } from 'lucide-react';
 import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
 import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
@@ -68,6 +71,9 @@ function formatDraftTime(value: string) {
   }).format(timestamp);
 }
 
+type ViewMode = 'pipeline' | 'compact';
+const PAGE_SIZE = 20;
+
 interface Props {
   isEditMode: boolean;
   onExitEditMode: () => void;
@@ -84,6 +90,8 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
   const [statusFilter, setStatusFilter] = useState<DraftStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [tagFilter, setTagFilter] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('pipeline');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(() => {
     if (!isEditMode) {
@@ -91,6 +99,10 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
       setDeleteError('');
     }
   }, [isEditMode]);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [statusFilter, searchQuery, tagFilter]);
 
   useEffect(() => {
     let cancelled = false;
@@ -219,6 +231,18 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
     }
   }
 
+  const filteredDrafts = drafts
+    .filter((d) => statusFilter === 'all' || d.status === statusFilter)
+    .filter((d) => {
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      return d.title.toLowerCase().includes(q) || d.content.toLowerCase().includes(q);
+    })
+    .filter((d) => !tagFilter || (d.tags ?? []).includes(tagFilter));
+
+  const pagedDrafts = filteredDrafts.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredDrafts.length;
+
   if (loading) {
     return (
       <div className={styles.statePanel}>
@@ -320,6 +344,26 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          <div className={styles.viewToggle}>
+            <button
+              type="button"
+              className={styles.viewToggleButton({ active: viewMode === 'pipeline' })}
+              onClick={() => setViewMode('pipeline')}
+              aria-label="流水线视图"
+              title="流水线视图"
+            >
+              <Columns3 size={16} />
+            </button>
+            <button
+              type="button"
+              className={styles.viewToggleButton({ active: viewMode === 'compact' })}
+              onClick={() => setViewMode('compact')}
+              aria-label="紧凑列表"
+              title="紧凑列表"
+            >
+              <LayoutList size={16} />
+            </button>
+          </div>
           <div className={styles.filterBar}>
             {(['all', 'draft', 'ready', 'syncing', 'synced', 'failed'] as const).map((s) => (
               <button
@@ -365,16 +409,72 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
           );
         })()}
 
-      <div className={styles.pipelineList}>
-        {drafts
-          .filter((d) => statusFilter === 'all' || d.status === statusFilter)
-          .filter((d) => {
-            if (!searchQuery.trim()) return true;
-            const q = searchQuery.toLowerCase();
-            return d.title.toLowerCase().includes(q) || d.content.toLowerCase().includes(q);
-          })
-          .filter((d) => !tagFilter || (d.tags ?? []).includes(tagFilter))
-          .map((draft) => {
+      {viewMode === 'compact' ? (
+        <div className={styles.compactList}>
+          {pagedDrafts.map((draft) => {
+            const isSelected = selected.has(draft.id);
+            return (
+              <div
+                key={draft.id}
+                className={styles.compactRow}
+                style={
+                  isEditMode && isSelected
+                    ? { background: 'var(--accent-soft, rgba(0,0,0,0.04))' }
+                    : undefined
+                }
+                onClick={isEditMode ? () => toggleSelect(draft.id) : undefined}
+                role={isEditMode ? 'checkbox' : undefined}
+                aria-checked={isEditMode ? isSelected : undefined}
+                tabIndex={isEditMode ? 0 : undefined}
+                onKeyDown={
+                  isEditMode
+                    ? (e) => {
+                        if (e.key === ' ' || e.key === 'Enter') {
+                          e.preventDefault();
+                          toggleSelect(draft.id);
+                        }
+                      }
+                    : undefined
+                }
+              >
+                {isEditMode && (
+                  <input
+                    type="checkbox"
+                    className={styles.draftCardCheckbox}
+                    checked={isSelected}
+                    onChange={() => toggleSelect(draft.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={`选择稿件 ${draft.title}`}
+                  />
+                )}
+                <Link
+                  href={`/?draftId=${draft.id}`}
+                  className={styles.compactTitle}
+                  onClick={(e) => isEditMode && e.preventDefault()}
+                >
+                  {draft.title || '无标题'}
+                </Link>
+                <span className={styles.compactStatus}>{statusLabels[draft.status]}</span>
+                {!isEditMode && (
+                  <button
+                    type="button"
+                    className={styles.exportButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExport(draft);
+                    }}
+                    title="导出为 Markdown"
+                  >
+                    <Download size={13} />
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className={styles.pipelineList}>
+          {pagedDrafts.map((draft) => {
             const syncTask = syncTasks.find((t) => t.draftId === draft.id);
             const isSelected = selected.has(draft.id);
 
@@ -513,7 +613,26 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
               </div>
             );
           })}
-      </div>
+        </div>
+      )}
+
+      {hasMore && (
+        <div className={styles.loadMoreWrap}>
+          <div>
+            <button
+              type="button"
+              className={styles.loadMoreButton}
+              onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+            >
+              <ChevronDown size={14} />
+              加载更多
+            </button>
+            <p className={styles.loadMoreCount}>
+              已显示 {pagedDrafts.length} / {filteredDrafts.length} 篇
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
