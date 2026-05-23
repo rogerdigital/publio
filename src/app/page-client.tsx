@@ -374,7 +374,28 @@ function HomePageContent() {
 
 export default function HomePageClient() {
   return (
-    <Suspense fallback={null}>
+    <Suspense
+      fallback={
+        <div style={{ padding: '28px 36px' }}>
+          <div
+            style={{
+              height: 22,
+              width: 120,
+              borderRadius: 8,
+              background: 'var(--color-bg-elevated, #eee)',
+            }}
+          />
+          <div
+            style={{
+              marginTop: 16,
+              height: 400,
+              borderRadius: 16,
+              background: 'var(--color-bg-elevated, #eee)',
+            }}
+          />
+        </div>
+      }
+    >
       <HomePageContent />
     </Suspense>
   );
