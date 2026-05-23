@@ -1,11 +1,12 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { X, Copy, Replace, CornerDownLeft, Send, Trash2 } from 'lucide-react';
 import { useAgentStore } from '@/stores/agentStore';
 import { usePublishStore } from '@/stores/publishStore';
 import { useToastStore } from '@/stores/toastStore';
 import type { AgentStreamEvent } from '@/lib/agent/types';
+import { renderAgentMarkdown } from '@/lib/agent/renderMarkdown';
 import * as styles from './AgentPanel.css';
 
 const ACTION_LABELS: Record<string, string> = {
@@ -36,6 +37,24 @@ export default function AgentPanel() {
   const { title, content, setContent } = usePublishStore();
   const [chatInput, setChatInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const userScrolledRef = useRef(false);
+
+  useEffect(() => {
+    userScrolledRef.current = false;
+  }, [activeAction]);
+
+  useEffect(() => {
+    if (status === 'streaming' && !userScrolledRef.current && bodyRef.current) {
+      bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
+    }
+  }, [output, status]);
+
+  const handleBodyScroll = useCallback(() => {
+    if (!bodyRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = bodyRef.current;
+    userScrolledRef.current = scrollHeight - scrollTop - clientHeight > 40;
+  }, []);
 
   const handleInsert = useCallback(() => {
     const separator = content.endsWith('\n') ? '\n' : '\n\n';
@@ -209,7 +228,7 @@ export default function AgentPanel() {
         </button>
       </div>
 
-      <div className={styles.panelBody}>
+      <div className={styles.panelBody} ref={bodyRef} onScroll={handleBodyScroll}>
         {/* 聊天历史 */}
         {hasChatHistory && (
           <div className={styles.chatMessages}>
@@ -218,9 +237,8 @@ export default function AgentPanel() {
                 <span className={styles.chatTurnRole}>{turn.role === 'user' ? '你' : 'AI'}</span>
                 <div
                   className={`${styles.chatTurnContent} ${turn.role === 'user' ? styles.chatTurnUser : styles.chatTurnAssistant}`}
-                >
-                  {turn.content}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: renderAgentMarkdown(turn.content) }}
+                />
               </div>
             ))}
           </div>
@@ -231,7 +249,7 @@ export default function AgentPanel() {
           <div className={styles.errorBox}>{error}</div>
         ) : output ? (
           <div className={styles.outputArea}>
-            {output}
+            <span dangerouslySetInnerHTML={{ __html: renderAgentMarkdown(output) }} />
             {status === 'streaming' && <span className={styles.cursor} />}
           </div>
         ) : status === 'streaming' ? (
