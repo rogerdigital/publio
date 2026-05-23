@@ -97,14 +97,6 @@ export const brandName = style({
   },
 });
 
-export const searchBox = style({
-  display: 'none',
-});
-
-export const searchPlaceholder = style({
-  display: 'none',
-});
-
 export const nav = style({
   display: 'flex',
   flexDirection: 'column',

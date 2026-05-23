@@ -22,9 +22,6 @@ export const surfaceCard = recipe({
         border: 'none',
         color: vars.color.surfaceDarkText,
       },
-      purple: {},
-      cream: {},
-      lime: {},
       dark: {
         background: vars.color.surfaceDark,
         border: 'none',

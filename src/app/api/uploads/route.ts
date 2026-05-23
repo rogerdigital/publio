@@ -1,4 +1,4 @@
-import { readdirSync, statSync } from 'node:fs';
+import { readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createLocalDataPath } from '@/lib/storage/localDataPath';
 import { apiResponse, apiError } from '@/lib/api/response';
@@ -17,30 +17,31 @@ export async function GET() {
     const dir = createLocalDataPath('uploads');
     let files: string[];
     try {
-      files = readdirSync(dir);
+      files = await readdir(dir);
     } catch {
       return apiResponse({ uploads: [] });
     }
 
     const imageExts = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp']);
-    const uploads: UploadEntry[] = files
-      .filter((f) => {
-        const ext = '.' + f.split('.').pop()?.toLowerCase();
-        return imageExts.has(ext);
-      })
-      .map((filename) => {
-        const filepath = join(dir, filename);
-        const stat = statSync(filepath);
-        return {
-          filename,
-          url: `/api/uploads/${filename}`,
-          size: stat.size,
-          createdAt: stat.birthtime.toISOString(),
-        };
-      })
-      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+    const entries: UploadEntry[] = [];
 
-    return apiResponse({ uploads });
+    for (const filename of files) {
+      const ext = '.' + filename.split('.').pop()?.toLowerCase();
+      if (!imageExts.has(ext)) continue;
+
+      const filepath = join(dir, filename);
+      const fileStat = await stat(filepath);
+      entries.push({
+        filename,
+        url: `/api/uploads/${filename}`,
+        size: fileStat.size,
+        createdAt: fileStat.birthtime.toISOString(),
+      });
+    }
+
+    entries.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+
+    return apiResponse({ uploads: entries });
   } catch (error) {
     const message = error instanceof Error ? error.message : '读取上传列表失败';
     return apiError(message, 500);
