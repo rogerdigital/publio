@@ -1,17 +1,9 @@
 'use client';
 
-import {
-  Suspense,
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, Files, SquarePen, Eraser, History } from 'lucide-react';
+import { Eye, Files, SquarePen, Eraser, History, Send } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import { useAgentStore } from '@/stores/agentStore';
 import AppShellHeader from '@/components/layout/AppShellHeader';
@@ -70,7 +62,7 @@ function HomePageContent() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [draftLoadError, setDraftLoadError] = useState('');
   const [clearConfirming, setClearConfirming] = useState(false);
-  const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [mobilePublishOpen, setMobilePublishOpen] = useState(false);
   const [agentEnabled, setAgentEnabled] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [imageBedLabel, setImageBedLabel] = useState<string | undefined>(undefined);
@@ -147,15 +139,13 @@ function HomePageContent() {
   ]);
 
   const handleClearClick = useCallback(() => {
-    if (!clearConfirming) {
-      setClearConfirming(true);
-      clearConfirmTimerRef.current = setTimeout(() => setClearConfirming(false), 3000);
-      return;
-    }
-    if (clearConfirmTimerRef.current) clearTimeout(clearConfirmTimerRef.current);
+    setClearConfirming(true);
+  }, []);
+
+  const handleClearConfirm = useCallback(() => {
     setClearConfirming(false);
     handleNewDraft();
-  }, [clearConfirming, handleNewDraft]);
+  }, [handleNewDraft]);
 
   // Defer platform draft sync to avoid blocking typing
   const deferredTitle = useDeferredValue(title);
@@ -250,11 +240,11 @@ function HomePageContent() {
             <button
               type="button"
               onClick={handleClearClick}
-              className={clearConfirming ? styles.newDraftButtonDanger : styles.newDraftButton}
-              title={clearConfirming ? '再次点击确认清空' : '清空写作台'}
+              className={styles.newDraftButton}
+              title="清空写作台"
             >
               <Eraser size={15} />
-              {clearConfirming ? '确认清空？' : '清空'}
+              清空
             </button>
             <button
               type="button"
@@ -368,6 +358,62 @@ function HomePageContent() {
         </div>
       </div>
       <PublishProgressOverlay />
+
+      {/* Mobile publish FAB */}
+      <button
+        type="button"
+        className={styles.mobilePublishFab}
+        onClick={() => setMobilePublishOpen(true)}
+      >
+        <Send size={18} />
+        发布
+      </button>
+
+      {/* Mobile publish sheet */}
+      {mobilePublishOpen && (
+        <div className={styles.mobileSheetOverlay} onClick={() => setMobilePublishOpen(false)}>
+          <div className={styles.mobileSheet} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.mobileSheetHandle} />
+            <div className={styles.mobileSheetTitle}>发布设置</div>
+            <PlatformSelector />
+            <SchedulePicker />
+            <PublishTimingSuggestion />
+            <PlatformPreviewPanel
+              adaptations={platformDrafts}
+              selectedPlatforms={selectedPlatforms}
+              agentEnabled={agentEnabled}
+            />
+            <div style={{ marginTop: 16 }}>
+              <PublishButton />
+            </div>
+            {overallStatus !== 'idle' && <PublishStatusPanel />}
+          </div>
+        </div>
+      )}
+
+      {/* Clear confirm modal */}
+      {clearConfirming && (
+        <div className={styles.confirmOverlay} onClick={() => setClearConfirming(false)}>
+          <div className={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
+            <h2 className={styles.confirmTitle}>确认清空？</h2>
+            <p className={styles.confirmText}>
+              清空后，当前编辑器中的内容将被清除。如果已保存为草稿，可以在稿件库中找回。
+            </p>
+            <div className={styles.confirmActions}>
+              <button
+                type="button"
+                className={styles.confirmCancel}
+                onClick={() => setClearConfirming(false)}
+              >
+                取消
+              </button>
+              <button type="button" className={styles.confirmDanger} onClick={handleClearConfirm}>
+                确认清空
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
