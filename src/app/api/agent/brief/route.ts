@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getAgentConfig } from '@/lib/agent/config';
-import { createOpenAIProvider } from '@/lib/agent/provider';
+import { createLLMProvider } from '@/lib/agent/provider';
 import { createSSEResponse } from '@/lib/agent/stream';
 import { buildBriefAgentMessages } from '@/lib/agent/prompts/brief';
 import type { BriefAgentInput } from '@/lib/agent/prompts/brief';
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   }
 
   const messages = buildBriefAgentMessages(body);
-  const provider = createOpenAIProvider(config);
+  const provider = createLLMProvider(config, config.provider);
   const tokens = provider.stream({ messages, maxTokens: 2000 });
 
   return createSSEResponse(tokens, request.signal);

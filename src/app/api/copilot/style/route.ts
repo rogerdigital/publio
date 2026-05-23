@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getAgentConfig } from '@/lib/agent/config';
-import { createOpenAIProvider } from '@/lib/agent/provider';
+import { createLLMProvider } from '@/lib/agent/provider';
 import {
   getStyleProfile,
   saveStyleProfile,
@@ -44,7 +44,7 @@ export async function POST() {
 
   const prompt = buildStyleAnalysisPrompt(drafts);
   const messages: ChatMessage[] = [{ role: 'user', content: prompt }];
-  const provider = createOpenAIProvider(config);
+  const provider = createLLMProvider(config, config.provider);
 
   let result = '';
   for await (const token of provider.stream({ messages, temperature: 0.3 })) {

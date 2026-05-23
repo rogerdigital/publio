@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getAgentConfig } from '@/lib/agent/config';
-import { createOpenAIProvider } from '@/lib/agent/provider';
+import { createLLMProvider } from '@/lib/agent/provider';
 import { createSSEResponse } from '@/lib/agent/stream';
 import { buildTopicPackMessages } from '@/lib/agent/prompts/topicPack';
 import type { TopicPackInput } from '@/lib/agent/prompts/topicPack';
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     signals: body.signals?.slice(0, 10),
   });
 
-  const provider = createOpenAIProvider(config);
+  const provider = createLLMProvider(config, config.provider);
   const tokens = provider.stream({ messages, maxTokens: 3000 });
 
   return createSSEResponse(tokens, request.signal);

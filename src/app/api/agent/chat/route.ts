@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getAgentConfig } from '@/lib/agent/config';
-import { createOpenAIProvider } from '@/lib/agent/provider';
+import { createLLMProvider } from '@/lib/agent/provider';
 import { createSSEResponse } from '@/lib/agent/stream';
 import {
   AGENT_INPUT_LIMITS,
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     ...limitedMessages.value,
   ];
 
-  const provider = createOpenAIProvider(config);
+  const provider = createLLMProvider(config, config.provider);
   const tokens = provider.stream({ messages: fullMessages });
 
   return markTruncated(

@@ -1,13 +1,13 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { parseEnvFile } from '@/lib/storage/envFile';
-import type { AgentConfig } from './types';
+import type { AgentConfig, LLMProviderType } from './types';
 
 /**
  * 从 .env.local 文件实时读取 Agent 配置（绕过 process.env 缓存）。
  * 所有必填字段（baseUrl / apiKey / model）为空时返回 null。
  */
-export function getAgentConfig(): AgentConfig | null {
+export function getAgentConfig(): (AgentConfig & { provider: LLMProviderType }) | null {
   // 优先从文件实时读取，支持热更新（settings 页面保存后立即生效）
   let envValues: Record<string, string> = {};
   try {
@@ -25,12 +25,18 @@ export function getAgentConfig(): AgentConfig | null {
     return null;
   }
 
+  const providerRaw = (envValues.AGENT_PROVIDER || process.env.AGENT_PROVIDER || 'openai')
+    .trim()
+    .toLowerCase();
+  const provider: LLMProviderType = providerRaw === 'anthropic' ? 'anthropic' : 'openai';
+
   return {
     baseUrl: baseUrl.replace(/\/$/, ''),
     apiKey,
     model,
     maxTokens: parseInt(envValues.AGENT_MAX_TOKENS || process.env.AGENT_MAX_TOKENS || '2048', 10),
     temperature: parseFloat(envValues.AGENT_TEMPERATURE || process.env.AGENT_TEMPERATURE || '0.7'),
+    provider,
   };
 }
 

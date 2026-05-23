@@ -5,6 +5,8 @@ export type { AgentPhase, AgentTaskContext } from '@/lib/agent/contextBuilder';
 
 // --- LLM Provider ---
 
+export type LLMProviderType = 'openai' | 'anthropic';
+
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
