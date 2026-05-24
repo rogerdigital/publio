@@ -95,6 +95,7 @@ export default function RssSourceManager() {
         <input
           type="text"
           placeholder="源名称"
+          aria-label="源名称"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           className={styles.sourceInput}
@@ -102,6 +103,7 @@ export default function RssSourceManager() {
         <input
           type="url"
           placeholder="https://example.com/feed"
+          aria-label="RSS 源地址"
           value={newUrl}
           onChange={(e) => setNewUrl(e.target.value)}
           className={styles.sourceInput}

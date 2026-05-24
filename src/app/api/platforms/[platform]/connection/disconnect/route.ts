@@ -8,13 +8,17 @@ export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ platform: string }> },
 ) {
-  const { platform } = await params;
+  try {
+    const { platform } = await params;
 
-  if (!VALID_PLATFORMS.has(platform)) {
-    return NextResponse.json({ error: '不支持的平台' }, { status: 400 });
+    if (!VALID_PLATFORMS.has(platform)) {
+      return NextResponse.json({ error: '不支持的平台' }, { status: 400 });
+    }
+
+    getConnectionRecordStore().clearRecord(platform as PlatformId);
+
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: '断开连接失败' }, { status: 500 });
   }
-
-  getConnectionRecordStore().clearRecord(platform as PlatformId);
-
-  return NextResponse.json({ ok: true });
 }

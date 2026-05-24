@@ -68,6 +68,7 @@ export default function StyleProfile() {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         placeholder="描述你的写作风格，如：短句为主，喜欢用比喻，段落不超过 3 句..."
+        aria-label="写作风格描述"
         rows={4}
       />
 

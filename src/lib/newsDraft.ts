@@ -1,9 +1,4 @@
-export interface NewsDraftPayload {
-  title: string;
-  content: string;
-}
-
-export interface ResearchDraftSection {
+interface ResearchDraftSection {
   title: string;
   imageUrl?: string;
   articleImages?: string[];
@@ -31,8 +26,6 @@ export interface ResearchDraftSection {
     publishedAt: string;
   }>;
 }
-
-export const NEWS_DRAFT_STORAGE_KEY = 'publio-ai-news-draft';
 
 export function buildResearchDraftMarkdown(params: {
   headline: string;

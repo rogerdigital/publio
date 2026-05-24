@@ -39,7 +39,19 @@ export default function WritingBriefCard({ briefId }: WritingBriefCardProps) {
 
   return (
     <div className={styles.card}>
-      <div className={styles.header} onClick={() => setCollapsed(!collapsed)}>
+      <div
+        className={styles.header}
+        role="button"
+        tabIndex={0}
+        aria-expanded={!collapsed}
+        onClick={() => setCollapsed(!collapsed)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setCollapsed(!collapsed);
+          }
+        }}
+      >
         <span className={styles.headerTitle}>
           <FileText size={14} /> Brief
         </span>

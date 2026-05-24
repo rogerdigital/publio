@@ -55,7 +55,19 @@ export default function VersionHistory({ draftId, onRestore }: VersionHistoryPro
       {!loading && versions.length === 0 && <p className={css.empty}>暂无历史版本</p>}
 
       {[...versions].reverse().map((v) => (
-        <div key={v.id} className={css.item} onClick={() => onRestore(v)}>
+        <div
+          key={v.id}
+          className={css.item}
+          role="button"
+          tabIndex={0}
+          onClick={() => onRestore(v)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onRestore(v);
+            }
+          }}
+        >
           <div className={css.dot} />
           <div className={css.body}>
             <p className={css.summary}>{v.changeSummary ?? '保存快照'}</p>

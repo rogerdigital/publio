@@ -350,6 +350,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
             type="text"
             className={styles.searchInput}
             placeholder="搜索稿件标题或内容..."
+            aria-label="搜索稿件"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
