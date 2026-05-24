@@ -2,7 +2,9 @@ import { getSignalRegistry } from '@/lib/signals/registry';
 import type { CreateSignalInput } from '@/lib/signals/types';
 import type { NormalizedAiNewsSignal } from '@/lib/ai-news/types';
 
-function mapSourceType(aiNewsSourceType: string): 'rss' {
+function mapSourceType(aiNewsSourceType: string): CreateSignalInput['sourceType'] {
+  if (aiNewsSourceType === 'x') return 'x';
+  if (aiNewsSourceType === 'arxiv') return 'arxiv';
   return 'rss';
 }
 

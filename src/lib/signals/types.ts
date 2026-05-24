@@ -2,7 +2,7 @@ import type { PlatformId } from '@/types';
 
 export type SignalStatus = 'new' | 'saved' | 'dismissed' | 'converted';
 
-export type SignalSourceType = 'rss' | 'url' | 'manual' | 'import';
+export type SignalSourceType = 'rss' | 'url' | 'manual' | 'import' | 'x' | 'arxiv';
 
 export interface SignalScore {
   freshness: number;
