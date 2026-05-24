@@ -91,6 +91,7 @@ export default function Sidebar() {
                 className={styles.collapseToggle}
                 onClick={toggle}
                 title="收起侧边栏"
+                aria-expanded={expanded}
               >
                 <ChevronsLeft size={14} />
               </button>
@@ -101,6 +102,7 @@ export default function Sidebar() {
               className={styles.collapseToggle}
               onClick={toggle}
               title="展开侧边栏"
+              aria-expanded={expanded}
             >
               <ChevronsRight size={14} />
             </button>

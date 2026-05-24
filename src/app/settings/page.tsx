@@ -49,6 +49,54 @@ interface DisconnectState {
   done?: boolean;
 }
 
+function CheckResult({
+  checkState,
+  connectionRecord,
+  disconnectDone,
+}: {
+  checkState?: CheckState;
+  connectionRecord?: PlatformConnectionRecord;
+  disconnectDone?: boolean;
+}) {
+  if (checkState && !checkState.checking) {
+    if (checkState.ok) {
+      return (
+        <p className={styles.checkResultOk}>
+          <CheckCircle2 size={13} />
+          {checkState.accountName ? `连接正常（${checkState.accountName}）` : '连接正常'}
+        </p>
+      );
+    }
+    return (
+      <p className={styles.checkResultFail}>连接异常：{checkState.failureReason ?? '未知原因'}</p>
+    );
+  }
+
+  if (disconnectDone) {
+    return <p className={styles.checkResultOk}>连接记录已清除</p>;
+  }
+
+  if (connectionRecord?.lastCheckedAt) {
+    const timeAgo = formatRelativeTime(connectionRecord.lastCheckedAt);
+    if (connectionRecord.failureReason) {
+      return (
+        <p className={styles.checkResultFail}>
+          上次验证（{timeAgo}）失败：{connectionRecord.failureReason}
+        </p>
+      );
+    }
+    return (
+      <p className={styles.checkResultOk}>
+        <CheckCircle2 size={13} />
+        {connectionRecord.accountName ? `${connectionRecord.accountName} · ` : ''}上次验证：
+        {timeAgo}
+      </p>
+    );
+  }
+
+  return null;
+}
+
 const SECTION_TABS = [
   { id: 'platforms', label: '平台连接' },
   { id: 'agent', label: 'AI Agent' },
@@ -292,47 +340,6 @@ function SettingsContent() {
     }
   }
 
-  function renderCheckResult(platformId: PlatformId) {
-    const ck = checkStates[platformId];
-    const record = connectionRecords[platformId];
-
-    if (ck && !ck.checking) {
-      if (ck.ok) {
-        return (
-          <p className={styles.checkResultOk}>
-            <CheckCircle2 size={13} />
-            {ck.accountName ? `连接正常（${ck.accountName}）` : '连接正常'}
-          </p>
-        );
-      }
-      return <p className={styles.checkResultFail}>连接异常：{ck.failureReason ?? '未知原因'}</p>;
-    }
-
-    if (disconnectStates[platformId]?.done) {
-      return <p className={styles.checkResultOk}>连接记录已清除</p>;
-    }
-
-    // 从持久化 records 中展示上次验证信息
-    if (record?.lastCheckedAt) {
-      const timeAgo = formatRelativeTime(record.lastCheckedAt);
-      if (record.failureReason) {
-        return (
-          <p className={styles.checkResultFail}>
-            上次验证（{timeAgo}）失败：{record.failureReason}
-          </p>
-        );
-      }
-      return (
-        <p className={styles.checkResultOk}>
-          <CheckCircle2 size={13} />
-          {record.accountName ? `${record.accountName} · ` : ''}上次验证：{timeAgo}
-        </p>
-      );
-    }
-
-    return null;
-  }
-
   return (
     <div className={styles.pageWrap}>
       <AppShellHeader
@@ -529,7 +536,11 @@ function SettingsContent() {
                                   ? `填写上方全部凭证后，即可点击「一键授权」完成账号绑定。还差 ${connectionProfile.missingKeys.length} 项。`
                                   : '凭证已填写完毕，点击「一键授权」完成账号绑定。'}
                           </p>
-                          {renderCheckResult(platform.id)}
+                          <CheckResult
+                            checkState={checkStates[platform.id]}
+                            connectionRecord={connectionRecords[platform.id]}
+                            disconnectDone={disconnectStates[platform.id]?.done}
+                          />
                           <div className={styles.oauthAuthorizeRow}>
                             <button
                               type="button"
@@ -652,7 +663,11 @@ function SettingsContent() {
                             {checkStates[platform.id]?.checking ? '验证中…' : '测试连接'}
                           </button>
                         </div>
-                        {renderCheckResult(platform.id)}
+                        <CheckResult
+                          checkState={checkStates[platform.id]}
+                          connectionRecord={connectionRecords[platform.id]}
+                          disconnectDone={disconnectStates[platform.id]?.done}
+                        />
                       </>
                     )}
                   </div>

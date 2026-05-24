@@ -6,6 +6,7 @@ import { ClipboardList } from 'lucide-react';
 
 import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
 import EmptyState from '@/components/feedback/EmptyState';
+import FilterChipGroup from '@/components/ui/FilterChipGroup';
 import * as styles from './sync.css';
 
 const taskStatusLabels: Record<SyncTaskStatus, string> = {
@@ -60,18 +61,12 @@ export default function SyncTaskList({ tasks }: SyncTaskListProps) {
 
   return (
     <>
-      <div className={styles.filterBar}>
-        {FILTER_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            className={styles.filterChip({ active: statusFilter === opt.value })}
-            onClick={() => setStatusFilter(opt.value)}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
+      <FilterChipGroup
+        options={FILTER_OPTIONS}
+        value={statusFilter}
+        onChange={setStatusFilter}
+        className={styles.filterBar}
+      />
       <div className={styles.historyList}>
         {filtered.map((task) => (
           <article key={task.id} className={styles.historyCard}>

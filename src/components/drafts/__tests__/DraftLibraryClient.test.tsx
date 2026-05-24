@@ -7,6 +7,12 @@ vi.mock('@/components/feedback/EmptyState', () => ({
 }));
 vi.mock('@/components/feedback/EmptyState.css', () => ({}));
 
+vi.mock('@/components/ui/FilterChipGroup.css', () => ({
+  filterBar: 'filterBar',
+  filterChip: (variants: { active?: boolean }) =>
+    variants?.active ? 'filterChip-active' : 'filterChip',
+}));
+
 vi.mock('@/components/drafts/drafts.css', () => ({
   draftList: 'draftList',
   draftCard: 'draftCard',

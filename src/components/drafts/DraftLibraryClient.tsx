@@ -17,6 +17,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
+import FilterChipGroup from '@/components/ui/FilterChipGroup';
 import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
 import { deleteDraft, createDraft, updateDraft } from '@/lib/drafts/client';
 import {
@@ -46,6 +47,14 @@ const statusLabels: Record<DraftStatus, string> = {
   failed: '同步失败',
   archived: '已归档',
 };
+
+const STATUS_FILTER_OPTIONS = [
+  { value: 'all' as const, label: '全部' },
+  ...(['draft', 'ready', 'syncing', 'synced', 'failed'] as const).map((s) => ({
+    value: s,
+    label: statusLabels[s],
+  })),
+];
 
 const sourceLabels: Record<DraftSource, string> = {
   manual: '手动创建',
@@ -364,18 +373,11 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
               <LayoutList size={16} />
             </button>
           </div>
-          <div className={styles.filterBar}>
-            {(['all', 'draft', 'ready', 'syncing', 'synced', 'failed'] as const).map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={styles.filterChip({ active: statusFilter === s })}
-                onClick={() => setStatusFilter(s)}
-              >
-                {s === 'all' ? '全部' : statusLabels[s as DraftStatus]}
-              </button>
-            ))}
-          </div>
+          <FilterChipGroup
+            options={STATUS_FILTER_OPTIONS}
+            value={statusFilter}
+            onChange={setStatusFilter}
+          />
         </div>
       )}
 

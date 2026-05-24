@@ -89,6 +89,9 @@ export const vars = createGlobalTheme(':root', {
     slow: '350ms cubic-bezier(0.4, 0, 0.2, 1)',
     spring: '500ms cubic-bezier(0.34, 1.56, 0.64, 1)',
   },
+  layout: {
+    tabBarHeight: '57px',
+  },
 });
 
 export const darkTheme = createTheme(vars, {
@@ -179,5 +182,8 @@ export const darkTheme = createTheme(vars, {
     base: '200ms cubic-bezier(0.4, 0, 0.2, 1)',
     slow: '350ms cubic-bezier(0.4, 0, 0.2, 1)',
     spring: '500ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+  },
+  layout: {
+    tabBarHeight: '57px',
   },
 });

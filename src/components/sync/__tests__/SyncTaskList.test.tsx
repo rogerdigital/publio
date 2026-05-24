@@ -4,6 +4,12 @@ import { createElement } from 'react';
 
 import type { SyncTask } from '@/lib/sync/types';
 
+vi.mock('@/components/ui/FilterChipGroup.css', () => ({
+  filterBar: 'filterBar',
+  filterChip: (variants: { active?: boolean }) =>
+    variants?.active ? 'filterChip-active' : 'filterChip',
+}));
+
 vi.mock('@/components/sync/sync.css', () => ({
   historyList: 'historyList',
   historyCard: 'historyCard',
