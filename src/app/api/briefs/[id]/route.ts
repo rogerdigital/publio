@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getBriefRegistry } from '@/lib/briefs/registry';
+import type { UpdateBriefInput } from '@/lib/briefs/types';
 import { apiResponse, apiError } from '@/lib/api/response';
 
 export const dynamic = 'force-dynamic';
@@ -43,7 +44,7 @@ export async function PATCH(request: NextRequest | Request, { params }: BriefRou
       input.platformPlan = body.platformPlan;
     }
 
-    const brief = getBriefRegistry().updateBrief(id, input as any);
+    const brief = getBriefRegistry().updateBrief(id, input as UpdateBriefInput);
     if (!brief) return apiError('Brief 不存在', 404);
 
     return apiResponse({ brief });

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getAgentConfig } from '@/lib/agent/config';
-import { createOpenAIProvider } from '@/lib/agent/provider';
+import { createLLMProvider } from '@/lib/agent/provider';
 import { createSSEResponse } from '@/lib/agent/stream';
 import { buildFeedbackAgentMessages } from '@/lib/agent/prompts/feedback';
 import type { PlatformId } from '@/types';
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     publishedAt,
   });
 
-  const provider = createOpenAIProvider(config);
+  const provider = createLLMProvider(config, config.provider);
   const tokens = provider.stream({ messages, maxTokens: 1500 });
 
   return createSSEResponse(tokens, request.signal);

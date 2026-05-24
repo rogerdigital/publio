@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { getUploadFilePath } from '@/lib/upload/saveFile';
 
 const CONTENT_TYPES: Record<string, string> = {
@@ -18,15 +18,17 @@ export async function GET(
     const { filename } = await params;
     const filepath = getUploadFilePath(filename);
 
-    if (!existsSync(filepath)) {
+    let buffer: Uint8Array;
+    try {
+      buffer = await readFile(filepath);
+    } catch {
       return NextResponse.json({ error: '文件不存在' }, { status: 404 });
     }
 
     const ext = '.' + filename.split('.').pop()?.toLowerCase();
     const contentType = CONTENT_TYPES[ext || ''] || 'application/octet-stream';
-    const buffer = readFileSync(filepath);
 
-    return new NextResponse(buffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=31536000, immutable',

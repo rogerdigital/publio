@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getAgentConfig } from '@/lib/agent/config';
-import { createOpenAIProvider } from '@/lib/agent/provider';
+import { createLLMProvider } from '@/lib/agent/provider';
 import { createSSEResponse } from '@/lib/agent/stream';
 import {
   AGENT_INPUT_LIMITS,
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
   const limitedClusterTitle = limitText(clusterTitle, AGENT_INPUT_LIMITS.titleChars);
   const limitedSignals = limitResearchSignals(signals);
   const messages = buildResearchMessages(limitedClusterTitle.value, limitedSignals.value);
-  const provider = createOpenAIProvider(config);
+  const provider = createLLMProvider(config, config.provider);
   const tokens = provider.stream({ messages, maxTokens: 3000 });
 
   return markTruncated(

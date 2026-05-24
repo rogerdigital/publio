@@ -1,6 +1,31 @@
 import { style } from '@vanilla-extract/css';
 import { vars } from '@/styles/tokens.css';
 
+export const skipLink = style({
+  position: 'absolute',
+  left: '-10000px',
+  top: 'auto',
+  width: '1px',
+  height: '1px',
+  overflow: 'hidden',
+  zIndex: 100,
+  padding: '8px 16px',
+  background: vars.color.accent,
+  color: vars.color.surfaceDarkText,
+  fontSize: '14px',
+  fontWeight: 600,
+  borderRadius: vars.radius.lg,
+  textDecoration: 'none',
+  ':focus': {
+    position: 'fixed',
+    top: '8px',
+    left: '8px',
+    width: 'auto',
+    height: 'auto',
+    overflow: 'visible',
+  },
+});
+
 export const shell = style({
   display: 'flex',
   minHeight: '100dvh',

@@ -1,4 +1,4 @@
-import { style, keyframes } from '@vanilla-extract/css';
+import { globalStyle, style, keyframes } from '@vanilla-extract/css';
 import { vars } from '@/styles/tokens.css';
 
 const blink = keyframes({
@@ -82,9 +82,60 @@ export const outputArea = style({
   fontSize: '14px',
   lineHeight: 1.7,
   color: vars.color.text,
-  whiteSpace: 'pre-wrap',
   wordBreak: 'break-word',
 });
+
+globalStyle(`${outputArea} p`, { margin: '8px 0' });
+globalStyle(`${outputArea} h1`, {
+  margin: '16px 0 8px',
+  fontWeight: 600,
+  lineHeight: 1.4,
+  fontSize: '18px',
+});
+globalStyle(`${outputArea} h2`, {
+  margin: '16px 0 8px',
+  fontWeight: 600,
+  lineHeight: 1.4,
+  fontSize: '16px',
+});
+globalStyle(`${outputArea} h3`, {
+  margin: '16px 0 8px',
+  fontWeight: 600,
+  lineHeight: 1.4,
+  fontSize: '15px',
+});
+globalStyle(`${outputArea} h4`, { margin: '16px 0 8px', fontWeight: 600, lineHeight: 1.4 });
+globalStyle(`${outputArea} ul, ${outputArea} ol`, { margin: '8px 0', paddingLeft: '20px' });
+globalStyle(`${outputArea} li`, { margin: '4px 0' });
+globalStyle(`${outputArea} blockquote`, {
+  margin: '8px 0',
+  padding: '8px 12px',
+  borderLeft: `3px solid ${vars.color.accent}`,
+  color: vars.color.textMuted,
+});
+globalStyle(`${outputArea} pre`, {
+  margin: '8px 0',
+  padding: '10px 12px',
+  borderRadius: vars.radius.md,
+  background: vars.color.canvasDeep,
+  overflow: 'auto',
+  fontSize: '13px',
+});
+globalStyle(`${outputArea} code`, {
+  padding: '1px 4px',
+  borderRadius: '4px',
+  background: vars.color.canvasDeep,
+  fontSize: '0.9em',
+});
+globalStyle(`${outputArea} pre code`, { padding: 0, background: 'transparent' });
+globalStyle(`${outputArea} hr`, {
+  margin: '12px 0',
+  border: 'none',
+  borderTop: `1px solid ${vars.color.border}`,
+});
+globalStyle(`${outputArea} a`, { color: vars.color.accent, textDecoration: 'none' });
+globalStyle(`${outputArea} img`, { maxWidth: '100%', borderRadius: vars.radius.md });
+globalStyle(`${outputArea} del`, { opacity: 0.6 });
 
 export const cursor = style({
   display: 'inline-block',

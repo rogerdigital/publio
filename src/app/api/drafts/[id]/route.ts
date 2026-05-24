@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getDraftRegistry } from '@/lib/drafts/registry';
-import type { DraftStatus } from '@/lib/drafts/types';
+import type { DraftStatus, UpdateDraftInput } from '@/lib/drafts/types';
 import { validateTitle, validateContent } from '@/lib/validation';
 import { apiResponse, apiError } from '@/lib/api/response';
 
@@ -51,7 +51,7 @@ export async function PATCH(request: NextRequest | Request, { params }: DraftRou
       input.tags = body.tags.filter((t: unknown) => typeof t === 'string').slice(0, 20);
     }
 
-    const draft = getDraftRegistry().updateDraft(id, input as any);
+    const draft = getDraftRegistry().updateDraft(id, input as UpdateDraftInput);
     if (!draft) return missingDraftResponse();
 
     return apiResponse({ draft });

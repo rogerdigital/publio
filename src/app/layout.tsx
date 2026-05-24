@@ -36,10 +36,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className={inter.className}>
+        <a href="#main-content" className={styles.skipLink}>
+          跳到主要内容
+        </a>
         <div className={styles.shell}>
           <Sidebar />
 
-          <main className={styles.main}>{children}</main>
+          <main id="main-content" className={styles.main} tabIndex={-1}>
+            {children}
+          </main>
         </div>
 
         <ToastContainer />

@@ -85,19 +85,36 @@ export async function POST(request: NextRequest) {
     logger.info('Publish task created', { taskId: syncTask.id, platforms });
 
     void (async () => {
-      const result = await runPublishJob({
-        syncTaskId: syncTask.id,
-        title,
-        content,
-        platforms: platforms as PlatformId[],
-        platformDrafts,
-        variantIds: resolvedVariantIds,
-      });
-      syncTask = result.syncTask;
-      logger.info('Publish completed', {
-        taskId: syncTask.id,
-        durationMs: Date.now() - startTime,
-      });
+      try {
+        const result = await runPublishJob({
+          syncTaskId: syncTask.id,
+          title,
+          content,
+          platforms: platforms as PlatformId[],
+          platformDrafts,
+          variantIds: resolvedVariantIds,
+        });
+        syncTask = result.syncTask;
+        logger.info('Publish completed', {
+          taskId: syncTask.id,
+          durationMs: Date.now() - startTime,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : '发布任务异常';
+        logger.error('Publish job failed', {
+          taskId: syncTask.id,
+          durationMs: Date.now() - startTime,
+          error: message,
+        });
+        try {
+          syncStore.appendTaskEvent(syncTask.id, {
+            type: 'started',
+            message: `[异常终止] ${message}`,
+          });
+        } catch (logError) {
+          logger.error('Failed to log publish error event', { taskId: syncTask.id });
+        }
+      }
     })();
 
     return apiResponse({ syncTaskId: syncTask.id, syncTask });

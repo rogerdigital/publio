@@ -123,10 +123,17 @@ export default function DraftPanel({ onNewDraft }: Props) {
                 onClick={() => setIsEditMode(true)}
                 className={styles.newBtn}
                 title="编辑草稿"
+                aria-label="编辑草稿"
               >
                 <Pencil size={13} />
               </button>
-              <button type="button" onClick={onNewDraft} className={styles.newBtn} title="新建稿件">
+              <button
+                type="button"
+                onClick={onNewDraft}
+                className={styles.newBtn}
+                title="新建稿件"
+                aria-label="新建稿件"
+              >
                 <Plus size={14} />
               </button>
             </>

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getAgentConfig } from '@/lib/agent/config';
-import { createOpenAIProvider } from '@/lib/agent/provider';
+import { createLLMProvider } from '@/lib/agent/provider';
 import { createSSEResponse } from '@/lib/agent/stream';
 import { AGENT_INPUT_LIMITS, limitText, markTruncated } from '@/lib/agent/inputLimits';
 import { buildWritingMessages } from '@/lib/agent/prompts/writing';
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     styleDescription: styleProfile?.description,
     briefContext,
   });
-  const provider = createOpenAIProvider(config);
+  const provider = createLLMProvider(config, config.provider);
   const tokens = provider.stream({ messages });
 
   return markTruncated(

@@ -1,5 +1,12 @@
 import { EventSourceParserStream } from 'eventsource-parser/stream';
-import type { AgentConfig, ChatMessage, LLMProvider, LLMStreamParams } from './types';
+import type {
+  AgentConfig,
+  ChatMessage,
+  LLMProvider,
+  LLMProviderType,
+  LLMStreamParams,
+} from './types';
+import { createAnthropicProvider } from './anthropicProvider';
 import { logger } from '@/lib/logger';
 
 const MAX_RETRIES = 3;
@@ -124,4 +131,17 @@ export function createOpenAIProvider(config: AgentConfig): LLMProvider {
       throw lastError ?? new Error('LLM request failed after retries');
     },
   };
+}
+
+/**
+ * Provider 工厂：根据 provider 类型选择对应的 LLM 实现。
+ */
+export function createLLMProvider(
+  config: AgentConfig,
+  providerType: LLMProviderType = 'openai',
+): LLMProvider {
+  if (providerType === 'anthropic') {
+    return createAnthropicProvider(config);
+  }
+  return createOpenAIProvider(config);
 }

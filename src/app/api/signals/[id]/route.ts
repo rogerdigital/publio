@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getSignalRegistry } from '@/lib/signals/registry';
-import type { SignalStatus } from '@/lib/signals/types';
+import type { SignalStatus, UpdateSignalInput } from '@/lib/signals/types';
 import { apiResponse, apiError } from '@/lib/api/response';
 
 export const dynamic = 'force-dynamic';
@@ -53,7 +53,7 @@ export async function PATCH(request: NextRequest | Request, { params }: SignalRo
       );
     }
 
-    const signal = getSignalRegistry().updateSignal(id, input as any);
+    const signal = getSignalRegistry().updateSignal(id, input as UpdateSignalInput);
     if (!signal) return apiError('信号不存在', 404);
 
     return apiResponse({ signal });

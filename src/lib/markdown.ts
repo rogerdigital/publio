@@ -74,7 +74,7 @@ function cleanInlineText(value: string) {
   return value.replace(/\s+/g, ' ').trim();
 }
 
-type TokensList = any[];
+type TokensList = Tokens.Generic[];
 
 function sanitizeUrl(value: string | undefined) {
   if (!value) {
@@ -104,7 +104,7 @@ function sanitizeUrl(value: string | undefined) {
   }
 }
 
-function renderInline(tokens: any[] | undefined, platform?: StyledPlatform): string {
+function renderInline(tokens: Tokens.Generic[] | undefined, platform?: StyledPlatform): string {
   if (!tokens || tokens.length === 0) {
     return '';
   }
@@ -195,7 +195,9 @@ function tokensToHtml(
         case 'space':
           return '';
         case 'blockquote': {
-          const inner = tokensToHtml(token.tokens, platform, { inBlockquote: true });
+          const inner = tokensToHtml(token.tokens as Tokens.Generic[], platform, {
+            inBlockquote: true,
+          });
           return `<blockquote style="${theme?.blockquote ?? ''}">${inner}</blockquote>`;
         }
         case 'list': {
@@ -325,7 +327,7 @@ export function extractMarkdownImageUrls(markdown: string): string[] {
         }
       }
       if ('tokens' in token && Array.isArray(token.tokens)) {
-        collect(token.tokens);
+        collect(token.tokens as Tokens.Generic[]);
       }
       if ('items' in token && Array.isArray(token.items)) {
         for (const item of token.items) {

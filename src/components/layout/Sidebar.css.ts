@@ -97,14 +97,6 @@ export const brandName = style({
   },
 });
 
-export const searchBox = style({
-  display: 'none',
-});
-
-export const searchPlaceholder = style({
-  display: 'none',
-});
-
 export const nav = style({
   display: 'flex',
   flexDirection: 'column',
@@ -317,13 +309,67 @@ export const mobileTabItem = styleVariants({
 
 export const mobileTabLabel = styleVariants({
   active: {
-    fontSize: '10px',
+    fontSize: '11px',
     fontWeight: 600,
     lineHeight: 1,
   },
   inactive: {
-    fontSize: '10px',
+    fontSize: '11px',
     fontWeight: 400,
     lineHeight: 1,
+  },
+});
+
+export const moreMenuWrapper = style({
+  position: 'relative',
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
+export const moreDropdown = style({
+  position: 'absolute',
+  bottom: '100%',
+  marginBottom: '8px',
+  right: 0,
+  minWidth: '140px',
+  background: vars.color.surface,
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: vars.radius.md,
+  boxShadow: vars.shadow.lg,
+  padding: '4px',
+  zIndex: 110,
+});
+
+export const moreDropdownItem = styleVariants({
+  active: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '8px 12px',
+    borderRadius: vars.radius.sm,
+    textDecoration: 'none',
+    fontSize: '13px',
+    fontWeight: 500,
+    color: vars.color.text,
+    background: vars.color.accentSoft,
+  },
+  inactive: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '8px 12px',
+    borderRadius: vars.radius.sm,
+    textDecoration: 'none',
+    fontSize: '13px',
+    fontWeight: 400,
+    color: vars.color.textMuted,
+    background: 'transparent',
+    ':hover': {
+      background: vars.color.bgElevated,
+      color: vars.color.text,
+    },
   },
 });

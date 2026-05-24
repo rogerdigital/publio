@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit, maybeCleanup } from '@/lib/rateLimit';
 
 const LOCALHOST_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
 
@@ -32,6 +33,25 @@ export function middleware(request: NextRequest) {
       }
     } catch {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  }
+
+  // Rate limiting for API routes
+  if (request.method !== 'GET' || pathname.startsWith('/api/agent/')) {
+    maybeCleanup();
+    const result = checkRateLimit(request);
+    if (!result.allowed) {
+      return NextResponse.json(
+        { error: '请求过于频繁，请稍后再试' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(result.retryAfter),
+            'X-RateLimit-Limit': String(result.limit),
+            'X-RateLimit-Remaining': '0',
+          },
+        },
+      );
     }
   }
 

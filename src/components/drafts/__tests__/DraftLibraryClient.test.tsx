@@ -63,6 +63,16 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   exportButton: 'exportButton',
   tagContainer: 'tagContainer',
   tagChip: () => 'tagChip',
+  viewToggle: 'viewToggle',
+  viewToggleButton: () => 'viewToggleButton',
+  compactList: 'compactList',
+  compactRow: 'compactRow',
+  compactTitle: 'compactTitle',
+  compactStatus: 'compactStatus',
+  compactTime: 'compactTime',
+  loadMoreWrap: 'loadMoreWrap',
+  loadMoreButton: 'loadMoreButton',
+  loadMoreCount: 'loadMoreCount',
 }));
 
 describe('DraftLibraryClient', () => {

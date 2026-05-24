@@ -14,6 +14,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url, filename });
   } catch (error) {
     const message = error instanceof Error ? error.message : '上传失败';
-    return NextResponse.json({ error: message }, { status: 400 });
+    const isClientError =
+      message.includes('大小') ||
+      message.includes('格式') ||
+      message.includes('类型') ||
+      message.includes('不支持');
+    return NextResponse.json({ error: message }, { status: isClientError ? 400 : 500 });
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -13,6 +13,7 @@ import {
   CalendarDays,
   ChevronsRight,
   ChevronsLeft,
+  MoreHorizontal,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import ThemeToggle from './ThemeToggle';
@@ -31,14 +32,37 @@ const navItems = [
   { href: '/settings', label: '设置', icon: Settings2, color: '#6B7280' },
 ];
 
+const PRIMARY_MOBILE_COUNT = 5;
+const primaryMobileItems = navItems.slice(0, PRIMARY_MOBILE_COUNT);
+const moreMobileItems = navItems.slice(PRIMARY_MOBILE_COUNT);
+
 export default function Sidebar() {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === 'true') setExpanded(true);
   }, []);
+
+  // Close "more" dropdown on outside click
+  useEffect(() => {
+    if (!moreOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [moreOpen]);
+
+  // Close "more" on route change
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [pathname]);
 
   const toggle = () => {
     setExpanded((prev) => {
@@ -116,7 +140,7 @@ export default function Sidebar() {
       </aside>
 
       <nav className={styles.mobileTabBar} aria-label="移动端导航">
-        {navItems.map((item) => {
+        {primaryMobileItems.map((item) => {
           const isActive =
             pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
           const Icon = item.icon;
@@ -134,6 +158,37 @@ export default function Sidebar() {
             </Link>
           );
         })}
+        <div className={styles.moreMenuWrapper} ref={moreRef}>
+          <button
+            type="button"
+            className={styles.mobileTabItem[moreOpen ? 'active' : 'inactive']}
+            onClick={() => setMoreOpen((v) => !v)}
+            aria-expanded={moreOpen}
+            aria-haspopup="true"
+          >
+            <MoreHorizontal size={20} />
+            <span className={styles.mobileTabLabel[moreOpen ? 'active' : 'inactive']}>更多</span>
+          </button>
+          {moreOpen && (
+            <div className={styles.moreDropdown}>
+              {moreMobileItems.map((item) => {
+                const isActive =
+                  pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={styles.moreDropdownItem[isActive ? 'active' : 'inactive']}
+                  >
+                    <Icon size={18} color={isActive ? undefined : item.color} />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </nav>
     </>
   );

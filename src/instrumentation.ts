@@ -9,7 +9,25 @@ export async function register() {
       console.error('[publio] Migration failed:', err);
     }
 
-    const { startScheduler } = await import('@/lib/scheduler');
+    const { registerTask, startScheduler } = await import('@/lib/scheduler');
+    const { checkDueDrafts } = await import('@/lib/scheduler/checkDueDrafts');
+    const { fetchAndPersistRssSignals, getRssFetchIntervalMs } =
+      await import('@/lib/scheduler/fetchRssFeeds');
+
+    registerTask({
+      name: 'check-due-drafts',
+      intervalMs: 60_000,
+      handler: checkDueDrafts,
+      runOnStart: true,
+    });
+
+    registerTask({
+      name: 'fetch-rss-feeds',
+      intervalMs: getRssFetchIntervalMs(),
+      handler: fetchAndPersistRssSignals,
+      runOnStart: true,
+    });
+
     startScheduler();
   }
 }

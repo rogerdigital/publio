@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { surfaceCard } from './SurfaceCard.css';
 
-type SurfaceTone = 'default' | 'soft' | 'accent' | 'purple' | 'cream' | 'lime' | 'dark';
+type SurfaceTone = 'default' | 'soft' | 'accent' | 'dark';
 
 interface SurfaceCardProps extends HTMLAttributes<HTMLDivElement> {
   tone?: SurfaceTone;

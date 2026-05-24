@@ -1,10 +1,96 @@
 import { style, styleVariants } from '@vanilla-extract/css';
+import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/styles/tokens.css';
 
 export const pageWrap = style({
   display: 'flex',
   flexDirection: 'column',
   gap: '24px',
+  paddingBottom: '80px',
+});
+
+// Section anchor nav
+export const sectionNav = style({
+  position: 'sticky',
+  top: 0,
+  zIndex: 10,
+  display: 'flex',
+  gap: '4px',
+  overflowX: 'auto',
+  padding: '8px 0',
+  borderBottom: `1px solid ${vars.color.border}`,
+  background: vars.color.bg,
+  selectors: {
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
+  },
+});
+
+export const sectionTab = recipe({
+  base: {
+    flexShrink: 0,
+    borderRadius: '999px',
+    border: 'none',
+    background: 'transparent',
+    padding: '6px 14px',
+    fontSize: '13px',
+    fontWeight: 500,
+    color: vars.color.textMuted,
+    cursor: 'pointer',
+    transition: 'background-color 150ms, color 150ms',
+    ':hover': {
+      background: vars.color.surface,
+      color: vars.color.text,
+    },
+  },
+  variants: {
+    active: {
+      true: {
+        background: vars.color.accentSoft,
+        color: vars.color.signal,
+      },
+    },
+  },
+  defaultVariants: { active: false },
+});
+
+// Floating save button
+export const floatingSave = style({
+  position: 'fixed',
+  bottom: '24px',
+  right: '24px',
+  zIndex: 50,
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  borderRadius: '999px',
+  border: 'none',
+  background: vars.color.accent,
+  padding: '12px 24px',
+  fontSize: '14px',
+  fontWeight: 600,
+  color: vars.color.surfaceDarkText,
+  boxShadow: vars.shadow.lg,
+  cursor: 'pointer',
+  transition: 'transform 200ms, opacity 200ms, filter 150ms',
+  ':hover': {
+    filter: 'brightness(1.05)',
+  },
+  ':disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  },
+  '@media': {
+    'screen and (min-width: 640px)': {
+      right: '32px',
+      bottom: '32px',
+    },
+  },
+});
+
+export const sectionAnchor = style({
+  scrollMarginTop: '56px',
 });
 
 export const accordionCard = style({
