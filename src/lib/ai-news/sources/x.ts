@@ -17,10 +17,10 @@ const KOL_ACCOUNTS: KolAccount[] = [
   { handle: 'GoogleDeepMind', name: 'DeepMind', weight: 5, sourceType: 'official' },
   { handle: 'ylecun', name: 'Yann LeCun', weight: 4, sourceType: 'community' },
   { handle: 'AndrewYNg', name: 'Andrew Ng', weight: 4, sourceType: 'community' },
-  { handle: 'kaborogepa', name: 'Jim Fan', weight: 4, sourceType: 'community' },
-  { handle: 'swaborogek', name: 'Andrej Karpathy', weight: 4, sourceType: 'community' },
+  { handle: 'DrJimFan', name: 'Jim Fan', weight: 4, sourceType: 'community' },
+  { handle: 'karpathy', name: 'Andrej Karpathy', weight: 4, sourceType: 'community' },
   { handle: 'goodfellow_ian', name: 'Ian Goodfellow', weight: 4, sourceType: 'community' },
-  { handle: 'kaborogepa', name: 'Sam Altman', weight: 5, sourceType: 'official' },
+  { handle: 'sama', name: 'Sam Altman', weight: 5, sourceType: 'official' },
   { handle: 'GoogleAI', name: 'Google AI', weight: 5, sourceType: 'official' },
 ];
 
