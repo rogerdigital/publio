@@ -19,17 +19,27 @@ import DraftPanel from '@/components/editor/DraftPanel';
 import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
-import PlatformPreviewPanel from '@/components/publish/PlatformPreviewPanel';
-import PlatformVariantPanel from '@/components/publish/PlatformVariantPanel';
-import PublishProgressOverlay from '@/components/publish/PublishProgressOverlay';
 import PublishTimingSuggestion from '@/components/publish/PublishTimingSuggestion';
 import SchedulePicker from '@/components/publish/SchedulePicker';
 import EditorialContextCard from '@/components/editor/EditorialContextCard';
 import WritingBriefCard from '@/components/editor/WritingBriefCard';
-import VersionHistory from '@/components/editor/VersionHistory';
 import TemplatePicker from '@/components/editor/TemplatePicker';
 import MediaLibrary from '@/components/editor/MediaLibrary';
-import AgentPanel from '@/components/agent/AgentPanel';
+
+const PlatformPreviewPanel = dynamic(() => import('@/components/publish/PlatformPreviewPanel'), {
+  ssr: false,
+});
+const PlatformVariantPanel = dynamic(() => import('@/components/publish/PlatformVariantPanel'), {
+  ssr: false,
+});
+const PublishProgressOverlay = dynamic(
+  () => import('@/components/publish/PublishProgressOverlay'),
+  { ssr: false },
+);
+const VersionHistory = dynamic(() => import('@/components/editor/VersionHistory'), {
+  ssr: false,
+});
+const AgentPanel = dynamic(() => import('@/components/agent/AgentPanel'), { ssr: false });
 import TodayWorkbench from '@/components/workbench/TodayWorkbench';
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
@@ -251,6 +261,7 @@ function HomePageContent() {
               onClick={() => setIsPanelOpen((v) => !v)}
               className={styles.panelToggle({ active: isPanelOpen })}
               title={isPanelOpen ? '收起草稿' : '展开草稿'}
+              aria-expanded={isPanelOpen}
             >
               <Files size={14} />
               草稿
@@ -300,6 +311,7 @@ function HomePageContent() {
                   type="button"
                   className={publishStyles.collapseToggle}
                   onClick={() => setShowVersionHistory((v) => !v)}
+                  aria-expanded={showVersionHistory}
                 >
                   <span className={publishStyles.rightPanelSectionTitle}>
                     <History size={12} style={{ marginRight: 4 }} />
