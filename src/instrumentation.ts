@@ -13,6 +13,8 @@ export async function register() {
     const { checkDueDrafts } = await import('@/lib/scheduler/checkDueDrafts');
     const { fetchAndPersistRssSignals, getRssFetchIntervalMs } =
       await import('@/lib/scheduler/fetchRssFeeds');
+    const { generateDailyDigest, getDigestIntervalMs } =
+      await import('@/lib/scheduler/generateDailyDigest');
 
     registerTask({
       name: 'check-due-drafts',
@@ -26,6 +28,13 @@ export async function register() {
       intervalMs: getRssFetchIntervalMs(),
       handler: fetchAndPersistRssSignals,
       runOnStart: true,
+    });
+
+    registerTask({
+      name: 'generate-daily-digest',
+      intervalMs: getDigestIntervalMs(),
+      handler: generateDailyDigest,
+      runOnStart: false,
     });
 
     startScheduler();
