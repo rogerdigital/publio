@@ -8,6 +8,10 @@ import { getConnectionRecordStore } from '@/lib/platformConnections/registry';
  * 用于设置页面加载时展示真实连接状态。
  */
 export async function GET() {
-  const records = getConnectionRecordStore().listRecords();
-  return NextResponse.json(records);
+  try {
+    const records = getConnectionRecordStore().listRecords();
+    return NextResponse.json(records);
+  } catch {
+    return NextResponse.json([]);
+  }
 }

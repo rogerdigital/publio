@@ -80,6 +80,7 @@ export default function PromptEditor() {
         value={currentValue}
         onChange={(e) => setPrompts((prev) => ({ ...prev, [activeTarget]: e.target.value }))}
         placeholder={`输入${PROMPT_TARGETS.find((t) => t.id === activeTarget)?.label ?? ''}的自定义 prompt 要求...`}
+        aria-label={`自定义 prompt`}
         rows={4}
       />
 
