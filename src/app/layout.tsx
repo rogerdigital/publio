@@ -34,6 +34,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="zh-CN" className={`${inter.variable} ${caveat.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="Publio RSS Feed"
+          href="/feed/published.xml"
+        />
       </head>
       <body className={inter.className}>
         <a href="#main-content" className={styles.skipLink}>

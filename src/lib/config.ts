@@ -32,3 +32,7 @@ export function getXConfig() {
     accessTokenSecret: process.env.X_ACCESS_TOKEN_SECRET || '',
   };
 }
+
+export function getSiteUrl() {
+  return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+}
