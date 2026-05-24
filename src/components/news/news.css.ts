@@ -493,3 +493,11 @@ export const scoreBarsGrid = style({
   flex: 1,
   minWidth: '160px',
 });
+
+export const filterRow = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '12px',
+  alignItems: 'center',
+  marginBottom: vars.spacing.lg,
+});

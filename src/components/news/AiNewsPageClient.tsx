@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import TopicDeskHeader from '@/components/news/TopicDeskHeader';
@@ -8,11 +8,26 @@ import TopicSignalCard from '@/components/news/TopicSignalCard';
 import SignalInbox from '@/components/news/SignalInbox';
 import TopicLibrary from '@/components/news/TopicLibrary';
 import SignalReviewPanel from '@/components/news/SignalReviewPanel';
+import FilterChipGroup from '@/components/ui/FilterChipGroup';
 import type { AiNewsDeskCandidate } from '@/lib/aiNews';
 import { buildResearchDraftMarkdown } from '@/lib/newsDraft';
 import { createDraft } from '@/lib/drafts/client';
 import { useAgentStore } from '@/stores/agentStore';
 import type { AgentStreamEvent } from '@/lib/agent/types';
+import type { AiNewsSourceType } from '@/lib/ai-news/types';
+
+const SOURCE_TYPE_OPTIONS = [
+  { value: 'all', label: '全部来源' },
+  { value: 'media', label: '媒体' },
+  { value: 'official', label: '官方' },
+  { value: 'community', label: '社区' },
+] as const;
+
+const SCORE_OPTIONS = [
+  { value: 'all', label: '全部分数' },
+  { value: 'high', label: '高分 (≥70)' },
+  { value: 'medium', label: '中等 (40-69)' },
+] as const;
 import EmptyState from '@/components/feedback/EmptyState';
 import { Newspaper } from 'lucide-react';
 import TopicRecommendationPanel from '@/components/copilot/TopicRecommendationPanel';
@@ -117,6 +132,8 @@ export default function AiNewsPageClient() {
   // Maps clusterId → draftId for topics the user has sent to the writing desk
   const [topicDraftMap, setTopicDraftMap] = useState<Record<string, string>>({});
   const [briefOpenMap, setBriefOpenMap] = useState<Map<string, boolean>>(cachedBriefOpenMap);
+  const [sourceTypeFilter, setSourceTypeFilter] = useState<string>('all');
+  const [scoreFilter, setScoreFilter] = useState<string>('all');
   const hasDeskDataRef = useRef(false);
 
   // Tab state: 选题台 vs 资讯 Inbox vs 选题库
@@ -130,6 +147,34 @@ export default function AiNewsPageClient() {
   const cacheResearch = useAgentStore((s) => s.cacheResearch);
 
   const allCandidates = [...todayCandidates, ...followCandidates];
+
+  const filteredToday = useMemo(() => {
+    if (sourceTypeFilter === 'all' && scoreFilter === 'all') return todayCandidates;
+    return todayCandidates.filter((c) => {
+      if (
+        sourceTypeFilter !== 'all' &&
+        c.primarySignal.sourceType !== (sourceTypeFilter as AiNewsSourceType)
+      )
+        return false;
+      if (scoreFilter === 'high' && c.totalScore < 70) return false;
+      if (scoreFilter === 'medium' && (c.totalScore < 40 || c.totalScore >= 70)) return false;
+      return true;
+    });
+  }, [todayCandidates, sourceTypeFilter, scoreFilter]);
+
+  const filteredFollow = useMemo(() => {
+    if (sourceTypeFilter === 'all' && scoreFilter === 'all') return followCandidates;
+    return followCandidates.filter((c) => {
+      if (
+        sourceTypeFilter !== 'all' &&
+        c.primarySignal.sourceType !== (sourceTypeFilter as AiNewsSourceType)
+      )
+        return false;
+      if (scoreFilter === 'high' && c.totalScore < 70) return false;
+      if (scoreFilter === 'medium' && (c.totalScore < 40 || c.totalScore >= 70)) return false;
+      return true;
+    });
+  }, [followCandidates, sourceTypeFilter, scoreFilter]);
 
   // Check agent availability on mount
   useEffect(() => {
@@ -408,6 +453,20 @@ export default function AiNewsPageClient() {
         <TopicLibrary />
       ) : (
         <div className={styles.contentWrap}>
+          {(sourceTypeFilter !== 'all' || scoreFilter !== 'all' || allCandidates.length > 0) && (
+            <div className={styles.filterRow}>
+              <FilterChipGroup
+                options={SOURCE_TYPE_OPTIONS}
+                value={sourceTypeFilter}
+                onChange={setSourceTypeFilter}
+              />
+              <FilterChipGroup
+                options={SCORE_OPTIONS}
+                value={scoreFilter}
+                onChange={setScoreFilter}
+              />
+            </div>
+          )}
           {refreshError ? (
             <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
               <p className={styles.refreshErrorKicker}>刷新未更新</p>
@@ -452,7 +511,7 @@ export default function AiNewsPageClient() {
             <div className={styles.candidateSections}>
               <CandidateSection
                 title="今天能发"
-                items={todayCandidates}
+                items={filteredToday}
                 offset={0}
                 topicDraftMap={topicDraftMap}
                 briefOpenMap={briefOpenMap}
@@ -468,8 +527,8 @@ export default function AiNewsPageClient() {
               />
               <CandidateSection
                 title="还能追"
-                items={followCandidates}
-                offset={todayCandidates.length}
+                items={filteredFollow}
+                offset={filteredToday.length}
                 topicDraftMap={topicDraftMap}
                 briefOpenMap={briefOpenMap}
                 onBriefToggle={(clusterId, open) => {
