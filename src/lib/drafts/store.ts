@@ -58,6 +58,7 @@ export function createDraftStore(options: DraftStoreOptions = {}) {
         ...(input.contentGoal ? { contentGoal: input.contentGoal } : {}),
         ...(input.scheduledAt ? { scheduledAt: input.scheduledAt } : {}),
         ...(input.platforms ? { platforms: input.platforms } : {}),
+        ...(input.tags ? { tags: input.tags } : {}),
         createdAt: timestamp,
         updatedAt: timestamp,
       };

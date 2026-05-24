@@ -40,6 +40,7 @@ export interface CreateDraftInput {
   contentGoal?: string;
   scheduledAt?: string;
   platforms?: PlatformId[];
+  tags?: string[];
 }
 
 export type UpdateDraftInput = Partial<

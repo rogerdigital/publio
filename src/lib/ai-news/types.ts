@@ -1,4 +1,4 @@
-export type AiNewsSourceType = 'media' | 'official' | 'community';
+export type AiNewsSourceType = 'media' | 'official' | 'community' | 'x' | 'arxiv';
 
 export interface AiNewsSource {
   name: string;

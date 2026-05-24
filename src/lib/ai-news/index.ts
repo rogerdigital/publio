@@ -245,11 +245,23 @@ export async function fetchAiNewsSignals(hours = 24) {
   }));
   const allSources = [...AI_NEWS_SOURCES, ...customSources];
 
-  const results = await Promise.allSettled(
-    allSources.map((source) => fetchSourceSignals(source, cutoffTime)),
-  );
+  const [rssResults, xResult, arxivResult] = await Promise.all([
+    Promise.allSettled(allSources.map((source) => fetchSourceSignals(source, cutoffTime))),
+    import('@/lib/ai-news/sources/x')
+      .then((m) => m.fetchXSignals(hours))
+      .catch(() => [] as NormalizedAiNewsSignal[]),
+    import('@/lib/ai-news/sources/arxiv')
+      .then((m) => m.fetchArxivSignals(hours))
+      .catch(() => [] as NormalizedAiNewsSignal[]),
+  ]);
 
-  return results.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
+  const rssSignals = rssResults.flatMap((result) =>
+    result.status === 'fulfilled' ? result.value : [],
+  );
+  const xSignals = Array.isArray(xResult) ? xResult : [];
+  const arxivSignals = Array.isArray(arxivResult) ? arxivResult : [];
+
+  return [...rssSignals, ...xSignals, ...arxivSignals];
 }
 
 export function buildAiNewsDeskFromSignals(

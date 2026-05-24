@@ -40,6 +40,7 @@ export async function POST(request: NextRequest | Request) {
         ? body.scheduledAt.trim()
         : undefined;
     const platforms = Array.isArray(body.platforms) ? body.platforms : undefined;
+    const tags = Array.isArray(body.tags) ? body.tags : undefined;
 
     if (!title || !content) {
       return apiError('标题和内容不能为空');
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest | Request) {
       contentGoal,
       scheduledAt,
       platforms,
+      tags,
     });
 
     return apiResponse({ draft }, 201);
