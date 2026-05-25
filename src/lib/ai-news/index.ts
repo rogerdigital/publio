@@ -13,6 +13,8 @@ import { buildResearchBrief } from '@/lib/ai-news/research';
 import { scoreAiNewsCluster } from '@/lib/ai-news/score';
 import { AI_NEWS_SOURCES } from '@/lib/ai-news/sources';
 import { getEnabledCustomSources } from '@/lib/rss-sources/store';
+import { enhanceClusterWithLLM, isLlmAvailable } from '@/lib/ai-news/llm';
+import { logger } from '@/lib/logger';
 import type {
   AiNewsDesk,
   AiNewsDeskCandidate,
@@ -67,8 +69,12 @@ async function fetchSourceSignals(source: AiNewsSource, cutoffTime: number) {
     });
 }
 
-function buildCandidate(cluster: ReturnType<typeof scoreAiNewsCluster>): AiNewsDeskCandidate {
-  const researchBrief = buildResearchBrief(cluster);
+function buildCandidate(
+  cluster: ReturnType<typeof scoreAiNewsCluster>,
+  llmWhyItMatters?: string,
+  llmScoreReason?: string,
+): AiNewsDeskCandidate {
+  const researchBrief = buildResearchBrief(cluster, llmWhyItMatters, llmScoreReason);
 
   return {
     ...cluster,
@@ -298,11 +304,62 @@ export async function buildAiNewsDesk(hours = 24, poolSize = 40, displaySize = 1
     ...desk.followCandidates,
   ]);
   const generatedAt = new Date(desk.generatedAt);
+
+  // Re-score after image hydration
+  const scoredCandidates = hydratedCandidates
+    .map((candidate) => scoreAiNewsCluster(candidate, generatedAt))
+    .sort((a, b) => {
+      if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
+      return Date.parse(b.latestPublishedAt) - Date.parse(a.latestPublishedAt);
+    })
+    .slice(0, poolSize);
+
+  // LLM enhancement for top candidates
+  let llmEnhanced = scoredCandidates;
+  if (isLlmAvailable()) {
+    logger.info('LLM enhancement started', { candidateCount: scoredCandidates.length });
+
+    const llmResults = await Promise.allSettled(
+      scoredCandidates.map((cluster) => enhanceClusterWithLLM(cluster)),
+    );
+
+    llmEnhanced = scoredCandidates.map((cluster, i) => {
+      const result = llmResults[i];
+      if (result.status !== 'fulfilled' || !result.value) return cluster;
+
+      const { score: llmScore, recommendation } = result.value;
+
+      // Mix LLM score with rule-based score: 60% LLM + 40% rules
+      const mixedScore =
+        llmScore !== null
+          ? Math.round(llmScore * 0.6 + cluster.totalScore * 0.4)
+          : cluster.totalScore;
+
+      return {
+        ...cluster,
+        totalScore: mixedScore,
+        _llmRecommendation: recommendation,
+        _llmScoreReason: result.value.scoreReason,
+      } as typeof cluster & { _llmRecommendation?: string | null; _llmScoreReason?: string | null };
+    });
+
+    logger.info('LLM enhancement completed');
+  }
+
   const candidates = shuffleCandidates(
     diversifyCandidates(
-      hydratedCandidates
-        .map((candidate) => scoreAiNewsCluster(candidate, generatedAt))
-        .map((candidate) => buildCandidate(candidate))
+      llmEnhanced
+        .map((cluster) => {
+          const { _llmRecommendation, _llmScoreReason, ...rest } = cluster as typeof cluster & {
+            _llmRecommendation?: string | null;
+            _llmScoreReason?: string | null;
+          };
+          return buildCandidate(
+            rest,
+            _llmRecommendation ?? undefined,
+            _llmScoreReason ?? undefined,
+          );
+        })
         .sort(sortCandidates),
       displaySize,
     ),

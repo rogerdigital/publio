@@ -101,6 +101,8 @@ export interface ResearchBrief {
   evidence: ResearchEvidence[];
   scores: AiNewsScores;
   totalScore: number;
+  llmGenerated?: boolean;
+  llmScoreReason?: string;
 }
 
 export interface AiNewsDeskCandidate extends ScoredAiNewsCluster {
