@@ -73,8 +73,9 @@ function buildCandidate(
   cluster: ReturnType<typeof scoreAiNewsCluster>,
   llmWhyItMatters?: string,
   llmScoreReason?: string,
+  llmSummary?: string,
 ): AiNewsDeskCandidate {
-  const researchBrief = buildResearchBrief(cluster, llmWhyItMatters, llmScoreReason);
+  const researchBrief = buildResearchBrief(cluster, llmWhyItMatters, llmScoreReason, llmSummary);
 
   return {
     ...cluster,
@@ -340,7 +341,12 @@ export async function buildAiNewsDesk(hours = 24, poolSize = 40, displaySize = 1
         totalScore: mixedScore,
         _llmRecommendation: recommendation,
         _llmScoreReason: result.value.scoreReason,
-      } as typeof cluster & { _llmRecommendation?: string | null; _llmScoreReason?: string | null };
+        _llmSummary: result.value.summary,
+      } as typeof cluster & {
+        _llmRecommendation?: string | null;
+        _llmScoreReason?: string | null;
+        _llmSummary?: string | null;
+      };
     });
 
     logger.info('LLM enhancement completed');
@@ -350,14 +356,17 @@ export async function buildAiNewsDesk(hours = 24, poolSize = 40, displaySize = 1
     diversifyCandidates(
       llmEnhanced
         .map((cluster) => {
-          const { _llmRecommendation, _llmScoreReason, ...rest } = cluster as typeof cluster & {
-            _llmRecommendation?: string | null;
-            _llmScoreReason?: string | null;
-          };
+          const { _llmRecommendation, _llmScoreReason, _llmSummary, ...rest } =
+            cluster as typeof cluster & {
+              _llmRecommendation?: string | null;
+              _llmScoreReason?: string | null;
+              _llmSummary?: string | null;
+            };
           return buildCandidate(
             rest,
             _llmRecommendation ?? undefined,
             _llmScoreReason ?? undefined,
+            _llmSummary ?? undefined,
           );
         })
         .sort(sortCandidates),

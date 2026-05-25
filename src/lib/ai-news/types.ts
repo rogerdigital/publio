@@ -103,6 +103,7 @@ export interface ResearchBrief {
   totalScore: number;
   llmGenerated?: boolean;
   llmScoreReason?: string;
+  llmSummary?: string;
 }
 
 export interface AiNewsDeskCandidate extends ScoredAiNewsCluster {
