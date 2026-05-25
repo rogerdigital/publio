@@ -11,7 +11,7 @@ export async function register() {
 
     const { registerTask, startScheduler } = await import('@/lib/scheduler');
     const { checkDueDrafts } = await import('@/lib/scheduler/checkDueDrafts');
-    const { fetchAndPersistRssSignals, getRssFetchIntervalMs } =
+    const { preComputeAiNewsDesk, getRssFetchIntervalMs } =
       await import('@/lib/scheduler/fetchRssFeeds');
     const { generateDailyDigest, getDigestIntervalMs } =
       await import('@/lib/scheduler/generateDailyDigest');
@@ -26,7 +26,7 @@ export async function register() {
     registerTask({
       name: 'fetch-rss-feeds',
       intervalMs: getRssFetchIntervalMs(),
-      handler: fetchAndPersistRssSignals,
+      handler: preComputeAiNewsDesk,
       runOnStart: true,
     });
 
