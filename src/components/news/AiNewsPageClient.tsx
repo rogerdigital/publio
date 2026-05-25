@@ -125,9 +125,7 @@ export default function AiNewsPageClient() {
   const [totalSignals, setTotalSignals] = useState(0);
   const [totalCandidates, setTotalCandidates] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
-  const [refreshError, setRefreshError] = useState('');
   const [draftError, setDraftError] = useState('');
   // Maps clusterId → draftId for topics the user has sent to the writing desk
   const [topicDraftMap, setTopicDraftMap] = useState<Record<string, string>>({});
@@ -329,21 +327,16 @@ export default function AiNewsPageClient() {
     void writeDraftAndOpenEditor(item.title, content, item.clusterId);
   };
 
-  const loadNews = async (isManualRefresh = false) => {
+  const loadNews = async () => {
     try {
       setError('');
-      setRefreshError('');
-      if (isManualRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
+      setLoading(true);
 
       const response = await fetch('/api/ai-news', { cache: 'no-store' });
       const data: AiNewsResponse = await response.json();
 
       if (!response.ok || !data.ok || !data.todayCandidates || !data.followCandidates) {
-        throw new Error(data.message || '新闻抓取失败，请稍后重试。');
+        throw new Error(data.message || '新闻加载失败，请稍后重试。');
       }
 
       const nextTodayCandidates = data.todayCandidates
@@ -368,15 +361,9 @@ export default function AiNewsPageClient() {
         totalCandidates: data.totalCandidates || 0,
       };
     } catch (err) {
-      const message = err instanceof Error ? err.message : '新闻抓取失败，请稍后重试。';
-      if (isManualRefresh && hasDeskDataRef.current) {
-        setRefreshError(message);
-      } else {
-        setError(message);
-      }
+      setError(err instanceof Error ? err.message : '新闻加载失败，请稍后重试。');
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   };
 
@@ -404,9 +391,6 @@ export default function AiNewsPageClient() {
         generatedAt={formatDeskTime(generatedAt)}
         todayCount={todayCandidates.length}
         followCount={followCandidates.length}
-        onRefresh={() => void loadNews(true)}
-        loading={loading}
-        refreshing={refreshing}
       />
 
       {agentEnabled && allCandidates.length > 0 && (
@@ -467,15 +451,6 @@ export default function AiNewsPageClient() {
               />
             </div>
           )}
-          {refreshError ? (
-            <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
-              <p className={styles.refreshErrorKicker}>刷新未更新</p>
-              <p className={styles.refreshErrorText}>
-                {refreshError} 下面保留的是上一次成功加载的内容。
-              </p>
-            </div>
-          ) : null}
-
           {draftError ? (
             <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
               <p className={styles.refreshErrorKicker}>转稿未完成</p>
@@ -505,7 +480,7 @@ export default function AiNewsPageClient() {
             <EmptyState
               icon={<Newspaper size={24} />}
               title="选题桌暂无内容"
-              description="点击右上角「抓取选题」开始抓取最新 AI 话题信号。"
+              description="数据正在准备中，系统每 30 分钟自动抓取最新 AI 话题信号，请稍后访问。"
             />
           ) : (
             <div className={styles.candidateSections}>
