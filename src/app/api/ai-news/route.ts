@@ -25,8 +25,7 @@ export async function GET() {
         generatedAt: '',
         totalSignals: 0,
         totalCandidates: 0,
-        todayCandidates: [],
-        followCandidates: [],
+        candidates: [],
         selectedResearch: null,
         signalIds: [],
       });
@@ -42,8 +41,7 @@ export async function GET() {
       generatedAt: '',
       totalSignals: 0,
       totalCandidates: 0,
-      todayCandidates: [],
-      followCandidates: [],
+      candidates: [],
       selectedResearch: null,
       signalIds: [],
     });

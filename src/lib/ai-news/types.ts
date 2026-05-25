@@ -117,7 +117,6 @@ export interface AiNewsDesk {
   generatedAt: string;
   totalSignals: number;
   totalCandidates: number;
-  todayCandidates: AiNewsDeskCandidate[];
-  followCandidates: AiNewsDeskCandidate[];
+  candidates: AiNewsDeskCandidate[];
   selectedResearch: ResearchBrief | null;
 }

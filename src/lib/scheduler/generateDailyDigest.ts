@@ -20,14 +20,14 @@ export async function generateDailyDigest() {
     return;
   }
 
-  const signals = await fetchAiNewsSignals(24);
+  const signals = await fetchAiNewsSignals(72);
   if (signals.length === 0) {
     logger.info('No signals found, skipping daily digest');
     return;
   }
 
   const desk = buildAiNewsDeskFromSignals(signals, now, 40);
-  const allCandidates = [...desk.todayCandidates, ...desk.followCandidates]
+  const allCandidates = [...desk.candidates]
     .sort((a, b) => b.totalScore - a.totalScore)
     .slice(0, TOP_N);
 
