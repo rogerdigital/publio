@@ -27,19 +27,16 @@ function atomicWriteJson(filePath: string, data: unknown) {
 export async function preComputeAiNewsDesk() {
   logger.info('Pre-computing AI news desk started');
 
-  const desk = await buildAiNewsDesk(24, 40, 10);
+  const desk = await buildAiNewsDesk(72, 40, 10);
 
-  const allNormalizedSignals = [...desk.todayCandidates, ...desk.followCandidates].flatMap(
-    (candidate) => candidate.signals,
-  );
+  const allNormalizedSignals = desk.candidates.flatMap((candidate) => candidate.signals);
   const signalIds = persistSignalsFromDesk(allNormalizedSignals);
 
   const data = {
     generatedAt: desk.generatedAt,
     totalSignals: desk.totalSignals,
     totalCandidates: desk.totalCandidates,
-    todayCandidates: desk.todayCandidates,
-    followCandidates: desk.followCandidates,
+    candidates: desk.candidates,
     selectedResearch: desk.selectedResearch,
     signalIds,
   };

@@ -5,9 +5,6 @@ import { useRouter } from 'next/navigation';
 
 import TopicDeskHeader from '@/components/news/TopicDeskHeader';
 import TopicSignalCard from '@/components/news/TopicSignalCard';
-import SignalInbox from '@/components/news/SignalInbox';
-import TopicLibrary from '@/components/news/TopicLibrary';
-import SignalReviewPanel from '@/components/news/SignalReviewPanel';
 import FilterChipGroup from '@/components/ui/FilterChipGroup';
 import type { AiNewsDeskCandidate } from '@/lib/aiNews';
 import { buildResearchDraftMarkdown } from '@/lib/newsDraft';
@@ -15,12 +12,18 @@ import { createDraft } from '@/lib/drafts/client';
 import { useAgentStore } from '@/stores/agentStore';
 import type { AgentStreamEvent } from '@/lib/agent/types';
 import type { AiNewsSourceType } from '@/lib/ai-news/types';
+import EmptyState from '@/components/feedback/EmptyState';
+import { Newspaper } from 'lucide-react';
+import TopicRecommendationPanel from '@/components/copilot/TopicRecommendationPanel';
+import * as styles from './news.css';
 
 const SOURCE_TYPE_OPTIONS = [
   { value: 'all', label: '全部来源' },
   { value: 'media', label: '媒体' },
   { value: 'official', label: '官方' },
   { value: 'community', label: '社区' },
+  { value: 'x', label: 'X' },
+  { value: 'arxiv', label: 'arXiv' },
 ] as const;
 
 const SCORE_OPTIONS = [
@@ -28,12 +31,7 @@ const SCORE_OPTIONS = [
   { value: 'high', label: '高分 (≥70)' },
   { value: 'medium', label: '中等 (40-69)' },
 ] as const;
-import EmptyState from '@/components/feedback/EmptyState';
-import { Newspaper } from 'lucide-react';
-import TopicRecommendationPanel from '@/components/copilot/TopicRecommendationPanel';
-import * as styles from './news.css';
 
-// localStorage key for tracking which topic clusters have drafts in this session
 const TOPIC_DRAFT_MAP_KEY = 'publio-topic-draft-map';
 
 function loadTopicDraftMap(): Record<string, string> {
@@ -58,8 +56,7 @@ interface AiNewsResponse {
   generatedAt?: string;
   totalSignals?: number;
   totalCandidates?: number;
-  todayCandidates?: AiNewsDeskCandidate[];
-  followCandidates?: AiNewsDeskCandidate[];
+  candidates?: AiNewsDeskCandidate[];
   message?: string;
 }
 
@@ -91,7 +88,9 @@ function formatRelativeHours(value: string) {
     const minutes = Math.max(1, Math.round(diffMs / (1000 * 60)));
     return `${minutes} 分钟前`;
   }
-  return `${diffHours.toFixed(1)} 小时前`;
+  if (diffHours < 24) return `${diffHours.toFixed(1)} 小时前`;
+  const days = Math.round(diffHours / 24);
+  return `${days} 天前`;
 }
 
 function buildSectionLabel(index: number) {
@@ -105,50 +104,38 @@ function normalizeCandidate(candidate: AiNewsDeskCandidate | null | undefined) {
   return candidate;
 }
 
-// 模块级缓存：tab 切换回来时直接复用，不重复抓取；整页刷新后清空重新抓取
 interface NewsState {
-  todayCandidates: AiNewsDeskCandidate[];
-  followCandidates: AiNewsDeskCandidate[];
+  candidates: AiNewsDeskCandidate[];
   generatedAt: string;
   totalSignals: number;
   totalCandidates: number;
 }
 let cachedNewsState: NewsState | null = null;
-// 模块级缓存：保持卡片底稿展开/折叠状态，tab 切换回来时不重置
 const cachedBriefOpenMap: Map<string, boolean> = new Map();
 
 export default function AiNewsPageClient() {
   const router = useRouter();
-  const [todayCandidates, setTodayCandidates] = useState<AiNewsDeskCandidate[]>([]);
-  const [followCandidates, setFollowCandidates] = useState<AiNewsDeskCandidate[]>([]);
+  const [candidates, setCandidates] = useState<AiNewsDeskCandidate[]>([]);
   const [generatedAt, setGeneratedAt] = useState('');
   const [totalSignals, setTotalSignals] = useState(0);
-  const [totalCandidates, setTotalCandidates] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [draftError, setDraftError] = useState('');
-  // Maps clusterId → draftId for topics the user has sent to the writing desk
   const [topicDraftMap, setTopicDraftMap] = useState<Record<string, string>>({});
   const [briefOpenMap, setBriefOpenMap] = useState<Map<string, boolean>>(cachedBriefOpenMap);
   const [sourceTypeFilter, setSourceTypeFilter] = useState<string>('all');
   const [scoreFilter, setScoreFilter] = useState<string>('all');
-  const hasDeskDataRef = useRef(false);
+  const hasDataRef = useRef(false);
 
-  // Tab state: 选题台 vs 资讯 Inbox vs 选题库
-  const [viewTab, setViewTab] = useState<'desk' | 'inbox' | 'topics'>('desk');
-
-  // Deep research state
   const [agentEnabled, setAgentEnabled] = useState(false);
   const [deepResearchLoading, setDeepResearchLoading] = useState<Record<string, boolean>>({});
   const [deepResearchContent, setDeepResearchContent] = useState<Record<string, string>>({});
   const researchCache = useAgentStore((s) => s.researchCache);
   const cacheResearch = useAgentStore((s) => s.cacheResearch);
 
-  const allCandidates = [...todayCandidates, ...followCandidates];
-
-  const filteredToday = useMemo(() => {
-    if (sourceTypeFilter === 'all' && scoreFilter === 'all') return todayCandidates;
-    return todayCandidates.filter((c) => {
+  const filteredCandidates = useMemo(() => {
+    if (sourceTypeFilter === 'all' && scoreFilter === 'all') return candidates;
+    return candidates.filter((c) => {
       if (
         sourceTypeFilter !== 'all' &&
         c.primarySignal.sourceType !== (sourceTypeFilter as AiNewsSourceType)
@@ -158,23 +145,8 @@ export default function AiNewsPageClient() {
       if (scoreFilter === 'medium' && (c.totalScore < 40 || c.totalScore >= 70)) return false;
       return true;
     });
-  }, [todayCandidates, sourceTypeFilter, scoreFilter]);
+  }, [candidates, sourceTypeFilter, scoreFilter]);
 
-  const filteredFollow = useMemo(() => {
-    if (sourceTypeFilter === 'all' && scoreFilter === 'all') return followCandidates;
-    return followCandidates.filter((c) => {
-      if (
-        sourceTypeFilter !== 'all' &&
-        c.primarySignal.sourceType !== (sourceTypeFilter as AiNewsSourceType)
-      )
-        return false;
-      if (scoreFilter === 'high' && c.totalScore < 70) return false;
-      if (scoreFilter === 'medium' && (c.totalScore < 40 || c.totalScore >= 70)) return false;
-      return true;
-    });
-  }, [followCandidates, sourceTypeFilter, scoreFilter]);
-
-  // Check agent availability on mount
   useEffect(() => {
     fetch('/api/agent/status')
       .then((r) => r.json())
@@ -182,20 +154,19 @@ export default function AiNewsPageClient() {
       .catch(() => setAgentEnabled(false));
   }, []);
 
-  // Restore cached research results (TTL: 1h)
   useEffect(() => {
     const TTL = 60 * 60 * 1000;
     const restored: Record<string, string> = {};
     for (const [title, entry] of Object.entries(researchCache)) {
       if (Date.now() - entry.cachedAt > TTL) continue;
-      const match = allCandidates.find((c) => c.title === title);
+      const match = candidates.find((c) => c.title === title);
       if (match) restored[match.clusterId] = entry.analysis.raw;
     }
     if (Object.keys(restored).length > 0) {
       setDeepResearchContent((prev) => ({ ...prev, ...restored }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allCandidates.length]);
+  }, [candidates.length]);
 
   const handleDeepResearch = useCallback(
     async (item: AiNewsDeskCandidate) => {
@@ -260,7 +231,6 @@ export default function AiNewsPageClient() {
           }
         }
 
-        // Cache result
         cacheResearch({
           raw: accumulated,
           clusterTitle: item.title,
@@ -284,7 +254,6 @@ export default function AiNewsPageClient() {
         source: 'ai-news',
         topicClusterId: clusterId,
       });
-      // Track the mapping so this card shows "已加入" if the user comes back
       const updated = { ...loadTopicDraftMap(), [clusterId]: draft.id };
       saveTopicDraftMap(updated);
       setTopicDraftMap(updated);
@@ -335,27 +304,20 @@ export default function AiNewsPageClient() {
       const response = await fetch('/api/ai-news', { cache: 'no-store' });
       const data: AiNewsResponse = await response.json();
 
-      if (!response.ok || !data.ok || !data.todayCandidates || !data.followCandidates) {
+      if (!response.ok || !data.ok || !data.candidates) {
         throw new Error(data.message || '新闻加载失败，请稍后重试。');
       }
 
-      const nextTodayCandidates = data.todayCandidates
+      const nextCandidates = data.candidates
         .map((candidate) => normalizeCandidate(candidate))
         .filter((candidate): candidate is AiNewsDeskCandidate => candidate !== null);
 
-      const nextFollowCandidates = data.followCandidates
-        .map((candidate) => normalizeCandidate(candidate))
-        .filter((candidate): candidate is AiNewsDeskCandidate => candidate !== null);
-
-      setTodayCandidates(nextTodayCandidates);
-      setFollowCandidates(nextFollowCandidates);
+      setCandidates(nextCandidates);
       setGeneratedAt(data.generatedAt || '');
       setTotalSignals(data.totalSignals || 0);
-      setTotalCandidates(data.totalCandidates || 0);
-      hasDeskDataRef.current = nextTodayCandidates.length > 0 || nextFollowCandidates.length > 0;
+      hasDataRef.current = nextCandidates.length > 0;
       cachedNewsState = {
-        todayCandidates: nextTodayCandidates,
-        followCandidates: nextFollowCandidates,
+        candidates: nextCandidates,
         generatedAt: data.generatedAt || '',
         totalSignals: data.totalSignals || 0,
         totalCandidates: data.totalCandidates || 0,
@@ -368,17 +330,13 @@ export default function AiNewsPageClient() {
   };
 
   useEffect(() => {
-    // Restore topic→draft mappings from localStorage
     setTopicDraftMap(loadTopicDraftMap());
 
     if (cachedNewsState) {
-      setTodayCandidates(cachedNewsState.todayCandidates);
-      setFollowCandidates(cachedNewsState.followCandidates);
+      setCandidates(cachedNewsState.candidates);
       setGeneratedAt(cachedNewsState.generatedAt);
       setTotalSignals(cachedNewsState.totalSignals);
-      setTotalCandidates(cachedNewsState.totalCandidates);
-      hasDeskDataRef.current =
-        cachedNewsState.todayCandidates.length > 0 || cachedNewsState.followCandidates.length > 0;
+      hasDataRef.current = cachedNewsState.candidates.length > 0;
     } else {
       void loadNews();
     }
@@ -387,17 +345,12 @@ export default function AiNewsPageClient() {
 
   return (
     <div className={styles.pageWrap}>
-      <TopicDeskHeader
-        generatedAt={formatDeskTime(generatedAt)}
-        todayCount={todayCandidates.length}
-        followCount={followCandidates.length}
-      />
+      <TopicDeskHeader generatedAt={formatDeskTime(generatedAt)} totalCount={candidates.length} />
 
-      {agentEnabled && allCandidates.length > 0 && (
+      {agentEnabled && candidates.length > 0 && (
         <TopicRecommendationPanel
-          clusters={allCandidates}
+          clusters={candidates}
           onSelectTopic={(title) => {
-            // Navigate to editor with the recommended topic title
             void writeDraftAndOpenEditor(
               title,
               `> 选题来源：AI 推荐\n\n开始围绕「${title}」撰写内容...`,
@@ -407,117 +360,70 @@ export default function AiNewsPageClient() {
         />
       )}
 
-      <div className={styles.tabRow}>
-        <button
-          className={styles.tabButton({ active: viewTab === 'desk' })}
-          onClick={() => setViewTab('desk')}
-        >
-          选题台
-        </button>
-        <button
-          className={styles.tabButton({ active: viewTab === 'inbox' })}
-          onClick={() => setViewTab('inbox')}
-        >
-          资讯 Inbox
-        </button>
-        <button
-          className={styles.tabButton({ active: viewTab === 'topics' })}
-          onClick={() => setViewTab('topics')}
-        >
-          选题库
-        </button>
-      </div>
+      {(sourceTypeFilter !== 'all' || scoreFilter !== 'all' || candidates.length > 0) && (
+        <div className={styles.filterRow}>
+          <FilterChipGroup
+            options={SOURCE_TYPE_OPTIONS}
+            value={sourceTypeFilter}
+            onChange={setSourceTypeFilter}
+          />
+          <FilterChipGroup options={SCORE_OPTIONS} value={scoreFilter} onChange={setScoreFilter} />
+        </div>
+      )}
 
-      {viewTab === 'inbox' ? (
-        <>
-          <SignalInbox />
-          {agentEnabled && <SignalReviewPanel />}
-        </>
-      ) : viewTab === 'topics' ? (
-        <TopicLibrary />
+      {draftError ? (
+        <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
+          <p className={styles.refreshErrorKicker}>转稿未完成</p>
+          <p className={styles.refreshErrorText}>{draftError}</p>
+        </div>
+      ) : null}
+
+      {loading ? (
+        <div className={styles.skeletonList}>
+          {[0, 1].map((i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={styles.skeletonInner}>
+                <div className={styles.skeletonLineShort} />
+                <div className={styles.skeletonLineTall} />
+                <div className={styles.skeletonLineFull} />
+                <div className={styles.skeletonLineMid} />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : error && candidates.length === 0 ? (
+        <div className={styles.stateCard}>
+          <p className={styles.stateTitle}>新闻加载失败</p>
+          <p className={styles.stateText}>{error}</p>
+        </div>
+      ) : candidates.length === 0 ? (
+        <EmptyState
+          icon={<Newspaper size={24} />}
+          title="暂无内容"
+          description="数据正在准备中，系统每 30 分钟自动抓取最新 AI 话题信号，请稍后访问。"
+        />
       ) : (
-        <div className={styles.contentWrap}>
-          {(sourceTypeFilter !== 'all' || scoreFilter !== 'all' || allCandidates.length > 0) && (
-            <div className={styles.filterRow}>
-              <FilterChipGroup
-                options={SOURCE_TYPE_OPTIONS}
-                value={sourceTypeFilter}
-                onChange={setSourceTypeFilter}
-              />
-              <FilterChipGroup
-                options={SCORE_OPTIONS}
-                value={scoreFilter}
-                onChange={setScoreFilter}
-              />
-            </div>
-          )}
-          {draftError ? (
-            <div className={styles.refreshErrorBanner} role="status" aria-live="polite">
-              <p className={styles.refreshErrorKicker}>转稿未完成</p>
-              <p className={styles.refreshErrorText}>{draftError}</p>
-            </div>
-          ) : null}
-
-          {loading ? (
-            <div className={styles.skeletonList}>
-              {[0, 1].map((i) => (
-                <div key={i} className={styles.skeletonCard}>
-                  <div className={styles.skeletonInner}>
-                    <div className={styles.skeletonLineShort} />
-                    <div className={styles.skeletonLineTall} />
-                    <div className={styles.skeletonLineFull} />
-                    <div className={styles.skeletonLineMid} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : error && allCandidates.length === 0 ? (
-            <div className={styles.stateCard}>
-              <p className={styles.stateTitle}>新闻抓取失败</p>
-              <p className={styles.stateText}>{error}</p>
-            </div>
-          ) : allCandidates.length === 0 ? (
-            <EmptyState
-              icon={<Newspaper size={24} />}
-              title="选题桌暂无内容"
-              description="数据正在准备中，系统每 30 分钟自动抓取最新 AI 话题信号，请稍后访问。"
+        <div className={styles.candidateSection}>
+          {filteredCandidates.map((item, index) => (
+            <TopicSignalCard
+              key={item.clusterId}
+              item={item}
+              indexLabel={buildSectionLabel(index)}
+              relativeLabel={formatRelativeHours(item.latestPublishedAt)}
+              formattedDate={formatDateTime(item.latestPublishedAt)}
+              draftId={topicDraftMap[item.clusterId]}
+              showBrief={briefOpenMap.get(item.clusterId) ?? false}
+              onBriefToggle={(open) => {
+                cachedBriefOpenMap.set(item.clusterId, open);
+                setBriefOpenMap(new Map(cachedBriefOpenMap));
+              }}
+              onCreateDraft={createSingleNewsDraft}
+              agentEnabled={agentEnabled}
+              onDeepResearch={handleDeepResearch}
+              deepResearchContent={deepResearchContent[item.clusterId]}
+              deepResearchLoading={deepResearchLoading[item.clusterId] ?? false}
             />
-          ) : (
-            <div className={styles.candidateSections}>
-              <CandidateSection
-                title="今天能发"
-                items={filteredToday}
-                offset={0}
-                topicDraftMap={topicDraftMap}
-                briefOpenMap={briefOpenMap}
-                onBriefToggle={(clusterId, open) => {
-                  cachedBriefOpenMap.set(clusterId, open);
-                  setBriefOpenMap(new Map(cachedBriefOpenMap));
-                }}
-                onCreateDraft={createSingleNewsDraft}
-                agentEnabled={agentEnabled}
-                onDeepResearch={handleDeepResearch}
-                deepResearchContent={deepResearchContent}
-                deepResearchLoading={deepResearchLoading}
-              />
-              <CandidateSection
-                title="还能追"
-                items={filteredFollow}
-                offset={filteredToday.length}
-                topicDraftMap={topicDraftMap}
-                briefOpenMap={briefOpenMap}
-                onBriefToggle={(clusterId, open) => {
-                  cachedBriefOpenMap.set(clusterId, open);
-                  setBriefOpenMap(new Map(cachedBriefOpenMap));
-                }}
-                onCreateDraft={createSingleNewsDraft}
-                agentEnabled={agentEnabled}
-                onDeepResearch={handleDeepResearch}
-                deepResearchContent={deepResearchContent}
-                deepResearchLoading={deepResearchLoading}
-              />
-            </div>
-          )}
+          ))}
         </div>
       )}
     </div>
@@ -526,54 +432,4 @@ export default function AiNewsPageClient() {
 
 function formatDeskTime(value: string) {
   return value ? formatDateTime(value) : '准备中';
-}
-
-function CandidateSection({
-  title,
-  items,
-  offset,
-  topicDraftMap,
-  briefOpenMap,
-  onBriefToggle,
-  onCreateDraft,
-  agentEnabled,
-  onDeepResearch,
-  deepResearchContent,
-  deepResearchLoading,
-}: {
-  title: string;
-  items: AiNewsDeskCandidate[];
-  offset: number;
-  topicDraftMap: Record<string, string>;
-  briefOpenMap: Map<string, boolean>;
-  onBriefToggle: (clusterId: string, open: boolean) => void;
-  onCreateDraft: (item: AiNewsDeskCandidate) => void;
-  agentEnabled: boolean;
-  onDeepResearch: (item: AiNewsDeskCandidate) => void;
-  deepResearchContent: Record<string, string>;
-  deepResearchLoading: Record<string, boolean>;
-}) {
-  if (items.length === 0) return null;
-
-  return (
-    <section className={styles.candidateSection}>
-      {items.map((item, index) => (
-        <TopicSignalCard
-          key={item.clusterId}
-          item={item}
-          indexLabel={buildSectionLabel(offset + index)}
-          relativeLabel={formatRelativeHours(item.latestPublishedAt)}
-          formattedDate={formatDateTime(item.latestPublishedAt)}
-          draftId={topicDraftMap[item.clusterId]}
-          showBrief={briefOpenMap.get(item.clusterId) ?? false}
-          onBriefToggle={(open) => onBriefToggle(item.clusterId, open)}
-          onCreateDraft={onCreateDraft}
-          agentEnabled={agentEnabled}
-          onDeepResearch={onDeepResearch}
-          deepResearchContent={deepResearchContent[item.clusterId]}
-          deepResearchLoading={deepResearchLoading[item.clusterId] ?? false}
-        />
-      ))}
-    </section>
-  );
 }

@@ -282,17 +282,13 @@ export function buildAiNewsDeskFromSignals(
     .sort(sortCandidates)
     .slice(0, poolSize);
 
-  const todayCandidates = candidates.filter((candidate) => candidate.bucket === 'today');
-  const followCandidates = candidates.filter((candidate) => candidate.bucket === 'follow');
-  const selectedResearch =
-    todayCandidates[0]?.researchBrief ?? followCandidates[0]?.researchBrief ?? null;
+  const selectedResearch = candidates[0]?.researchBrief ?? null;
 
   return {
     generatedAt: now.toISOString(),
     totalSignals: signals.length,
     totalCandidates: candidates.length,
-    todayCandidates,
-    followCandidates,
+    candidates,
     selectedResearch,
   };
 }
@@ -300,10 +296,7 @@ export function buildAiNewsDeskFromSignals(
 export async function buildAiNewsDesk(hours = 24, poolSize = 40, displaySize = 10) {
   const signals = await fetchAiNewsSignals(hours);
   const desk = buildAiNewsDeskFromSignals(signals, new Date(), poolSize);
-  const hydratedCandidates = await hydrateCandidateImages([
-    ...desk.todayCandidates,
-    ...desk.followCandidates,
-  ]);
+  const hydratedCandidates = await hydrateCandidateImages(desk.candidates);
   const generatedAt = new Date(desk.generatedAt);
 
   // Re-score after image hydration
@@ -330,7 +323,6 @@ export async function buildAiNewsDesk(hours = 24, poolSize = 40, displaySize = 1
 
       const { score: llmScore, recommendation } = result.value;
 
-      // Mix LLM score with rule-based score: 60% LLM + 40% rules
       const mixedScore =
         llmScore !== null
           ? Math.round(llmScore * 0.6 + cluster.totalScore * 0.4)
@@ -373,22 +365,18 @@ export async function buildAiNewsDesk(hours = 24, poolSize = 40, displaySize = 1
       displaySize,
     ),
   );
-  const todayCandidates = candidates.filter((candidate) => candidate.bucket === 'today');
-  const followCandidates = candidates.filter((candidate) => candidate.bucket === 'follow');
   const selectedResearch =
     (desk.selectedResearch
       ? candidates.find(
           (candidate) => candidate.researchBrief.candidateId === desk.selectedResearch?.candidateId,
         )?.researchBrief
       : null) ??
-    todayCandidates[0]?.researchBrief ??
-    followCandidates[0]?.researchBrief ??
+    candidates[0]?.researchBrief ??
     null;
 
   return {
     ...desk,
-    todayCandidates,
-    followCandidates,
+    candidates,
     selectedResearch,
   };
 }
