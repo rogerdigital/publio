@@ -238,6 +238,17 @@ export const indexBadge = style({
   color: vars.color.signal,
 });
 
+export const scoreBadge = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  borderRadius: vars.radius.lg,
+  padding: '4px 10px',
+  fontSize: '12px',
+  fontWeight: 600,
+  color: vars.color.accent,
+  background: vars.color.accentSoft,
+});
+
 export const topicTag = style({
   fontSize: '13px',
   fontWeight: 500,

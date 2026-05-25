@@ -173,6 +173,7 @@ export function buildResearchBrief(
   cluster: ScoredAiNewsCluster,
   llmWhyItMatters?: string,
   llmScoreReason?: string,
+  llmSummary?: string,
 ): ResearchBrief {
   const primary = cluster.primarySignal;
   const leadImageUrl =
@@ -184,7 +185,7 @@ export function buildResearchBrief(
     bucket: cluster.bucket,
     imageUrl: leadImageUrl,
     articleImages: primary.articleImages,
-    whatHappened: buildWhatHappened(cluster),
+    whatHappened: llmSummary || buildWhatHappened(cluster),
     whyItMatters: llmWhyItMatters || buildWhyItMatters(cluster),
     whoIsAffected: buildAffectedAudience(cluster),
     recommendedAngles: buildAngles(cluster),
@@ -193,8 +194,9 @@ export function buildResearchBrief(
     evidence: buildEvidence(cluster),
     scores: cluster.scores,
     totalScore: cluster.totalScore,
-    llmGenerated: !!llmWhyItMatters,
+    llmGenerated: !!llmWhyItMatters || !!llmSummary,
     llmScoreReason,
+    llmSummary,
   };
 }
 

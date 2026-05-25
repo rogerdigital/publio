@@ -111,22 +111,50 @@ export async function llmGenerateRecommendation(
   return callLLM(RECOMMENDATION_SYSTEM_PROMPT, userPrompt);
 }
 
+const SUMMARY_SYSTEM_PROMPT = `你是一个 AI 新闻编辑。为一条新闻聚合写一段精炼的中文摘要。
+
+要求：
+- 综合 2-3 个来源的核心信息，形成连贯摘要
+- 突出关键事实（谁做了什么、有什么影响、具体数据）
+- 省略公关辞令和空洞描述
+- 中文输出，150 字以内`;
+
+export async function llmGenerateSummary(cluster: ScoredAiNewsCluster): Promise<string | null> {
+  const signals = cluster.signals.slice(0, 3);
+  const signalInfo = signals
+    .map((s) => `【${s.sourceName}】${s.title}${s.summary ? `\n${s.summary.slice(0, 200)}` : ''}`)
+    .join('\n\n');
+
+  const userPrompt = `标题：${cluster.title}
+聚合数：${cluster.coverageCount} 条报道
+
+来源：
+${signalInfo}
+
+写摘要。`;
+
+  return callLLM(SUMMARY_SYSTEM_PROMPT, userPrompt);
+}
+
 export interface LlmEnhancement {
   score: number | null;
   scoreReason: string | null;
   recommendation: string | null;
+  summary: string | null;
 }
 
 export async function enhanceClusterWithLLM(cluster: ScoredAiNewsCluster): Promise<LlmEnhancement> {
-  const [scoringResult, recommendation] = await Promise.all([
+  const [scoringResult, recommendation, summary] = await Promise.all([
     llmScoreCluster(cluster),
     llmGenerateRecommendation(cluster),
+    llmGenerateSummary(cluster),
   ]);
 
   return {
     score: scoringResult?.score ?? null,
     scoreReason: scoringResult?.reason ?? null,
     recommendation,
+    summary,
   };
 }
 

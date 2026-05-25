@@ -60,6 +60,7 @@ export default function TopicSignalCard({
             <div className={styles.metaLeft}>
               {/* 序号 */}
               <span className={styles.indexBadge}>{indexLabel}</span>
+              <span className={styles.scoreBadge}>精选 {item.totalScore}</span>
               <span className={styles.topicTag}>{item.topicTags[0] || '行业动态'}</span>
               <span className={styles.metaDot}>·</span>
               <a
