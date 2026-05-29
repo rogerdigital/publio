@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 import * as css from './Toast.css';
 import { useToastStore, type ToastType } from '@/stores/toastStore';
@@ -23,15 +23,15 @@ function ToastItem({ id, type, message }: ToastItemProps) {
   const [exiting, setExiting] = useState(false);
   const Icon = ICONS[type];
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setExiting(true);
     setTimeout(() => removeToast(id), 200);
-  };
+  }, [id, removeToast]);
 
   useEffect(() => {
     const timer = setTimeout(handleClose, 4000);
     return () => clearTimeout(timer);
-  }, [id]);
+  }, [handleClose]);
 
   return (
     <div className={css.toast({ type, exiting })}>

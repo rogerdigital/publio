@@ -66,13 +66,13 @@ export default function CalendarPageClient() {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
-
-  const today = new Date();
+  const today = useMemo(() => new Date(), []);
 
   useEffect(() => {
     async function loadEvents() {
       setLoading(true);
       try {
+        const fallbackDate = formatDate(new Date());
         const [draftsRes, syncRes] = await Promise.all([
           fetch('/api/drafts', { cache: 'no-store' }),
           fetch('/api/sync-tasks', { cache: 'no-store' }),
@@ -98,7 +98,7 @@ export default function CalendarPageClient() {
                 title: d.title || '未命名稿件',
                 date: d.id.match(/\d+/)?.[0]
                   ? new Date(Number(d.id.match(/\d+/)?.[0])).toISOString().slice(0, 10)
-                  : formatDate(today),
+                  : fallbackDate,
                 type: 'draft',
               });
             }
@@ -153,6 +153,7 @@ export default function CalendarPageClient() {
   };
 
   const goToday = () => {
+    const today = new Date();
     setCurrentDate(new Date(today.getFullYear(), today.getMonth(), 1));
   };
 
