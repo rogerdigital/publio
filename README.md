@@ -6,14 +6,13 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](./tsconfig.json)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
-[![Tests](https://img.shields.io/badge/tests-332%20passing-brightgreen.svg)](#development)
 
-> AI-native content operations platform. Write once, publish everywhere.
+> A focused writing and multi-platform publishing tool for individual creators. Write once, adapt per platform.
 
-- **Full lifecycle workflow** — from topic discovery to post-publish review, all in one workspace
-- **AI-powered writing** — expand, condense, rewrite, polish, continue via slash commands with streaming output
-- **Multi-platform publish** — concurrent delivery to WeChat, Xiaohongshu, Zhihu, and X (Twitter)
-- **Provider-agnostic AI** — works with any OpenAI-compatible API (GLM, DeepSeek, Qwen, OpenAI, Ollama)
+- **Writing desk** — Markdown editing, live preview, auto-save, version history, templates, and image uploads.
+- **Draft library** — Manage drafts, publish state, and platform variants.
+- **Multi-platform publishing** — Publish to WeChat, Xiaohongshu, Zhihu, and X (Twitter) with progress tracking.
+- **Optional AI assistance** — Rewrite, title suggestions, and platform adaptation; AI entry points are hidden when unconfigured.
 
 ---
 
@@ -30,11 +29,11 @@ Open http://localhost:3000. Configure platform credentials and AI agent in Setti
 
 ---
 
-## Workflow
+## Core Workflow
 
-**Signal Inbox** → **Topic Library** → **Writing Brief** → **Writing Desk** → **Platform Variants** → **Publish** → **Feedback Loop**
+**Writing Desk** -> **Platform Variants** -> **Publish Checks** -> **Publish Progress** -> **Draft Library**
 
-Each stage feeds the next. Signals are promoted to topics, topics get structured briefs, briefs guide drafts, drafts are adapted per-platform, published concurrently, and post-publish metrics feed back into recommendations.
+Publio now keeps only the creation and publishing loop: write content, save drafts, edit or generate per-platform variants, publish, and inspect publish status. Topic discovery, RSS ingestion, analytics, calendar, feedback review, and workspace import/export have been removed from the core product.
 
 ---
 
@@ -42,19 +41,19 @@ Each stage feeds the next. Signals are promoted to topics, topics get structured
 
 ### Writing Desk
 
-Rich Markdown editor with live preview, immersive full-screen mode, auto-save, slash commands for AI writing assistance, version history with restore, and content templates. GitHub image bed for persistent image hosting.
+Markdown editor with live preview, immersive full-screen mode, auto-save, version history restore, content templates, media library, and GitHub image bed uploads.
 
-### AI Agent System
+### AI Assistance
 
-Writing assistant (5 slash commands), platform content adaptation, topic research with multi-angle insights, signal inbox triage, structured writing packs, brief generation, publish failure diagnosis, content review, and style learning from historical drafts. All streaming, all optional.
+When an agent is configured, slash commands can trigger AI rewrite and title suggestions. Platform adaptation can generate variants for WeChat, Xiaohongshu, Zhihu, and X. AI responses stream to the UI; writing and publishing still work when AI is disabled.
 
 ### Multi-Platform Publishing
 
-Concurrent publish with progress tracking. Each platform gets an independent content variant — synced, AI-adapted, or manually edited. Includes content moderation, platform validation rules, scheduled delivery, failure diagnosis with smart retry, and post-publish metrics aggregation.
+Each platform has its own content variant that can be manually edited, synced from the main draft, or AI-adapted. Publish checks run before submission, and the progress overlay polls task status after publishing starts.
 
-### Topic Discovery
+### Draft Library
 
-Aggregates 9+ RSS sources plus custom feeds. Signal inbox with triage actions, topic library with lifecycle management, 6-dimension scoring, research briefs per cluster, and one-click conversion to editor drafts with context embedded.
+The draft library shows saved drafts, publish timestamps, publish status, and platform variant entry points. It supports reopening drafts, deleting drafts, and reviewing recent work.
 
 ---
 
@@ -69,12 +68,11 @@ See [docs/configuration.md](./docs/configuration.md) for platform credentials, A
 Built with Next.js 15 (App Router), TypeScript 5 (strict), vanilla-extract, and Zustand.
 
 ```bash
-pnpm dev              # development (with port cleanup)
+pnpm dev              # development with port cleanup
 pnpm build            # production build
-pnpm test             # run tests (Vitest, 332 passing)
+pnpm test             # run Vitest tests
 pnpm lint             # ESLint
-pnpm format           # Prettier
-pnpm verify           # lint + test + build
+pnpm verify           # check:no-js-source + lint + test + build
 ```
 
 ---
