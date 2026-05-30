@@ -6,8 +6,6 @@ export type {
   WritingAction,
   WritingAgentRequest,
   AdaptAgentRequest,
-  ResearchAgentRequest,
-  DiagnoseAgentRequest,
   AgentStreamEvent,
   AgentStreamDelta,
   AgentStreamDone,

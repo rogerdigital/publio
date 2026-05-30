@@ -33,14 +33,9 @@ export interface AgentConfig {
 
 // --- Agent Actions ---
 
-export type WritingAction =
-  | 'expand' // 扩写
-  | 'condense' // 缩写
-  | 'rewrite' // 改写
-  | 'polish' // 润色
-  | 'continue'; // 续写
+export type WritingAction = 'rewrite' | 'title';
 
-export type AgentAction = WritingAction | 'adapt' | 'research' | 'diagnose' | 'chat';
+export type AgentAction = WritingAction | 'adapt';
 
 // --- Agent Request/Response ---
 
@@ -56,23 +51,6 @@ export interface AdaptAgentRequest {
   content: string;
   platform: PlatformId;
   customPrompt?: string;
-}
-
-export interface ResearchAgentRequest {
-  clusterTitle: string;
-  signals: Array<{
-    title: string;
-    summary: string;
-    source: string;
-    publishedAt?: string;
-  }>;
-}
-
-export interface DiagnoseAgentRequest {
-  platform: PlatformId;
-  errorMessage: string;
-  statusCode?: number;
-  context?: string;
 }
 
 // --- SSE Events ---
@@ -96,14 +74,3 @@ export type AgentStreamEvent = AgentStreamDelta | AgentStreamDone | AgentStreamE
 // --- Agent Store ---
 
 export type AgentStreamStatus = 'idle' | 'streaming' | 'done' | 'error';
-
-// --- Research Analysis ---
-
-export interface LLMResearchAnalysis {
-  /** 原始 markdown 输出 */
-  raw: string;
-  /** 话题标题 */
-  clusterTitle: string;
-  /** 生成时间 */
-  generatedAt: string;
-}

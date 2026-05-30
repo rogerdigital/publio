@@ -8,7 +8,7 @@ import type { WritingAction, WritingAgentRequest } from '@/lib/agent/types';
 
 export const dynamic = 'force-dynamic';
 
-const VALID_ACTIONS: WritingAction[] = ['expand', 'condense', 'rewrite', 'polish', 'continue'];
+const VALID_ACTIONS: WritingAction[] = ['rewrite', 'title'];
 
 export async function POST(request: NextRequest) {
   const config = getAgentConfig();

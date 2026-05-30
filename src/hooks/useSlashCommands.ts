@@ -70,25 +70,8 @@ export const FORMAT_COMMANDS: SlashCommand[] = [
 ];
 
 export const AI_COMMANDS: SlashCommand[] = [
-  { key: 'ai-expand', label: 'AI 扩写', prefix: '', icon: '✨', type: 'ai', aiAction: 'expand' },
-  {
-    key: 'ai-condense',
-    label: 'AI 缩写',
-    prefix: '',
-    icon: '📐',
-    type: 'ai',
-    aiAction: 'condense',
-  },
-  { key: 'ai-rewrite', label: 'AI 改写', prefix: '', icon: '🔄', type: 'ai', aiAction: 'rewrite' },
-  { key: 'ai-polish', label: 'AI 润色', prefix: '', icon: '💎', type: 'ai', aiAction: 'polish' },
-  {
-    key: 'ai-continue',
-    label: 'AI 续写',
-    prefix: '',
-    icon: '➡️',
-    type: 'ai',
-    aiAction: 'continue',
-  },
+  { key: 'ai-rewrite', label: 'AI 改写', prefix: '', icon: 'R', type: 'ai', aiAction: 'rewrite' },
+  { key: 'ai-title', label: 'AI 标题建议', prefix: '', icon: 'T', type: 'ai', aiAction: 'title' },
 ];
 
 /** 兼容旧代码的导出 */
