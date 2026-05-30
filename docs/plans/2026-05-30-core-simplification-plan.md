@@ -1,12 +1,19 @@
 # Publio Core Simplification Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** 将 Publio 从“内容运营全流程平台”收敛为“写作 + 渠道适配 + 发布”的轻量多平台发布工具。
 
 **Architecture:** 保留写作台、稿件库、设置页、发布核心链路；对选题、RSS、Brief、复盘、数据看板、日历、Copilot、后台调度器等非核心运营系统执行物理删除，不保留冻结代码、隐藏入口或未使用资源。前端导航先收窄，后端 API、lib、组件、测试、资源和依赖再分批删除，最后用测试和构建验证没有悬空引用。
 
 **Tech Stack:** Next.js 15 App Router, React 19, TypeScript strict mode, vanilla-extract, Zustand, Vitest, pnpm.
+
+**Execution Status:** Completed on branch `refactor/core-simplification`.
+
+- Core implementation commits: `f22546b` through `f96d393`.
+- Follow-up cleanup commit: `537841f`.
+- Smoke test coverage: added in `src/app/__tests__/coreRouteSurface.test.ts`.
+- Verification: `pnpm verify` passed after adding smoke coverage.
 
 ---
 
@@ -254,7 +261,7 @@
 - Read: `src/lib/agent/types.ts`
 - Read: `src/hooks/useSlashCommands.ts`
 
-- [ ] **Step 1: Confirm clean branch**
+- [x] **Step 1: Confirm clean branch**
 
 Run:
 
@@ -270,7 +277,7 @@ Expected:
 
 If untracked plan files exist from this document creation, keep them; do not reset them.
 
-- [ ] **Step 2: Capture current route surface**
+- [x] **Step 2: Capture current route surface**
 
 Run:
 
@@ -283,7 +290,7 @@ find src/components -maxdepth 2 -type f | sort > /tmp/publio-components-before.t
 
 Expected: four files exist under `/tmp`.
 
-- [ ] **Step 3: Run baseline verification**
+- [x] **Step 3: Run baseline verification**
 
 Run:
 
@@ -293,7 +300,7 @@ pnpm verify
 
 Expected: command passes before deletion work starts. If it fails, capture the failing test/build output and fix baseline breakage before continuing.
 
-- [ ] **Step 4: Commit this plan**
+- [x] **Step 4: Commit this plan**
 
 Run:
 
@@ -315,7 +322,7 @@ Expected: one documentation-only commit.
 - Modify: `src/app/layout.tsx`
 - Test: `src/components/layout/__tests__/Sidebar.test.tsx` if component tests already exist; otherwise rely on build and manual browser verification.
 
-- [ ] **Step 1: Replace sidebar nav model**
+- [x] **Step 1: Replace sidebar nav model**
 
 In `src/components/layout/Sidebar.tsx`, reduce `navItems` to:
 
@@ -347,7 +354,7 @@ const moreMobileItems = navItems.slice(PRIMARY_MOBILE_COUNT);
 
 Remove `moreOpen`, `setMoreOpen`, `moreRef`, and the outside-click / route-change effects for the mobile more menu.
 
-- [ ] **Step 2: Simplify mobile tab rendering**
+- [x] **Step 2: Simplify mobile tab rendering**
 
 Replace the mobile nav map with:
 
@@ -374,7 +381,7 @@ Replace the mobile nav map with:
 </nav>
 ```
 
-- [ ] **Step 3: Remove RSS feed link**
+- [x] **Step 3: Remove RSS feed link**
 
 In `src/app/layout.tsx`, delete:
 
@@ -387,7 +394,7 @@ In `src/app/layout.tsx`, delete:
 />
 ```
 
-- [ ] **Step 4: Clean unused mobile more styles**
+- [x] **Step 4: Clean unused mobile more styles**
 
 In `src/components/layout/Sidebar.css.ts`, remove style exports only used by the removed more menu:
 
@@ -399,7 +406,7 @@ moreDropdownItem
 
 Keep `mobileTabBar`, `mobileTabItem`, and `mobileTabLabel`.
 
-- [ ] **Step 5: Verify navigation typecheck**
+- [x] **Step 5: Verify navigation typecheck**
 
 Run:
 
@@ -409,7 +416,7 @@ pnpm lint
 
 Expected: no unused import or lint errors from `Sidebar.tsx` / `layout.tsx`.
 
-- [ ] **Step 6: Browser check**
+- [x] **Step 6: Browser check**
 
 Run:
 
@@ -436,7 +443,7 @@ Expected absent nav entries:
 - 数据看板
 - 排期日历
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 Run:
 
@@ -463,7 +470,7 @@ git commit -m "refactor: simplify app navigation"
 - Delete: `src/components/editor/WritingBriefCard.tsx`
 - Delete: `src/components/editor/WritingBriefCard.css.ts`
 
-- [ ] **Step 1: Remove non-core imports from `page-client.tsx`**
+- [x] **Step 1: Remove non-core imports from `page-client.tsx`**
 
 Delete these imports:
 
@@ -491,7 +498,7 @@ import PlatformVariantPanel from '@/components/publish/PlatformVariantPanel';
 import PublishProgressOverlay from '@/components/publish/PublishProgressOverlay';
 ```
 
-- [ ] **Step 2: Remove Topic/Brief state from `page-client.tsx`**
+- [x] **Step 2: Remove Topic/Brief state from `page-client.tsx`**
 
 Delete destructured store fields:
 
@@ -517,7 +524,7 @@ setCurrentTopicId(draft.topicId ?? null);
 
 Remove these setters from dependency arrays.
 
-- [ ] **Step 3: Remove Topic/Brief state from `publishStore`**
+- [x] **Step 3: Remove Topic/Brief state from `publishStore`**
 
 In `src/stores/publishStore.ts`, delete:
 
@@ -537,7 +544,7 @@ setCurrentTopicId: (id) => set({ currentTopicId: id }),
 setCurrentBriefId: (id) => set({ currentBriefId: id }),
 ```
 
-- [ ] **Step 4: Remove Topic/Brief UI blocks**
+- [x] **Step 4: Remove Topic/Brief UI blocks**
 
 In `src/app/page-client.tsx`, remove JSX blocks that render:
 
@@ -555,7 +562,7 @@ Keep the layout focused on:
 - platform variant panel
 - publish status/progress
 
-- [ ] **Step 5: Update draft type**
+- [x] **Step 5: Update draft type**
 
 In `src/lib/drafts/types.ts`, remove optional fields if present:
 
@@ -566,7 +573,7 @@ briefId?: string;
 
 If existing stored JSON may contain these keys, ignore them on read instead of failing. Do not write them for new saves.
 
-- [ ] **Step 6: Update draft store save payload**
+- [x] **Step 6: Update draft store save payload**
 
 In `src/lib/drafts/store.ts`, ensure create/update paths persist only core fields:
 
@@ -583,7 +590,7 @@ versions
 
 Do not include `topicId` or `briefId` in new writes.
 
-- [ ] **Step 7: Update publish store tests**
+- [x] **Step 7: Update publish store tests**
 
 In `src/stores/__tests__/publishStore.test.ts`, remove assertions for `currentTopicId` and `currentBriefId`.
 
@@ -595,7 +602,7 @@ expect(usePublishStore.getState().lastSyncTaskId).toBeNull();
 expect(usePublishStore.getState().isProgressOverlayOpen).toBe(false);
 ```
 
-- [ ] **Step 8: Delete orphaned UI files**
+- [x] **Step 8: Delete orphaned UI files**
 
 Run:
 
@@ -609,7 +616,7 @@ rm -f src/components/publish/SchedulePicker.tsx
 rm -f src/components/publish/schedulePicker.css.ts
 ```
 
-- [ ] **Step 9: Check for remaining imports**
+- [x] **Step 9: Check for remaining imports**
 
 Run:
 
@@ -619,7 +626,7 @@ rg "TodayWorkbench|EditorialContextCard|WritingBriefCard|PublishTimingSuggestion
 
 Expected: no matches outside deleted files or migration compatibility comments.
 
-- [ ] **Step 10: Verify**
+- [x] **Step 10: Verify**
 
 Run:
 
@@ -631,7 +638,7 @@ pnpm build
 
 Expected: all pass.
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 Run:
 
@@ -662,7 +669,7 @@ git commit -m "refactor: remove topic and brief UI from writer"
 - Delete: `src/app/api/topics/**`
 - Keep: `src/app/api/sync-tasks/**` for publish status tracking.
 
-- [ ] **Step 1: Delete non-core page routes**
+- [x] **Step 1: Delete non-core page routes**
 
 Run:
 
@@ -674,7 +681,7 @@ rm -rf src/app/feed
 rm -rf src/app/sync-tasks
 ```
 
-- [ ] **Step 2: Delete non-core API routes**
+- [x] **Step 2: Delete non-core API routes**
 
 Run:
 
@@ -690,7 +697,7 @@ rm -rf src/app/api/signals
 rm -rf src/app/api/topics
 ```
 
-- [ ] **Step 3: Keep publish task routes**
+- [x] **Step 3: Keep publish task routes**
 
 Do not delete:
 
@@ -702,7 +709,7 @@ src/app/api/sync-tasks/__tests__/route.test.ts
 
 Reason: current publish flow creates `SyncTask` records and the progress overlay/status panel polls them. This keeps the API/data model, not the standalone page UI.
 
-- [ ] **Step 4: Remove links to deleted sync pages**
+- [x] **Step 4: Remove links to deleted sync pages**
 
 Update these files so they no longer link to `/sync-tasks`:
 
@@ -716,7 +723,7 @@ Expected behavior:
 - `DraftPanel` and `DraftLibraryClient` show the latest publish status as text or a non-clickable badge.
 - No UI path navigates to `/sync-tasks`.
 
-- [ ] **Step 5: Check route references**
+- [x] **Step 5: Check route references**
 
 Run:
 
@@ -739,7 +746,7 @@ Disallowed:
 - imports from `src/components/sync`.
 - tests for `src/app/sync-tasks/**`.
 
-- [ ] **Step 6: Verify route tree compiles**
+- [x] **Step 6: Verify route tree compiles**
 
 Run:
 
@@ -750,7 +757,7 @@ pnpm build
 
 Expected: no missing module errors from deleted route imports.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 Run:
 
@@ -785,7 +792,7 @@ git commit -m "refactor: remove non-core app routes"
 - Delete: `src/lib/topics/**`
 - Delete: `src/lib/newsDraft.ts`
 
-- [ ] **Step 1: Delete non-core component directories**
+- [x] **Step 1: Delete non-core component directories**
 
 Run:
 
@@ -799,7 +806,7 @@ rm -rf src/components/sync
 rm -f src/components/settings/RssSourceManager.tsx
 ```
 
-- [ ] **Step 2: Delete non-core domain modules**
+- [x] **Step 2: Delete non-core domain modules**
 
 Run:
 
@@ -818,7 +825,7 @@ rm -rf src/lib/topics
 rm -f src/lib/newsDraft.ts
 ```
 
-- [ ] **Step 3: Remove import/export references**
+- [x] **Step 3: Remove import/export references**
 
 Run:
 
@@ -828,7 +835,7 @@ rg "@/components/(news|analytics|calendar|briefs|copilot|sync)|@/lib/(ai-news|ai
 
 Expected: no matches.
 
-- [ ] **Step 4: Remove scheduler initialization**
+- [x] **Step 4: Remove scheduler initialization**
 
 Search:
 
@@ -838,7 +845,7 @@ rg "startScheduler|scheduler|check-due-drafts|fetch-rss-feeds|generate-daily-dig
 
 If `src/instrumentation.ts` or `instrumentation.ts` imports scheduler startup, remove that import and its invocation. The final instrumentation should not start background jobs.
 
-- [ ] **Step 5: Remove settings UI references to RSS**
+- [x] **Step 5: Remove settings UI references to RSS**
 
 Search:
 
@@ -848,7 +855,7 @@ rg "RssSourceManager|RSS|rss" src/app src/components src/lib
 
 Keep documentation strings only if they refer to external publishing feed intentionally. Remove settings UI blocks that render RSS source management.
 
-- [ ] **Step 6: Verify no dead tests remain**
+- [x] **Step 6: Verify no dead tests remain**
 
 Run:
 
@@ -858,7 +865,7 @@ find src -path '*__tests__*' -type f | sort
 
 Delete tests whose only subject is one of the removed modules or deleted standalone sync UI. Keep tests for drafts, platform variants, publish, settings, sync task API/store, markdown, sanitize-html, cache, publish status.
 
-- [ ] **Step 7: Delete non-core assets and styles**
+- [x] **Step 7: Delete non-core assets and styles**
 
 Run:
 
@@ -881,7 +888,7 @@ src/app/calendar
 src/app/sync-tasks
 ```
 
-- [ ] **Step 8: Verify**
+- [x] **Step 8: Verify**
 
 Run:
 
@@ -893,7 +900,7 @@ pnpm build
 
 Expected: all pass. Build output should no longer compile `/ai-news`, `/analytics`, `/calendar`, `/sync-tasks`, or removed API routes.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 Run:
 
@@ -925,7 +932,7 @@ git commit -m "refactor: remove non-core domain modules"
 - Keep: `src/app/api/agent/status/route.ts`
 - Test: add or update tests for `useSlashCommands` if a hook test exists.
 
-- [ ] **Step 1: Replace writing action types**
+- [x] **Step 1: Replace writing action types**
 
 In `src/lib/agent/types.ts`, replace:
 
@@ -956,7 +963,7 @@ with:
 export type AgentAction = WritingAction | 'adapt';
 ```
 
-- [ ] **Step 2: Update slash AI commands**
+- [x] **Step 2: Update slash AI commands**
 
 In `src/hooks/useSlashCommands.ts`, replace `AI_COMMANDS` with:
 
@@ -969,7 +976,7 @@ export const AI_COMMANDS: SlashCommand[] = [
 
 Use text icons instead of emoji to keep UI predictable and avoid extra visual noise.
 
-- [ ] **Step 3: Update writing prompt dispatch**
+- [x] **Step 3: Update writing prompt dispatch**
 
 In `src/lib/agent/prompts/writing.ts`, keep explicit branches for:
 
@@ -988,7 +995,7 @@ The `title` prompt should ask for 3-5 concise title candidates and no long analy
 3. 标题三
 ```
 
-- [ ] **Step 4: Update write route validation**
+- [x] **Step 4: Update write route validation**
 
 In `src/app/api/agent/write/route.ts`, validate only:
 
@@ -1002,7 +1009,7 @@ If a request sends another action, return:
 return apiError('Unsupported writing action', 400);
 ```
 
-- [ ] **Step 5: Delete non-core agent API routes**
+- [x] **Step 5: Delete non-core agent API routes**
 
 Run:
 
@@ -1016,7 +1023,7 @@ rm -rf src/app/api/agent/signal-review
 rm -rf src/app/api/agent/topic-pack
 ```
 
-- [ ] **Step 6: Remove UI references to removed actions**
+- [x] **Step 6: Remove UI references to removed actions**
 
 Run:
 
@@ -1029,7 +1036,7 @@ Expected allowed remaining matches:
 - Natural language documentation in comments that should be edited out.
 - `feedback` component directory names only if they refer to generic UI feedback components such as toast or skeleton.
 
-- [ ] **Step 7: Verify**
+- [x] **Step 7: Verify**
 
 Run:
 
@@ -1041,7 +1048,7 @@ pnpm build
 
 Expected: all pass.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 Run:
 
@@ -1063,7 +1070,7 @@ git commit -m "refactor: simplify writing agent actions"
 - Modify: `pnpm-lock.yaml`
 - Modify: tests under `src/**/__tests__/**`
 
-- [ ] **Step 1: Search for removed domain names**
+- [x] **Step 1: Search for removed domain names**
 
 Run:
 
@@ -1076,7 +1083,7 @@ Expected: no matches except:
 - Generic UI `feedback` components such as `Toast`, `Skeleton`, `ErrorState`, `EmptyState`.
 - User-facing text in docs pending Task 8.
 
-- [ ] **Step 2: Remove unused dependencies**
+- [x] **Step 2: Remove unused dependencies**
 
 Inspect dependency usage:
 
@@ -1102,7 +1109,7 @@ Expected decisions:
 
 Remove a package only when no source file imports it.
 
-- [ ] **Step 3: Update tests for deleted routes**
+- [x] **Step 3: Update tests for deleted routes**
 
 Delete tests for removed APIs:
 
@@ -1126,7 +1133,7 @@ src/lib/__tests__/publishStatus.test.ts
 src/stores/__tests__/publishStore.test.ts
 ```
 
-- [ ] **Step 4: Add core route smoke tests**
+- [x] **Step 4: Add core route smoke tests**
 
 If route-level tests use Vitest and Next route handlers directly, add or update tests to verify retained routes:
 
@@ -1159,7 +1166,7 @@ src/app/api/__tests__/core-routes.test.ts
 
 Create `src/app/api/__tests__` if needed.
 
-- [ ] **Step 5: Verify full project**
+- [x] **Step 5: Verify full project**
 
 Run:
 
@@ -1174,7 +1181,7 @@ Expected:
 - `pnpm test` passes.
 - `pnpm build` passes.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 Run:
 
@@ -1195,7 +1202,7 @@ git commit -m "test: align core workflow coverage"
 - Modify: `AGENTS.md`
 - Modify: `CLAUDE.md` if it duplicates old architecture guidance.
 
-- [ ] **Step 1: Update README positioning**
+- [x] **Step 1: Update README positioning**
 
 In both README files, replace broad “AI 原生内容运营平台 / 全生命周期工作流” positioning with:
 
@@ -1211,7 +1218,7 @@ Publio 是一个轻量多平台写作发布工作台。
 一次写作，按平台适配，带检查和状态追踪地完成发布。
 ```
 
-- [ ] **Step 2: Update workflow section**
+- [x] **Step 2: Update workflow section**
 
 Replace:
 
@@ -1225,7 +1232,7 @@ with:
 写作台 → 渠道版本 → 发布前检查 → 发布 → 发布记录
 ```
 
-- [ ] **Step 3: Remove deleted feature sections**
+- [x] **Step 3: Remove deleted feature sections**
 
 Delete README sections for:
 
@@ -1247,7 +1254,7 @@ Keep sections for:
 - 多平台发布
 - 设置
 
-- [ ] **Step 4: Update configuration docs**
+- [x] **Step 4: Update configuration docs**
 
 In `docs/configuration.md`, remove configuration sections for:
 
@@ -1263,7 +1270,7 @@ Keep:
 - Agent base URL/API key/model
 - GitHub image upload configuration
 
-- [ ] **Step 5: Update project instructions**
+- [x] **Step 5: Update project instructions**
 
 In `AGENTS.md` and `CLAUDE.md`, update architecture lists to remove deleted directories and routes. The retained architecture summary should mention:
 
@@ -1278,7 +1285,7 @@ src/app/api/sync-tasks: publish status records
 src/lib/drafts, platformVariants, platformAdapters, publishChecks, publishers, sync
 ```
 
-- [ ] **Step 6: Verify documentation has no stale feature claims**
+- [x] **Step 6: Verify documentation has no stale feature claims**
 
 Run:
 
@@ -1288,7 +1295,7 @@ rg "AI 新闻|选题|信号|Brief|复盘|数据看板|排期日历|RSS|Copilot|a
 
 Expected: no stale claims. If `feedback` appears as generic UI feedback, rewrite to “提示组件” where possible.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 Run:
 
