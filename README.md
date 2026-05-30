@@ -16,6 +16,20 @@
 
 ---
 
+## Product Scope
+
+Publio focuses on the creation and publishing loop:
+
+**Writing Desk** -> **Platform Variants** -> **Publish Checks** -> **Publish Progress** -> **Draft Library**
+
+The current app keeps only three user-facing routes:
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Write, preview, manage platform variants, run checks, and publish |
+| `/drafts` | Reopen drafts and inspect publish state |
+| `/settings` | Configure platform credentials, AI agent settings, and GitHub image hosting |
+
 ## Quick Start
 
 ```bash
@@ -26,14 +40,6 @@ pnpm dev
 ```
 
 Open http://localhost:3000. Configure platform credentials and AI agent in Settings (`/settings`).
-
----
-
-## Core Workflow
-
-**Writing Desk** -> **Platform Variants** -> **Publish Checks** -> **Publish Progress** -> **Draft Library**
-
-Publio now keeps only the creation and publishing loop: write content, save drafts, edit or generate per-platform variants, publish, and inspect publish status. Topic discovery, RSS ingestion, analytics, calendar, feedback review, and workspace import/export have been removed from the core product.
 
 ---
 
@@ -55,11 +61,17 @@ Each platform has its own content variant that can be manually edited, synced fr
 
 The draft library shows saved drafts, publish timestamps, publish status, and platform variant entry points. It supports reopening drafts, deleting drafts, and reviewing recent work.
 
+### Core APIs
+
+The API surface covers drafts, platform variants, publishing, publish status, settings, templates, uploads, platform connection checks, and AI write/adapt/status endpoints.
+
 ---
 
 ## Configuration
 
 See [docs/configuration.md](./docs/configuration.md) for platform credentials, AI agent setup, and GitHub image bed.
+
+Runtime data is stored in `.publio-data/`.
 
 ---
 
@@ -74,6 +86,8 @@ pnpm test             # run Vitest tests
 pnpm lint             # ESLint
 pnpm verify           # check:no-js-source + lint + test + build
 ```
+
+The test suite includes route and module smoke coverage for the current core surface.
 
 ---
 
