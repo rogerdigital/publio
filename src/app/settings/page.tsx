@@ -681,7 +681,7 @@ function SettingsContent() {
               <div className={styles.accordionBody}>
                 <p className={styles.accordionTitle}>AI 助手（Agent）</p>
                 <p className={styles.accordionSummary}>
-                  配置 LLM 接口，启用 AI 写作、适配、研究功能
+                  配置 LLM 接口，启用 AI 改写、标题建议和平台适配
                 </p>
               </div>
             </div>

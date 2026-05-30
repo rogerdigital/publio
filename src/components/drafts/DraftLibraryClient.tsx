@@ -273,7 +273,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
       <EmptyState
         icon={<FileText size={24} />}
         title="还没有稿件"
-        description="从写作台新建内容，或从选题台把研究底稿加入稿件库。"
+        description="从写作台新建内容，保存后会出现在这里。"
         action={
           <Link href="/" className={styles.primaryLink}>
             去写作台
