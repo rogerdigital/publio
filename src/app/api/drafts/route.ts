@@ -6,7 +6,7 @@ import { apiResponse, apiError } from '@/lib/api/response';
 
 export const dynamic = 'force-dynamic';
 
-const VALID_SOURCES: DraftSource[] = ['manual', 'ai-news', 'import'];
+const VALID_SOURCES: DraftSource[] = ['manual', 'import'];
 
 function isDraftSource(value: unknown): value is DraftSource {
   return typeof value === 'string' && VALID_SOURCES.includes(value as DraftSource);
@@ -23,22 +23,6 @@ export async function POST(request: NextRequest | Request) {
     const title = typeof body.title === 'string' ? body.title.trim() : '';
     const content = typeof body.content === 'string' ? body.content.trim() : '';
     const source = isDraftSource(body.source) ? body.source : 'manual';
-    const topicClusterId =
-      typeof body.topicClusterId === 'string' && body.topicClusterId.trim()
-        ? body.topicClusterId.trim()
-        : undefined;
-    const topicId =
-      typeof body.topicId === 'string' && body.topicId.trim() ? body.topicId.trim() : undefined;
-    const briefId =
-      typeof body.briefId === 'string' && body.briefId.trim() ? body.briefId.trim() : undefined;
-    const contentGoal =
-      typeof body.contentGoal === 'string' && body.contentGoal.trim()
-        ? body.contentGoal.trim()
-        : undefined;
-    const scheduledAt =
-      typeof body.scheduledAt === 'string' && body.scheduledAt.trim()
-        ? body.scheduledAt.trim()
-        : undefined;
     const platforms = Array.isArray(body.platforms) ? body.platforms : undefined;
     const tags = Array.isArray(body.tags) ? body.tags : undefined;
 
@@ -55,11 +39,6 @@ export async function POST(request: NextRequest | Request) {
       title,
       content,
       source,
-      topicClusterId,
-      topicId,
-      briefId,
-      contentGoal,
-      scheduledAt,
       platforms,
       tags,
     });
