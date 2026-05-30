@@ -8,35 +8,5 @@ export async function register() {
     } catch (err) {
       console.error('[publio] Migration failed:', err);
     }
-
-    const { registerTask, startScheduler } = await import('@/lib/scheduler');
-    const { checkDueDrafts } = await import('@/lib/scheduler/checkDueDrafts');
-    const { preComputeAiNewsDesk, getRssFetchIntervalMs } =
-      await import('@/lib/scheduler/fetchRssFeeds');
-    const { generateDailyDigest, getDigestIntervalMs } =
-      await import('@/lib/scheduler/generateDailyDigest');
-
-    registerTask({
-      name: 'check-due-drafts',
-      intervalMs: 60_000,
-      handler: checkDueDrafts,
-      runOnStart: true,
-    });
-
-    registerTask({
-      name: 'fetch-rss-feeds',
-      intervalMs: getRssFetchIntervalMs(),
-      handler: preComputeAiNewsDesk,
-      runOnStart: true,
-    });
-
-    registerTask({
-      name: 'generate-daily-digest',
-      intervalMs: getDigestIntervalMs(),
-      handler: generateDailyDigest,
-      runOnStart: false,
-    });
-
-    startScheduler();
   }
 }

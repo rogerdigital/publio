@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
-import { X, Loader2, CheckCircle2, XCircle, ArrowUpRight } from 'lucide-react';
+import { X, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import type { SyncTask, SyncReceiptStatus } from '@/lib/sync/types';
 import type { PlatformId } from '@/types';
@@ -141,14 +140,9 @@ export default function PublishProgressOverlay() {
 
       {isDone && (
         <div className={styles.footer}>
-          <Link
-            href={`/sync-tasks/${lastSyncTaskId}`}
-            className={styles.detailLink}
-            onClick={handleClose}
-          >
-            查看完整详情
-            <ArrowUpRight size={13} />
-          </Link>
+          <button type="button" className={styles.detailLink} onClick={handleClose}>
+            关闭
+          </button>
         </div>
       )}
     </div>

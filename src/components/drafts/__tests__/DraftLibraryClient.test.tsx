@@ -44,6 +44,7 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   pipelineStepContent: 'pipelineStepContent',
   pipelineStepLabel: 'pipelineStepLabel',
   pipelineStepLink: 'pipelineStepLink',
+  pipelineStepHint: 'pipelineStepHint',
   pipelineArrow: 'pipelineArrow',
   pipelineCard: 'pipelineCard',
   pipelineRowSelectable: (variants: { selected?: boolean }) =>
@@ -119,7 +120,7 @@ describe('DraftLibraryClient', () => {
                       title: 'AI 话题稿件',
                       content: '这是一篇待同步的稿件正文。',
                       status: 'ready',
-                      source: 'ai-news',
+                      source: 'manual',
                       createdAt: '2026-04-11T00:00:00.000Z',
                       updatedAt: '2026-04-11T00:00:00.000Z',
                     },
@@ -137,15 +138,11 @@ describe('DraftLibraryClient', () => {
     });
     // Status label for 'ready' draft
     expect(screen.getByText('待同步，去编辑')).toBeInTheDocument();
-    // Source label for 'ai-news'
-    expect(screen.getByText('AI 选题')).toBeInTheDocument();
+    // Source label for manual draft
+    expect(screen.getByText('手动创建')).toBeInTheDocument();
     // Sync task status label for 'partial'
     expect(screen.getByText('部分完成')).toBeInTheDocument();
-    // Link to sync task detail
-    expect(screen.getByRole('link', { name: '查看详情' })).toHaveAttribute(
-      'href',
-      '/sync-tasks/sync-1',
-    );
+    expect(screen.getByText('发布记录已内联显示')).toBeInTheDocument();
     // Link to edit draft
     expect(screen.getByRole('link', { name: '待同步，去编辑' })).toHaveAttribute(
       'href',

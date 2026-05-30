@@ -4,18 +4,11 @@ import { createLLMProvider } from '@/lib/agent/provider';
 import { createSSEResponse } from '@/lib/agent/stream';
 import { AGENT_INPUT_LIMITS, limitText, markTruncated } from '@/lib/agent/inputLimits';
 import { buildWritingMessages } from '@/lib/agent/prompts/writing';
-import { buildWritingAgentContext, formatContextForPrompt } from '@/lib/agent/context';
-import { getStyleProfile } from '@/lib/copilot/styleProfile';
 import type { WritingAction, WritingAgentRequest } from '@/lib/agent/types';
 
 export const dynamic = 'force-dynamic';
 
 const VALID_ACTIONS: WritingAction[] = ['expand', 'condense', 'rewrite', 'polish', 'continue'];
-
-interface ExtendedWritingRequest extends WritingAgentRequest {
-  topicId?: string;
-  briefId?: string;
-}
 
 export async function POST(request: NextRequest) {
   const config = getAgentConfig();
@@ -26,14 +19,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let body: ExtendedWritingRequest;
+  let body: WritingAgentRequest;
   try {
     body = await request.json();
   } catch {
     return Response.json({ error: '请求体解析失败' }, { status: 400 });
   }
 
-  const { action, content, title, selection, topicId, briefId } = body;
+  const { action, content, title, selection } = body;
 
   if (!action || !VALID_ACTIONS.includes(action)) {
     return Response.json(
@@ -49,21 +42,10 @@ export async function POST(request: NextRequest) {
   const limitedContent = limitText(content, AGENT_INPUT_LIMITS.contentChars);
   const limitedTitle = limitText(title, AGENT_INPUT_LIMITS.titleChars);
   const limitedSelection = limitText(selection, AGENT_INPUT_LIMITS.selectionChars);
-  const styleProfile = getStyleProfile();
-
-  let briefContext: string | undefined;
-  if (topicId || briefId) {
-    const ctx = buildWritingAgentContext({ topicId, briefId });
-    if (ctx) {
-      briefContext = formatContextForPrompt(ctx);
-    }
-  }
 
   const messages = buildWritingMessages(action, limitedContent.value, {
     title: limitedTitle.value,
     selection: limitedSelection.value,
-    styleDescription: styleProfile?.description,
-    briefContext,
   });
   const provider = createLLMProvider(config, config.provider);
   const tokens = provider.stream({ messages });

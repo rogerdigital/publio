@@ -83,7 +83,7 @@ describe('createDraftStore', () => {
     store.createDraft({
       title: '旧标题',
       content: '旧正文',
-      source: 'ai-news',
+      source: 'manual',
     });
 
     const updated = store.updateDraft('draft-1', {
@@ -97,7 +97,7 @@ describe('createDraftStore', () => {
       title: '新标题',
       content: '新正文',
       status: 'ready',
-      source: 'ai-news',
+      source: 'manual',
       createdAt: '2026-04-11T06:00:00.000Z',
       updatedAt: '2026-04-11T06:10:00.000Z',
     });

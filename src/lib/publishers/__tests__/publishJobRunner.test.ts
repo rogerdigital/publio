@@ -24,7 +24,6 @@ describe('runPublishJob', () => {
       title: '稿件标题',
       content: '稿件正文',
       source: 'manual',
-      scheduledAt: '2026-05-09T09:00:00.000Z',
       platforms: ['wechat'],
     });
     resetSyncHistoryStoreForTests({
@@ -33,7 +32,7 @@ describe('runPublishJob', () => {
     });
   });
 
-  test('updates receipts and clears scheduledAt through the shared path', async () => {
+  test('updates receipts and draft status through the shared path', async () => {
     vi.mocked(publishToPlatforms).mockResolvedValueOnce([
       {
         platform: 'wechat',
@@ -58,7 +57,6 @@ describe('runPublishJob', () => {
       title: '稿件标题',
       content: '稿件正文',
       platforms: ['wechat'],
-      clearScheduledAt: true,
     });
 
     expect(result.syncTask.status).toBe('completed');
@@ -69,7 +67,6 @@ describe('runPublishJob', () => {
     });
     expect(getDraftRegistry().getDraft('draft-1')).toMatchObject({
       status: 'synced',
-      scheduledAt: undefined,
     });
   });
 

@@ -1,8 +1,5 @@
 import type { PlatformId } from '@/types';
 
-// --- Agent Context (re-exported from contextBuilder) ---
-export type { AgentPhase, AgentTaskContext } from '@/lib/agent/contextBuilder';
-
 // --- LLM Provider ---
 
 export type LLMProviderType = 'openai' | 'anthropic';

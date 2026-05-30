@@ -285,6 +285,11 @@ export const pipelineStepLink = style({
   },
 });
 
+export const pipelineStepHint = style({
+  fontSize: '12px',
+  color: vars.color.textMuted,
+});
+
 export const pipelineArrow = style({
   color: vars.color.textMuted,
   flexShrink: 0,
