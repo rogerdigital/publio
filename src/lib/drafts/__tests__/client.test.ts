@@ -55,10 +55,10 @@ describe('fetchDraftById', () => {
         json: async () => ({
           draft: {
             id: 'draft-2',
-            title: '选题稿件',
-            content: '研究底稿',
+            title: '导入稿件',
+            content: '导入正文',
             status: 'draft',
-            source: 'ai-news',
+            source: 'import',
             createdAt: '2026-04-11T08:00:00.000Z',
             updatedAt: '2026-04-11T08:00:00.000Z',
           },
@@ -68,21 +68,21 @@ describe('fetchDraftById', () => {
 
     await expect(
       createDraft({
-        title: '选题稿件',
-        content: '研究底稿',
-        source: 'ai-news',
+        title: '导入稿件',
+        content: '导入正文',
+        source: 'import',
       }),
     ).resolves.toMatchObject({
       id: 'draft-2',
-      source: 'ai-news',
+      source: 'import',
     });
     expect(fetch).toHaveBeenCalledWith('/api/drafts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        title: '选题稿件',
-        content: '研究底稿',
-        source: 'ai-news',
+        title: '导入稿件',
+        content: '导入正文',
+        source: 'import',
       }),
     });
   });

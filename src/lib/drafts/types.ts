@@ -2,7 +2,7 @@ import type { PlatformId } from '@/types';
 
 export type DraftStatus = 'draft' | 'ready' | 'syncing' | 'synced' | 'failed' | 'archived';
 
-export type DraftSource = 'manual' | 'ai-news' | 'import';
+export type DraftSource = 'manual' | 'import';
 
 export interface DraftVersion {
   id: string;
@@ -18,11 +18,6 @@ export interface ContentDraft {
   content: string;
   status: DraftStatus;
   source: DraftSource;
-  topicClusterId?: string;
-  topicId?: string;
-  briefId?: string;
-  contentGoal?: string;
-  scheduledAt?: string;
   platforms?: PlatformId[];
   tags?: string[];
   versions?: DraftVersion[];
@@ -34,28 +29,12 @@ export interface CreateDraftInput {
   title: string;
   content: string;
   source: DraftSource;
-  topicClusterId?: string;
-  topicId?: string;
-  briefId?: string;
-  contentGoal?: string;
-  scheduledAt?: string;
   platforms?: PlatformId[];
   tags?: string[];
 }
 
 export type UpdateDraftInput = Partial<
-  Pick<
-    ContentDraft,
-    | 'title'
-    | 'content'
-    | 'status'
-    | 'scheduledAt'
-    | 'platforms'
-    | 'tags'
-    | 'topicId'
-    | 'briefId'
-    | 'contentGoal'
-  >
+  Pick<ContentDraft, 'title' | 'content' | 'status' | 'platforms' | 'tags'>
 >;
 
 export interface ListDraftsOptions {

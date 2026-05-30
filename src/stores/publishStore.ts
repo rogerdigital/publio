@@ -13,11 +13,6 @@ interface PublishStore {
   currentDraftId: string | null;
   setCurrentDraftId: (id: string | null) => void;
 
-  currentTopicId: string | null;
-  currentBriefId: string | null;
-  setCurrentTopicId: (id: string | null) => void;
-  setCurrentBriefId: (id: string | null) => void;
-
   variantIds: Record<PlatformId, string | null>;
   setVariantId: (platform: PlatformId, id: string | null) => void;
   resetVariantIds: () => void;
@@ -46,9 +41,6 @@ interface PublishStore {
   openProgressOverlay: () => void;
   closeProgressOverlay: () => void;
 
-  scheduledAt: string | null;
-  setScheduledAt: (value: string | null) => void;
-
   editorMode: 'source' | 'live';
   setEditorMode: (mode: 'source' | 'live') => void;
 }
@@ -68,11 +60,6 @@ export const usePublishStore = create<PublishStore>((set) => ({
 
   currentDraftId: null,
   setCurrentDraftId: (id) => set({ currentDraftId: id }),
-
-  currentTopicId: null,
-  currentBriefId: null,
-  setCurrentTopicId: (id) => set({ currentTopicId: id }),
-  setCurrentBriefId: (id) => set({ currentBriefId: id }),
 
   variantIds: { wechat: null, xiaohongshu: null, zhihu: null, x: null },
   setVariantId: (platform, id) =>
@@ -159,9 +146,6 @@ export const usePublishStore = create<PublishStore>((set) => ({
   setLastSyncTaskId: (id) => set({ lastSyncTaskId: id }),
   openProgressOverlay: () => set({ isProgressOverlayOpen: true }),
   closeProgressOverlay: () => set({ isProgressOverlayOpen: false }),
-
-  scheduledAt: null,
-  setScheduledAt: (value) => set({ scheduledAt: value }),
 
   editorMode: (() => {
     try {

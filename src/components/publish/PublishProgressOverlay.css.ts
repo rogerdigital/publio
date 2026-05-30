@@ -105,6 +105,9 @@ export const footer = style({
 export const detailLink = style({
   fontSize: '13px',
   color: vars.color.accent,
+  border: 0,
+  background: 'transparent',
+  cursor: 'pointer',
   textDecoration: 'none',
   display: 'flex',
   alignItems: 'center',

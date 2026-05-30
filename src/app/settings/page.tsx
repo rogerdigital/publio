@@ -24,10 +24,7 @@ import type {
 } from '@/lib/platformConnections/types';
 import type { PlatformId } from '@/types';
 import { useToastStore } from '@/stores/toastStore';
-import RssSourceManager from '@/components/settings/RssSourceManager';
 import PromptEditor from '@/components/settings/PromptEditor';
-import BrandProfileForm from '@/components/copilot/BrandProfileForm';
-import StyleProfile from '@/components/copilot/StyleProfile';
 import {
   VERIFY_ONLY_PLATFORMS,
   formatRelativeTime,
@@ -101,9 +98,6 @@ const SECTION_TABS = [
   { id: 'platforms', label: '平台连接' },
   { id: 'agent', label: 'AI Agent' },
   { id: 'github-image', label: '图片托管' },
-  { id: 'rss', label: 'RSS 源' },
-  { id: 'brand', label: '品牌画像' },
-  { id: 'style', label: '写作风格' },
 ] as const;
 
 function SettingsContent() {
@@ -687,7 +681,7 @@ function SettingsContent() {
               <div className={styles.accordionBody}>
                 <p className={styles.accordionTitle}>AI 助手（Agent）</p>
                 <p className={styles.accordionSummary}>
-                  配置 LLM 接口，启用 AI 写作、适配、研究功能
+                  配置 LLM 接口，启用 AI 改写、标题建议和平台适配
                 </p>
               </div>
             </div>
@@ -753,12 +747,9 @@ function SettingsContent() {
               </p>
               <ul className={styles.fieldHint} style={{ margin: '4px 0 0 16px', padding: 0 }}>
                 <li>
-                  编辑器输入 <code className={styles.inlineCode}>/</code> 查看 AI
-                  命令（扩写、缩写、改写、润色、续写）
+                  编辑器输入 <code className={styles.inlineCode}>/</code> 查看 AI 命令
                 </li>
-                <li>AI 选题页话题卡出现「深度分析」按钮</li>
                 <li>发布预览面板出现「AI 适配」按钮</li>
-                <li>分发失败时出现「AI 诊断」按钮</li>
               </ul>
             </div>
           </SurfaceCard>
@@ -882,31 +873,10 @@ function SettingsContent() {
           </SurfaceCard>
         </div>
 
-        {/* 自定义 RSS 源 */}
-        <div id="rss" className={styles.sectionAnchor}>
-          <SurfaceCard>
-            <RssSourceManager />
-          </SurfaceCard>
-        </div>
-
         {/* 自定义 AI Prompt */}
         <SurfaceCard>
           <PromptEditor />
         </SurfaceCard>
-
-        {/* 品牌画像 */}
-        <div id="brand" className={styles.sectionAnchor}>
-          <SurfaceCard>
-            <BrandProfileForm />
-          </SurfaceCard>
-        </div>
-
-        {/* 写作风格 */}
-        <div id="style" className={styles.sectionAnchor}>
-          <SurfaceCard>
-            <StyleProfile />
-          </SurfaceCard>
-        </div>
       </div>
 
       {isDirty && !loading && (

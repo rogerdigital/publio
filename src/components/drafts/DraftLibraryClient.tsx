@@ -5,7 +5,6 @@ import Link from 'next/link';
 import {
   FileText,
   RefreshCcw,
-  Newspaper,
   PenLine,
   ArrowRightCircle,
   Trash2,
@@ -58,7 +57,6 @@ const STATUS_FILTER_OPTIONS = [
 
 const sourceLabels: Record<DraftSource, string> = {
   manual: '手动创建',
-  'ai-news': 'AI 选题',
   import: '导入',
 };
 
@@ -275,7 +273,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
       <EmptyState
         icon={<FileText size={24} />}
         title="还没有稿件"
-        description="从写作台新建内容，或从选题台把研究底稿加入稿件库。"
+        description="从写作台新建内容，保存后会出现在这里。"
         action={
           <Link href="/" className={styles.primaryLink}>
             去写作台
@@ -517,19 +515,10 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
 
                 <div className={styles.pipelineStep}>
                   <span className={styles.pipelineStepIcon}>
-                    <Newspaper size={14} />
+                    <FileText size={14} />
                   </span>
                   <div className={styles.pipelineStepContent}>
                     <span className={styles.pipelineStepLabel}>{sourceLabels[draft.source]}</span>
-                    {draft.source === 'ai-news' && (
-                      <Link
-                        href="/ai-news"
-                        className={styles.pipelineStepLink}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        重新选题
-                      </Link>
-                    )}
                   </div>
                 </div>
 
@@ -580,13 +569,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
                       >
                         {syncStatusLabels[syncTask.status]}
                       </span>
-                      <Link
-                        href={`/sync-tasks/${syncTask.id}`}
-                        className={styles.pipelineStepLink}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        查看详情
-                      </Link>
+                      <span className={styles.pipelineStepHint}>发布记录已内联显示</span>
                     </div>
                   </div>
                 ) : (

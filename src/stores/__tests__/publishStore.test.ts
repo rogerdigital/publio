@@ -27,4 +27,18 @@ describe('publishStore platform drafts', () => {
       isReady: true,
     });
   });
+
+  test('resets publish progress state without touching core draft content', () => {
+    usePublishStore.getState().setTitle('稿件标题');
+    usePublishStore.getState().setContent('正文内容');
+    usePublishStore.getState().setLastSyncTaskId('sync-1');
+    usePublishStore.getState().openProgressOverlay();
+    usePublishStore.getState().reset();
+
+    expect(usePublishStore.getState().title).toBe('稿件标题');
+    expect(usePublishStore.getState().content).toBe('正文内容');
+    expect(usePublishStore.getState().overallStatus).toBe('idle');
+    expect(usePublishStore.getState().lastSyncTaskId).toBeNull();
+    expect(usePublishStore.getState().isProgressOverlayOpen).toBe(false);
+  });
 });

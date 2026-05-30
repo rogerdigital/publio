@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Plus, History, RefreshCcw, Pencil, Trash2 } from 'lucide-react';
+import { Plus, RefreshCcw, Pencil, Trash2 } from 'lucide-react';
 import type { ContentDraft, DraftStatus } from '@/lib/drafts/types';
 import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
 import { deleteDraft } from '@/lib/drafts/client';
@@ -115,9 +115,6 @@ export default function DraftPanel({ onNewDraft }: Props) {
         <div className={styles.headerActions}>
           {!isEditMode ? (
             <>
-              <Link href="/sync-tasks" className={styles.historyLink} title="分发记录">
-                <History size={13} />
-              </Link>
               <button
                 type="button"
                 onClick={() => setIsEditMode(true)}

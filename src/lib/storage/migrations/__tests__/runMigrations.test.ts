@@ -35,23 +35,6 @@ describe('runMigrations', () => {
     expect(existsSync(result.backupPath!)).toBe(true);
   });
 
-  it('adds topicId/briefId/contentGoal to drafts', () => {
-    writeJson('drafts.json', [{ id: 'd1', title: 'test' }]);
-    runMigrations(TEST_DIR);
-    const drafts = readJson('drafts.json');
-    expect(drafts[0].topicId).toBeNull();
-    expect(drafts[0].briefId).toBeNull();
-    expect(drafts[0].contentGoal).toBeNull();
-  });
-
-  it('adds topicId/variantId to metrics', () => {
-    writeJson('metrics.json', [{ syncTaskId: 't1', platforms: [] }]);
-    runMigrations(TEST_DIR);
-    const metrics = readJson('metrics.json');
-    expect(metrics[0].topicId).toBeNull();
-    expect(metrics[0].variantId).toBeNull();
-  });
-
   it('adds events to sync tasks', () => {
     writeJson('sync-tasks.json', [{ id: 't1', status: 'completed', receipts: [] }]);
     runMigrations(TEST_DIR);

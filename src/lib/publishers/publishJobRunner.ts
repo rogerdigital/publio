@@ -19,7 +19,6 @@ export interface RunPublishJobInput {
   platforms: PlatformId[];
   platformDrafts?: PlatformPublishDrafts;
   variantIds?: Record<string, string>;
-  clearScheduledAt?: boolean;
 }
 
 export interface RunPublishJobResult {
@@ -27,11 +26,10 @@ export interface RunPublishJobResult {
   results: PlatformPublishResult[];
 }
 
-function updateDraftFromTask(syncTask: SyncTask, clearScheduledAt?: boolean) {
+function updateDraftFromTask(syncTask: SyncTask) {
   if (!syncTask.draftId) return;
   getDraftRegistry().updateDraft(syncTask.draftId, {
     status: toDraftStatus(syncTask.status),
-    ...(clearScheduledAt ? { scheduledAt: undefined } : {}),
   });
 }
 
@@ -92,7 +90,7 @@ export async function runPublishJob(input: RunPublishJobInput): Promise<RunPubli
       input.platformDrafts,
     );
     syncTask = applyPublishResults(syncTask, results);
-    updateDraftFromTask(syncTask, input.clearScheduledAt);
+    updateDraftFromTask(syncTask);
     markVariantsPublished(input.platforms, results, input.variantIds);
     return { syncTask, results };
   } catch (error) {
@@ -104,7 +102,7 @@ export async function runPublishJob(input: RunPublishJobInput): Promise<RunPubli
     }));
 
     syncTask = applyPublishResults(syncTask, failedResults);
-    updateDraftFromTask(syncTask, input.clearScheduledAt);
+    updateDraftFromTask(syncTask);
     return { syncTask, results: failedResults };
   }
 }

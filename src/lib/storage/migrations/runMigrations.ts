@@ -40,60 +40,6 @@ function backupDataDir(dataDir: string): string {
 
 const migrations: Migration[] = [
   {
-    version: 1,
-    name: 'add-topicId-to-drafts',
-    up(dataDir: string) {
-      const path = join(dataDir, 'drafts.json');
-      if (!existsSync(path)) return;
-      const data = JSON.parse(readFileSync(path, 'utf-8'));
-      const items = Array.isArray(data) ? data : (data.items ?? []);
-      let changed = false;
-      for (const item of items) {
-        if (!('topicId' in item)) {
-          item.topicId = null;
-          changed = true;
-        }
-        if (!('briefId' in item)) {
-          item.briefId = null;
-          changed = true;
-        }
-        if (!('contentGoal' in item)) {
-          item.contentGoal = null;
-          changed = true;
-        }
-      }
-      if (changed) {
-        const output = Array.isArray(data) ? items : { ...data, items };
-        writeFileSync(path, JSON.stringify(output, null, 2), 'utf-8');
-      }
-    },
-  },
-  {
-    version: 2,
-    name: 'add-topicId-to-metrics',
-    up(dataDir: string) {
-      const path = join(dataDir, 'metrics.json');
-      if (!existsSync(path)) return;
-      const data = JSON.parse(readFileSync(path, 'utf-8'));
-      const items = Array.isArray(data) ? data : (data.items ?? []);
-      let changed = false;
-      for (const item of items) {
-        if (!('topicId' in item)) {
-          item.topicId = null;
-          changed = true;
-        }
-        if (!('variantId' in item)) {
-          item.variantId = null;
-          changed = true;
-        }
-      }
-      if (changed) {
-        const output = Array.isArray(data) ? items : { ...data, items };
-        writeFileSync(path, JSON.stringify(output, null, 2), 'utf-8');
-      }
-    },
-  },
-  {
     version: 3,
     name: 'add-events-to-sync-tasks',
     up(dataDir: string) {

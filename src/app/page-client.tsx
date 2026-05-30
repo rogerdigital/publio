@@ -19,10 +19,6 @@ import DraftPanel from '@/components/editor/DraftPanel';
 import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
-import PublishTimingSuggestion from '@/components/publish/PublishTimingSuggestion';
-import SchedulePicker from '@/components/publish/SchedulePicker';
-import EditorialContextCard from '@/components/editor/EditorialContextCard';
-import WritingBriefCard from '@/components/editor/WritingBriefCard';
 import TemplatePicker from '@/components/editor/TemplatePicker';
 import MediaLibrary from '@/components/editor/MediaLibrary';
 
@@ -40,7 +36,6 @@ const VersionHistory = dynamic(() => import('@/components/editor/VersionHistory'
   ssr: false,
 });
 const AgentPanel = dynamic(() => import('@/components/agent/AgentPanel'), { ssr: false });
-import TodayWorkbench from '@/components/workbench/TodayWorkbench';
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
 import { useAutoSave } from '@/hooks/useAutoSave';
@@ -60,9 +55,6 @@ function HomePageContent() {
     overallStatus,
     currentDraftId,
     setCurrentDraftId,
-    currentBriefId,
-    setCurrentBriefId,
-    setCurrentTopicId,
     activeTab,
     setActiveTab,
   } = usePublishStore();
@@ -134,19 +126,9 @@ function HomePageContent() {
     setTitle('');
     setContent('');
     setCurrentDraftId(null);
-    setCurrentBriefId(null);
-    setCurrentTopicId(null);
     reset();
     router.replace('/');
-  }, [
-    reset,
-    router,
-    setContent,
-    setTitle,
-    setCurrentDraftId,
-    setCurrentBriefId,
-    setCurrentTopicId,
-  ]);
+  }, [reset, router, setContent, setTitle, setCurrentDraftId]);
 
   const handleClearClick = useCallback(() => {
     setClearConfirming(true);
@@ -180,8 +162,6 @@ function HomePageContent() {
         setTitle(draft.title);
         setContent(draft.content);
         setCurrentDraftId(selectedDraftId);
-        setCurrentBriefId(draft.briefId ?? null);
-        setCurrentTopicId(draft.topicId ?? null);
         reset();
       } catch (error) {
         if (!cancelled) {
@@ -194,15 +174,7 @@ function HomePageContent() {
     return () => {
       cancelled = true;
     };
-  }, [
-    reset,
-    searchParams,
-    setContent,
-    setTitle,
-    setCurrentDraftId,
-    setCurrentBriefId,
-    setCurrentTopicId,
-  ]);
+  }, [reset, searchParams, setContent, setTitle, setCurrentDraftId]);
 
   return (
     <div className={styles.pageWrap}>
@@ -270,8 +242,6 @@ function HomePageContent() {
         }
       />
 
-      <TodayWorkbench />
-
       <div className={styles.editorLayout}>
         <div className={styles.panelOuter} style={{ width: isPanelOpen ? '216px' : 0 }}>
           <DraftPanel onNewDraft={handleNewDraft} />
@@ -301,10 +271,6 @@ function HomePageContent() {
           {agentStatus !== 'idle' && <AgentPanel />}
 
           <div className={styles.rightPanel}>
-            <EditorialContextCard />
-
-            {currentBriefId && <WritingBriefCard briefId={currentBriefId} />}
-
             {currentDraftId && (
               <div className={publishStyles.rightPanelSection}>
                 <button
@@ -333,16 +299,12 @@ function HomePageContent() {
             </div>
 
             <div className={publishStyles.rightPanelSection}>
-              <SchedulePicker />
+              <PlatformPreviewPanel
+                adaptations={platformDrafts}
+                selectedPlatforms={selectedPlatforms}
+                agentEnabled={agentEnabled}
+              />
             </div>
-
-            <PublishTimingSuggestion />
-
-            <PlatformPreviewPanel
-              adaptations={platformDrafts}
-              selectedPlatforms={selectedPlatforms}
-              agentEnabled={agentEnabled}
-            />
 
             {currentDraftId && (
               <div className={publishStyles.rightPanelSection}>
@@ -388,8 +350,6 @@ function HomePageContent() {
             <div className={styles.mobileSheetHandle} />
             <div className={styles.mobileSheetTitle}>发布设置</div>
             <PlatformSelector />
-            <SchedulePicker />
-            <PublishTimingSuggestion />
             <PlatformPreviewPanel
               adaptations={platformDrafts}
               selectedPlatforms={selectedPlatforms}
