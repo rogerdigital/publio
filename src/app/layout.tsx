@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { Inter, Caveat } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import '@/styles/globals.css';
 import { darkTheme } from '@/styles/tokens.css';
 import Sidebar from '@/components/layout/Sidebar';
@@ -15,13 +15,6 @@ const inter = Inter({
   display: 'swap',
 });
 
-const caveat = Caveat({
-  subsets: ['latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-caveat',
-  display: 'swap',
-});
-
 export const metadata: Metadata = {
   title: 'Publio',
   description: 'Publish Markdown content to multiple platforms in one workflow.',
@@ -31,7 +24,7 @@ const themeScript = `(function(){try{var c='${darkTheme}',s=localStorage.getItem
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="zh-CN" className={`${inter.variable} ${caveat.variable}`} suppressHydrationWarning>
+    <html lang="zh-CN" className={inter.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

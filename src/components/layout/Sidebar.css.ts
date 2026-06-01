@@ -80,9 +80,9 @@ export const brandLogo = style({
 });
 
 export const brandName = style({
-  fontSize: '20px',
-  fontWeight: 700,
-  fontFamily: 'var(--font-caveat), cursive',
+  fontSize: '18px',
+  fontWeight: 650,
+  fontFamily: 'var(--font-inter), sans-serif',
   color: '#D97757',
   lineHeight: 1,
   opacity: 0,

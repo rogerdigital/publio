@@ -11,12 +11,13 @@ export default function Logo({ size = 28 }: { size?: number }) {
       aria-hidden="true"
       className={styles.logoSvg}
     >
-      {/* 笔尖主体 */}
-      <path d="M13 4Q9 16 16 29Q23 16 19 4Z" fill="currentColor" />
-      {/* 呼吸孔 */}
-      <circle cx="16" cy="11" r="2" fill="white" opacity="0.85" />
-      {/* 中缝 */}
-      <line x1="16" y1="13" x2="16" y2="29" stroke="white" strokeWidth="0.8" opacity="0.5" />
+      <rect width="32" height="32" rx="8" fill="#F5EDE4" />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M9 6H17.25C21.55 6 24 8.55 24 12.25C24 16.05 21.35 18.45 17.05 18.45H13.25V26H9V6ZM13.25 9.65V14.85H16.75C18.7 14.85 19.8 13.85 19.8 12.25C19.8 10.65 18.7 9.65 16.75 9.65H13.25Z"
+        fill="#D97757"
+      />
     </svg>
   );
 }
