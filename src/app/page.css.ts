@@ -162,6 +162,24 @@ export const headerActions = style({
   display: 'flex',
   alignItems: 'center',
   gap: '8px',
+  minWidth: 0,
+  flexWrap: 'wrap',
+  '@media': {
+    'screen and (max-width: 639px)': {
+      width: '100%',
+      justifyContent: 'flex-start',
+      overflowX: 'auto',
+      flexWrap: 'nowrap',
+      paddingBottom: '4px',
+      WebkitOverflowScrolling: 'touch',
+      scrollbarWidth: 'none',
+    },
+  },
+  selectors: {
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
+  },
 });
 
 export const newDraftButton = style({

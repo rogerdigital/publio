@@ -73,6 +73,19 @@ globalStyle(`${editorWrap} .w-md-editor-toolbar`, {
   padding: '6px 12px',
 });
 
+globalStyle(`${editorWrap} .w-md-editor-toolbar button`, {
+  color: vars.color.textMuted,
+});
+
+globalStyle(`${editorWrap} .w-md-editor-toolbar button:hover`, {
+  background: vars.color.bgElevated,
+  color: vars.color.text,
+});
+
+globalStyle(`${editorWrap} .w-md-editor-toolbar button svg`, {
+  color: 'currentColor',
+});
+
 globalStyle(`${editorWrap} .w-md-editor-toolbar-divider`, {
   background: vars.color.borderFaint,
 });

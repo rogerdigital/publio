@@ -222,6 +222,7 @@ export const footer = style({
   alignItems: 'center',
   justifyContent: 'center',
   paddingTop: '12px',
+  paddingBottom: '56px',
   selectors: {
     [`${sidebarVariants.expanded} &`]: {
       justifyContent: 'flex-start',
@@ -271,6 +272,7 @@ export const mobileTabBar = style({
   backdropFilter: 'blur(16px) saturate(180%)',
   WebkitBackdropFilter: 'blur(16px) saturate(180%)',
   borderTop: `1px solid ${vars.color.glassBorder}`,
+  paddingLeft: '48px',
   paddingBottom: 'env(safe-area-inset-bottom)',
   '@media': {
     'screen and (min-width: 1024px)': {

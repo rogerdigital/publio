@@ -42,12 +42,12 @@ export const main = style({
   minWidth: 0,
   flex: 1,
   padding: '16px',
-  paddingBottom: `calc(16px + ${vars.layout.tabBarHeight} + env(safe-area-inset-bottom))`,
+  paddingBottom: `calc(48px + ${vars.layout.tabBarHeight} + env(safe-area-inset-bottom))`,
   animation: 'fadeIn 200ms ease-out',
   '@media': {
     'screen and (min-width: 640px)': {
       padding: '20px 24px',
-      paddingBottom: `calc(20px + ${vars.layout.tabBarHeight} + env(safe-area-inset-bottom))`,
+      paddingBottom: `calc(52px + ${vars.layout.tabBarHeight} + env(safe-area-inset-bottom))`,
     },
     'screen and (min-width: 1024px)': {
       padding: '28px 36px',

@@ -4,7 +4,7 @@ import { vars } from '@/styles/tokens.css';
 
 export const filterBar = style({
   display: 'flex',
-  flexWrap: 'wrap',
+  flexWrap: 'nowrap',
   gap: '6px',
 });
 

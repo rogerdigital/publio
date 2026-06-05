@@ -376,6 +376,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
             options={STATUS_FILTER_OPTIONS}
             value={statusFilter}
             onChange={setStatusFilter}
+            className={styles.filterBar}
           />
         </div>
       )}
