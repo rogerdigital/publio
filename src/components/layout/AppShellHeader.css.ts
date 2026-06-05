@@ -10,13 +10,21 @@ export const header = style({
 
 export const inner = style({
   display: 'flex',
-  alignItems: 'flex-end',
-  justifyContent: 'space-between',
+  flexDirection: 'column',
+  alignItems: 'stretch',
   gap: '16px',
+  '@media': {
+    'screen and (min-width: 640px)': {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      justifyContent: 'space-between',
+    },
+  },
 });
 
 export const textBlock = style({
   maxWidth: '56rem',
+  minWidth: 0,
 });
 
 export const kicker = style({
@@ -43,5 +51,10 @@ export const description = style({
 });
 
 export const action = style({
-  flexShrink: 0,
+  minWidth: 0,
+  '@media': {
+    'screen and (min-width: 640px)': {
+      flexShrink: 0,
+    },
+  },
 });

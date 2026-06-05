@@ -307,6 +307,13 @@ export const pipelineCard = style({
   gap: '8px',
   flexWrap: 'wrap',
   padding: '4px 0',
+  '@media': {
+    'screen and (min-width: 900px)': {
+      display: 'grid',
+      gridTemplateColumns: '120px 14px minmax(0, 1fr) 14px 120px 28px',
+      width: '100%',
+    },
+  },
 });
 
 // Pipeline card (edit/selectable mode)
@@ -608,15 +615,21 @@ export const syncStatusLabelVariants = styleVariants({
 
 // 搜索栏 + 筛选栏
 export const toolbar = style({
-  display: 'flex',
+  display: 'grid',
+  gridTemplateColumns: 'auto minmax(0, 1fr) auto',
   alignItems: 'center',
   gap: 12,
-  flexWrap: 'wrap',
+  '@media': {
+    'screen and (min-width: 760px)': {
+      display: 'flex',
+      flexWrap: 'wrap',
+    },
+  },
 });
 
 export const searchInput = style({
   flex: 1,
-  minWidth: 200,
+  minWidth: 0,
   padding: '10px 14px',
   fontSize: 13,
   border: 'none',
@@ -673,8 +686,25 @@ export const tagChip = recipe({
 // 状态筛选栏
 export const filterBar = style({
   display: 'flex',
-  flexWrap: 'wrap',
   gap: '6px',
+  gridColumn: '1 / -1',
+  overflowX: 'auto',
+  paddingBottom: '2px',
+  WebkitOverflowScrolling: 'touch',
+  scrollbarWidth: 'none',
+  selectors: {
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
+  },
+  '@media': {
+    'screen and (min-width: 760px)': {
+      gridColumn: 'auto',
+      overflowX: 'visible',
+      flexWrap: 'wrap',
+      paddingBottom: 0,
+    },
+  },
 });
 
 export const filterChip = recipe({
