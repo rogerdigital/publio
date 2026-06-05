@@ -362,28 +362,42 @@ Token 方向：
 - 明确 status badge 语义色：已连接、缺失、错误、待验证、成功、失败、发布中。
 - 明确 glass / solid surface 使用边界。
 - 明确移动端 bottom sheet / drawer 可复用模式。
+- **强制 token 化**：当前 `vars.spacing.*` 使用率 0%，`vars.fontSize.*` 使用率 ~17%（21 处 vs 100+ hardcoded）。将所有 padding/margin/gap/fontSize 收敛到 token 引用，消除 18px、14px、6px 等非 token 值。
+- **按钮 size variants**：当前存在 8 种不同 button padding 组合（`6px 10px` 到 `12px 24px`），定义 sm / md / lg 三档尺寸规范。
+- **补全 radius token**：现有最小值 `sm` = 8px，但代码中多处使用 4px/5px/6px。新增 `xs` = 4px，`full` = 999px（pill）。
+- **修复侧边栏 a11y 文本重复**：当前 accessibility tree 显示 "写作台写作台"、"稿件库稿件库"，需修正 Sidebar 组件的 aria-label 或隐藏重复文本。
 
 验收标准：
 
 - 至少有一套可复用按钮层级规则。
 - 至少有一套可复用状态 badge 规则。
+- spacing / fontSize token 使用率 > 90%。
+- 按钮有明确 size variants，不再出现 freestyle padding。
+- 侧边栏导航 a11y tree 无重复文本。
 - 不引入新 UI 框架。
 - 不破坏现有页面布局。
 
 建议提交粒度：
 
-1. `style(ui): define action hierarchy states`
+1. `style(tokens): enforce spacing and fontSize token usage`
+   - 全量替换 hardcoded spacing/fontSize 为 token 引用。
+   - 补充 `radius.xs` (4px) 和 `radius.full` (999px) token。
+2. `style(ui): define action hierarchy and size variants`
    - 调整或补齐基础按钮 / badge / 状态样式。
+   - 定义按钮 sm/md/lg size variants。
    - 不改业务流程。
-2. `style(ui): align surface and feedback primitives`
+3. `style(ui): align surface and feedback primitives`
    - 收敛卡片、反馈、空状态基础样式。
    - 为后续页面改造提供组件基础。
+4. `fix(a11y): deduplicate sidebar navigation labels`
+   - 修复侧边栏 aria 文本重复问题。
 
 验证：
 
 - `pnpm lint`
 - `pnpm build`
 - 手动检查浅色 / 深色基础组件状态。
+- 使用 accessibility inspector 确认导航无重复文本。
 
 ### Phase 1：首页主路径收敛
 
@@ -446,6 +460,7 @@ Token 方向：
 - 发布失败诊断内联到失败平台卡片。
 - 发布成功后提供查看分发结果入口。
 - 错误提示显示平台、原因、下一步。
+- **发布按钮文案移动端溢出**：当前 disabled 状态列举所有平台名（如"微信公众号、小红书、知乎、X (Twitter) 内容待补全"），移动端必然溢出。改为聚合文案如"4 个平台内容待补全"。
 
 验收标准：
 
@@ -683,6 +698,7 @@ Token 方向：
 - 卡片标题更短、更动作导向。
 - Badge 只表达状态。
 - 长解释进入 tooltip / help text / 展开区域。
+- **统一 header pattern**：当前 `AppShellHeader`（sans-serif, 0.08em tracking）和 `PageSection`（serif, 0.32em tracking, uppercase）两套 header 风格并存，服务类似功能但视觉差异大。选定一套作为标准，或明确各自适用场景并文档化。
 
 验收标准：
 
@@ -765,9 +781,11 @@ Token 方向：
 
 建议 commits：
 
-1. `style(ui): define action hierarchy states`
-2. `style(ui): align surface and feedback primitives`
-3. `style(feedback): standardize async operation states`
+1. `style(tokens): enforce spacing and fontSize token usage`
+2. `style(ui): define action hierarchy and size variants`
+3. `style(ui): align surface and feedback primitives`
+4. `fix(a11y): deduplicate sidebar navigation labels`
+5. `style(feedback): standardize async operation states`
 
 ### PR 2：首页与发布主路径
 
