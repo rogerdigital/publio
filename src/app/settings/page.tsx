@@ -118,6 +118,10 @@ function SettingsContent() {
     Record<PlatformId, PlatformConnectionRecord>
   >({} as Record<PlatformId, PlatformConnectionRecord>);
   const [activeSection, setActiveSection] = useState<SectionId>('platforms');
+  const [agentTestResult, setAgentTestResult] = useState<{ ok: boolean; message: string } | null>(
+    null,
+  );
+  const [agentTesting, setAgentTesting] = useState(false);
   const connectionProfiles = getPlatformConnectionProfiles(values);
 
   // 检测 OAuth callback 后的 ?connected= 参数
@@ -177,6 +181,7 @@ function SettingsContent() {
   }, []);
 
   const isDirty = Object.keys(values).some((key) => values[key] !== initialValues[key]);
+  const dirtyCount = Object.keys(values).filter((key) => values[key] !== initialValues[key]).length;
 
   function handleChange(key: string, value: string) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -278,6 +283,24 @@ function SettingsContent() {
       }, 2000);
     } catch {
       setDisconnectStates((prev) => ({ ...prev, [platformId]: { disconnecting: false } }));
+    }
+  }
+
+  async function handleTestAgent() {
+    setAgentTesting(true);
+    setAgentTestResult(null);
+    try {
+      const res = await fetch('/api/agent/status');
+      const data = await res.json();
+      if (data.available) {
+        setAgentTestResult({ ok: true, message: `连接成功 (${data.model || data.provider})` });
+      } else {
+        setAgentTestResult({ ok: false, message: '未配置或连接不可用，请检查 API 地址和密钥' });
+      }
+    } catch {
+      setAgentTestResult({ ok: false, message: '网络错误，无法测试连接' });
+    } finally {
+      setAgentTesting(false);
     }
   }
 
@@ -732,10 +755,40 @@ function SettingsContent() {
                   </li>
                   <li>发布预览面板出现「AI 适配」按钮</li>
                 </ul>
+                <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <button
+                    type="button"
+                    className={styles.checkButton}
+                    onClick={handleTestAgent}
+                    disabled={agentTesting}
+                  >
+                    {agentTesting ? '测试中...' : '测试连接'}
+                  </button>
+                  {agentTestResult && (
+                    <span
+                      className={agentTestResult.ok ? styles.checkResultOk : styles.checkResultFail}
+                    >
+                      {agentTestResult.message}
+                    </span>
+                  )}
+                </div>
               </div>
             </SurfaceCard>
             <SurfaceCard>
-              <PromptEditor />
+              <details>
+                <summary
+                  className={styles.accordionTrigger}
+                  style={{ cursor: 'pointer', listStyle: 'none' }}
+                >
+                  <div className={styles.accordionBody}>
+                    <p className={styles.accordionTitle}>Prompt 高级设置</p>
+                    <p className={styles.accordionSummary}>自定义 AI 改写和适配的提示词模板</p>
+                  </div>
+                </summary>
+                <div className={styles.accordionPanel}>
+                  <PromptEditor />
+                </div>
+              </details>
             </SurfaceCard>
           </div>
         </div>
@@ -868,7 +921,7 @@ function SettingsContent() {
       {isDirty && !loading && (
         <button type="button" className={styles.floatingSave} onClick={handleSave}>
           <Save size={16} />
-          保存设置
+          保存 {dirtyCount} 项修改
         </button>
       )}
     </div>
