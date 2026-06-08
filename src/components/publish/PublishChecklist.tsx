@@ -94,6 +94,23 @@ export default function PublishChecklist({ agentEnabled }: { agentEnabled: boole
             <PublishButton />
           </div>
           {overallStatus !== 'idle' && <PublishStatusPanel />}
+          {results.some((r) => r.status === 'error') && (
+            <div className={styles.failureGuidance}>
+              {results
+                .filter((r) => r.status === 'error')
+                .map((r) => (
+                  <div key={r.platform} className={styles.failureItem}>
+                    <span className={styles.failurePlatform}>{platformNames[r.platform]}</span>
+                    <span className={styles.failureMessage}>{r.message || '发布失败'}</span>
+                  </div>
+                ))}
+            </div>
+          )}
+          {results.some((r) => r.status === 'success') && (
+            <a href="/drafts" className={styles.resultLink}>
+              查看分发记录 →
+            </a>
+          )}
         </div>
       </div>
     </div>

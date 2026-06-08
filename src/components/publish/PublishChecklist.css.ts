@@ -159,3 +159,45 @@ export const publishAction = style({
   alignItems: 'center',
   gap: vars.spacing.lg,
 });
+
+export const failureGuidance = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: vars.spacing.sm,
+  marginTop: vars.spacing.lg,
+  borderRadius: vars.radius.md,
+  border: `1px solid ${vars.color.errorBorder}`,
+  background: vars.color.errorBg,
+  padding: vars.spacing.lg,
+});
+
+export const failureItem = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: vars.spacing['2xs'],
+});
+
+export const failurePlatform = style({
+  fontSize: vars.fontSize.sm,
+  fontWeight: 600,
+  color: vars.color.errorText,
+});
+
+export const failureMessage = style({
+  fontSize: vars.fontSize.xs,
+  color: vars.color.errorText,
+  lineHeight: 1.5,
+});
+
+export const resultLink = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  marginTop: vars.spacing.lg,
+  fontSize: vars.fontSize.sm,
+  fontWeight: 500,
+  color: vars.color.accent,
+  textDecoration: 'none',
+  ':hover': {
+    textDecoration: 'underline',
+  },
+});
