@@ -118,6 +118,10 @@ function SettingsContent() {
     Record<PlatformId, PlatformConnectionRecord>
   >({} as Record<PlatformId, PlatformConnectionRecord>);
   const [activeSection, setActiveSection] = useState<SectionId>('platforms');
+  const [agentTestResult, setAgentTestResult] = useState<{ ok: boolean; message: string } | null>(
+    null,
+  );
+  const [agentTesting, setAgentTesting] = useState(false);
   const connectionProfiles = getPlatformConnectionProfiles(values);
 
   // 检测 OAuth callback 后的 ?connected= 参数
@@ -279,6 +283,24 @@ function SettingsContent() {
       }, 2000);
     } catch {
       setDisconnectStates((prev) => ({ ...prev, [platformId]: { disconnecting: false } }));
+    }
+  }
+
+  async function handleTestAgent() {
+    setAgentTesting(true);
+    setAgentTestResult(null);
+    try {
+      const res = await fetch('/api/agent/status');
+      const data = await res.json();
+      if (data.available) {
+        setAgentTestResult({ ok: true, message: `连接成功 (${data.model || data.provider})` });
+      } else {
+        setAgentTestResult({ ok: false, message: '未配置或连接不可用，请检查 API 地址和密钥' });
+      }
+    } catch {
+      setAgentTestResult({ ok: false, message: '网络错误，无法测试连接' });
+    } finally {
+      setAgentTesting(false);
     }
   }
 
@@ -733,6 +755,23 @@ function SettingsContent() {
                   </li>
                   <li>发布预览面板出现「AI 适配」按钮</li>
                 </ul>
+                <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <button
+                    type="button"
+                    className={styles.checkButton}
+                    onClick={handleTestAgent}
+                    disabled={agentTesting}
+                  >
+                    {agentTesting ? '测试中...' : '测试连接'}
+                  </button>
+                  {agentTestResult && (
+                    <span
+                      className={agentTestResult.ok ? styles.checkResultOk : styles.checkResultFail}
+                    >
+                      {agentTestResult.message}
+                    </span>
+                  )}
+                </div>
               </div>
             </SurfaceCard>
             <SurfaceCard>
