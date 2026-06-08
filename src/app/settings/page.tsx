@@ -736,7 +736,20 @@ function SettingsContent() {
               </div>
             </SurfaceCard>
             <SurfaceCard>
-              <PromptEditor />
+              <details>
+                <summary
+                  className={styles.accordionTrigger}
+                  style={{ cursor: 'pointer', listStyle: 'none' }}
+                >
+                  <div className={styles.accordionBody}>
+                    <p className={styles.accordionTitle}>Prompt 高级设置</p>
+                    <p className={styles.accordionSummary}>自定义 AI 改写和适配的提示词模板</p>
+                  </div>
+                </summary>
+                <div className={styles.accordionPanel}>
+                  <PromptEditor />
+                </div>
+              </details>
             </SurfaceCard>
           </div>
         </div>
