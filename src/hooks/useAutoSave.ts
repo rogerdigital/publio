@@ -66,7 +66,7 @@ export function useAutoSave({
       setSaveStatus('saved');
     } catch {
       setSaveStatus('error');
-      useToastStore.getState().addToast('error', '草稿保存失败');
+      useToastStore.getState().addToast('error', '草稿保存失败，请检查网络后重试');
     }
   }
 

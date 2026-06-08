@@ -43,7 +43,7 @@ export function useAgentStream() {
 
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
-          const msg = errData.error || `请求失败 (${response.status})`;
+          const msg = errData.error || `AI 请求失败 (${response.status})，请检查 Agent 配置`;
           setError(msg);
           useToastStore.getState().addToast('error', msg);
           return;
@@ -100,7 +100,7 @@ export function useAgentStream() {
           // 用户主动取消，不报错
           return;
         }
-        const msg = err instanceof Error ? err.message : '未知错误';
+        const msg = err instanceof Error ? err.message : 'AI 助手连接异常，请稍后重试';
         setError(msg);
         useToastStore.getState().addToast('error', msg);
       }
