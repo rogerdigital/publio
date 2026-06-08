@@ -97,7 +97,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
   const [statusFilter, setStatusFilter] = useState<DraftStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [tagFilter, setTagFilter] = useState('');
-  const [viewMode, setViewMode] = useState<ViewMode>('pipeline');
+  const [viewMode, setViewMode] = useState<ViewMode>('compact');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(() => {
@@ -457,19 +457,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
                   {draft.title || '无标题'}
                 </Link>
                 <span className={styles.compactStatus}>{statusLabels[draft.status]}</span>
-                {!isEditMode && (
-                  <button
-                    type="button"
-                    className={styles.exportButton}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleExport(draft);
-                    }}
-                    title="导出为 Markdown"
-                  >
-                    <Download size={13} />
-                  </button>
-                )}
+                <span className={styles.compactTime}>{formatDraftTime(draft.updatedAt)}</span>
               </div>
             );
           })}
@@ -623,6 +611,3 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
     </div>
   );
 }
-
-// suppress unused import warning – formatDraftTime kept for future use
-void formatDraftTime;
