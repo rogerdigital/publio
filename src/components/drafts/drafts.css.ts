@@ -4,17 +4,17 @@ import { vars } from '@/styles/tokens.css';
 
 export const draftList = style({
   display: 'grid',
-  gap: '12px',
+  gap: vars.spacing.lg,
 });
 
 export const draftCard = style({
   display: 'grid',
-  gap: '18px',
+  gap: vars.spacing['xl-2xl'],
   borderRadius: vars.radius.xl,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
   boxShadow: vars.shadow.sm,
-  padding: '18px',
+  padding: vars.spacing['xl-2xl'],
   '@media': {
     'screen and (min-width: 760px)': {
       gridTemplateColumns: 'minmax(0, 1fr) auto',
@@ -27,7 +27,7 @@ export const draftMetaRow = style({
   display: 'flex',
   flexWrap: 'wrap',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   '@media': {
     'screen and (min-width: 760px)': {
       gridColumn: '1 / -1',
@@ -36,11 +36,11 @@ export const draftMetaRow = style({
 });
 
 export const statusBadge = style({
-  borderRadius: '999px',
+  borderRadius: vars.radius.full,
   border: 'none',
   background: vars.color.bgElevated,
-  padding: '4px 10px',
-  fontSize: '11px',
+  padding: `${vars.spacing.xs} ${vars.spacing['md-lg']}`,
+  fontSize: vars.fontSize['2xs'],
   fontWeight: 600,
   color: vars.color.textMuted,
 });
@@ -50,19 +50,19 @@ export const sourceBadge = style({
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
   padding: '5px 10px',
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
 export const updatedTime = style({
   marginLeft: 'auto',
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
 export const draftTitle = style({
   margin: 0,
-  fontSize: '20px',
+  fontSize: vars.fontSize['2xl'],
   fontWeight: 600,
   lineHeight: 1.35,
   color: vars.color.text,
@@ -70,9 +70,9 @@ export const draftTitle = style({
 
 export const draftExcerpt = style({
   margin: 0,
-  marginTop: '8px',
+  marginTop: vars.spacing.md,
   maxWidth: '64ch',
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   lineHeight: 1.8,
   color: vars.color.textMuted,
 });
@@ -80,30 +80,30 @@ export const draftExcerpt = style({
 export const syncSummary = style({
   display: 'inline-flex',
   flexDirection: 'column',
-  gap: '4px',
-  marginTop: '14px',
+  gap: vars.spacing.xs,
+  marginTop: vars.spacing['lg-xl'],
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '10px 12px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
 });
 
 export const syncTitle = style({
   margin: 0,
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   fontWeight: 600,
   color: vars.color.text,
 });
 
 export const syncText = style({
   margin: 0,
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
 export const syncDetailLink = style({
   width: 'fit-content',
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   fontWeight: 600,
   color: vars.color.accent,
   textDecoration: 'none',
@@ -116,12 +116,12 @@ export const editLink = style({
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '10px 14px',
-  fontSize: '14px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing['lg-xl']}`,
+  fontSize: vars.fontSize.md,
   fontWeight: 500,
   color: vars.color.accent,
   textDecoration: 'none',
@@ -135,11 +135,11 @@ export const editLink = style({
 export const statePanel = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '10px',
+  gap: vars.spacing['md-lg'],
   borderRadius: vars.radius.xl,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
-  padding: '18px',
+  padding: vars.spacing['xl-2xl'],
   color: vars.color.textMuted,
 });
 
@@ -149,11 +149,11 @@ export const emptyState = style({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: '12px',
+  gap: vars.spacing.lg,
   borderRadius: vars.radius.xl,
   border: `1px dashed ${vars.color.borderStrong}`,
   background: vars.color.surface,
-  padding: '32px',
+  padding: vars.spacing['4xl'],
   textAlign: 'center',
 });
 
@@ -179,7 +179,7 @@ export const stateTitle = style({
 export const stateText = style({
   margin: 0,
   maxWidth: '30rem',
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   lineHeight: 1.8,
   color: vars.color.textMuted,
 });
@@ -187,11 +187,11 @@ export const stateText = style({
 export const primaryLink = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   borderRadius: vars.radius.lg,
   background: vars.color.accent,
-  padding: '10px 16px',
-  fontSize: '14px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.xl}`,
+  fontSize: vars.fontSize.md,
   fontWeight: 500,
   color: vars.color.surfaceDarkText,
   textDecoration: 'none',
@@ -201,22 +201,22 @@ export const primaryLink = style({
 export const pageContent = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '24px',
+  gap: vars.spacing['3xl'],
 });
 
 export const pipelineSection = style({
   borderRadius: vars.radius.xl,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
-  padding: '20px',
+  padding: vars.spacing['2xl'],
   display: 'flex',
   flexDirection: 'column',
-  gap: '16px',
+  gap: vars.spacing.xl,
 });
 
 export const pipelineSectionTitle = style({
   margin: 0,
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   fontWeight: 600,
   color: vars.color.text,
   textTransform: 'uppercase',
@@ -225,31 +225,31 @@ export const pipelineSectionTitle = style({
 
 export const pipelineSectionDesc = style({
   margin: 0,
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
 });
 
 export const pipelineList = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '12px',
+  gap: vars.spacing.lg,
 });
 
 export const pipelineRow = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   flexWrap: 'wrap',
 });
 
 export const pipelineStep = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '8px 12px',
+  padding: `${vars.spacing.md} ${vars.spacing.lg}`,
   minWidth: '120px',
 });
 
@@ -263,12 +263,12 @@ export const pipelineStepIcon = style({
 export const pipelineStepContent = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '2px',
+  gap: vars.spacing['2xs'],
   minWidth: 0,
 });
 
 export const pipelineStepLabel = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.text,
   overflow: 'hidden',
@@ -277,7 +277,7 @@ export const pipelineStepLabel = style({
 });
 
 export const pipelineStepLink = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.accent,
   textDecoration: 'none',
   ':hover': {
@@ -286,7 +286,7 @@ export const pipelineStepLink = style({
 });
 
 export const pipelineStepHint = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
@@ -296,7 +296,7 @@ export const pipelineArrow = style({
 });
 
 export const deleteErrorText = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.errorText,
 });
 
@@ -304,7 +304,7 @@ export const deleteErrorText = style({
 export const pipelineCard = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   flexWrap: 'wrap',
   padding: '4px 0',
   '@media': {
@@ -321,10 +321,10 @@ export const pipelineRowSelectable = recipe({
   base: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: vars.spacing.md,
     flexWrap: 'wrap',
     borderRadius: vars.radius.lg,
-    padding: '4px 6px',
+    padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
     cursor: 'pointer',
     transition: 'background-color 150ms',
   },
@@ -348,39 +348,39 @@ export const editModeBar = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: '12px',
+  gap: vars.spacing.lg,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '10px 14px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing['lg-xl']}`,
 });
 
 export const editModeBarLeft = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '10px',
+  gap: vars.spacing['md-lg'],
 });
 
 export const editModeBarRight = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
 });
 
 export const editModeCount = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
 });
 
 export const editModeDeleteButton = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.errorBorder}`,
   background: vars.color.errorBg,
-  padding: '6px 12px',
-  fontSize: '13px',
+  padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.errorText,
   cursor: 'pointer',
@@ -396,12 +396,12 @@ export const editModeDeleteButton = style({
 export const editModeCancelButton = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: '6px 12px',
-  fontSize: '13px',
+  padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',
   transition: 'color 150ms, border-color 150ms',
@@ -414,11 +414,11 @@ export const editModeCancelButton = style({
 export const draftCardSelectable = recipe({
   base: {
     display: 'grid',
-    gap: '18px',
+    gap: vars.spacing['xl-2xl'],
     borderRadius: vars.radius.xl,
     border: `1px solid ${vars.color.border}`,
     background: vars.color.surface,
-    padding: '18px',
+    padding: vars.spacing['xl-2xl'],
     cursor: 'pointer',
     transition: 'border-color 150ms, background-color 150ms',
     '@media': {
@@ -448,7 +448,7 @@ export const draftCardCheckbox = style({
   flexShrink: 0,
   width: '18px',
   height: '18px',
-  borderRadius: '4px',
+  borderRadius: vars.radius.xs,
   border: `2px solid ${vars.color.borderStrong}`,
   background: vars.color.bgElevated,
   appearance: 'none',
@@ -477,18 +477,18 @@ export const listHeader = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: '8px',
+  gap: vars.spacing.md,
 });
 
 export const editToggleButton = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: '6px 10px',
-  fontSize: '13px',
+  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',
   transition: 'color 150ms, border-color 150ms',
@@ -503,68 +503,68 @@ export const syncStatusStepVariants = styleVariants({
   default: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: vars.spacing.md,
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.border}`,
     background: vars.color.bgElevated,
-    padding: '8px 12px',
+    padding: `${vars.spacing.md} ${vars.spacing.lg}`,
     minWidth: '120px',
   },
   syncing: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: vars.spacing.md,
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.warningBorder}`,
     background: vars.color.warningBg,
-    padding: '8px 12px',
+    padding: `${vars.spacing.md} ${vars.spacing.lg}`,
     minWidth: '120px',
   },
   completed: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: vars.spacing.md,
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.successBorder}`,
     background: vars.color.successBg,
-    padding: '8px 12px',
+    padding: `${vars.spacing.md} ${vars.spacing.lg}`,
     minWidth: '120px',
   },
   failed: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: vars.spacing.md,
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.errorBorder}`,
     background: vars.color.errorBg,
-    padding: '8px 12px',
+    padding: `${vars.spacing.md} ${vars.spacing.lg}`,
     minWidth: '120px',
   },
   'needs-action': {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: vars.spacing.md,
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.warningBorder}`,
     background: vars.color.warningBg,
-    padding: '8px 12px',
+    padding: `${vars.spacing.md} ${vars.spacing.lg}`,
     minWidth: '120px',
   },
   partial: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: vars.spacing.md,
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.warningBorder}`,
     background: vars.color.warningBg,
-    padding: '8px 12px',
+    padding: `${vars.spacing.md} ${vars.spacing.lg}`,
     minWidth: '120px',
   },
 });
 
 export const syncStatusLabelVariants = styleVariants({
   default: {
-    fontSize: '13px',
+    fontSize: vars.fontSize.sm,
     fontWeight: 500,
     color: vars.color.text,
     overflow: 'hidden',
@@ -572,7 +572,7 @@ export const syncStatusLabelVariants = styleVariants({
     whiteSpace: 'nowrap',
   },
   syncing: {
-    fontSize: '13px',
+    fontSize: vars.fontSize.sm,
     fontWeight: 500,
     color: vars.color.warningText,
     overflow: 'hidden',
@@ -580,7 +580,7 @@ export const syncStatusLabelVariants = styleVariants({
     whiteSpace: 'nowrap',
   },
   completed: {
-    fontSize: '13px',
+    fontSize: vars.fontSize.sm,
     fontWeight: 500,
     color: vars.color.successText,
     overflow: 'hidden',
@@ -588,7 +588,7 @@ export const syncStatusLabelVariants = styleVariants({
     whiteSpace: 'nowrap',
   },
   failed: {
-    fontSize: '13px',
+    fontSize: vars.fontSize.sm,
     fontWeight: 500,
     color: vars.color.errorText,
     overflow: 'hidden',
@@ -596,7 +596,7 @@ export const syncStatusLabelVariants = styleVariants({
     whiteSpace: 'nowrap',
   },
   'needs-action': {
-    fontSize: '13px',
+    fontSize: vars.fontSize.sm,
     fontWeight: 500,
     color: vars.color.warningText,
     overflow: 'hidden',
@@ -604,7 +604,7 @@ export const syncStatusLabelVariants = styleVariants({
     whiteSpace: 'nowrap',
   },
   partial: {
-    fontSize: '13px',
+    fontSize: vars.fontSize.sm,
     fontWeight: 500,
     color: vars.color.warningText,
     overflow: 'hidden',
@@ -630,7 +630,7 @@ export const toolbar = style({
 export const searchInput = style({
   flex: 1,
   minWidth: 0,
-  padding: '10px 14px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing['lg-xl']}`,
   fontSize: 13,
   border: 'none',
   borderRadius: vars.radius.md,
@@ -655,7 +655,7 @@ export const tagContainer = style({
 export const tagChip = recipe({
   base: {
     borderRadius: 999,
-    padding: '2px 8px',
+    padding: `${vars.spacing['2xs']} ${vars.spacing.md}`,
     fontSize: 11,
     cursor: 'default',
     transition: 'background-color 150ms',
@@ -686,10 +686,10 @@ export const tagChip = recipe({
 // 状态筛选栏
 export const filterBar = style({
   display: 'flex',
-  gap: '6px',
+  gap: vars.spacing.sm,
   gridColumn: '1 / -1',
   overflowX: 'auto',
-  paddingBottom: '2px',
+  paddingBottom: vars.spacing['2xs'],
   WebkitOverflowScrolling: 'touch',
   scrollbarWidth: 'none',
   selectors: {
@@ -709,10 +709,10 @@ export const filterBar = style({
 
 export const filterChip = recipe({
   base: {
-    borderRadius: '999px',
+    borderRadius: vars.radius.full,
     border: `1px solid ${vars.color.border}`,
-    padding: '4px 12px',
-    fontSize: '12px',
+    padding: `${vars.spacing.xs} ${vars.spacing.lg}`,
+    fontSize: vars.fontSize.xs,
     cursor: 'pointer',
     transition: 'background-color 150ms, color 150ms, border-color 150ms',
   },
@@ -740,12 +740,12 @@ export const filterChip = recipe({
 export const importButton = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: '6px 10px',
-  fontSize: '13px',
+  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',
   transition: 'background-color 150ms, color 150ms, border-color 150ms',
@@ -782,8 +782,8 @@ export const batchActionButton = style({
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: '6px 10px',
-  fontSize: '13px',
+  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',
   transition: 'all 150ms',
@@ -837,14 +837,14 @@ export const viewToggleButton = recipe({
 export const compactList = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '2px',
+  gap: vars.spacing['2xs'],
 });
 
 export const compactRow = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '10px',
-  padding: '10px 12px',
+  gap: vars.spacing['md-lg'],
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
   borderRadius: vars.radius.md,
   transition: 'background-color 150ms',
   ':hover': {
@@ -855,7 +855,7 @@ export const compactRow = style({
 export const compactTitle = style({
   flex: 1,
   minWidth: 0,
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   fontWeight: 500,
   color: vars.color.text,
   overflow: 'hidden',
@@ -865,13 +865,13 @@ export const compactTitle = style({
 
 export const compactStatus = style({
   flexShrink: 0,
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
 export const compactTime = style({
   flexShrink: 0,
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
@@ -885,12 +885,12 @@ export const loadMoreWrap = style({
 export const loadMoreButton = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: '8px 20px',
-  fontSize: '13px',
+  padding: `${vars.spacing.md} ${vars.spacing['2xl']}`,
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',
   transition: 'border-color 150ms, color 150ms',
@@ -901,8 +901,8 @@ export const loadMoreButton = style({
 });
 
 export const loadMoreCount = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
   textAlign: 'center',
-  paddingTop: '4px',
+  paddingTop: vars.spacing.xs,
 });

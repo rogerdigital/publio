@@ -8,8 +8,8 @@ const slideUp = keyframes({
 
 export const overlay = style({
   position: 'fixed',
-  bottom: '24px',
-  right: '24px',
+  bottom: vars.spacing['3xl'],
+  right: vars.spacing['3xl'],
   width: '320px',
   zIndex: 1000,
   borderRadius: vars.radius.xl,
@@ -26,12 +26,12 @@ export const header = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: '12px 14px',
+  padding: `${vars.spacing.lg} ${vars.spacing['lg-xl']}`,
   borderBottom: `1px solid ${vars.color.border}`,
 });
 
 export const headerTitle = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   fontWeight: 600,
   color: vars.color.text,
 });
@@ -57,14 +57,14 @@ export const closeButton = style({
 export const body = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '2px',
-  padding: '8px 14px',
+  gap: vars.spacing['2xs'],
+  padding: `${vars.spacing.md} ${vars.spacing['lg-xl']}`,
 });
 
 export const receiptRow = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '10px',
+  gap: vars.spacing['md-lg'],
   padding: '8px 0',
   borderBottom: `1px solid ${vars.color.border}`,
   selectors: {
@@ -75,14 +75,14 @@ export const receiptRow = style({
 });
 
 export const platformName = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.text,
   flex: 1,
   minWidth: 0,
 });
 
 export const statusText = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
   flexShrink: 0,
 });
@@ -96,14 +96,14 @@ export const statusTextError = style({
 });
 
 export const footer = style({
-  padding: '10px 14px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing['lg-xl']}`,
   borderTop: `1px solid ${vars.color.border}`,
   display: 'flex',
   justifyContent: 'flex-end',
 });
 
 export const detailLink = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.accent,
   border: 0,
   background: 'transparent',
@@ -111,7 +111,7 @@ export const detailLink = style({
   textDecoration: 'none',
   display: 'flex',
   alignItems: 'center',
-  gap: '4px',
+  gap: vars.spacing.xs,
   ':hover': {
     textDecoration: 'underline',
   },

@@ -12,11 +12,11 @@ export const editorRoot = style({
 export const titleRow = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '12px',
-  padding: '16px',
+  gap: vars.spacing.lg,
+  padding: vars.spacing.xl,
   '@media': {
     'screen and (min-width: 640px)': {
-      padding: '16px 20px',
+      padding: `${vars.spacing.xl} ${vars.spacing['2xl']}`,
     },
   },
 });
@@ -27,7 +27,7 @@ export const titleInput = style({
   minWidth: 0,
   border: 0,
   background: 'transparent',
-  fontSize: '24px',
+  fontSize: vars.fontSize['3xl'],
   lineHeight: 1.3,
   color: vars.color.text,
   outline: 'none',
@@ -42,7 +42,7 @@ export const titleInput = style({
   },
   '@media': {
     'screen and (min-width: 640px)': {
-      fontSize: '28px',
+      fontSize: vars.fontSize['4xl'],
     },
   },
 });
@@ -70,7 +70,7 @@ globalStyle(`${editorWrap} .w-md-editor-toolbar`, {
   borderTop: `1px solid ${vars.color.borderFaint}`,
   borderBottom: `1px solid ${vars.color.borderFaint}`,
   background: vars.color.surface,
-  padding: '6px 12px',
+  padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
 });
 
 globalStyle(`${editorWrap} .w-md-editor-toolbar button`, {
@@ -129,8 +129,8 @@ export const mobileTextarea = style({
   resize: 'vertical',
   border: 0,
   background: 'transparent',
-  padding: '16px',
-  fontSize: '15px',
+  padding: vars.spacing.xl,
+  fontSize: vars.fontSize.base,
   lineHeight: 1.75,
   color: vars.color.text,
   outline: 'none',
@@ -140,17 +140,17 @@ export const mobileTextarea = style({
   '@media': {
     'screen and (min-width: 640px)': {
       minHeight: '22rem',
-      padding: '20px',
+      padding: vars.spacing['2xl'],
     },
   },
 });
 
 // Stats bar
 export const statsBar = style({
-  padding: '8px 16px 12px',
+  padding: `${vars.spacing.md} ${vars.spacing.xl} ${vars.spacing.lg}`,
   '@media': {
     'screen and (min-width: 640px)': {
-      padding: '8px 20px 12px',
+      padding: `${vars.spacing.md} ${vars.spacing['2xl']} ${vars.spacing.lg}`,
     },
   },
 });
@@ -159,9 +159,9 @@ export const statsRow = style({
   display: 'flex',
   flexWrap: 'wrap',
   alignItems: 'center',
-  columnGap: '8px',
-  rowGap: '4px',
-  fontSize: '11px',
+  columnGap: vars.spacing.md,
+  rowGap: vars.spacing.xs,
+  fontSize: vars.fontSize['2xs'],
   color: vars.color.textMuted,
 });
 
@@ -171,14 +171,14 @@ export const statsDot = style({
 
 // Preview area
 export const previewWrap = style({
-  padding: '24px',
+  padding: vars.spacing['3xl'],
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   background: vars.color.canvasDeep,
   '@media': {
     'screen and (min-width: 640px)': {
-      padding: '32px',
+      padding: vars.spacing['4xl'],
     },
     'screen and (min-width: 1024px)': {
       minHeight: '420px',
@@ -201,7 +201,7 @@ export const previewPhoneBar = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: '8px 14px',
+  padding: `${vars.spacing.md} ${vars.spacing['lg-xl']}`,
   borderBottom: `1px solid ${vars.color.borderFaint}`,
   background: vars.color.bgElevated,
 });
@@ -215,7 +215,7 @@ export const previewPhoneBarDot = style({
 
 export const previewPhoneBarDots = style({
   display: 'flex',
-  gap: '4px',
+  gap: vars.spacing.xs,
 });
 
 export const previewPhoneBarLabel = style({
@@ -226,11 +226,11 @@ export const previewPhoneBarLabel = style({
 
 // 文章内容内边距容器
 export const previewInner = style({
-  padding: '20px 20px 32px',
+  padding: `${vars.spacing['2xl']} ${vars.spacing['2xl']} ${vars.spacing['4xl']}`,
 });
 
 export const previewKicker = style({
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   fontWeight: 500,
   textTransform: 'uppercase',
   letterSpacing: '0.30em',
@@ -239,14 +239,14 @@ export const previewKicker = style({
 
 export const previewTitle = style({
   fontFamily: vars.font.serif,
-  marginTop: '8px',
-  fontSize: '28px',
+  marginTop: vars.spacing.md,
+  fontSize: vars.fontSize['4xl'],
   lineHeight: 1.3,
   color: vars.color.text,
 });
 
 export const previewTitleBlock = style({
-  marginBottom: '20px',
+  marginBottom: vars.spacing['2xl'],
 });
 
 // Markdown preview content (dangerouslySetInnerHTML target)
@@ -256,13 +256,13 @@ export const previewContent = style({
 
 globalStyle(`${previewContent} p`, {
   margin: '16px 0',
-  fontSize: '16px',
+  fontSize: vars.fontSize.lg,
   lineHeight: 2,
   color: vars.color.text,
 });
 
 globalStyle(`${previewContent} h1`, {
-  marginBottom: '12px',
+  marginBottom: vars.spacing.lg,
   fontSize: '30px',
   lineHeight: 1.3,
   fontWeight: 600,
@@ -270,8 +270,8 @@ globalStyle(`${previewContent} h1`, {
 });
 
 globalStyle(`${previewContent} h2`, {
-  marginTop: '40px',
-  marginBottom: '16px',
+  marginTop: vars.spacing['5xl'],
+  marginBottom: vars.spacing.xl,
   fontSize: '22px',
   lineHeight: 1.3,
   fontWeight: 600,
@@ -279,9 +279,9 @@ globalStyle(`${previewContent} h2`, {
 });
 
 globalStyle(`${previewContent} h3`, {
-  marginTop: '32px',
-  marginBottom: '12px',
-  paddingLeft: '12px',
+  marginTop: vars.spacing['4xl'],
+  marginBottom: vars.spacing.lg,
+  paddingLeft: vars.spacing.lg,
   borderLeft: `4px solid ${vars.color.accent}`,
   fontSize: '19px',
   lineHeight: 1.4,
@@ -294,14 +294,14 @@ globalStyle(`${previewContent} blockquote`, {
   borderRadius: '18px',
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '16px 20px',
+  padding: `${vars.spacing.xl} ${vars.spacing['2xl']}`,
   color: vars.color.textMuted,
 });
 
 globalStyle(`${previewContent} code`, {
   borderRadius: '8px',
   background: vars.color.accentSoft,
-  padding: '2px 6px',
+  padding: `${vars.spacing['2xs']} ${vars.spacing.sm}`,
   fontSize: '0.94em',
 });
 
@@ -319,12 +319,12 @@ globalStyle(`${previewContent} img`, {
 
 globalStyle(`${previewContent} ul`, {
   margin: '16px 0',
-  paddingLeft: '24px',
+  paddingLeft: vars.spacing['3xl'],
 });
 
 globalStyle(`${previewContent} ol`, {
   margin: '16px 0',
-  paddingLeft: '24px',
+  paddingLeft: vars.spacing['3xl'],
 });
 
 globalStyle(`${previewContent} li`, {
@@ -340,10 +340,10 @@ globalStyle(`${previewContent} a`, {
 
 // EditorialContextCard styles
 export const contextCard = style({
-  padding: '12px 16px',
+  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
   '@media': {
     'screen and (min-width: 640px)': {
-      padding: '12px 20px',
+      padding: `${vars.spacing.lg} ${vars.spacing['2xl']}`,
     },
   },
 });
@@ -351,13 +351,13 @@ export const contextCard = style({
 export const contextInner = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '12px',
+  gap: vars.spacing.lg,
 });
 
 export const contextHeader = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '12px',
+  gap: vars.spacing.lg,
   '@media': {
     'screen and (min-width: 768px)': {
       flexDirection: 'row',
@@ -372,7 +372,7 @@ export const contextHeaderText = style({
 });
 
 export const contextKicker = style({
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   fontWeight: 500,
   textTransform: 'uppercase',
   letterSpacing: '0.32em',
@@ -380,8 +380,8 @@ export const contextKicker = style({
 });
 
 export const contextDesc = style({
-  marginTop: '8px',
-  fontSize: '14px',
+  marginTop: vars.spacing.md,
+  fontSize: vars.fontSize.md,
   lineHeight: 1.75,
   color: vars.color.textMuted,
 });
@@ -389,24 +389,24 @@ export const contextDesc = style({
 export const contextBadges = style({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '8px',
+  gap: vars.spacing.md,
 });
 
 export const contextBadgeNeutral = style({
-  borderRadius: '999px',
+  borderRadius: vars.radius.full,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
-  padding: '4px 12px',
-  fontSize: '12px',
+  padding: `${vars.spacing.xs} ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
 export const contextBadgeAccent = style({
-  borderRadius: '999px',
+  borderRadius: vars.radius.full,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.accentSoft,
-  padding: '4px 12px',
-  fontSize: '12px',
+  padding: `${vars.spacing.xs} ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.xs,
   color: vars.color.accent,
 });
 
@@ -414,7 +414,7 @@ export const titleBlock = style({
   borderRadius: '18px',
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '12px 16px',
+  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
 });
 
 export const titleBlockLabel = style({
@@ -426,8 +426,8 @@ export const titleBlockLabel = style({
 
 export const titleBlockValue = style({
   fontFamily: vars.font.serif,
-  marginTop: '8px',
-  fontSize: '16px',
+  marginTop: vars.spacing.md,
+  fontSize: vars.fontSize.lg,
   lineHeight: 1.4,
   color: vars.color.text,
 });
@@ -436,15 +436,15 @@ export const titleBlockEmpty = style({
   borderRadius: '18px',
   border: `1px dashed ${vars.color.borderStrong}`,
   background: vars.color.bgElevated,
-  padding: '12px 16px',
-  fontSize: '14px',
+  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
+  fontSize: vars.fontSize.md,
   lineHeight: 1.75,
   color: vars.color.textMuted,
 });
 
 export const statsGrid = style({
   display: 'grid',
-  gap: '8px',
+  gap: vars.spacing.md,
   gridTemplateColumns: '1fr 1fr',
   '@media': {
     'screen and (min-width: 1280px)': {
@@ -457,7 +457,7 @@ export const statPill = style({
   borderRadius: '16px',
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '8px 12px',
+  padding: `${vars.spacing.md} ${vars.spacing.lg}`,
 });
 
 export const statPillLabel = style({
@@ -468,14 +468,14 @@ export const statPillLabel = style({
 });
 
 export const statPillValue = style({
-  marginTop: '4px',
-  fontSize: '14px',
+  marginTop: vars.spacing.xs,
+  fontSize: vars.fontSize.md,
   fontWeight: 500,
   color: vars.color.text,
 });
 
 export const contextFooter = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   lineHeight: 1.75,
   color: vars.color.textMuted,
 });
@@ -485,12 +485,12 @@ export const recentDraftBar = style({
   display: 'flex',
   flexWrap: 'wrap',
   alignItems: 'center',
-  gap: '8px',
-  paddingTop: '2px',
+  gap: vars.spacing.md,
+  paddingTop: vars.spacing['2xs'],
 });
 
 export const recentDraftLabel = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
   flexShrink: 0,
 });
@@ -498,15 +498,15 @@ export const recentDraftLabel = style({
 export const recentDraftChips = style({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '6px',
+  gap: vars.spacing.sm,
 });
 
 export const recentDraftChip = style({
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '4px 10px',
-  fontSize: '12px',
+  padding: `${vars.spacing.xs} ${vars.spacing['md-lg']}`,
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
   textDecoration: 'none',
   whiteSpace: 'nowrap',
@@ -536,13 +536,13 @@ export const immersiveToolbar = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: '12px 24px',
+  padding: `${vars.spacing.lg} ${vars.spacing['3xl']}`,
   borderBottom: `1px solid ${vars.color.borderFaint}`,
   flexShrink: 0,
 });
 
 export const immersiveToolbarLabel = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
@@ -551,12 +551,12 @@ export const immersiveToolbarLabel = style({
 export const immersiveToolbarBtn = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
-  padding: '6px 12px',
-  fontSize: '13px',
+  padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',
   transition: 'color 150ms, border-color 150ms',
@@ -571,7 +571,7 @@ export const immersiveBody = style({
   overflowY: 'auto',
   display: 'flex',
   justifyContent: 'center',
-  padding: '40px 24px',
+  padding: `${vars.spacing['5xl']} ${vars.spacing['3xl']}`,
 });
 
 export const immersiveInner = style({
@@ -588,7 +588,7 @@ export const immersiveTitleInput = style({
   lineHeight: 1.3,
   color: vars.color.text,
   outline: 'none',
-  marginBottom: '24px',
+  marginBottom: vars.spacing['3xl'],
   '::placeholder': {
     color: vars.color.textMuted,
   },
@@ -598,7 +598,7 @@ export const immersiveEditorWrap = style({
   background: 'transparent',
   position: 'relative',
   outline: 'none',
-  fontSize: '18px',
+  fontSize: vars.fontSize.xl,
 });
 
 globalStyle(`${immersiveEditorWrap} .w-md-editor`, {
@@ -618,7 +618,7 @@ globalStyle(`${immersiveEditorWrap} .w-md-editor-toolbar`, {
 
 globalStyle(`${immersiveEditorWrap} .w-md-editor-text-input`, {
   fontFamily: vars.font.sans,
-  fontSize: '18px',
+  fontSize: vars.fontSize.xl,
   lineHeight: 1.8,
   background: 'transparent',
   color: vars.color.text,
@@ -628,7 +628,7 @@ globalStyle(`${immersiveEditorWrap} .w-md-editor-text-input`, {
 globalStyle(`${immersiveEditorWrap} .wmde-markdown`, {
   background: 'transparent',
   color: vars.color.text,
-  fontSize: '18px',
+  fontSize: vars.fontSize.xl,
   lineHeight: 1.8,
 });
 
@@ -639,25 +639,25 @@ globalStyle(`${immersiveEditorWrap} .w-md-editor-area`, {
 export const immersiveFooter = style({
   display: 'flex',
   justifyContent: 'center',
-  padding: '12px 24px',
+  padding: `${vars.spacing.lg} ${vars.spacing['3xl']}`,
   borderTop: `1px solid ${vars.color.borderFaint}`,
   flexShrink: 0,
 });
 
 export const immersiveFooterText = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
 export const immersiveEntryBtn = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '4px',
+  gap: vars.spacing.xs,
   borderRadius: vars.radius.lg,
   border: 'none',
   background: 'transparent',
-  padding: '4px 8px',
-  fontSize: '12px',
+  padding: `${vars.spacing.xs} ${vars.spacing.md}`,
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
   cursor: 'pointer',
   transition: 'color 150ms',
@@ -679,11 +679,11 @@ export const modeToggleBtn = recipe({
   base: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '4px',
+    gap: vars.spacing.xs,
     border: 'none',
     background: 'transparent',
-    padding: '4px 10px',
-    fontSize: '12px',
+    padding: `${vars.spacing.xs} ${vars.spacing['md-lg']}`,
+    fontSize: vars.fontSize.xs,
     color: vars.color.textMuted,
     cursor: 'pointer',
     transition: 'all 150ms',

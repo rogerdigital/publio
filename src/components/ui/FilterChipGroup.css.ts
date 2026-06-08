@@ -5,15 +5,15 @@ import { vars } from '@/styles/tokens.css';
 export const filterBar = style({
   display: 'flex',
   flexWrap: 'nowrap',
-  gap: '6px',
+  gap: vars.spacing.sm,
 });
 
 export const filterChip = recipe({
   base: {
-    borderRadius: '999px',
+    borderRadius: vars.radius.full,
     border: `1px solid ${vars.color.border}`,
-    padding: '4px 12px',
-    fontSize: '12px',
+    padding: `${vars.spacing.xs} ${vars.spacing.lg}`,
+    fontSize: vars.fontSize.xs,
     cursor: 'pointer',
     transition: 'background-color 150ms, color 150ms, border-color 150ms',
   },

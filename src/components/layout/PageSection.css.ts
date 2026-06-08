@@ -10,12 +10,12 @@ export const section = style({
 });
 
 export const sectionHeader = style({
-  marginBottom: '20px',
-  padding: '20px',
+  marginBottom: vars.spacing['2xl'],
+  padding: vars.spacing['2xl'],
   '@media': {
     'screen and (min-width: 640px)': {
-      paddingLeft: '24px',
-      paddingRight: '24px',
+      paddingLeft: vars.spacing['3xl'],
+      paddingRight: vars.spacing['3xl'],
     },
   },
 });
@@ -23,7 +23,7 @@ export const sectionHeader = style({
 export const sectionHeaderInner = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '16px',
+  gap: vars.spacing.xl,
   '@media': {
     'screen and (min-width: 1280px)': {
       flexDirection: 'row',
@@ -38,7 +38,7 @@ export const sectionTextBlock = style({
 });
 
 export const eyebrow = style({
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   fontWeight: 500,
   textTransform: 'uppercase',
   letterSpacing: '0.32em',
@@ -47,8 +47,8 @@ export const eyebrow = style({
 
 export const sectionTitle = style({
   fontFamily: vars.font.serif,
-  marginTop: '8px',
-  fontSize: '28px',
+  marginTop: vars.spacing.md,
+  fontSize: vars.fontSize['4xl'],
   lineHeight: 1.3,
   color: vars.color.text,
   '@media': {
@@ -59,9 +59,9 @@ export const sectionTitle = style({
 });
 
 export const sectionDescription = style({
-  marginTop: '12px',
+  marginTop: vars.spacing.lg,
   maxWidth: '48rem',
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   lineHeight: 1.75,
   color: vars.color.textMuted,
 });
@@ -69,11 +69,11 @@ export const sectionDescription = style({
 export const sectionActions = style({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '8px',
+  gap: vars.spacing.md,
 });
 
 export const sectionContent = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '24px',
+  gap: vars.spacing['3xl'],
 });

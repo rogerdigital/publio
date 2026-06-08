@@ -10,15 +10,15 @@ const spin = keyframes({
 export const selectorWrap = style({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '8px',
+  gap: vars.spacing.md,
 });
 
 export const selectorFooter = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  marginTop: '8px',
-  fontSize: '12px',
+  marginTop: vars.spacing.md,
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
@@ -26,7 +26,7 @@ export const selectorToggleAll = style({
   background: 'none',
   border: 'none',
   padding: 0,
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.accent,
   cursor: 'pointer',
   transition: 'color 150ms',
@@ -41,10 +41,10 @@ export const platformLabel = recipe({
     cursor: 'pointer',
     userSelect: 'none',
     alignItems: 'center',
-    gap: '8px',
+    gap: vars.spacing.md,
     borderRadius: vars.radius.lg,
-    padding: '8px 12px',
-    fontSize: '14px',
+    padding: `${vars.spacing.md} ${vars.spacing.lg}`,
+    fontSize: vars.fontSize.md,
     transition: 'background-color 150ms, color 150ms',
   },
   variants: {
@@ -86,11 +86,11 @@ export const publishButton = recipe({
   base: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: vars.spacing.md,
     borderRadius: vars.radius.lg,
     border: '1px solid transparent',
-    padding: '10px 20px',
-    fontSize: '14px',
+    padding: `${vars.spacing['md-lg']} ${vars.spacing['2xl']}`,
+    fontSize: vars.fontSize.md,
     fontWeight: 500,
     transition: 'filter 150ms, background-color 150ms',
   },
@@ -120,17 +120,17 @@ export const publishButton = recipe({
 export const panel = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '16px',
+  gap: vars.spacing.xl,
   borderRadius: vars.radius.xl,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
-  padding: '16px',
+  padding: vars.spacing.xl,
 });
 
 export const panelHeader = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '12px',
+  gap: vars.spacing.lg,
   '@media': {
     'screen and (min-width: 640px)': {
       flexDirection: 'row',
@@ -141,7 +141,7 @@ export const panelHeader = style({
 });
 
 export const panelKicker = style({
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   fontWeight: 500,
   textTransform: 'uppercase',
   letterSpacing: '0.32em',
@@ -149,8 +149,8 @@ export const panelKicker = style({
 });
 
 export const panelTitle = style({
-  marginTop: '4px',
-  fontSize: '18px',
+  marginTop: vars.spacing.xs,
+  fontSize: vars.fontSize.xl,
   fontWeight: 600,
   lineHeight: 1.3,
   color: vars.color.text,
@@ -159,35 +159,35 @@ export const panelTitle = style({
 export const panelStats = style({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '8px',
-  fontSize: '12px',
+  gap: vars.spacing.md,
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
 export const statBadge = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '6px 12px',
+  padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
 });
 
 export const resultList = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '12px',
+  gap: vars.spacing.lg,
 });
 
 export const resultCardVariants = styleVariants({
   success: {
     display: 'grid',
-    gap: '12px',
+    gap: vars.spacing.lg,
     borderRadius: vars.radius.xl,
     border: `1px solid ${vars.color.successBorder}`,
     background: vars.color.successBg,
-    padding: '16px',
+    padding: vars.spacing.xl,
     '@media': {
       'screen and (min-width: 640px)': {
         gridTemplateColumns: 'auto minmax(0, 1fr) auto',
@@ -197,11 +197,11 @@ export const resultCardVariants = styleVariants({
   },
   error: {
     display: 'grid',
-    gap: '12px',
+    gap: vars.spacing.lg,
     borderRadius: vars.radius.xl,
     border: `1px solid ${vars.color.errorBorder}`,
     background: vars.color.errorBg,
-    padding: '16px',
+    padding: vars.spacing.xl,
     '@media': {
       'screen and (min-width: 640px)': {
         gridTemplateColumns: 'auto minmax(0, 1fr) auto',
@@ -211,11 +211,11 @@ export const resultCardVariants = styleVariants({
   },
   publishing: {
     display: 'grid',
-    gap: '12px',
+    gap: vars.spacing.lg,
     borderRadius: vars.radius.xl,
     border: `1px solid ${vars.color.border}`,
     background: vars.color.bgElevated,
-    padding: '16px',
+    padding: vars.spacing.xl,
     '@media': {
       'screen and (min-width: 640px)': {
         gridTemplateColumns: 'auto minmax(0, 1fr) auto',
@@ -228,7 +228,7 @@ export const resultCardVariants = styleVariants({
 export const resultPlatformRow = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '12px',
+  gap: vars.spacing.lg,
 });
 
 export const platformIconWrap = style({
@@ -244,14 +244,14 @@ export const platformIconWrap = style({
 });
 
 export const platformName = style({
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   fontWeight: 500,
   color: vars.color.text,
 });
 
 export const platformSubLabel = style({
-  marginTop: '4px',
-  fontSize: '11px',
+  marginTop: vars.spacing.xs,
+  fontSize: vars.fontSize['2xs'],
   textTransform: 'uppercase',
   letterSpacing: '0.24em',
   color: vars.color.textMuted,
@@ -263,17 +263,17 @@ export const resultMessage = style({
 
 export const resultMessageTextVariants = styleVariants({
   success: {
-    fontSize: '14px',
+    fontSize: vars.fontSize.md,
     lineHeight: 1.5,
     color: vars.color.successText,
   },
   error: {
-    fontSize: '14px',
+    fontSize: vars.fontSize.md,
     lineHeight: 1.5,
     color: vars.color.errorText,
   },
   publishing: {
-    fontSize: '14px',
+    fontSize: vars.fontSize.md,
     lineHeight: 1.5,
     color: vars.color.textMuted,
   },
@@ -283,7 +283,7 @@ export const resultActions = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: '12px',
+  gap: vars.spacing.lg,
   '@media': {
     'screen and (min-width: 640px)': {
       justifyContent: 'flex-end',
@@ -295,36 +295,36 @@ export const statusBadgeVariants = styleVariants({
   success: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: vars.spacing.sm,
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.successBorder}`,
     background: vars.color.surface,
-    padding: '4px 10px',
-    fontSize: '11px',
+    padding: `${vars.spacing.xs} ${vars.spacing['md-lg']}`,
+    fontSize: vars.fontSize['2xs'],
     fontWeight: 500,
     color: vars.color.successText,
   },
   error: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: vars.spacing.sm,
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.errorBorder}`,
     background: vars.color.surface,
-    padding: '4px 10px',
-    fontSize: '11px',
+    padding: `${vars.spacing.xs} ${vars.spacing['md-lg']}`,
+    fontSize: vars.fontSize['2xs'],
     fontWeight: 500,
     color: vars.color.errorText,
   },
   publishing: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: vars.spacing.sm,
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.border}`,
     background: vars.color.surface,
-    padding: '4px 10px',
-    fontSize: '11px',
+    padding: `${vars.spacing.xs} ${vars.spacing['md-lg']}`,
+    fontSize: vars.fontSize['2xs'],
     fontWeight: 500,
     color: vars.color.textMuted,
   },
@@ -350,7 +350,7 @@ export const externalLink = style({
 
 export const loadingWrap = style({
   display: 'grid',
-  gap: '12px',
+  gap: vars.spacing.lg,
   '@media': {
     'screen and (min-width: 640px)': {
       gridTemplateColumns: '1fr 1fr',
@@ -361,15 +361,15 @@ export const loadingWrap = style({
 export const loadingCard = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '12px',
+  gap: vars.spacing.lg,
   borderRadius: vars.radius.xl,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '12px 16px',
+  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
 });
 
 export const loadingText = style({
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   color: vars.color.textMuted,
 });
 
@@ -377,33 +377,33 @@ export const loadingPlaceholder = style({
   borderRadius: vars.radius.xl,
   border: `1px dashed ${vars.color.borderStrong}`,
   background: vars.color.bgElevated,
-  padding: '12px 16px',
-  fontSize: '14px',
+  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
+  fontSize: vars.fontSize.md,
   lineHeight: 1.5,
   color: vars.color.textMuted,
 });
 
 export const previewPanel = style({
   display: 'grid',
-  gap: '16px',
+  gap: vars.spacing.xl,
 });
 
 export const previewHeader = style({
   display: 'grid',
-  gap: '4px',
+  gap: vars.spacing.xs,
 });
 
 export const previewTitle = style({
   margin: 0,
   fontFamily: vars.font.serif,
-  fontSize: '20px',
+  fontSize: vars.fontSize['2xl'],
   lineHeight: 1.3,
   color: vars.color.text,
 });
 
 export const previewGrid = style({
   display: 'grid',
-  gap: '12px',
+  gap: vars.spacing.lg,
   '@media': {
     'screen and (min-width: 900px)': {
       gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
@@ -413,11 +413,11 @@ export const previewGrid = style({
 
 export const previewCard = style({
   display: 'grid',
-  gap: '12px',
+  gap: vars.spacing.lg,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '14px',
+  padding: vars.spacing['lg-xl'],
   // 统一卡片高度上限，避免 Thread 等长内容撑开整行
   alignContent: 'start',
 });
@@ -427,12 +427,12 @@ export const previewMeta = style({
   flexWrap: 'wrap',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: '8px',
+  gap: vars.spacing.md,
 });
 
 export const previewPlatform = style({
   margin: 0,
-  fontSize: '15px',
+  fontSize: vars.fontSize.base,
   fontWeight: 700,
   color: vars.color.text,
 });
@@ -442,7 +442,7 @@ export const previewState = style({
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
   padding: '4px 9px',
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   fontWeight: 600,
   color: vars.color.signal,
 });
@@ -456,7 +456,7 @@ export const previewStateNotReady = style({
 export const previewBody = style({
   margin: 0,
   color: vars.color.textMuted,
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   lineHeight: 1.7,
 });
 
@@ -472,28 +472,28 @@ export const previewImage = style({
 
 export const previewWarningList = style({
   margin: 0,
-  paddingLeft: '18px',
+  paddingLeft: vars.spacing['xl-2xl'],
   color: vars.color.errorText,
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   lineHeight: 1.7,
 });
 
 export const previewTagList = style({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '6px',
+  gap: vars.spacing.sm,
   color: vars.color.signal,
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   fontWeight: 600,
 });
 
 export const previewThreadList = style({
   display: 'grid',
-  gap: '6px',
+  gap: vars.spacing.sm,
   margin: 0,
-  paddingLeft: '18px',
+  paddingLeft: vars.spacing['xl-2xl'],
   color: vars.color.textMuted,
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   lineHeight: 1.7,
   maxHeight: '160px',
   overflowY: 'auto',
@@ -508,14 +508,14 @@ export const rightPanelSection = style({
   WebkitBackdropFilter: 'blur(20px) saturate(180%)',
   border: `1px solid ${vars.color.glassBorder}`,
   boxShadow: vars.shadow.sm,
-  padding: '14px 16px',
+  padding: `${vars.spacing['lg-xl']} ${vars.spacing.xl}`,
   display: 'flex',
   flexDirection: 'column',
-  gap: '10px',
+  gap: vars.spacing['md-lg'],
 });
 
 export const rightPanelSectionTitle = style({
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   fontWeight: 500,
   textTransform: 'uppercase',
   letterSpacing: '0.32em',
@@ -532,7 +532,7 @@ export const collapseToggle = style({
   border: 'none',
   padding: 0,
   cursor: 'pointer',
-  gap: '6px',
+  gap: vars.spacing.sm,
 });
 
 export const collapseContent = style({
@@ -554,12 +554,12 @@ export const collapseChevronOpen = style({
 export const adaptButton = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '4px',
-  borderRadius: '4px',
+  gap: vars.spacing.xs,
+  borderRadius: vars.radius.xs,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
   padding: '2px 7px',
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   color: vars.color.accent,
   cursor: 'pointer',
   transition: 'all 150ms',
@@ -576,12 +576,12 @@ export const adaptButton = style({
 export const adaptButtonRevert = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '4px',
-  borderRadius: '4px',
+  gap: vars.spacing.xs,
+  borderRadius: vars.radius.xs,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.canvasDeep,
   padding: '2px 7px',
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   color: vars.color.textMuted,
   cursor: 'pointer',
   transition: 'all 150ms',
@@ -610,14 +610,14 @@ export const wechatHeader = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: '12px 16px',
+  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
   borderBottom: '1px solid #f0f0f0',
 });
 
 export const wechatHeaderLeft = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '10px',
+  gap: vars.spacing['md-lg'],
 });
 
 export const wechatAvatar = style({
@@ -630,7 +630,7 @@ export const wechatAvatar = style({
 
 export const wechatAuthor = style({
   margin: 0,
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   fontWeight: 500,
   color: '#333',
   lineHeight: 1.3,
@@ -638,14 +638,14 @@ export const wechatAuthor = style({
 
 export const wechatDate = style({
   margin: 0,
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: '#999',
   lineHeight: 1.3,
 });
 
 export const wechatBody = style({
   padding: '0',
-  fontSize: '15px',
+  fontSize: vars.fontSize.base,
   lineHeight: 1.8,
   color: '#333',
 });
@@ -658,12 +658,12 @@ globalStyle(`${wechatBody} img`, {
 export const wechatFooter = style({
   display: 'flex',
   justifyContent: 'space-around',
-  padding: '12px 16px',
+  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
   borderTop: '1px solid #f0f0f0',
 });
 
 export const wechatFooterAction = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: '#999',
 });
 
@@ -679,7 +679,7 @@ export const xhsCard = style({
 export const xhsImageGrid = style({
   display: 'grid',
   gridTemplateColumns: '1fr 1fr 1fr',
-  gap: '2px',
+  gap: vars.spacing['2xs'],
 });
 
 export const xhsImage = style({
@@ -690,12 +690,12 @@ export const xhsImage = style({
 });
 
 export const xhsContent = style({
-  padding: '10px 12px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
 });
 
 export const xhsTitle = style({
   margin: '0 0 6px',
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   fontWeight: 600,
   color: '#333',
   lineHeight: 1.4,
@@ -707,7 +707,7 @@ export const xhsTitle = style({
 
 export const xhsText = style({
   margin: '0 0 8px',
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: '#666',
   lineHeight: 1.6,
   display: '-webkit-box',
@@ -719,30 +719,30 @@ export const xhsText = style({
 export const xhsTags = style({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '6px',
-  marginBottom: '8px',
+  gap: vars.spacing.sm,
+  marginBottom: vars.spacing.md,
 });
 
 export const xhsTag = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: '#ff4757',
   background: '#fff0f0',
-  padding: '2px 6px',
-  borderRadius: '4px',
+  padding: `${vars.spacing['2xs']} ${vars.spacing.sm}`,
+  borderRadius: vars.radius.xs,
 });
 
 export const xhsFooter = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  paddingTop: '8px',
+  paddingTop: vars.spacing.md,
   borderTop: '1px solid #f5f5f5',
 });
 
 export const xhsAuthorRow = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
 });
 
 export const xhsAuthorAvatar = style({
@@ -753,18 +753,18 @@ export const xhsAuthorAvatar = style({
 });
 
 export const xhsAuthorName = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: '#999',
 });
 
 export const xhsActions = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
 });
 
 export const xhsActionIcon = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: '#999',
 });
 
@@ -793,19 +793,19 @@ export const moderationDialog = style({
 export const moderationHeader = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
-  padding: '16px 20px',
+  gap: vars.spacing.md,
+  padding: `${vars.spacing.xl} ${vars.spacing['2xl']}`,
   borderBottom: `1px solid ${vars.color.border}`,
   color: vars.color.warningText,
   fontWeight: 600,
-  fontSize: '15px',
+  fontSize: vars.fontSize.base,
 });
 
 export const moderationClose = style({
   marginLeft: 'auto',
   background: 'none',
   border: 'none',
-  padding: '4px',
+  padding: vars.spacing.xs,
   cursor: 'pointer',
   color: vars.color.textMuted,
   borderRadius: vars.radius.sm,
@@ -814,15 +814,15 @@ export const moderationClose = style({
 });
 
 export const moderationBody = style({
-  padding: '16px 20px',
+  padding: `${vars.spacing.xl} ${vars.spacing['2xl']}`,
   display: 'flex',
   flexDirection: 'column',
-  gap: '12px',
+  gap: vars.spacing.lg,
 });
 
 export const moderationSummary = style({
   margin: 0,
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   color: vars.color.text,
   lineHeight: 1.5,
 });
@@ -830,11 +830,11 @@ export const moderationSummary = style({
 export const moderationCategory = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '6px',
+  gap: vars.spacing.sm,
 });
 
 export const moderationCategoryLabel = style({
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   fontWeight: 500,
   textTransform: 'uppercase',
   letterSpacing: '0.2em',
@@ -844,7 +844,7 @@ export const moderationCategoryLabel = style({
 export const moderationWords = style({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '6px',
+  gap: vars.spacing.sm,
 });
 
 export const moderationWord = style({
@@ -852,8 +852,8 @@ export const moderationWord = style({
   borderRadius: vars.radius.sm,
   background: vars.color.warningBg,
   border: `1px solid ${vars.color.warningBorder}`,
-  padding: '2px 8px',
-  fontSize: '13px',
+  padding: `${vars.spacing['2xs']} ${vars.spacing.md}`,
+  fontSize: vars.fontSize.sm,
   color: vars.color.warningText,
   fontWeight: 500,
 });
@@ -862,16 +862,16 @@ export const moderationHint = style({
   margin: 0,
   display: 'flex',
   alignItems: 'center',
-  gap: '6px',
-  fontSize: '13px',
+  gap: vars.spacing.sm,
+  fontSize: vars.fontSize.sm,
   color: vars.color.warningText,
   lineHeight: 1.5,
 });
 
 export const moderationActions = style({
   display: 'flex',
-  gap: '12px',
-  padding: '12px 20px',
+  gap: vars.spacing.lg,
+  padding: `${vars.spacing.lg} ${vars.spacing['2xl']}`,
   borderTop: `1px solid ${vars.color.border}`,
   justifyContent: 'flex-end',
 });
@@ -880,8 +880,8 @@ export const moderationCancelBtn = style({
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: '8px 16px',
-  fontSize: '14px',
+  padding: `${vars.spacing.md} ${vars.spacing.xl}`,
+  fontSize: vars.fontSize.md,
   color: vars.color.textMuted,
   cursor: 'pointer',
   transition: 'all 150ms',
@@ -895,8 +895,8 @@ export const moderationContinueBtn = style({
   borderRadius: vars.radius.lg,
   border: '1px solid transparent',
   background: vars.color.warningText,
-  padding: '8px 16px',
-  fontSize: '14px',
+  padding: `${vars.spacing.md} ${vars.spacing.xl}`,
+  fontSize: vars.fontSize.md,
   fontWeight: 500,
   color: vars.color.surfaceDarkText,
   cursor: 'pointer',

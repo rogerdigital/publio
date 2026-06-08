@@ -21,7 +21,7 @@ export const commandItem = style({
   alignItems: 'center',
   gap: 10,
   width: '100%',
-  padding: '8px 12px',
+  padding: `${vars.spacing.md} ${vars.spacing.lg}`,
   borderRadius: vars.radius.lg,
   border: 'none',
   background: 'transparent',

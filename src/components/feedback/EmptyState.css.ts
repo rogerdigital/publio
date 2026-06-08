@@ -13,7 +13,7 @@ export const container = style({
   backdropFilter: 'blur(12px)',
   WebkitBackdropFilter: 'blur(12px)',
   border: `1px solid ${vars.color.glassBorder}`,
-  padding: '40px 32px',
+  padding: `${vars.spacing['5xl']} ${vars.spacing['4xl']}`,
   textAlign: 'center',
 });
 
