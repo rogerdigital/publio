@@ -177,6 +177,7 @@ function SettingsContent() {
   }, []);
 
   const isDirty = Object.keys(values).some((key) => values[key] !== initialValues[key]);
+  const dirtyCount = Object.keys(values).filter((key) => values[key] !== initialValues[key]).length;
 
   function handleChange(key: string, value: string) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -868,7 +869,7 @@ function SettingsContent() {
       {isDirty && !loading && (
         <button type="button" className={styles.floatingSave} onClick={handleSave}>
           <Save size={16} />
-          保存设置
+          保存 {dirtyCount} 项修改
         </button>
       )}
     </div>
