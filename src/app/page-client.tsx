@@ -361,16 +361,7 @@ function HomePageContent() {
           <div className={styles.mobileSheet} onClick={(e) => e.stopPropagation()}>
             <div className={styles.mobileSheetHandle} />
             <div className={styles.mobileSheetTitle}>发布设置</div>
-            <PlatformSelector />
-            <PlatformPreviewPanel
-              adaptations={platformDrafts}
-              selectedPlatforms={selectedPlatforms}
-              agentEnabled={agentEnabled}
-            />
-            <div style={{ marginTop: 16 }}>
-              <PublishButton />
-            </div>
-            {overallStatus !== 'idle' && <PublishStatusPanel />}
+            <PublishChecklist agentEnabled={agentEnabled} />
           </div>
         </div>
       )}

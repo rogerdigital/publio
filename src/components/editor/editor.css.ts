@@ -664,6 +664,15 @@ export const immersiveEntryBtn = style({
   ':hover': {
     color: vars.color.text,
   },
+  '@media': {
+    'screen and (max-width: 1023px)': {
+      background: vars.color.accentSoft,
+      color: vars.color.accent,
+      padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
+      fontSize: vars.fontSize.sm,
+      fontWeight: 500,
+    },
+  },
 });
 
 // --- Editor Mode Toggle ---
