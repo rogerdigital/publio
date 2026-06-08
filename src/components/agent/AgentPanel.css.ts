@@ -6,24 +6,38 @@ const blink = keyframes({
   '50%': { opacity: 0 },
 });
 
+export const drawerOverlay = style({
+  position: 'fixed',
+  inset: 0,
+  zIndex: 200,
+  background: 'rgba(0, 0, 0, 0.3)',
+  display: 'flex',
+  justifyContent: 'flex-end',
+  '@media': {
+    'screen and (max-width: 767px)': {
+      alignItems: 'flex-end',
+      justifyContent: 'center',
+    },
+  },
+});
+
 export const panelWrap = style({
   display: 'flex',
   flexDirection: 'column',
-  width: '360px',
-  flexShrink: 0,
-  background: vars.color.glassSurface,
-  backdropFilter: 'blur(20px) saturate(180%)',
-  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-  borderRadius: vars.radius.xl,
-  border: `1px solid ${vars.color.glassBorder}`,
-  boxShadow: vars.shadow.md,
+  width: '400px',
+  maxWidth: '100%',
+  height: '100%',
+  background: vars.color.surface,
+  borderLeft: `1px solid ${vars.color.border}`,
+  boxShadow: vars.shadow.xl,
   overflow: 'hidden',
-  maxHeight: 'calc(100vh - 140px)',
-  position: 'sticky',
-  top: '28px',
   '@media': {
-    'screen and (max-width: 1279px)': {
-      width: '300px',
+    'screen and (max-width: 767px)': {
+      width: '100%',
+      height: '70vh',
+      maxHeight: '70vh',
+      borderLeft: 'none',
+      borderRadius: `${vars.radius.xl} ${vars.radius.xl} 0 0`,
     },
   },
 });
