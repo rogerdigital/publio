@@ -3,7 +3,17 @@
 import { Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, Files, SquarePen, Eraser, History, Send } from 'lucide-react';
+import {
+  Eye,
+  Files,
+  SquarePen,
+  Eraser,
+  History,
+  Send,
+  MoreHorizontal,
+  Image,
+  FileText,
+} from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import { useAgentStore } from '@/stores/agentStore';
 import AppShellHeader from '@/components/layout/AppShellHeader';
@@ -67,6 +77,7 @@ function HomePageContent() {
   const [mobilePublishOpen, setMobilePublishOpen] = useState(false);
   const [agentEnabled, setAgentEnabled] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [imageBedLabel, setImageBedLabel] = useState<string | undefined>(undefined);
 
   // 检查 Agent 是否已配置
@@ -204,30 +215,6 @@ function HomePageContent() {
                 预览
               </button>
             </div>
-            <TemplatePicker
-              currentTitle={title}
-              currentContent={content}
-              onSelect={(template) => {
-                setTitle(template.title);
-                setContent(template.content);
-              }}
-            />
-            <MediaLibrary
-              imageBedLabel={imageBedLabel}
-              onSelect={(url, filename) => {
-                const insertion = `\n![${filename}](${url})\n`;
-                setContent(content + insertion);
-              }}
-            />
-            <button
-              type="button"
-              onClick={handleClearClick}
-              className={styles.newDraftButton}
-              title="清空写作台"
-            >
-              <Eraser size={15} />
-              清空
-            </button>
             <button
               type="button"
               onClick={() => setIsPanelOpen((v) => !v)}
@@ -238,6 +225,52 @@ function HomePageContent() {
               <Files size={14} />
               草稿
             </button>
+            <div className={styles.moreMenuWrap}>
+              <button
+                type="button"
+                onClick={() => setMoreMenuOpen((v) => !v)}
+                className={styles.newDraftButton}
+                title="更多操作"
+                aria-expanded={moreMenuOpen}
+              >
+                <MoreHorizontal size={15} />
+              </button>
+              {moreMenuOpen && (
+                <>
+                  <div className={styles.moreMenuBackdrop} onClick={() => setMoreMenuOpen(false)} />
+                  <div className={styles.moreMenu}>
+                    <TemplatePicker
+                      currentTitle={title}
+                      currentContent={content}
+                      onSelect={(template) => {
+                        setTitle(template.title);
+                        setContent(template.content);
+                        setMoreMenuOpen(false);
+                      }}
+                    />
+                    <MediaLibrary
+                      imageBedLabel={imageBedLabel}
+                      onSelect={(url, filename) => {
+                        const insertion = `\n![${filename}](${url})\n`;
+                        setContent(content + insertion);
+                        setMoreMenuOpen(false);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMoreMenuOpen(false);
+                        handleClearClick();
+                      }}
+                      className={styles.moreMenuItemDanger}
+                    >
+                      <Eraser size={14} />
+                      清空写作台
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         }
       />

@@ -269,6 +269,54 @@ export const saveStatusHint = style({
   },
 });
 
+// More menu (dropdown)
+export const moreMenuWrap = style({
+  position: 'relative',
+  display: 'inline-flex',
+});
+
+export const moreMenuBackdrop = style({
+  position: 'fixed',
+  inset: 0,
+  zIndex: 99,
+});
+
+export const moreMenu = style({
+  position: 'absolute',
+  top: '100%',
+  right: 0,
+  marginTop: vars.spacing.xs,
+  zIndex: 100,
+  minWidth: '160px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: vars.spacing['2xs'],
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  padding: vars.spacing.xs,
+  boxShadow: vars.shadow.lg,
+});
+
+export const moreMenuItemDanger = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.md,
+  width: '100%',
+  borderRadius: vars.radius.sm,
+  border: 'none',
+  background: 'transparent',
+  padding: `${vars.spacing.md} ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.sm,
+  color: vars.color.errorText,
+  cursor: 'pointer',
+  textAlign: 'left',
+  transition: `background ${vars.transition.fast}`,
+  ':hover': {
+    background: vars.color.errorBg,
+  },
+});
+
 // Mobile publish FAB
 export const mobilePublishFab = style({
   position: 'fixed',
