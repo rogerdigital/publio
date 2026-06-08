@@ -15,7 +15,7 @@ export default function DraftsPageClient() {
       <AppShellHeader
         kicker="Draft library"
         title="稿件库"
-        description="管理所有草稿，查看平台版本和发布进展。"
+        description="管理草稿，查看发布进展。"
         action={
           <div className={styles.headerActions}>
             {isEditMode ? (
