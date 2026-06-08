@@ -441,7 +441,28 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
           );
         })()}
 
-      {viewMode === 'compact' ? (
+      {filteredDrafts.length === 0 && (searchQuery || statusFilter !== 'all' || tagFilter) ? (
+        <EmptyState
+          icon={<FileText size={24} />}
+          title="没有找到匹配的稿件"
+          description={
+            searchQuery ? `没有包含"${searchQuery}"的稿件。` : '当前筛选条件下没有稿件。'
+          }
+          action={
+            <button
+              type="button"
+              className={styles.primaryLink}
+              onClick={() => {
+                setSearchQuery('');
+                setStatusFilter('all');
+                setTagFilter('');
+              }}
+            >
+              清除筛选
+            </button>
+          }
+        />
+      ) : viewMode === 'compact' ? (
         <div className={styles.compactList}>
           {pagedDrafts.map((draft) => {
             const isSelected = selected.has(draft.id);
