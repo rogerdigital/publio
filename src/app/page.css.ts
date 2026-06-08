@@ -55,7 +55,7 @@ export const rightPanel = style({
   gap: vars.spacing.lg,
   '@media': {
     'screen and (min-width: 1024px)': {
-      width: '280px',
+      width: '320px',
       flexShrink: 0,
       position: 'sticky',
       top: '28px',
@@ -74,11 +74,9 @@ export const mobileOnly = style({
 export const editorCard = style({
   overflow: 'hidden',
   borderRadius: vars.radius.xl,
-  background: vars.color.glassSurface,
-  backdropFilter: 'blur(20px) saturate(180%)',
-  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-  border: `1px solid ${vars.color.glassBorder}`,
-  boxShadow: vars.shadow.sm,
+  background: vars.color.surface,
+  border: `1px solid ${vars.color.border}`,
+  boxShadow: vars.shadow.md,
   outline: 'none',
 });
 
