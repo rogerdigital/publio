@@ -182,7 +182,10 @@ export default function PublishButton() {
   } else if (selectedPlatforms.length === 0) {
     label = '请先选择平台';
   } else if (notReadyPlatforms.length > 0) {
-    label = `${notReadyPlatforms.map((p) => platformLabels[p]).join('、')} 内容待补全`;
+    label =
+      notReadyPlatforms.length === 1
+        ? `${platformLabels[notReadyPlatforms[0]]} 内容待补全`
+        : `${notReadyPlatforms.length} 个平台内容待补全`;
   } else {
     label = `发布到 ${selectedPlatforms.length} 个平台`;
   }

@@ -29,6 +29,7 @@ import DraftPanel from '@/components/editor/DraftPanel';
 import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
+import PublishChecklist from '@/components/publish/PublishChecklist';
 import TemplatePicker from '@/components/editor/TemplatePicker';
 import MediaLibrary from '@/components/editor/MediaLibrary';
 
@@ -327,16 +328,7 @@ function HomePageContent() {
             )}
 
             <div className={publishStyles.rightPanelSection}>
-              <span className={publishStyles.rightPanelSectionTitle}>发布到</span>
-              <PlatformSelector />
-            </div>
-
-            <div className={publishStyles.rightPanelSection}>
-              <PlatformPreviewPanel
-                adaptations={platformDrafts}
-                selectedPlatforms={selectedPlatforms}
-                agentEnabled={agentEnabled}
-              />
+              <PublishChecklist agentEnabled={agentEnabled} />
             </div>
 
             {currentDraftId && (
@@ -348,19 +340,6 @@ function HomePageContent() {
                 />
               </div>
             )}
-
-            <div className={publishStyles.rightPanelSection}>
-              <div className={styles.publishRight}>
-                {overallStatus !== 'idle' && overallStatus !== 'publishing' && (
-                  <button onClick={reset} className={styles.resetLink}>
-                    清除结果
-                  </button>
-                )}
-                <PublishButton />
-              </div>
-
-              {overallStatus !== 'idle' && <PublishStatusPanel />}
-            </div>
           </div>
         </div>
       </div>
