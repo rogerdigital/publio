@@ -90,7 +90,9 @@ export default function Sidebar() {
                 <span className={cn(styles.navLabel, styles.navLabelVariants[state])}>
                   {item.label}
                 </span>
-                <span className={styles.navTooltip}>{item.label}</span>
+                <span className={styles.navTooltip} aria-hidden="true">
+                  {item.label}
+                </span>
               </Link>
             );
           })}
