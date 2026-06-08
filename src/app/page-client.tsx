@@ -193,7 +193,7 @@ function HomePageContent() {
       <AppShellHeader
         kicker="Compose & publish"
         title="写作台"
-        description="在一个界面里完成写作、排版预览与多平台分发。"
+        description="写作、预览、多平台分发。"
         action={
           <div className={styles.headerActions}>
             {saveStatus === 'saving' && <span className={styles.saveStatusHint}>保存中…</span>}
