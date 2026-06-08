@@ -906,3 +906,42 @@ export const loadMoreCount = style({
   textAlign: 'center',
   paddingTop: vars.spacing.xs,
 });
+
+// Mobile filter sheet
+export const mobileFilterOverlay = style({
+  position: 'fixed',
+  inset: 0,
+  zIndex: 200,
+  background: 'rgba(0, 0, 0, 0.4)',
+  display: 'none',
+  alignItems: 'flex-end',
+  justifyContent: 'center',
+  '@media': {
+    'screen and (max-width: 759px)': {
+      display: 'flex',
+    },
+  },
+});
+
+export const mobileFilterSheet = style({
+  width: '100%',
+  background: vars.color.surface,
+  borderRadius: `${vars.radius.xl} ${vars.radius.xl} 0 0`,
+  padding: `${vars.spacing['2xl']} ${vars.spacing.xl}`,
+  paddingBottom: 'calc(20px + env(safe-area-inset-bottom))',
+});
+
+export const mobileFilterHandle = style({
+  width: '36px',
+  height: vars.spacing.xs,
+  borderRadius: vars.spacing['2xs'],
+  background: vars.color.borderStrong,
+  margin: `0 auto ${vars.spacing.xl}`,
+});
+
+export const mobileFilterTitle = style({
+  margin: `0 0 ${vars.spacing.xl}`,
+  fontSize: vars.fontSize.lg,
+  fontWeight: 600,
+  color: vars.color.text,
+});

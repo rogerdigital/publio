@@ -132,19 +132,14 @@ describe('DraftLibraryClient', () => {
 
     render(createElement(DraftLibraryClient, { isEditMode: false, onExitEditMode: vi.fn() }));
 
-    // Title appears in the pipeline step label
+    // Title appears in the compact row (default view is compact)
     await waitFor(() => {
       expect(screen.getAllByText('AI 话题稿件').length).toBeGreaterThan(0);
     });
-    // Status label for 'ready' draft
-    expect(screen.getByText('待同步，去编辑')).toBeInTheDocument();
-    // Source label for manual draft
-    expect(screen.getByText('手动创建')).toBeInTheDocument();
-    // Sync task status label for 'partial'
-    expect(screen.getByText('部分完成')).toBeInTheDocument();
-    expect(screen.getByText('发布记录已内联显示')).toBeInTheDocument();
+    // Status label for 'ready' draft (compact view shows status text)
+    expect(screen.getAllByText('待同步').length).toBeGreaterThan(0);
     // Link to edit draft
-    expect(screen.getByRole('link', { name: '待同步，去编辑' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'AI 话题稿件' })).toHaveAttribute(
       'href',
       '/?draftId=draft-1',
     );

@@ -14,6 +14,7 @@ import {
   LayoutList,
   Columns3,
   ChevronDown,
+  SlidersHorizontal,
 } from 'lucide-react';
 import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
 import FilterChipGroup from '@/components/ui/FilterChipGroup';
@@ -97,8 +98,9 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
   const [statusFilter, setStatusFilter] = useState<DraftStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [tagFilter, setTagFilter] = useState('');
-  const [viewMode, setViewMode] = useState<ViewMode>('pipeline');
+  const [viewMode, setViewMode] = useState<ViewMode>('compact');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   useEffect(() => {
     if (!isEditMode) {
@@ -352,16 +354,17 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          <button
+            type="button"
+            className={styles.importButton}
+            onClick={() => setMobileFilterOpen(true)}
+            title="筛选"
+            aria-label="打开筛选面板"
+          >
+            <SlidersHorizontal size={14} />
+            筛选
+          </button>
           <div className={styles.viewToggle}>
-            <button
-              type="button"
-              className={styles.viewToggleButton({ active: viewMode === 'pipeline' })}
-              onClick={() => setViewMode('pipeline')}
-              aria-label="流水线视图"
-              title="流水线视图"
-            >
-              <Columns3 size={16} />
-            </button>
             <button
               type="button"
               className={styles.viewToggleButton({ active: viewMode === 'compact' })}
@@ -371,6 +374,15 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
             >
               <LayoutList size={16} />
             </button>
+            <button
+              type="button"
+              className={styles.viewToggleButton({ active: viewMode === 'pipeline' })}
+              onClick={() => setViewMode('pipeline')}
+              aria-label="流水线视图（展开详情）"
+              title="流水线视图（展开详情）"
+            >
+              <Columns3 size={16} />
+            </button>
           </div>
           <FilterChipGroup
             options={STATUS_FILTER_OPTIONS}
@@ -378,6 +390,24 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
             onChange={setStatusFilter}
             className={styles.filterBar}
           />
+        </div>
+      )}
+
+      {/* Mobile filter sheet */}
+      {mobileFilterOpen && (
+        <div className={styles.mobileFilterOverlay} onClick={() => setMobileFilterOpen(false)}>
+          <div className={styles.mobileFilterSheet} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.mobileFilterHandle} />
+            <p className={styles.mobileFilterTitle}>筛选</p>
+            <FilterChipGroup
+              options={STATUS_FILTER_OPTIONS}
+              value={statusFilter}
+              onChange={(v) => {
+                setStatusFilter(v);
+                setMobileFilterOpen(false);
+              }}
+            />
+          </div>
         </div>
       )}
 
@@ -411,7 +441,28 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
           );
         })()}
 
-      {viewMode === 'compact' ? (
+      {filteredDrafts.length === 0 && (searchQuery || statusFilter !== 'all' || tagFilter) ? (
+        <EmptyState
+          icon={<FileText size={24} />}
+          title="没有找到匹配的稿件"
+          description={
+            searchQuery ? `没有包含"${searchQuery}"的稿件。` : '当前筛选条件下没有稿件。'
+          }
+          action={
+            <button
+              type="button"
+              className={styles.primaryLink}
+              onClick={() => {
+                setSearchQuery('');
+                setStatusFilter('all');
+                setTagFilter('');
+              }}
+            >
+              清除筛选
+            </button>
+          }
+        />
+      ) : viewMode === 'compact' ? (
         <div className={styles.compactList}>
           {pagedDrafts.map((draft) => {
             const isSelected = selected.has(draft.id);
@@ -457,19 +508,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
                   {draft.title || '无标题'}
                 </Link>
                 <span className={styles.compactStatus}>{statusLabels[draft.status]}</span>
-                {!isEditMode && (
-                  <button
-                    type="button"
-                    className={styles.exportButton}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleExport(draft);
-                    }}
-                    title="导出为 Markdown"
-                  >
-                    <Download size={13} />
-                  </button>
-                )}
+                <span className={styles.compactTime}>{formatDraftTime(draft.updatedAt)}</span>
               </div>
             );
           })}
@@ -623,6 +662,3 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
     </div>
   );
 }
-
-// suppress unused import warning – formatDraftTime kept for future use
-void formatDraftTime;
