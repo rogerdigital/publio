@@ -50,11 +50,12 @@ export const editorSection = style({
 });
 
 export const rightPanel = style({
-  display: 'flex',
+  display: 'none',
   flexDirection: 'column',
   gap: vars.spacing.lg,
   '@media': {
     'screen and (min-width: 1024px)': {
+      display: 'flex',
       width: '320px',
       flexShrink: 0,
       position: 'sticky',
