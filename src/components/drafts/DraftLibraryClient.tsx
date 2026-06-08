@@ -14,6 +14,7 @@ import {
   LayoutList,
   Columns3,
   ChevronDown,
+  SlidersHorizontal,
 } from 'lucide-react';
 import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
 import FilterChipGroup from '@/components/ui/FilterChipGroup';
@@ -99,6 +100,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
   const [tagFilter, setTagFilter] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('compact');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   useEffect(() => {
     if (!isEditMode) {
@@ -352,6 +354,16 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          <button
+            type="button"
+            className={styles.importButton}
+            onClick={() => setMobileFilterOpen(true)}
+            title="筛选"
+            aria-label="打开筛选面板"
+          >
+            <SlidersHorizontal size={14} />
+            筛选
+          </button>
           <div className={styles.viewToggle}>
             <button
               type="button"
@@ -378,6 +390,24 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
             onChange={setStatusFilter}
             className={styles.filterBar}
           />
+        </div>
+      )}
+
+      {/* Mobile filter sheet */}
+      {mobileFilterOpen && (
+        <div className={styles.mobileFilterOverlay} onClick={() => setMobileFilterOpen(false)}>
+          <div className={styles.mobileFilterSheet} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.mobileFilterHandle} />
+            <p className={styles.mobileFilterTitle}>筛选</p>
+            <FilterChipGroup
+              options={STATUS_FILTER_OPTIONS}
+              value={statusFilter}
+              onChange={(v) => {
+                setStatusFilter(v);
+                setMobileFilterOpen(false);
+              }}
+            />
+          </div>
         </div>
       )}
 
