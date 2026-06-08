@@ -55,7 +55,7 @@ export const rightPanel = style({
   gap: vars.spacing.lg,
   '@media': {
     'screen and (min-width: 1024px)': {
-      width: '280px',
+      width: '320px',
       flexShrink: 0,
       position: 'sticky',
       top: '28px',
@@ -74,11 +74,9 @@ export const mobileOnly = style({
 export const editorCard = style({
   overflow: 'hidden',
   borderRadius: vars.radius.xl,
-  background: vars.color.glassSurface,
-  backdropFilter: 'blur(20px) saturate(180%)',
-  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-  border: `1px solid ${vars.color.glassBorder}`,
-  boxShadow: vars.shadow.sm,
+  background: vars.color.surface,
+  border: `1px solid ${vars.color.border}`,
+  boxShadow: vars.shadow.md,
   outline: 'none',
 });
 
@@ -266,6 +264,54 @@ export const saveStatusHint = style({
     'screen and (min-width: 1024px)': {
       display: 'inline',
     },
+  },
+});
+
+// More menu (dropdown)
+export const moreMenuWrap = style({
+  position: 'relative',
+  display: 'inline-flex',
+});
+
+export const moreMenuBackdrop = style({
+  position: 'fixed',
+  inset: 0,
+  zIndex: 99,
+});
+
+export const moreMenu = style({
+  position: 'absolute',
+  top: '100%',
+  right: 0,
+  marginTop: vars.spacing.xs,
+  zIndex: 100,
+  minWidth: '160px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: vars.spacing['2xs'],
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.surface,
+  padding: vars.spacing.xs,
+  boxShadow: vars.shadow.lg,
+});
+
+export const moreMenuItemDanger = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.md,
+  width: '100%',
+  borderRadius: vars.radius.sm,
+  border: 'none',
+  background: 'transparent',
+  padding: `${vars.spacing.md} ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.sm,
+  color: vars.color.errorText,
+  cursor: 'pointer',
+  textAlign: 'left',
+  transition: `background ${vars.transition.fast}`,
+  ':hover': {
+    background: vars.color.errorBg,
   },
 });
 
