@@ -6,14 +6,12 @@ export const container = style({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: 14,
+  gap: vars.spacing['lg-xl'],
   minHeight: 280,
   borderRadius: vars.radius.xl,
-  background: vars.color.glassSurface,
-  backdropFilter: 'blur(12px)',
-  WebkitBackdropFilter: 'blur(12px)',
-  border: `1px solid ${vars.color.glassBorder}`,
-  padding: '40px 32px',
+  background: vars.color.surface,
+  border: `1px solid ${vars.color.border}`,
+  padding: `${vars.spacing['5xl']} ${vars.spacing['4xl']}`,
   textAlign: 'center',
 });
 
@@ -47,6 +45,6 @@ export const description = style({
 export const actions = style({
   display: 'flex',
   alignItems: 'center',
-  gap: 12,
-  marginTop: 8,
+  gap: vars.spacing.lg,
+  marginTop: vars.spacing.md,
 });

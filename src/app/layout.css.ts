@@ -9,17 +9,17 @@ export const skipLink = style({
   height: '1px',
   overflow: 'hidden',
   zIndex: 100,
-  padding: '8px 16px',
+  padding: `${vars.spacing.md} ${vars.spacing.xl}`,
   background: vars.color.accent,
   color: vars.color.surfaceDarkText,
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   fontWeight: 600,
   borderRadius: vars.radius.lg,
   textDecoration: 'none',
   ':focus': {
     position: 'fixed',
-    top: '8px',
-    left: '8px',
+    top: vars.spacing.md,
+    left: vars.spacing.md,
     width: 'auto',
     height: 'auto',
     overflow: 'visible',
@@ -41,12 +41,12 @@ export const shell = style({
 export const main = style({
   minWidth: 0,
   flex: 1,
-  padding: '16px',
+  padding: vars.spacing.xl,
   paddingBottom: `calc(48px + ${vars.layout.tabBarHeight} + env(safe-area-inset-bottom))`,
   animation: 'fadeIn 200ms ease-out',
   '@media': {
     'screen and (min-width: 640px)': {
-      padding: '20px 24px',
+      padding: `${vars.spacing['2xl']} ${vars.spacing['3xl']}`,
       paddingBottom: `calc(52px + ${vars.layout.tabBarHeight} + env(safe-area-inset-bottom))`,
     },
     'screen and (min-width: 1024px)': {

@@ -43,7 +43,7 @@ export const label = style({
 
 export const kbd = style({
   display: 'inline-block',
-  padding: '2px 8px',
+  padding: `${vars.spacing['2xs']} ${vars.spacing.md}`,
   fontSize: 12,
   fontFamily: 'inherit',
   border: `1px solid ${vars.color.borderStrong}`,

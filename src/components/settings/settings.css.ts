@@ -5,21 +5,21 @@ import { vars } from '@/styles/tokens.css';
 export const sectionGroup = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '16px',
-  padding: '20px',
+  gap: vars.spacing.xl,
+  padding: vars.spacing['2xl'],
 });
 
 export const sectionHeader = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   fontSize: vars.fontSize.sm,
   fontWeight: 600,
   color: vars.color.text,
 });
 
 export const sectionHint = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   lineHeight: 1.5,
   margin: 0,
@@ -27,7 +27,7 @@ export const sectionHint = style({
 
 export const sourceForm = style({
   display: 'flex',
-  gap: '8px',
+  gap: vars.spacing.md,
   flexWrap: 'wrap',
 });
 
@@ -37,7 +37,7 @@ export const sourceInput = style({
   borderRadius: vars.radius.md,
   border: 'none',
   background: vars.color.glassInput,
-  padding: '10px 14px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing['lg-xl']}`,
   fontSize: vars.fontSize.sm,
   color: vars.color.text,
   outline: 'none',
@@ -50,12 +50,12 @@ export const sourceInput = style({
 export const sourceAddBtn = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '4px',
+  gap: vars.spacing.xs,
   borderRadius: vars.radius.md,
   border: 'none',
   background: vars.color.surfaceDark,
-  padding: '10px 14px',
-  fontSize: '13px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing['lg-xl']}`,
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.surfaceDarkText,
   cursor: 'pointer',
@@ -64,7 +64,7 @@ export const sourceAddBtn = style({
 });
 
 export const sourceError = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.errorText,
   margin: 0,
 });
@@ -72,15 +72,15 @@ export const sourceError = style({
 export const sourceList = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '6px',
+  gap: vars.spacing.sm,
 });
 
 export const sourceItem = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: '12px',
-  padding: '10px 12px',
+  gap: vars.spacing.lg,
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
   borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
@@ -94,19 +94,19 @@ export const sourceItem = style({
 export const sourceInfo = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '2px',
+  gap: vars.spacing['2xs'],
   minWidth: 0,
   flex: 1,
 });
 
 export const sourceName = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.text,
 });
 
 export const sourceUrl = style({
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   color: vars.color.textMuted,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -116,14 +116,14 @@ export const sourceUrl = style({
 export const sourceActions = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '4px',
+  gap: vars.spacing.xs,
   flexShrink: 0,
 });
 
 export const sourceToggle = style({
   background: 'none',
   border: 'none',
-  padding: '2px',
+  padding: vars.spacing['2xs'],
   cursor: 'pointer',
   color: vars.color.textMuted,
   transition: 'color 150ms',
@@ -136,7 +136,7 @@ export const sourceToggleOn = style({
 export const sourceDeleteBtn = style({
   background: 'none',
   border: 'none',
-  padding: '4px',
+  padding: vars.spacing.xs,
   cursor: 'pointer',
   color: vars.color.textMuted,
   borderRadius: vars.radius.sm,
@@ -148,7 +148,7 @@ export const sourceDeleteBtn = style({
 
 export const promptTargetTabs = style({
   display: 'flex',
-  gap: '4px',
+  gap: vars.spacing.xs,
   flexWrap: 'wrap',
 });
 
@@ -157,8 +157,8 @@ export const promptTab = recipe({
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.border}`,
     background: 'transparent',
-    padding: '6px 12px',
-    fontSize: '13px',
+    padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
+    fontSize: vars.fontSize.sm,
     color: vars.color.textMuted,
     cursor: 'pointer',
     transition: `all ${vars.transition.fast}`,
@@ -179,8 +179,8 @@ export const promptTextarea = style({
   borderRadius: vars.radius.md,
   border: 'none',
   background: vars.color.glassInput,
-  padding: '10px 14px',
-  fontSize: '13px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing['lg-xl']}`,
+  fontSize: vars.fontSize.sm,
   color: vars.color.text,
   lineHeight: 1.6,
   resize: 'vertical',
@@ -194,5 +194,5 @@ export const promptTextarea = style({
 export const promptActions = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
 });

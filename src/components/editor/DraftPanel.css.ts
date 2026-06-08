@@ -16,13 +16,13 @@ export const header = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: '12px 14px 10px',
+  padding: `${vars.spacing.lg} ${vars.spacing['lg-xl']} ${vars.spacing['md-lg']}`,
   borderBottom: `1px solid ${vars.color.border}`,
   flexShrink: 0,
 });
 
 export const headerTitle = style({
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   fontWeight: 600,
   textTransform: 'uppercase',
   letterSpacing: '0.22em',
@@ -32,7 +32,7 @@ export const headerTitle = style({
 export const headerActions = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '2px',
+  gap: vars.spacing['2xs'],
 });
 
 export const newBtn = style({
@@ -73,7 +73,7 @@ export const historyLink = style({
 export const list = style({
   flex: 1,
   overflowY: 'auto',
-  padding: '6px',
+  padding: vars.spacing.sm,
   overscrollBehavior: 'contain',
 });
 
@@ -104,7 +104,7 @@ export const item = recipe({
 
 export const itemTitle = style({
   display: 'block',
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.text,
   lineHeight: 1.4,
@@ -115,8 +115,8 @@ export const itemTitle = style({
 
 export const itemMeta = style({
   display: 'block',
-  marginTop: '2px',
-  fontSize: '11px',
+  marginTop: vars.spacing['2xs'],
+  fontSize: vars.fontSize['2xs'],
   color: vars.color.textMuted,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -127,14 +127,14 @@ export const center = style({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  padding: '24px',
+  padding: vars.spacing['3xl'],
   color: vars.color.textMuted,
 });
 
 export const empty = style({
   margin: 0,
-  padding: '20px 10px',
-  fontSize: '13px',
+  padding: `${vars.spacing['2xl']} ${vars.spacing['md-lg']}`,
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   textAlign: 'center',
 });
@@ -143,7 +143,7 @@ export const footerLink = style({
   display: 'inline-flex',
   alignItems: 'center',
   gap: '5px',
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
   textDecoration: 'none',
   transition: 'color 150ms',
@@ -161,7 +161,7 @@ export const editActionBtn = recipe({
     borderRadius: '5px',
     border: '1px solid transparent',
     padding: '3px 7px',
-    fontSize: '11px',
+    fontSize: vars.fontSize['2xs'],
     fontWeight: 500,
     cursor: 'pointer',
     transition: 'opacity 150ms',
@@ -197,7 +197,7 @@ export const itemSelectable = recipe({
   base: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: vars.spacing.md,
     borderRadius: vars.radius.lg,
     padding: '7px 10px',
     cursor: 'pointer',

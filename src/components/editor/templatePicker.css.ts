@@ -5,12 +5,12 @@ import { vars } from '@/styles/tokens.css';
 export const trigger = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: '6px 10px',
-  fontSize: '14px',
+  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
+  fontSize: vars.fontSize.md,
   color: vars.color.textMuted,
   cursor: 'pointer',
   transition: 'background-color 150ms, color 150ms, border-color 150ms',
@@ -29,7 +29,7 @@ export const overlay = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: '24px',
+  padding: vars.spacing['3xl'],
 });
 
 export const modal = style({
@@ -49,13 +49,13 @@ export const modalHeader = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: '16px 20px',
+  padding: `${vars.spacing.xl} ${vars.spacing['2xl']}`,
   borderBottom: `1px solid ${vars.color.border}`,
 });
 
 export const modalTitle = style({
   margin: 0,
-  fontSize: '16px',
+  fontSize: vars.fontSize.lg,
   fontWeight: 600,
   color: vars.color.text,
 });
@@ -85,8 +85,8 @@ export const saveAsBtn = style({
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: '4px 10px',
-  fontSize: '13px',
+  padding: `${vars.spacing.xs} ${vars.spacing['md-lg']}`,
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',
   transition: 'background-color 150ms, color 150ms, border-color 150ms',
@@ -100,19 +100,19 @@ export const saveAsBtn = style({
 export const saveForm = style({
   display: 'flex',
   gap: 8,
-  padding: '12px 20px',
+  padding: `${vars.spacing.lg} ${vars.spacing['2xl']}`,
   borderBottom: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
 });
 
 export const saveInput = style({
   flex: 1,
-  padding: '6px 10px',
+  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
   color: vars.color.text,
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   outline: 'none',
   ':focus': {
     borderColor: vars.color.accent,
@@ -120,12 +120,12 @@ export const saveInput = style({
 });
 
 export const saveConfirmBtn = style({
-  padding: '6px 16px',
+  padding: `${vars.spacing.sm} ${vars.spacing.xl}`,
   borderRadius: vars.radius.lg,
   border: 'none',
   background: vars.color.accent,
   color: vars.color.surfaceDarkText,
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
   cursor: 'pointer',
   transition: 'opacity 150ms',
@@ -149,27 +149,27 @@ export const templateList = style({
   flexShrink: 0,
   display: 'flex',
   flexDirection: 'column',
-  gap: '4px',
-  padding: '12px',
+  gap: vars.spacing.xs,
+  padding: vars.spacing.lg,
   borderRight: `1px solid ${vars.color.border}`,
   overflowY: 'auto',
 });
 
 export const sectionLabel = style({
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   fontWeight: 600,
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
   color: vars.color.textMuted,
-  padding: '8px 12px 4px',
+  padding: `${vars.spacing.md} ${vars.spacing.lg} ${vars.spacing.xs}`,
 });
 
 export const templateCard = recipe({
   base: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '2px',
-    padding: '10px 12px',
+    gap: vars.spacing['2xs'],
+    padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
     borderRadius: vars.radius.lg,
     border: 'none',
     background: 'transparent',
@@ -201,18 +201,18 @@ export const templateCard = recipe({
 });
 
 export const templateIcon = style({
-  fontSize: '18px',
+  fontSize: vars.fontSize.xl,
   lineHeight: 1,
 });
 
 export const templateName = style({
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   fontWeight: 500,
   color: vars.color.text,
 });
 
 export const templateDesc = style({
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
   lineHeight: 1.4,
 });
@@ -228,9 +228,9 @@ export const previewHeader = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: '12px 16px',
+  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
   borderBottom: `1px solid ${vars.color.border}`,
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   fontWeight: 500,
   color: vars.color.text,
 });
@@ -258,8 +258,8 @@ export const useBtn = style({
   border: 'none',
   background: vars.color.accent,
   color: vars.color.surfaceDarkText,
-  padding: '6px 14px',
-  fontSize: '13px',
+  padding: `${vars.spacing.sm} ${vars.spacing['lg-xl']}`,
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
   cursor: 'pointer',
   transition: 'opacity 150ms',
@@ -271,8 +271,8 @@ export const useBtn = style({
 export const previewContent = style({
   flex: 1,
   margin: 0,
-  padding: '16px',
-  fontSize: '13px',
+  padding: vars.spacing.xl,
+  fontSize: vars.fontSize.sm,
   lineHeight: 1.6,
   color: vars.color.textMuted,
   fontFamily: 'monospace',

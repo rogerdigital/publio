@@ -23,7 +23,7 @@ export default function PageSection({
   return (
     <section {...props} className={cn(styles.section, className)}>
       {(eyebrow || title || description || actions) && (
-        <SurfaceCard className={styles.sectionHeader}>
+        <SurfaceCard tone="glass" className={styles.sectionHeader}>
           <div className={styles.sectionHeaderInner}>
             <div className={styles.sectionTextBlock}>
               {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}

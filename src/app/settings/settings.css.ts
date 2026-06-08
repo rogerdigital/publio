@@ -5,7 +5,7 @@ import { vars } from '@/styles/tokens.css';
 export const pageWrap = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '24px',
+  gap: vars.spacing['3xl'],
   paddingBottom: '80px',
 });
 
@@ -15,7 +15,7 @@ export const sectionNav = style({
   top: 0,
   zIndex: 10,
   display: 'flex',
-  gap: '4px',
+  gap: vars.spacing.xs,
   overflowX: 'auto',
   padding: '8px 0',
   borderBottom: `1px solid ${vars.color.border}`,
@@ -30,11 +30,11 @@ export const sectionNav = style({
 export const sectionTab = recipe({
   base: {
     flexShrink: 0,
-    borderRadius: '999px',
+    borderRadius: vars.radius.full,
     border: 'none',
     background: 'transparent',
-    padding: '6px 14px',
-    fontSize: '13px',
+    padding: `${vars.spacing.sm} ${vars.spacing['lg-xl']}`,
+    fontSize: vars.fontSize.sm,
     fontWeight: 500,
     color: vars.color.textMuted,
     cursor: 'pointer',
@@ -58,17 +58,17 @@ export const sectionTab = recipe({
 // Floating save button
 export const floatingSave = style({
   position: 'fixed',
-  bottom: '24px',
-  right: '24px',
+  bottom: vars.spacing['3xl'],
+  right: vars.spacing['3xl'],
   zIndex: 50,
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
-  borderRadius: '999px',
+  gap: vars.spacing.md,
+  borderRadius: vars.radius.full,
   border: 'none',
   background: vars.color.accent,
-  padding: '12px 24px',
-  fontSize: '14px',
+  padding: `${vars.spacing.lg} ${vars.spacing['3xl']}`,
+  fontSize: vars.fontSize.md,
   fontWeight: 600,
   color: vars.color.surfaceDarkText,
   boxShadow: vars.shadow.lg,
@@ -83,8 +83,8 @@ export const floatingSave = style({
   },
   '@media': {
     'screen and (min-width: 640px)': {
-      right: '32px',
-      bottom: '32px',
+      right: vars.spacing['4xl'],
+      bottom: vars.spacing['4xl'],
     },
   },
 });
@@ -101,7 +101,7 @@ export const accordionCard = style({
 export const platformList = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '8px',
+  gap: vars.spacing.md,
 });
 
 // Save button / action area
@@ -109,18 +109,18 @@ export const saveActions = style({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-end',
-  gap: '8px',
+  gap: vars.spacing.md,
 });
 
 export const saveButton = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   borderRadius: vars.radius.lg,
   border: '1px solid transparent',
   background: vars.color.accent,
-  padding: '10px 20px',
-  fontSize: '14px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing['2xl']}`,
+  fontSize: vars.fontSize.md,
   fontWeight: 500,
   color: vars.color.surfaceDarkText,
   transition: 'filter 150ms',
@@ -136,22 +136,22 @@ export const saveButton = style({
 export const savedIndicator = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '6px',
-  fontSize: '14px',
+  gap: vars.spacing.sm,
+  fontSize: vars.fontSize.md,
   color: vars.color.successText,
 });
 
 export const errorIndicator = style({
   maxWidth: '14rem',
   textAlign: 'right',
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   color: vars.color.errorText,
 });
 
 export const noticeIndicator = style({
   maxWidth: '18rem',
   textAlign: 'right',
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   lineHeight: 1.5,
   color: vars.color.textMuted,
 });
@@ -161,8 +161,8 @@ export const accordionTrigger = style({
   display: 'flex',
   width: '100%',
   alignItems: 'center',
-  gap: '16px',
-  padding: '14px 20px',
+  gap: vars.spacing.xl,
+  padding: `${vars.spacing['lg-xl']} ${vars.spacing['2xl']}`,
   border: 'none',
   background: 'transparent',
   textAlign: 'left',
@@ -172,7 +172,7 @@ export const accordionTrigger = style({
   },
   '@media': {
     'screen and (min-width: 640px)': {
-      padding: '14px 24px',
+      padding: `${vars.spacing['lg-xl']} ${vars.spacing['3xl']}`,
     },
   },
 });
@@ -193,15 +193,15 @@ export const accordionBody = style({
 
 export const accordionTitle = style({
   margin: 0,
-  fontSize: '15px',
+  fontSize: vars.fontSize.base,
   fontWeight: 500,
   color: vars.color.text,
 });
 
 export const accordionSummary = style({
   margin: 0,
-  marginTop: '2px',
-  fontSize: '14px',
+  marginTop: vars.spacing['2xs'],
+  fontSize: vars.fontSize.md,
   color: vars.color.textMuted,
 });
 
@@ -210,8 +210,8 @@ export const accordionAccountName = style({
   marginTop: '3px',
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '4px',
-  fontSize: '13px',
+  gap: vars.spacing.xs,
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.successText,
 });
@@ -219,7 +219,7 @@ export const accordionAccountName = style({
 export const accordionMissingFields = style({
   margin: 0,
   marginTop: '3px',
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.warningText,
 });
 
@@ -227,17 +227,17 @@ export const accordionToggle = style({
   display: 'flex',
   flexShrink: 0,
   alignItems: 'center',
-  gap: '8px',
-  fontSize: '12px',
+  gap: vars.spacing.md,
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
 export const statusBadge = style({
   display: 'inline-flex',
   alignItems: 'center',
-  borderRadius: '999px',
-  padding: '4px 8px',
-  fontSize: '12px',
+  borderRadius: vars.radius.full,
+  padding: `${vars.spacing.xs} ${vars.spacing.md}`,
+  fontSize: vars.fontSize.xs,
   fontWeight: 600,
   whiteSpace: 'nowrap',
 });
@@ -263,10 +263,10 @@ export const statusBadgeVariants = styleVariants({
 // Expanded panel
 export const accordionPanel = style({
   borderTop: `1px solid ${vars.color.border}`,
-  padding: '20px',
+  padding: vars.spacing['2xl'],
   '@media': {
     'screen and (min-width: 640px)': {
-      padding: '20px 24px',
+      padding: `${vars.spacing['2xl']} ${vars.spacing['3xl']}`,
     },
   },
 });
@@ -274,12 +274,12 @@ export const accordionPanel = style({
 export const connectionPanel = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '16px',
-  marginBottom: '20px',
+  gap: vars.spacing.xl,
+  marginBottom: vars.spacing['2xl'],
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
-  padding: '16px',
+  padding: vars.spacing.xl,
   '@media': {
     'screen and (min-width: 720px)': {
       flexDirection: 'row',
@@ -296,28 +296,28 @@ export const connectionBody = style({
 export const connectionTitleRow = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   color: vars.color.text,
 });
 
 export const connectionTitle = style({
   margin: 0,
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   fontWeight: 600,
 });
 
 export const connectionText = style({
   margin: 0,
-  marginTop: '8px',
-  fontSize: '13px',
+  marginTop: vars.spacing.md,
+  fontSize: vars.fontSize.sm,
   lineHeight: 1.65,
   color: vars.color.textMuted,
 });
 
 export const connectionMeta = style({
   margin: 0,
-  marginTop: '6px',
-  fontSize: '12px',
+  marginTop: vars.spacing.sm,
+  fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
@@ -329,8 +329,8 @@ export const connectButton = style({
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.borderStrong}`,
   background: vars.color.surface,
-  padding: '10px 16px',
-  fontSize: '14px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.xl}`,
+  fontSize: vars.fontSize.md,
   fontWeight: 600,
   color: vars.color.text,
   transition: 'border-color 150ms, background-color 150ms',
@@ -343,19 +343,19 @@ export const connectButton = style({
 export const connectionActions = style({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '8px',
+  gap: vars.spacing.md,
 });
 
 export const checkButton = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
   flexShrink: 0,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.borderStrong}`,
   background: vars.color.surface,
-  padding: '8px 14px',
-  fontSize: '13px',
+  padding: `${vars.spacing.md} ${vars.spacing['lg-xl']}`,
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.text,
   transition: 'border-color 150ms, background-color 150ms',
@@ -372,13 +372,13 @@ export const checkButton = style({
 export const disconnectButton = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
   flexShrink: 0,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: '8px 14px',
-  fontSize: '13px',
+  padding: `${vars.spacing.md} ${vars.spacing['lg-xl']}`,
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.textMuted,
   transition: 'border-color 150ms, color 150ms',
@@ -396,7 +396,7 @@ export const checkResultOk = style({
   display: 'inline-flex',
   alignItems: 'center',
   gap: '5px',
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.successText,
 });
 
@@ -404,24 +404,24 @@ export const checkResultFail = style({
   display: 'inline-flex',
   alignItems: 'center',
   gap: '5px',
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   color: vars.color.errorText,
 });
 
 export const fieldList = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '16px',
+  gap: vars.spacing.xl,
 });
 
 export const fieldWrap = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '6px',
+  gap: vars.spacing.sm,
 });
 
 export const fieldLabel = style({
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   fontWeight: 500,
   color: vars.color.text,
 });
@@ -435,9 +435,9 @@ export const fieldInput = style({
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
-  padding: '12px 16px',
+  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
   paddingRight: '48px',
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   color: vars.color.text,
   outline: 'none',
   transition: 'border-color 150ms',
@@ -455,8 +455,8 @@ export const fieldTextarea = style({
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
-  padding: '12px 16px',
-  fontSize: '14px',
+  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
+  fontSize: vars.fontSize.md,
   color: vars.color.text,
   outline: 'none',
   transition: 'border-color 150ms',
@@ -470,13 +470,13 @@ export const fieldTextarea = style({
 
 export const eyeButton = style({
   position: 'absolute',
-  right: '12px',
+  right: vars.spacing.lg,
   top: '50%',
   transform: 'translateY(-50%)',
   border: 'none',
   background: 'transparent',
   borderRadius: vars.radius.lg,
-  padding: '4px',
+  padding: vars.spacing.xs,
   color: vars.color.textMuted,
   transition: 'background-color 150ms, color 150ms',
   ':hover': {
@@ -486,14 +486,14 @@ export const eyeButton = style({
 });
 
 export const fieldHint = style({
-  marginTop: '16px',
-  fontSize: '13px',
+  marginTop: vars.spacing.xl,
+  fontSize: vars.fontSize.sm,
   lineHeight: 1.75,
   color: vars.color.textMuted,
 });
 
 export const inlineCode = style({
-  borderRadius: '4px',
+  borderRadius: vars.radius.xs,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bg,
   padding: '1px 4px',
@@ -509,7 +509,7 @@ export const oauthSteps = style({
 export const oauthStep = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '16px',
+  gap: vars.spacing.xl,
   padding: '20px 0',
   borderBottom: `1px solid ${vars.color.borderFaint}`,
   selectors: {
@@ -526,7 +526,7 @@ export const oauthStep = style({
 export const oauthStepHeader = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '10px',
+  gap: vars.spacing['md-lg'],
 });
 
 export const oauthStepBadge = style({
@@ -536,9 +536,9 @@ export const oauthStepBadge = style({
   flexShrink: 0,
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: '999px',
+  borderRadius: vars.radius.full,
   border: `1px solid ${vars.color.borderStrong}`,
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   fontWeight: 700,
   color: vars.color.textMuted,
   letterSpacing: '0.02em',
@@ -551,10 +551,10 @@ export const oauthStepBadgeActive = style({
   flexShrink: 0,
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: '999px',
+  borderRadius: vars.radius.full,
   background: vars.color.accent,
   border: `1px solid ${vars.color.accent}`,
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   fontWeight: 700,
   color: vars.color.surfaceDarkText,
   letterSpacing: '0.02em',
@@ -562,14 +562,14 @@ export const oauthStepBadgeActive = style({
 
 export const oauthStepTitle = style({
   margin: 0,
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   fontWeight: 600,
   color: vars.color.text,
 });
 
 export const oauthStepDesc = style({
   margin: 0,
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   lineHeight: 1.65,
   color: vars.color.textMuted,
 });
@@ -578,18 +578,18 @@ export const oauthAuthorizeRow = style({
   display: 'flex',
   flexWrap: 'wrap',
   alignItems: 'center',
-  gap: '12px',
+  gap: vars.spacing.lg,
 });
 
 export const authorizeButton = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   borderRadius: vars.radius.lg,
   border: '1px solid transparent',
   background: vars.color.accent,
-  padding: '10px 20px',
-  fontSize: '14px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing['2xl']}`,
+  fontSize: vars.fontSize.md,
   fontWeight: 600,
   color: vars.color.surfaceDarkText,
   transition: 'filter 150ms',

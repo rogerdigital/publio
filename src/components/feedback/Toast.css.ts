@@ -36,7 +36,7 @@ export const toast = recipe({
     display: 'flex',
     alignItems: 'center',
     gap: 10,
-    padding: '10px 14px',
+    padding: `${vars.spacing['md-lg']} ${vars.spacing['lg-xl']}`,
     borderRadius: vars.radius.lg,
     border: '1px solid rgba(255, 255, 255, 0.3)',
     fontSize: 14,

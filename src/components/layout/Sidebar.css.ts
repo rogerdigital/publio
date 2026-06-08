@@ -32,15 +32,15 @@ export const sidebarVariants = styleVariants({
   expanded: {
     width: SIDEBAR_WIDTH_EXPANDED,
     alignItems: 'stretch',
-    padding: '20px 12px',
+    padding: `${vars.spacing['2xl']} ${vars.spacing.lg}`,
   },
 });
 
 export const brand = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '10px',
-  marginBottom: '24px',
+  gap: vars.spacing['md-lg'],
+  marginBottom: vars.spacing['3xl'],
   justifyContent: 'center',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
@@ -55,7 +55,7 @@ export const brand = style({
 export const brandLeft = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   minWidth: 0,
   opacity: 0,
   width: 0,
@@ -80,7 +80,7 @@ export const brandLogo = style({
 });
 
 export const brandName = style({
-  fontSize: '18px',
+  fontSize: vars.fontSize.xl,
   fontWeight: 650,
   fontFamily: 'var(--font-inter), sans-serif',
   color: '#D97757',
@@ -100,7 +100,7 @@ export const brandName = style({
 export const nav = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '4px',
+  gap: vars.spacing.xs,
   flex: 1,
 });
 
@@ -132,14 +132,14 @@ export const navItemBase = style({
 export const navTooltip = style({
   position: 'absolute',
   left: '100%',
-  marginLeft: '8px',
+  marginLeft: vars.spacing.md,
   top: '50%',
   transform: 'translateY(-50%)',
   background: vars.color.surfaceDark,
   color: vars.color.surfaceDarkText,
-  fontSize: '12px',
+  fontSize: vars.fontSize.xs,
   fontWeight: 500,
-  padding: '4px 8px',
+  padding: `${vars.spacing.xs} ${vars.spacing.md}`,
   borderRadius: '6px',
   whiteSpace: 'nowrap',
   pointerEvents: 'none',
@@ -178,7 +178,7 @@ export const navIconBase = style({
   transition: 'margin-right 150ms',
   selectors: {
     [`${sidebarVariants.expanded} &`]: {
-      marginRight: '10px',
+      marginRight: vars.spacing['md-lg'],
     },
   },
 });
@@ -193,7 +193,7 @@ export const navIconVariants = styleVariants({
 });
 
 export const navLabel = style({
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   lineHeight: 1,
   opacity: 0,
   width: 0,
@@ -221,12 +221,12 @@ export const footer = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  paddingTop: '12px',
+  paddingTop: vars.spacing.lg,
   paddingBottom: '56px',
   selectors: {
     [`${sidebarVariants.expanded} &`]: {
       justifyContent: 'flex-start',
-      paddingLeft: '12px',
+      paddingLeft: vars.spacing.lg,
     },
   },
 });
@@ -289,7 +289,7 @@ export const mobileTabItem = styleVariants({
     alignItems: 'center',
     justifyContent: 'center',
     gap: '3px',
-    padding: '8px 4px',
+    padding: `${vars.spacing.md} ${vars.spacing.xs}`,
     textDecoration: 'none',
     color: vars.color.text,
   },
@@ -300,7 +300,7 @@ export const mobileTabItem = styleVariants({
     alignItems: 'center',
     justifyContent: 'center',
     gap: '3px',
-    padding: '8px 4px',
+    padding: `${vars.spacing.md} ${vars.spacing.xs}`,
     textDecoration: 'none',
     color: vars.color.textMuted,
     ':hover': {
@@ -311,12 +311,12 @@ export const mobileTabItem = styleVariants({
 
 export const mobileTabLabel = styleVariants({
   active: {
-    fontSize: '11px',
+    fontSize: vars.fontSize['2xs'],
     fontWeight: 600,
     lineHeight: 1,
   },
   inactive: {
-    fontSize: '11px',
+    fontSize: vars.fontSize['2xs'],
     fontWeight: 400,
     lineHeight: 1,
   },

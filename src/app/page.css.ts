@@ -5,13 +5,13 @@ import { vars } from '@/styles/tokens.css';
 export const pageWrap = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '20px',
+  gap: vars.spacing['2xl'],
 });
 
 export const editorLayout = style({
   display: 'flex',
   alignItems: 'stretch',
-  gap: '16px',
+  gap: vars.spacing.xl,
 });
 
 export const panelOuter = style({
@@ -31,12 +31,12 @@ export const mainContentArea = style({
   minWidth: 0,
   display: 'flex',
   flexDirection: 'column',
-  gap: '16px',
+  gap: vars.spacing.xl,
   '@media': {
     'screen and (min-width: 1024px)': {
       flexDirection: 'row',
       alignItems: 'start',
-      gap: '20px',
+      gap: vars.spacing['2xl'],
     },
   },
 });
@@ -46,13 +46,13 @@ export const editorSection = style({
   minWidth: 0,
   display: 'flex',
   flexDirection: 'column',
-  gap: '16px',
+  gap: vars.spacing.xl,
 });
 
 export const rightPanel = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '12px',
+  gap: vars.spacing.lg,
   '@media': {
     'screen and (min-width: 1024px)': {
       width: '280px',
@@ -86,7 +86,7 @@ export const draftLoadError = style({
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.errorBorder}`,
   background: vars.color.errorBg,
-  padding: '12px 14px',
+  padding: `${vars.spacing.lg} ${vars.spacing['lg-xl']}`,
   fontSize: vars.fontSize.sm,
   color: vars.color.errorText,
 });
@@ -96,14 +96,14 @@ export const publishBar = style({
   flexWrap: 'wrap',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: '12px',
+  gap: vars.spacing.lg,
 });
 
 export const publishRight = style({
   display: 'flex',
   flexShrink: 0,
   alignItems: 'center',
-  gap: '12px',
+  gap: vars.spacing.lg,
 });
 
 export const resetLink = style({
@@ -128,10 +128,10 @@ export const tabButton = recipe({
   base: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: vars.spacing.sm,
     borderRadius: vars.radius.sm,
     border: 'none',
-    padding: '6px 12px',
+    padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
     fontSize: vars.fontSize.sm,
     fontWeight: 500,
     cursor: 'pointer',
@@ -161,7 +161,7 @@ export const tabButton = recipe({
 export const headerActions = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   minWidth: 0,
   flexWrap: 'wrap',
   '@media': {
@@ -170,7 +170,7 @@ export const headerActions = style({
       justifyContent: 'flex-start',
       overflowX: 'auto',
       flexWrap: 'nowrap',
-      paddingBottom: '4px',
+      paddingBottom: vars.spacing.xs,
       WebkitOverflowScrolling: 'touch',
       scrollbarWidth: 'none',
     },
@@ -185,11 +185,11 @@ export const headerActions = style({
 export const newDraftButton = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
   borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: '6px 10px',
+  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
   fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',
@@ -204,11 +204,11 @@ export const newDraftButton = style({
 export const newDraftButtonDanger = style({
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
   borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.errorBorder}`,
   background: vars.color.errorBg,
-  padding: '6px 10px',
+  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
   fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.errorText,
@@ -220,7 +220,7 @@ export const panelToggle = recipe({
   base: {
     display: 'none',
     cursor: 'pointer',
-    gap: '6px',
+    gap: vars.spacing.sm,
     transition: `all ${vars.transition.fast}`,
     ':hover': {
       background: vars.color.accentSoft,
@@ -235,7 +235,7 @@ export const panelToggle = recipe({
         border: `1px solid ${vars.color.border}`,
         background: 'transparent',
         color: vars.color.textMuted,
-        padding: '6px 10px',
+        padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
         fontSize: vars.fontSize.sm,
       },
     },
@@ -273,16 +273,16 @@ export const saveStatusHint = style({
 export const mobilePublishFab = style({
   position: 'fixed',
   bottom: 'calc(68px + env(safe-area-inset-bottom))',
-  right: '16px',
+  right: vars.spacing.xl,
   zIndex: 90,
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: vars.spacing.md,
   borderRadius: vars.radius.xl,
   border: 'none',
   background: vars.color.brand,
   color: '#FFFFFF',
-  padding: '12px 20px',
+  padding: `${vars.spacing.lg} ${vars.spacing['2xl']}`,
   fontSize: vars.fontSize.base,
   fontWeight: 600,
   cursor: 'pointer',
@@ -320,7 +320,7 @@ export const mobileSheet = style({
   overflowY: 'auto',
   background: vars.color.surface,
   borderRadius: `${vars.radius.xl} ${vars.radius.xl} 0 0`,
-  padding: '20px 16px',
+  padding: `${vars.spacing['2xl']} ${vars.spacing.xl}`,
   paddingBottom: 'calc(20px + env(safe-area-inset-bottom))',
 });
 
@@ -336,7 +336,7 @@ export const mobileSheetTitle = style({
   fontSize: vars.fontSize.lg,
   fontWeight: 600,
   color: vars.color.text,
-  marginBottom: '16px',
+  marginBottom: vars.spacing.xl,
 });
 
 // Clear confirm modal
@@ -348,7 +348,7 @@ export const confirmOverlay = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: '16px',
+  padding: vars.spacing.xl,
 });
 
 export const confirmModal = style({
@@ -356,7 +356,7 @@ export const confirmModal = style({
   maxWidth: '360px',
   background: vars.color.surface,
   borderRadius: vars.radius.xl,
-  padding: '24px',
+  padding: vars.spacing['3xl'],
   boxShadow: vars.shadow.xl,
 });
 
@@ -364,19 +364,19 @@ export const confirmTitle = style({
   fontSize: vars.fontSize.xl,
   fontWeight: 600,
   color: vars.color.text,
-  marginBottom: '8px',
+  marginBottom: vars.spacing.md,
 });
 
 export const confirmText = style({
   fontSize: vars.fontSize.base,
   color: vars.color.textMuted,
   lineHeight: vars.lineHeight.relaxed,
-  marginBottom: '20px',
+  marginBottom: vars.spacing['2xl'],
 });
 
 export const confirmActions = style({
   display: 'flex',
-  gap: '10px',
+  gap: vars.spacing['md-lg'],
   justifyContent: 'flex-end',
 });
 
@@ -384,7 +384,7 @@ export const confirmCancel = style({
   borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: '8px 16px',
+  padding: `${vars.spacing.md} ${vars.spacing.xl}`,
   fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.text,
@@ -399,7 +399,7 @@ export const confirmDanger = style({
   borderRadius: vars.radius.md,
   border: 'none',
   background: vars.color.errorText,
-  padding: '8px 16px',
+  padding: `${vars.spacing.md} ${vars.spacing.xl}`,
   fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: '#FFFFFF',

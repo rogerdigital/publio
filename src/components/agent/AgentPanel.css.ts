@@ -32,7 +32,7 @@ export const panelHeader = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: '14px 16px',
+  padding: `${vars.spacing['lg-xl']} ${vars.spacing.xl}`,
   borderBottom: `1px solid ${vars.color.borderFaint}`,
 });
 
@@ -42,15 +42,15 @@ export const panelTitle = style({
   color: vars.color.text,
   display: 'flex',
   alignItems: 'center',
-  gap: '6px',
+  gap: vars.spacing.sm,
 });
 
 export const panelBadge = style({
-  fontSize: '11px',
+  fontSize: vars.fontSize['2xs'],
   fontWeight: 500,
   color: vars.color.accent,
   background: vars.color.accentSoft,
-  borderRadius: '4px',
+  borderRadius: vars.radius.xs,
   padding: '1px 6px',
 });
 
@@ -75,11 +75,11 @@ export const closeButton = style({
 export const panelBody = style({
   flex: 1,
   overflow: 'auto',
-  padding: '16px',
+  padding: vars.spacing.xl,
 });
 
 export const outputArea = style({
-  fontSize: '14px',
+  fontSize: vars.fontSize.md,
   lineHeight: 1.7,
   color: vars.color.text,
   wordBreak: 'break-word',
@@ -90,40 +90,40 @@ globalStyle(`${outputArea} h1`, {
   margin: '16px 0 8px',
   fontWeight: 600,
   lineHeight: 1.4,
-  fontSize: '18px',
+  fontSize: vars.fontSize.xl,
 });
 globalStyle(`${outputArea} h2`, {
   margin: '16px 0 8px',
   fontWeight: 600,
   lineHeight: 1.4,
-  fontSize: '16px',
+  fontSize: vars.fontSize.lg,
 });
 globalStyle(`${outputArea} h3`, {
   margin: '16px 0 8px',
   fontWeight: 600,
   lineHeight: 1.4,
-  fontSize: '15px',
+  fontSize: vars.fontSize.base,
 });
 globalStyle(`${outputArea} h4`, { margin: '16px 0 8px', fontWeight: 600, lineHeight: 1.4 });
 globalStyle(`${outputArea} ul, ${outputArea} ol`, { margin: '8px 0', paddingLeft: '20px' });
 globalStyle(`${outputArea} li`, { margin: '4px 0' });
 globalStyle(`${outputArea} blockquote`, {
   margin: '8px 0',
-  padding: '8px 12px',
+  padding: `${vars.spacing.md} ${vars.spacing.lg}`,
   borderLeft: `3px solid ${vars.color.accent}`,
   color: vars.color.textMuted,
 });
 globalStyle(`${outputArea} pre`, {
   margin: '8px 0',
-  padding: '10px 12px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
   borderRadius: vars.radius.md,
   background: vars.color.canvasDeep,
   overflow: 'auto',
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
 });
 globalStyle(`${outputArea} code`, {
   padding: '1px 4px',
-  borderRadius: '4px',
+  borderRadius: vars.radius.xs,
   background: vars.color.canvasDeep,
   fontSize: '0.9em',
 });
@@ -150,8 +150,8 @@ export const cursor = style({
 export const panelActions = style({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
-  padding: '12px 16px',
+  gap: vars.spacing.md,
+  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
   borderTop: `1px solid ${vars.color.borderFaint}`,
 });
 
@@ -162,8 +162,8 @@ export const actionButton = style({
   borderRadius: '6px',
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: '6px 10px',
-  fontSize: '13px',
+  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',
   transition: 'all 150ms',
@@ -181,8 +181,8 @@ export const actionButtonPrimary = style({
   borderRadius: '6px',
   border: 'none',
   background: vars.color.accent,
-  padding: '6px 12px',
-  fontSize: '13px',
+  padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.surfaceDarkText,
   cursor: 'pointer',
@@ -196,14 +196,14 @@ export const errorBox = style({
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.errorBorder}`,
   background: vars.color.errorBg,
-  padding: '10px 12px',
-  fontSize: '13px',
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.sm,
   color: vars.color.errorText,
 });
 
 export const emptyState = style({
-  fontSize: '13px',
+  fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   textAlign: 'center',
-  padding: '32px 16px',
+  padding: `${vars.spacing['4xl']} ${vars.spacing.xl}`,
 });

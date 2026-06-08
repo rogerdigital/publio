@@ -3,16 +3,16 @@ import { vars } from '@/styles/tokens.css';
 
 export const header = style({
   width: '100%',
-  paddingTop: '4px',
-  paddingBottom: '16px',
-  marginBottom: '8px',
+  paddingTop: vars.spacing.xs,
+  paddingBottom: vars.spacing.xl,
+  marginBottom: vars.spacing.md,
 });
 
 export const inner = style({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
-  gap: '16px',
+  gap: vars.spacing.xl,
   '@media': {
     'screen and (min-width: 640px)': {
       flexDirection: 'row',
@@ -35,7 +35,7 @@ export const kicker = style({
 });
 
 export const title = style({
-  marginTop: '6px',
+  marginTop: vars.spacing.sm,
   fontSize: vars.fontSize['3xl'],
   fontWeight: 600,
   lineHeight: 1.2,
@@ -43,7 +43,7 @@ export const title = style({
 });
 
 export const description = style({
-  marginTop: '8px',
+  marginTop: vars.spacing.md,
   maxWidth: '48rem',
   fontSize: vars.fontSize.sm,
   lineHeight: 1.75,

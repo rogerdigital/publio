@@ -22,7 +22,7 @@ export const item = style({
   display: 'flex',
   alignItems: 'flex-start',
   gap: 10,
-  padding: '8px 10px',
+  padding: `${vars.spacing.md} ${vars.spacing['md-lg']}`,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
