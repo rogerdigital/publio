@@ -355,21 +355,21 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
           <div className={styles.viewToggle}>
             <button
               type="button"
-              className={styles.viewToggleButton({ active: viewMode === 'pipeline' })}
-              onClick={() => setViewMode('pipeline')}
-              aria-label="流水线视图"
-              title="流水线视图"
-            >
-              <Columns3 size={16} />
-            </button>
-            <button
-              type="button"
               className={styles.viewToggleButton({ active: viewMode === 'compact' })}
               onClick={() => setViewMode('compact')}
               aria-label="紧凑列表"
               title="紧凑列表"
             >
               <LayoutList size={16} />
+            </button>
+            <button
+              type="button"
+              className={styles.viewToggleButton({ active: viewMode === 'pipeline' })}
+              onClick={() => setViewMode('pipeline')}
+              aria-label="流水线视图（展开详情）"
+              title="流水线视图（展开详情）"
+            >
+              <Columns3 size={16} />
             </button>
           </div>
           <FilterChipGroup
