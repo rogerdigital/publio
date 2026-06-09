@@ -20,8 +20,8 @@ export const filterChip = recipe({
   variants: {
     active: {
       true: {
-        background: vars.color.surfaceDark,
-        borderColor: vars.color.surfaceDark,
+        background: vars.color.accent,
+        borderColor: vars.color.accent,
         color: vars.color.surfaceDarkText,
         fontWeight: 500,
       },

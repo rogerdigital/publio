@@ -110,7 +110,7 @@ export const navItemBase = style({
   justifyContent: 'center',
   width: '40px',
   height: '40px',
-  borderRadius: '50%',
+  borderRadius: vars.radius.md,
   textDecoration: 'none',
   color: vars.color.textMuted,
   transition: `all ${vars.transition.fast}`,
@@ -121,9 +121,10 @@ export const navItemBase = style({
   selectors: {
     [`${sidebarVariants.expanded} &`]: {
       width: '100%',
+      height: 'auto',
       justifyContent: 'flex-start',
-      borderRadius: vars.radius.sm,
-      padding: '0 12px',
+      borderRadius: vars.radius.md,
+      padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
       alignSelf: 'stretch',
     },
   },
@@ -157,12 +158,12 @@ export const navTooltip = style({
 
 export const navItemVariants = styleVariants({
   active: {
-    background: vars.color.surfaceDark,
+    background: vars.color.accentSoft,
   },
   inactive: {
     background: 'transparent',
     ':hover': {
-      background: vars.color.accentSoft,
+      background: vars.color.bgElevated,
     },
   },
 });
@@ -185,7 +186,7 @@ export const navIconBase = style({
 
 export const navIconVariants = styleVariants({
   active: {
-    color: vars.color.surfaceDarkText,
+    color: vars.color.text,
   },
   inactive: {
     color: vars.color.textMuted,
@@ -210,7 +211,7 @@ export const navLabel = style({
 export const navLabelVariants = styleVariants({
   active: {
     fontWeight: 500,
-    color: vars.color.surfaceDarkText,
+    color: vars.color.text,
   },
   inactive: {
     color: vars.color.textMuted,

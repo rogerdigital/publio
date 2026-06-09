@@ -53,7 +53,7 @@ export const sourceAddBtn = style({
   gap: vars.spacing.xs,
   borderRadius: vars.radius.md,
   border: 'none',
-  background: vars.color.surfaceDark,
+  background: vars.color.accent,
   padding: `${vars.spacing['md-lg']} ${vars.spacing['lg-xl']}`,
   fontSize: vars.fontSize.sm,
   fontWeight: 500,
@@ -166,8 +166,8 @@ export const promptTab = recipe({
   variants: {
     active: {
       true: {
-        borderColor: vars.color.surfaceDark,
-        background: vars.color.surfaceDark,
+        borderColor: vars.color.accent,
+        background: vars.color.accent,
         color: vars.color.surfaceDarkText,
       },
     },

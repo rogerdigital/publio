@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { Sun, Moon, Monitor, Check } from 'lucide-react';
 import { darkTheme } from '@/styles/tokens.css';
 import * as css from './ThemeToggle.css';
 
@@ -28,14 +28,15 @@ function applyTheme(effective: 'light' | 'dark') {
 
 const modes: ThemeMode[] = ['light', 'dark', 'system'];
 
-const modeConfig: Record<ThemeMode, { icon: typeof Sun; label: string; color: string }> = {
-  light: { icon: Sun, label: '亮色', color: '#F59E0B' },
-  dark: { icon: Moon, label: '暗色', color: '#818CF8' },
-  system: { icon: Monitor, label: '系统', color: '#34D399' },
+const modeConfig: Record<ThemeMode, { icon: typeof Sun; label: string }> = {
+  light: { icon: Sun, label: 'Light' },
+  dark: { icon: Moon, label: 'Dark' },
+  system: { icon: Monitor, label: 'System' },
 };
 
 export default function ThemeToggle({ expanded = false }: { expanded?: boolean }) {
   const [mode, setMode] = useState<ThemeMode>('light');
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
@@ -55,57 +56,50 @@ export default function ThemeToggle({ expanded = false }: { expanded?: boolean }
 
   const select = useCallback((next: ThemeMode) => {
     setMode(next);
+    setOpen(false);
     localStorage.setItem(STORAGE_KEY, next);
     applyTheme(resolveEffectiveTheme(next));
   }, []);
 
-  const cycle = useCallback(() => {
-    setMode((prev) => {
-      const idx = modes.indexOf(prev);
-      const next = modes[(idx + 1) % modes.length];
-      localStorage.setItem(STORAGE_KEY, next);
-      applyTheme(resolveEffectiveTheme(next));
-      return next;
-    });
-  }, []);
-
-  if (expanded) {
-    return (
-      <div className={css.segmented} role="radiogroup" aria-label="主题切换">
-        {modes.map((m) => {
-          const cfg = modeConfig[m];
-          const Icon = cfg.icon;
-          const active = m === mode;
-          return (
-            <button
-              key={m}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              className={`${css.segItem} ${active ? css.segItemActive : ''}`}
-              onClick={() => select(m)}
-              title={cfg.label}
-            >
-              <Icon size={15} color={cfg.color} />
-            </button>
-          );
-        })}
-      </div>
-    );
-  }
-
-  const current = modeConfig[mode];
-  const Icon = current.icon;
+  const CurrentIcon = modeConfig[mode].icon;
 
   return (
-    <button
-      type="button"
-      className={css.toggle}
-      onClick={cycle}
-      aria-label={`当前：${current.label}，点击切换`}
-      title={`当前：${current.label}，点击切换`}
-    >
-      <Icon size={16} color={current.color} />
-    </button>
+    <div style={{ position: 'relative' }}>
+      <button
+        type="button"
+        className={css.toggle}
+        onClick={() => setOpen((v) => !v)}
+        aria-label={`主题：${modeConfig[mode].label}`}
+        aria-expanded={open}
+      >
+        <CurrentIcon size={16} />
+      </button>
+      {open && (
+        <>
+          <div className={css.dropdownBackdrop} onClick={() => setOpen(false)} />
+          <div className={css.dropdown} role="listbox" aria-label="选择主题">
+            {modes.map((m) => {
+              const cfg = modeConfig[m];
+              const Icon = cfg.icon;
+              const active = m === mode;
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  role="option"
+                  aria-selected={active}
+                  className={`${css.dropdownItem} ${active ? css.dropdownItemActive : ''}`}
+                  onClick={() => select(m)}
+                >
+                  <Icon size={16} />
+                  {cfg.label}
+                  {active && <Check size={14} className={css.checkMark} />}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
   );
 }
