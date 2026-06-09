@@ -40,6 +40,7 @@ globalStyle('html', {
 
 globalStyle('body', {
   minHeight: '100vh',
+  margin: 0,
   color: vars.color.text,
   fontFamily: vars.font.sans,
   background: `

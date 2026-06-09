@@ -59,7 +59,7 @@ export const rightPanel = style({
       width: '320px',
       flexShrink: 0,
       position: 'sticky',
-      top: '28px',
+      top: '84px',
     },
   },
 });
