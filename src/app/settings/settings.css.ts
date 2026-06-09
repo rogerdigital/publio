@@ -15,11 +15,12 @@ export const sectionNav = style({
   top: 0,
   zIndex: 10,
   display: 'flex',
-  gap: vars.spacing.xs,
+  gap: vars.spacing['2xs'],
   overflowX: 'auto',
-  padding: '8px 0',
-  borderBottom: `1px solid ${vars.color.border}`,
-  background: vars.color.bg,
+  padding: `${vars.spacing.xs} ${vars.spacing.xs}`,
+  borderRadius: vars.radius.lg,
+  border: `1px solid ${vars.color.border}`,
+  background: vars.color.bgElevated,
   selectors: {
     '&::-webkit-scrollbar': {
       display: 'none',
@@ -30,25 +31,25 @@ export const sectionNav = style({
 export const sectionTab = recipe({
   base: {
     flexShrink: 0,
-    borderRadius: vars.radius.full,
+    borderRadius: vars.radius.md,
     border: 'none',
     background: 'transparent',
-    padding: `${vars.spacing.sm} ${vars.spacing['lg-xl']}`,
-    fontSize: vars.fontSize.sm,
+    padding: `${vars.spacing.md} ${vars.spacing.xl}`,
+    fontSize: vars.fontSize.md,
     fontWeight: 500,
     color: vars.color.textMuted,
     cursor: 'pointer',
     transition: 'background-color 150ms, color 150ms',
     ':hover': {
-      background: vars.color.surface,
       color: vars.color.text,
     },
   },
   variants: {
     active: {
       true: {
-        background: vars.color.accentSoft,
-        color: vars.color.signal,
+        background: vars.color.surface,
+        color: vars.color.text,
+        boxShadow: vars.shadow.sm,
       },
     },
   },

@@ -139,7 +139,7 @@ export const tabButton = recipe({
   variants: {
     active: {
       true: {
-        background: vars.color.surfaceDark,
+        background: vars.color.accent,
         color: vars.color.surfaceDarkText,
         boxShadow: vars.shadow.sm,
       },
