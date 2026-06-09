@@ -120,12 +120,12 @@ export const navItemBase = style({
   position: 'relative',
   selectors: {
     [`${sidebarVariants.expanded} &`]: {
-      width: '100%',
+      width: `calc(100% - ${vars.spacing.xl})`,
       height: 'auto',
       justifyContent: 'flex-start',
       borderRadius: vars.radius.md,
       padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
-      alignSelf: 'stretch',
+      alignSelf: 'center',
     },
   },
 });

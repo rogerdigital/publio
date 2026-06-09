@@ -12,7 +12,7 @@ export const pageWrap = style({
 // Section anchor nav
 export const sectionNav = style({
   position: 'sticky',
-  top: 0,
+  top: '56px',
   zIndex: 10,
   display: 'flex',
   gap: vars.spacing['2xs'],
@@ -91,7 +91,7 @@ export const floatingSave = style({
 });
 
 export const sectionAnchor = style({
-  scrollMarginTop: '56px',
+  scrollMarginTop: '112px',
 });
 
 export const accordionCard = style({
