@@ -80,10 +80,10 @@ export const brandLogo = style({
 });
 
 export const brandName = style({
-  fontSize: vars.fontSize.xl,
-  fontWeight: 650,
-  fontFamily: 'var(--font-inter), sans-serif',
-  color: '#D97757',
+  fontSize: vars.fontSize['2xl'],
+  fontWeight: 600,
+  fontFamily: vars.font.serif,
+  color: vars.color.text,
   lineHeight: 1,
   opacity: 0,
   width: 0,
@@ -222,8 +222,9 @@ export const footer = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  marginTop: 'auto',
   paddingTop: vars.spacing.lg,
-  paddingBottom: '56px',
+  paddingBottom: vars.spacing.lg,
   selectors: {
     [`${sidebarVariants.expanded} &`]: {
       justifyContent: 'flex-start',
