@@ -29,8 +29,8 @@ export default function ModerationWarning({
   }, {});
 
   return (
-    <div className={styles.moderationOverlay}>
-      <div className={styles.moderationDialog}>
+    <div className={styles.moderationOverlay} onClick={onCancel}>
+      <div className={styles.moderationDialog} onClick={(e) => e.stopPropagation()}>
         <div className={styles.moderationHeader}>
           <ShieldAlert size={20} />
           <span>内容安全检查</span>

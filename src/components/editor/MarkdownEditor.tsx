@@ -16,6 +16,7 @@ import { useSlashCommands } from '@/hooks/useSlashCommands';
 import { useAgentStream } from '@/hooks/useAgentStream';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useImmersiveMode } from '@/hooks/useImmersiveMode';
+import { useClickOutside } from '@/hooks/useClickOutside';
 import SlashCommandMenu from './SlashCommandMenu';
 import EditorModeToggle from './EditorModeToggle';
 import * as styles from './editor.css';
@@ -41,6 +42,8 @@ export default function MarkdownEditor({
   const slash = useSlashCommands(content, setContent, { agentEnabled });
   const agent = useAgentStream();
   const immersive = useImmersiveMode();
+
+  useClickOutside(editorWrapRef, slash.visible, slash.hide);
 
   useEffect(() => {
     function syncHeight() {

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { X, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { useClickOutside } from '@/hooks/useClickOutside';
 import { usePublishStore } from '@/stores/publishStore';
 import type { SyncTask, SyncReceiptStatus } from '@/lib/sync/types';
 import type { PlatformId } from '@/types';
@@ -59,6 +60,7 @@ export default function PublishProgressOverlay() {
     usePublishStore();
   const [syncTask, setSyncTask] = useState<SyncTask | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   const isDone = syncTask ? syncTask.receipts.every((r) => isTerminalStatus(r.status)) : false;
 
@@ -100,10 +102,12 @@ export default function PublishProgressOverlay() {
     closeProgressOverlay();
   }
 
+  useClickOutside(overlayRef, isProgressOverlayOpen, handleClose);
+
   if (!isProgressOverlayOpen || !lastSyncTaskId) return null;
 
   return (
-    <div className={styles.overlay} role="status" aria-live="polite">
+    <div ref={overlayRef} className={styles.overlay} role="status" aria-live="polite">
       <div className={styles.header}>
         <span className={styles.headerTitle}>分发进度</span>
         <button
