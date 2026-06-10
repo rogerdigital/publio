@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   FileText,
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
 import FilterChipGroup from '@/components/ui/FilterChipGroup';
+import { useClickOutside } from '@/hooks/useClickOutside';
 import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
 import { deleteDraft, createDraft, updateDraft } from '@/lib/drafts/client';
 import {
@@ -101,6 +102,8 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
   const [viewMode, setViewMode] = useState<ViewMode>('compact');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const filterPopoverRef = useRef<HTMLDivElement>(null);
+  const mobileFilterSheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isEditMode) {
@@ -112,6 +115,10 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [statusFilter, searchQuery, tagFilter]);
+
+  useClickOutside([filterPopoverRef, mobileFilterSheetRef], mobileFilterOpen, () =>
+    setMobileFilterOpen(false),
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -354,16 +361,33 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button
-            type="button"
-            className={styles.importButton}
-            onClick={() => setMobileFilterOpen(true)}
-            title="筛选"
-            aria-label="打开筛选面板"
-          >
-            <SlidersHorizontal size={14} />
-            筛选
-          </button>
+          <div ref={filterPopoverRef} className={styles.filterPopoverWrap}>
+            <button
+              type="button"
+              className={styles.importButton}
+              onClick={() => setMobileFilterOpen((open) => !open)}
+              title="筛选"
+              aria-expanded={mobileFilterOpen}
+              aria-label="打开筛选面板"
+            >
+              <SlidersHorizontal size={14} />
+              筛选
+            </button>
+            {mobileFilterOpen && (
+              <div className={styles.filterPopover}>
+                <p className={styles.filterPopoverTitle}>筛选状态</p>
+                <FilterChipGroup
+                  options={STATUS_FILTER_OPTIONS}
+                  value={statusFilter}
+                  onChange={(v) => {
+                    setStatusFilter(v);
+                    setMobileFilterOpen(false);
+                  }}
+                  className={styles.filterBar}
+                />
+              </div>
+            )}
+          </div>
           <div className={styles.viewToggle}>
             <button
               type="button"
@@ -384,19 +408,17 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
               <Columns3 size={16} />
             </button>
           </div>
-          <FilterChipGroup
-            options={STATUS_FILTER_OPTIONS}
-            value={statusFilter}
-            onChange={setStatusFilter}
-            className={styles.filterBar}
-          />
         </div>
       )}
 
       {/* Mobile filter sheet */}
       {mobileFilterOpen && (
         <div className={styles.mobileFilterOverlay} onClick={() => setMobileFilterOpen(false)}>
-          <div className={styles.mobileFilterSheet} onClick={(e) => e.stopPropagation()}>
+          <div
+            ref={mobileFilterSheetRef}
+            className={styles.mobileFilterSheet}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.mobileFilterHandle} />
             <p className={styles.mobileFilterTitle}>筛选</p>
             <FilterChipGroup

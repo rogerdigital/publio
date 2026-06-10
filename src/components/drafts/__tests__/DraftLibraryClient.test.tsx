@@ -63,6 +63,9 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   syncStatusLabelVariants: () => 'syncStatusLabelVariants',
   toolbar: 'toolbar',
   searchInput: 'searchInput',
+  filterPopoverWrap: 'filterPopoverWrap',
+  filterPopover: 'filterPopover',
+  filterPopoverTitle: 'filterPopoverTitle',
   filterBar: 'filterBar',
   filterChip: (variants: { active?: boolean }) =>
     variants?.active ? 'filterChip-active' : 'filterChip',

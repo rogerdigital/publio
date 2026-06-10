@@ -684,27 +684,42 @@ export const tagChip = recipe({
 });
 
 // 状态筛选栏
-export const filterBar = style({
-  display: 'flex',
-  gap: vars.spacing.sm,
-  gridColumn: '1 / -1',
-  overflowX: 'auto',
-  paddingBottom: vars.spacing['2xs'],
-  WebkitOverflowScrolling: 'touch',
-  scrollbarWidth: 'none',
-  selectors: {
-    '&::-webkit-scrollbar': {
-      display: 'none',
-    },
-  },
+export const filterPopoverWrap = style({
+  position: 'relative',
+});
+
+export const filterPopover = style({
+  display: 'none',
   '@media': {
     'screen and (min-width: 760px)': {
-      gridColumn: 'auto',
-      overflowX: 'visible',
-      flexWrap: 'wrap',
-      paddingBottom: 0,
+      position: 'absolute',
+      top: 'calc(100% + 8px)',
+      right: 0,
+      zIndex: 30,
+      display: 'grid',
+      gap: vars.spacing.md,
+      minWidth: 320,
+      maxWidth: 420,
+      padding: vars.spacing['lg-xl'],
+      borderRadius: vars.radius.xl,
+      border: `1px solid ${vars.color.border}`,
+      background: vars.color.surface,
+      boxShadow: vars.shadow.lg,
     },
   },
+});
+
+export const filterPopoverTitle = style({
+  margin: 0,
+  fontSize: vars.fontSize.sm,
+  fontWeight: 600,
+  color: vars.color.text,
+});
+
+export const filterBar = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: vars.spacing.sm,
 });
 
 export const filterChip = recipe({
