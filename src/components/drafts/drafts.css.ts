@@ -618,8 +618,11 @@ export const toolbar = style({
   display: 'grid',
   gridTemplateColumns: 'auto minmax(0, 1fr) auto',
   alignItems: 'center',
-  gap: 12,
+  gap: 10,
   '@media': {
+    'screen and (max-width: 759px)': {
+      gridTemplateColumns: 'auto minmax(0, 1fr) auto',
+    },
     'screen and (min-width: 760px)': {
       display: 'flex',
       flexWrap: 'wrap',
@@ -627,18 +630,39 @@ export const toolbar = style({
   },
 });
 
-export const searchInput = style({
+export const searchWrap = style({
+  position: 'relative',
+  gridColumn: '1 / -1',
+  gridRow: 1,
   flex: 1,
   minWidth: 0,
-  padding: `${vars.spacing['md-lg']} ${vars.spacing['lg-xl']}`,
+  height: 40,
+});
+
+export const searchIcon = style({
+  position: 'absolute',
+  top: '50%',
+  left: vars.spacing['lg-xl'],
+  transform: 'translateY(-50%)',
+  color: vars.color.textMuted,
+  pointerEvents: 'none',
+});
+
+export const searchInput = style({
+  boxSizing: 'border-box',
+  width: '100%',
+  height: '100%',
+  padding: `0 ${vars.spacing['lg-xl']} 0 calc(${vars.spacing['lg-xl']} + 22px)`,
   fontSize: 13,
-  border: 'none',
-  borderRadius: vars.radius.md,
+  border: '1px solid transparent',
+  borderRadius: vars.radius.lg,
   background: vars.color.glassInput,
   color: vars.color.text,
   outline: 'none',
+  transition: 'border-color 150ms, background-color 150ms',
   ':focus': {
-    border: `1px solid ${vars.color.glassInputFocus}`,
+    borderColor: vars.color.glassInputFocus,
+    background: vars.color.surface,
   },
   '::placeholder': {
     color: vars.color.textMuted,
@@ -755,11 +779,13 @@ export const filterChip = recipe({
 export const importButton = style({
   display: 'inline-flex',
   alignItems: 'center',
+  justifyContent: 'center',
   gap: vars.spacing.sm,
+  height: 40,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
+  padding: `0 ${vars.spacing['lg-xl']}`,
   fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',
@@ -816,6 +842,7 @@ export const batchActionButton = style({
 // View mode toggle
 export const viewToggle = style({
   display: 'inline-flex',
+  height: 40,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
   overflow: 'hidden',
@@ -826,8 +853,8 @@ export const viewToggleButton = recipe({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 32,
-    height: 32,
+    width: 38,
+    height: 38,
     border: 'none',
     background: 'transparent',
     color: vars.color.textMuted,

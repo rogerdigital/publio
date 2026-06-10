@@ -15,6 +15,7 @@ import {
   Columns3,
   ChevronDown,
   SlidersHorizontal,
+  Search,
 } from 'lucide-react';
 import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
 import FilterChipGroup from '@/components/ui/FilterChipGroup';
@@ -344,23 +345,17 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
 
       {!isEditMode && (
         <div className={styles.toolbar}>
-          <button
-            type="button"
-            className={styles.importButton}
-            onClick={() => void handleImport()}
-            title="导入 Markdown 文件"
-          >
-            <Upload size={14} />
-            导入
-          </button>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="搜索稿件标题或内容..."
-            aria-label="搜索稿件"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <div className={styles.searchWrap}>
+            <Search size={15} className={styles.searchIcon} />
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="搜索稿件标题或内容..."
+              aria-label="搜索稿件"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
           <div ref={filterPopoverRef} className={styles.filterPopoverWrap}>
             <button
               type="button"
@@ -408,6 +403,15 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
               <Columns3 size={16} />
             </button>
           </div>
+          <button
+            type="button"
+            className={styles.importButton}
+            onClick={() => void handleImport()}
+            title="导入 Markdown 文件"
+          >
+            <Upload size={14} />
+            导入
+          </button>
         </div>
       )}
 
@@ -428,6 +432,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
                 setStatusFilter(v);
                 setMobileFilterOpen(false);
               }}
+              className={styles.filterBar}
             />
           </div>
         </div>

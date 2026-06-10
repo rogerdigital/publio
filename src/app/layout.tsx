@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description: 'Publish Markdown content to multiple platforms in one workflow.',
 };
 
-const themeScript = `(function(){try{var c='${darkTheme}',s=localStorage.getItem('publio-theme'),p=s||'light',e=p==='system'?window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light':p;if(e==='dark'){document.documentElement.classList.add(c)}else{document.documentElement.classList.remove(c)}}catch(e){}})()`;
+const themeScript = `(function(){try{var c='${darkTheme}',s=localStorage.getItem('publio-theme'),p=s||'dark',e=p==='system'?window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light':p;if(e==='dark'){document.documentElement.classList.add(c)}else{document.documentElement.classList.remove(c)}}catch(e){}})()`;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

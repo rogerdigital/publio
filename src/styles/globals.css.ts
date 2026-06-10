@@ -38,6 +38,14 @@ globalStyle('html', {
   transition: `background ${vars.transition.slow}, color ${vars.transition.base}`,
 });
 
+globalStyle(`html.${darkTheme}`, {
+  colorScheme: 'dark',
+});
+
+globalStyle('.publio-disable-theme-transition, .publio-disable-theme-transition *', {
+  transition: 'none !important',
+});
+
 globalStyle('body', {
   minHeight: '100vh',
   margin: 0,
