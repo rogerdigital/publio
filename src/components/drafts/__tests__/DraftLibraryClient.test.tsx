@@ -62,6 +62,8 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   syncStatusStepVariants: () => 'syncStatusStepVariants',
   syncStatusLabelVariants: () => 'syncStatusLabelVariants',
   toolbar: 'toolbar',
+  searchWrap: 'searchWrap',
+  searchIcon: 'searchIcon',
   searchInput: 'searchInput',
   filterPopoverWrap: 'filterPopoverWrap',
   filterPopover: 'filterPopover',

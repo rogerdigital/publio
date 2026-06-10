@@ -5,9 +5,11 @@ import { Sun, Moon, Monitor, Check } from 'lucide-react';
 import { darkTheme } from '@/styles/tokens.css';
 import * as css from './ThemeToggle.css';
 
-const STORAGE_KEY = 'publio-theme';
-
 type ThemeMode = 'light' | 'dark' | 'system';
+
+const STORAGE_KEY = 'publio-theme';
+const DEFAULT_THEME: ThemeMode = 'dark';
+const DISABLE_TRANSITION_CLASS = 'publio-disable-theme-transition';
 
 function getSystemPreference(): 'light' | 'dark' {
   if (typeof window === 'undefined') return 'dark';
@@ -18,11 +20,23 @@ function resolveEffectiveTheme(mode: ThemeMode): 'light' | 'dark' {
   return mode === 'system' ? getSystemPreference() : mode;
 }
 
-function applyTheme(effective: 'light' | 'dark') {
+function applyTheme(effective: 'light' | 'dark', disableTransition = false) {
+  if (disableTransition) {
+    document.documentElement.classList.add(DISABLE_TRANSITION_CLASS);
+  }
+
   if (effective === 'dark') {
     document.documentElement.classList.add(darkTheme);
   } else {
     document.documentElement.classList.remove(darkTheme);
+  }
+
+  if (disableTransition) {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        document.documentElement.classList.remove(DISABLE_TRANSITION_CLASS);
+      });
+    });
   }
 }
 
@@ -40,14 +54,14 @@ export default function ThemeToggle({ expanded = false }: { expanded?: boolean }
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
-    const initialMode: ThemeMode = stored && modes.includes(stored) ? stored : 'dark';
+    const initialMode: ThemeMode = stored && modes.includes(stored) ? stored : DEFAULT_THEME;
     setMode(initialMode);
     applyTheme(resolveEffectiveTheme(initialMode));
 
     const mql = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = () => {
-      if (localStorage.getItem(STORAGE_KEY) === 'system' || !localStorage.getItem(STORAGE_KEY)) {
-        applyTheme(getSystemPreference());
+      if (localStorage.getItem(STORAGE_KEY) === 'system') {
+        applyTheme(getSystemPreference(), true);
       }
     };
     mql.addEventListener('change', handler);
@@ -58,7 +72,7 @@ export default function ThemeToggle({ expanded = false }: { expanded?: boolean }
     setMode(next);
     setOpen(false);
     localStorage.setItem(STORAGE_KEY, next);
-    applyTheme(resolveEffectiveTheme(next));
+    applyTheme(resolveEffectiveTheme(next), true);
   }, []);
 
   const CurrentIcon = modeConfig[mode].icon;
