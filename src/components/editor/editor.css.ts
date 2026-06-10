@@ -171,17 +171,19 @@ export const statsDot = style({
 
 // Preview area
 export const previewWrap = style({
-  padding: vars.spacing['3xl'],
   display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  background: vars.color.canvasDeep,
+  minHeight: '34rem',
+  alignItems: 'flex-start',
+  justifyContent: 'center',
+  background: `linear-gradient(180deg, ${vars.color.surface} 0%, ${vars.color.bg} 100%)`,
+  padding: vars.spacing['2xl'],
   '@media': {
     'screen and (min-width: 640px)': {
       padding: vars.spacing['4xl'],
     },
     'screen and (min-width: 1024px)': {
-      minHeight: '420px',
+      minHeight: '36rem',
+      paddingTop: vars.spacing['5xl'],
     },
   },
 });
@@ -189,10 +191,12 @@ export const previewWrap = style({
 // 模拟手机/公众号文章阅读容器
 export const previewPhoneFrame = style({
   width: '100%',
-  maxWidth: '480px',
+  maxWidth: '680px',
+  minHeight: '24rem',
   borderRadius: vars.radius.xl,
+  border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
-  boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+  boxShadow: vars.shadow.lg,
   overflow: 'hidden',
 });
 
@@ -201,9 +205,10 @@ export const previewPhoneBar = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: `${vars.spacing.md} ${vars.spacing['lg-xl']}`,
+  height: '38px',
+  padding: `0 ${vars.spacing['lg-xl']}`,
   borderBottom: `1px solid ${vars.color.borderFaint}`,
-  background: vars.color.bgElevated,
+  background: vars.color.surfaceStrong,
 });
 
 export const previewPhoneBarDot = style({
@@ -226,7 +231,7 @@ export const previewPhoneBarLabel = style({
 
 // 文章内容内边距容器
 export const previewInner = style({
-  padding: `${vars.spacing['2xl']} ${vars.spacing['2xl']} ${vars.spacing['4xl']}`,
+  padding: `${vars.spacing['4xl']} ${vars.spacing['4xl']} ${vars.spacing['5xl']}`,
 });
 
 export const previewKicker = style({

@@ -4,6 +4,9 @@ import type { NextConfig } from 'next';
 const withVanillaExtract = createVanillaExtractPlugin();
 
 const nextConfig: NextConfig = {
+  devIndicators: {
+    position: 'bottom-right',
+  },
   async headers() {
     const isDev = process.env.NODE_ENV === 'development';
     return [

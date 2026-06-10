@@ -12,15 +12,20 @@ export const pageWrap = style({
 // Section anchor nav
 export const sectionNav = style({
   position: 'sticky',
-  top: '56px',
+  top: '80px',
   zIndex: 10,
-  display: 'flex',
+  display: 'inline-flex',
+  alignSelf: 'flex-start',
+  maxWidth: '100%',
   gap: vars.spacing['2xs'],
   overflowX: 'auto',
-  padding: `${vars.spacing.xs} ${vars.spacing.xs}`,
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.bgElevated,
+  padding: vars.spacing.xs,
+  borderRadius: vars.radius.full,
+  border: `1px solid ${vars.color.borderFaint}`,
+  background: vars.color.glassSurface,
+  backdropFilter: 'blur(16px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+  boxShadow: vars.shadow.sm,
   selectors: {
     '&::-webkit-scrollbar': {
       display: 'none',
@@ -31,25 +36,27 @@ export const sectionNav = style({
 export const sectionTab = recipe({
   base: {
     flexShrink: 0,
-    borderRadius: vars.radius.md,
+    borderRadius: vars.radius.full,
     border: 'none',
     background: 'transparent',
-    padding: `${vars.spacing.md} ${vars.spacing.xl}`,
-    fontSize: vars.fontSize.md,
-    fontWeight: 500,
+    padding: `${vars.spacing['md-lg']} ${vars.spacing['2xl']}`,
+    fontSize: vars.fontSize.sm,
+    fontWeight: 600,
+    lineHeight: 1,
     color: vars.color.textMuted,
     cursor: 'pointer',
-    transition: 'background-color 150ms, color 150ms',
+    transition: 'background-color 150ms, color 150ms, box-shadow 150ms',
     ':hover': {
       color: vars.color.text,
+      background: vars.color.bgElevated,
     },
   },
   variants: {
     active: {
       true: {
-        background: vars.color.surface,
-        color: vars.color.text,
-        boxShadow: vars.shadow.sm,
+        background: vars.color.accent,
+        color: vars.color.surfaceDarkText,
+        boxShadow: `${vars.shadow.md}, inset 0 0 0 1px ${vars.color.accent}`,
       },
     },
   },

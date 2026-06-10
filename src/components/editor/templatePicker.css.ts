@@ -3,21 +3,23 @@ import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/styles/tokens.css';
 
 export const trigger = style({
-  display: 'inline-flex',
+  display: 'flex',
   alignItems: 'center',
-  gap: vars.spacing.sm,
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
+  gap: vars.spacing.md,
+  width: '100%',
+  minHeight: '38px',
+  borderRadius: vars.radius.md,
+  border: 'none',
   background: 'transparent',
-  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
-  fontSize: vars.fontSize.md,
-  color: vars.color.textMuted,
+  padding: `${vars.spacing.md} ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.sm,
+  fontWeight: 500,
+  color: vars.color.text,
   cursor: 'pointer',
-  transition: 'background-color 150ms, color 150ms, border-color 150ms',
+  textAlign: 'left',
+  transition: 'background-color 150ms, color 150ms',
   ':hover': {
-    background: vars.color.canvasDeep,
-    color: vars.color.text,
-    borderColor: vars.color.borderStrong,
+    background: vars.color.bgElevated,
   },
 });
 
