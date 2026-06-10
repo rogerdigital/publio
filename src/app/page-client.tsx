@@ -3,17 +3,7 @@
 import { Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  Eye,
-  Files,
-  SquarePen,
-  Eraser,
-  History,
-  Send,
-  MoreHorizontal,
-  Image,
-  FileText,
-} from 'lucide-react';
+import { Eye, SquarePen, Eraser, History, Send, MoreHorizontal, FileText } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import { useAgentStore } from '@/stores/agentStore';
 import AppShellHeader from '@/components/layout/AppShellHeader';
@@ -25,8 +15,6 @@ const MarkdownEditor = dynamic(() => import('@/components/editor/MarkdownEditor'
   ),
 });
 import RecentDraftBar from '@/components/editor/RecentDraftBar';
-import DraftPanel from '@/components/editor/DraftPanel';
-import PlatformSelector from '@/components/publish/PlatformSelector';
 import PublishButton from '@/components/publish/PublishButton';
 import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
 import PublishChecklist from '@/components/publish/PublishChecklist';
@@ -72,7 +60,6 @@ function HomePageContent() {
   const agentStatus = useAgentStore((s) => s.status);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [draftLoadError, setDraftLoadError] = useState('');
   const [clearConfirming, setClearConfirming] = useState(false);
   const [mobilePublishOpen, setMobilePublishOpen] = useState(false);
@@ -216,16 +203,6 @@ function HomePageContent() {
                 预览
               </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsPanelOpen((v) => !v)}
-              className={styles.panelToggle({ active: isPanelOpen })}
-              title={isPanelOpen ? '收起草稿' : '展开草稿'}
-              aria-expanded={isPanelOpen}
-            >
-              <Files size={14} />
-              草稿
-            </button>
             <div className={styles.moreMenuWrap}>
               <button
                 type="button"
@@ -261,6 +238,17 @@ function HomePageContent() {
                       type="button"
                       onClick={() => {
                         setMoreMenuOpen(false);
+                        router.push('/drafts');
+                      }}
+                      className={styles.moreMenuItem}
+                    >
+                      <FileText size={14} />
+                      打开稿件库
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMoreMenuOpen(false);
                         handleClearClick();
                       }}
                       className={styles.moreMenuItemDanger}
@@ -277,10 +265,6 @@ function HomePageContent() {
       />
 
       <div className={styles.editorLayout}>
-        <div className={styles.panelOuter} style={{ width: isPanelOpen ? '216px' : 0 }}>
-          <DraftPanel onNewDraft={handleNewDraft} />
-        </div>
-
         <div className={styles.mainContentArea}>
           <div className={styles.editorSection}>
             {draftLoadError ? (

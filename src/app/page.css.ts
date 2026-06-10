@@ -11,19 +11,7 @@ export const pageWrap = style({
 export const editorLayout = style({
   display: 'flex',
   alignItems: 'stretch',
-  gap: vars.spacing.xl,
-});
-
-export const panelOuter = style({
-  display: 'none',
-  flexShrink: 0,
-  overflow: 'hidden',
-  transition: `width ${vars.transition.base}`,
-  '@media': {
-    'screen and (min-width: 1024px)': {
-      display: 'block',
-    },
-  },
+  gap: vars.spacing.lg,
 });
 
 export const mainContentArea = style({
@@ -215,48 +203,6 @@ export const newDraftButtonDanger = style({
   transition: `all ${vars.transition.fast}`,
 });
 
-export const panelToggle = recipe({
-  base: {
-    display: 'none',
-    cursor: 'pointer',
-    gap: vars.spacing.sm,
-    transition: `all ${vars.transition.fast}`,
-    ':hover': {
-      background: vars.color.accentSoft,
-      color: vars.color.accent,
-      borderColor: vars.color.accent,
-    },
-    '@media': {
-      'screen and (min-width: 1024px)': {
-        display: 'inline-flex',
-        alignItems: 'center',
-        borderRadius: vars.radius.md,
-        border: `1px solid ${vars.color.border}`,
-        background: 'transparent',
-        color: vars.color.textMuted,
-        padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
-        fontSize: vars.fontSize.sm,
-      },
-    },
-  },
-  variants: {
-    active: {
-      true: {
-        background: vars.color.accentSoft,
-        color: vars.color.accent,
-        borderColor: vars.color.accent,
-        ':hover': {
-          background: vars.color.accentSoft,
-          color: vars.color.accent,
-          borderColor: vars.color.accent,
-        },
-      },
-      false: {},
-    },
-  },
-  defaultVariants: { active: false },
-});
-
 export const saveStatusHint = style({
   fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
@@ -284,17 +230,38 @@ export const moreMenu = style({
   position: 'absolute',
   top: '100%',
   right: 0,
-  marginTop: vars.spacing.xs,
+  marginTop: vars.spacing.sm,
   zIndex: 100,
-  minWidth: '160px',
+  minWidth: '220px',
   display: 'flex',
   flexDirection: 'column',
   gap: vars.spacing['2xs'],
-  borderRadius: vars.radius.lg,
+  borderRadius: vars.radius.xl,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
-  padding: vars.spacing.xs,
-  boxShadow: vars.shadow.lg,
+  padding: vars.spacing.md,
+  boxShadow: vars.shadow.xl,
+});
+
+export const moreMenuItem = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.md,
+  width: '100%',
+  minHeight: '38px',
+  borderRadius: vars.radius.md,
+  border: 'none',
+  background: 'transparent',
+  padding: `${vars.spacing.md} ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.sm,
+  fontWeight: 500,
+  color: vars.color.text,
+  cursor: 'pointer',
+  textAlign: 'left',
+  transition: `background ${vars.transition.fast}, color ${vars.transition.fast}`,
+  ':hover': {
+    background: vars.color.bgElevated,
+  },
 });
 
 export const moreMenuItemDanger = style({
@@ -302,11 +269,15 @@ export const moreMenuItemDanger = style({
   alignItems: 'center',
   gap: vars.spacing.md,
   width: '100%',
-  borderRadius: vars.radius.sm,
+  minHeight: '38px',
+  marginTop: vars.spacing.xs,
+  borderRadius: vars.radius.md,
   border: 'none',
+  borderTop: `1px solid ${vars.color.borderFaint}`,
   background: 'transparent',
-  padding: `${vars.spacing.md} ${vars.spacing.lg}`,
+  padding: `${vars.spacing.lg} ${vars.spacing.lg} ${vars.spacing.md}`,
   fontSize: vars.fontSize.sm,
+  fontWeight: 500,
   color: vars.color.errorText,
   cursor: 'pointer',
   textAlign: 'left',

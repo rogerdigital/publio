@@ -153,9 +153,7 @@ export default function MarkdownEditor({
   );
 
   const cleanContent = content.trim();
-  const previewHtml = markdownToHtml(
-    cleanContent || '在这里开始撰写你的稿件内容，通过上方标签切换查看纸张预览。',
-  );
+  const previewHtml = markdownToHtml(cleanContent || '开始写作后，这里会显示文章预览。');
 
   return (
     <div data-color-mode="light" className={styles.editorRoot}>
