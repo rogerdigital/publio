@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { PenLine, Settings2, Library, ChevronsRight, ChevronsLeft } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { useOptimisticNavigation } from '@/components/layout/NavigationProvider';
 import {
   prefetchDraftLibraryData,
   prefetchHomePageChromeData,
@@ -25,17 +26,13 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { optimisticPath, navigateOptimistically } = useOptimisticNavigation();
   const [expanded, setExpanded] = useState(false);
-  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === 'true') setExpanded(true);
   }, []);
-
-  useEffect(() => {
-    setPendingHref(null);
-  }, [pathname]);
 
   useEffect(() => {
     for (const item of navItems) {
@@ -64,9 +61,7 @@ export default function Sidebar() {
   }, []);
 
   function handleNavigate(href: string) {
-    if (href !== pathname) {
-      setPendingHref(href);
-    }
+    navigateOptimistically(href);
   }
 
   const toggle = () => {
@@ -116,8 +111,8 @@ export default function Sidebar() {
 
         <nav className={styles.nav}>
           {navItems.map((item) => {
-            const isActive = pendingHref
-              ? pendingHref === item.href
+            const isActive = optimisticPath
+              ? optimisticPath === item.href
               : pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
             const Icon = item.icon;
             const state = isActive ? 'active' : 'inactive';
@@ -152,10 +147,9 @@ export default function Sidebar() {
 
       <nav className={styles.mobileTabBar} aria-label="移动端导航">
         {navItems.map((item) => {
-          const isActive =
-            pendingHref === item.href ||
-            pathname === item.href ||
-            (item.href !== '/' && pathname.startsWith(item.href));
+          const isActive = optimisticPath
+            ? optimisticPath === item.href
+            : pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
           const Icon = item.icon;
           const state = isActive ? 'active' : 'inactive';
 
