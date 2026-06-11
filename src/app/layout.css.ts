@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css';
+import { keyframes, style } from '@vanilla-extract/css';
 import { vars } from '@/styles/tokens.css';
 
 export const skipLink = style({
@@ -26,6 +26,11 @@ export const skipLink = style({
   },
 });
 
+const shimmer = keyframes({
+  '0%': { backgroundPosition: '100% 0' },
+  '100%': { backgroundPosition: '-100% 0' },
+});
+
 export const shell = style({
   display: 'flex',
   minHeight: '100dvh',
@@ -41,6 +46,7 @@ export const shell = style({
 export const main = style({
   minWidth: 0,
   flex: 1,
+  position: 'relative',
   padding: vars.spacing.xl,
   paddingBottom: `calc(48px + ${vars.layout.tabBarHeight} + env(safe-area-inset-bottom))`,
   '@media': {
@@ -53,4 +59,36 @@ export const main = style({
       paddingBottom: '28px',
     },
   },
+});
+
+export const transitionCover = style({
+  position: 'absolute',
+  inset: 0,
+  zIndex: 2,
+  pointerEvents: 'none',
+  padding: 'inherit',
+  background: vars.color.bg,
+});
+
+export const transitionSkeleton = style({
+  display: 'grid',
+  gap: vars.spacing['3xl'],
+  maxWidth: '1120px',
+});
+
+export const transitionHeader = style({
+  width: 'min(42vw, 360px)',
+  height: '116px',
+  borderRadius: vars.radius.xl,
+  background: `linear-gradient(90deg, ${vars.color.bgElevated} 0%, ${vars.color.surfaceStrong} 50%, ${vars.color.bgElevated} 100%)`,
+  backgroundSize: '200% 100%',
+  animation: `${shimmer} 900ms linear infinite`,
+});
+
+export const transitionBody = style({
+  height: 'min(56vh, 520px)',
+  borderRadius: vars.radius['2xl'],
+  background: `linear-gradient(90deg, ${vars.color.bgElevated} 0%, ${vars.color.surfaceStrong} 50%, ${vars.color.bgElevated} 100%)`,
+  backgroundSize: '200% 100%',
+  animation: `${shimmer} 900ms linear infinite`,
 });

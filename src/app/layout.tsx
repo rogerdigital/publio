@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import '@/styles/globals.css';
 import { darkTheme } from '@/styles/tokens.css';
 import Sidebar from '@/components/layout/Sidebar';
+import { NavigationContent, NavigationProvider } from '@/components/layout/NavigationProvider';
 import ToastContainer from '@/components/feedback/Toast';
 import ShortcutCheatSheet from '@/components/feedback/ShortcutCheatSheet';
 import * as styles from './layout.css';
@@ -32,13 +33,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <a href="#main-content" className={styles.skipLink}>
           跳到主要内容
         </a>
-        <div className={styles.shell}>
-          <Sidebar />
+        <NavigationProvider>
+          <div className={styles.shell}>
+            <Sidebar />
 
-          <main id="main-content" className={styles.main} tabIndex={-1}>
-            {children}
-          </main>
-        </div>
+            <main id="main-content" className={styles.main} tabIndex={-1}>
+              <NavigationContent>{children}</NavigationContent>
+            </main>
+          </div>
+        </NavigationProvider>
 
         <ToastContainer />
         <ShortcutCheatSheet />
