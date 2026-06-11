@@ -34,21 +34,6 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   stateText: 'stateText',
   primaryLink: 'primaryLink',
   pageContent: 'pageContent',
-  pipelineSection: 'pipelineSection',
-  pipelineSectionTitle: 'pipelineSectionTitle',
-  pipelineSectionDesc: 'pipelineSectionDesc',
-  pipelineList: 'pipelineList',
-  pipelineRow: 'pipelineRow',
-  pipelineStep: 'pipelineStep',
-  pipelineStepIcon: 'pipelineStepIcon',
-  pipelineStepContent: 'pipelineStepContent',
-  pipelineStepLabel: 'pipelineStepLabel',
-  pipelineStepLink: 'pipelineStepLink',
-  pipelineStepHint: 'pipelineStepHint',
-  pipelineArrow: 'pipelineArrow',
-  pipelineCard: 'pipelineCard',
-  pipelineRowSelectable: (variants: { selected?: boolean }) =>
-    variants?.selected ? 'pipelineRowSelectable-selected' : 'pipelineRowSelectable',
   editModeBar: 'editModeBar',
   editModeBarLeft: 'editModeBarLeft',
   editModeBarRight: 'editModeBarRight',
@@ -75,12 +60,12 @@ vi.mock('@/components/drafts/drafts.css', () => ({
   exportButton: 'exportButton',
   tagContainer: 'tagContainer',
   tagChip: () => 'tagChip',
-  viewToggle: 'viewToggle',
-  viewToggleButton: () => 'viewToggleButton',
   compactList: 'compactList',
   compactRow: 'compactRow',
   compactTitle: 'compactTitle',
+  compactMeta: 'compactMeta',
   compactStatus: 'compactStatus',
+  compactSyncStatus: 'compactSyncStatus',
   compactTime: 'compactTime',
   loadMoreWrap: 'loadMoreWrap',
   loadMoreButton: 'loadMoreButton',
@@ -141,8 +126,9 @@ describe('DraftLibraryClient', () => {
     await waitFor(() => {
       expect(screen.getAllByText('AI 话题稿件').length).toBeGreaterThan(0);
     });
-    // Status label for 'ready' draft (compact view shows status text)
+    expect(screen.getAllByText('手动创建').length).toBeGreaterThan(0);
     expect(screen.getAllByText('待同步').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('部分完成').length).toBeGreaterThan(0);
     // Link to edit draft
     expect(screen.getByRole('link', { name: 'AI 话题稿件' })).toHaveAttribute(
       'href',
