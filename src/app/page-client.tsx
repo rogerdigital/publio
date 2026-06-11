@@ -37,6 +37,7 @@ const VersionHistory = dynamic(() => import('@/components/editor/VersionHistory'
 const AgentPanel = dynamic(() => import('@/components/agent/AgentPanel'), { ssr: false });
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
+import { getCachedHomePageChromeData, loadHomePageChromeData } from '@/lib/navigationDataCache';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import type { PlatformId } from '@/types';
 import * as styles from './page.css';
@@ -60,35 +61,32 @@ function HomePageContent() {
   const agentStatus = useAgentStore((s) => s.status);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const cachedChromeData = getCachedHomePageChromeData();
   const [draftLoadError, setDraftLoadError] = useState('');
   const [clearConfirming, setClearConfirming] = useState(false);
   const [mobilePublishOpen, setMobilePublishOpen] = useState(false);
-  const [agentEnabled, setAgentEnabled] = useState(false);
+  const [agentEnabled, setAgentEnabled] = useState(cachedChromeData?.agentEnabled ?? false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
-  const [imageBedLabel, setImageBedLabel] = useState<string | undefined>(undefined);
+  const [imageBedLabel, setImageBedLabel] = useState<string | undefined>(
+    cachedChromeData?.imageBedLabel,
+  );
 
-  // 检查 Agent 是否已配置
+  // 检查 Agent 和图床是否已配置
   useEffect(() => {
-    fetch('/api/agent/status')
-      .then((r) => r.json())
-      .then((data) => setAgentEnabled(data.available === true))
-      .catch(() => setAgentEnabled(false));
-  }, []);
-
-  useEffect(() => {
-    fetch('/api/settings')
-      .then((r) => r.json())
+    let cancelled = false;
+    loadHomePageChromeData()
       .then((data) => {
-        if (
-          data.GITHUB_IMAGE_ENABLED === 'true' &&
-          data.GITHUB_IMAGE_OWNER &&
-          data.GITHUB_IMAGE_REPO
-        ) {
-          setImageBedLabel('GitHub');
-        }
+        if (cancelled) return;
+        setAgentEnabled(data.agentEnabled);
+        setImageBedLabel(data.imageBedLabel);
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) setAgentEnabled(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
   const selectedPlatforms = useMemo(
     () =>
