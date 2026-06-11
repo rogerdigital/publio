@@ -43,7 +43,6 @@ export const main = style({
   flex: 1,
   padding: vars.spacing.xl,
   paddingBottom: `calc(48px + ${vars.layout.tabBarHeight} + env(safe-area-inset-bottom))`,
-  animation: 'fadeIn 200ms ease-out',
   '@media': {
     'screen and (min-width: 640px)': {
       padding: `${vars.spacing['2xl']} ${vars.spacing['3xl']}`,

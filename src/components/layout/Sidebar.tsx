@@ -2,9 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { PenLine, Settings2, Library, ChevronsRight, ChevronsLeft } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import {
+  prefetchDraftLibraryData,
+  prefetchHomePageChromeData,
+  prefetchSettingsPageData,
+} from '@/lib/navigationDataCache';
 import ThemeToggle from './ThemeToggle';
 import Logo from './Logo';
 import * as styles from './Sidebar.css';
@@ -19,12 +24,50 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [expanded, setExpanded] = useState(false);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === 'true') setExpanded(true);
   }, []);
+
+  useEffect(() => {
+    setPendingHref(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    for (const item of navItems) {
+      router.prefetch(item.href);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    const prefetchData = () => {
+      prefetchHomePageChromeData();
+      prefetchDraftLibraryData();
+      prefetchSettingsPageData();
+      void import('@/components/editor/MarkdownEditor');
+      void import('@/components/publish/PlatformPreviewPanel');
+      void import('@/components/publish/PlatformVariantPanel');
+      void import('@/components/publish/PublishProgressOverlay');
+    };
+
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(prefetchData, { timeout: 1200 });
+      return () => window.cancelIdleCallback(id);
+    }
+
+    const id = setTimeout(prefetchData, 300);
+    return () => clearTimeout(id);
+  }, []);
+
+  function handleNavigate(href: string) {
+    if (href !== pathname) {
+      setPendingHref(href);
+    }
+  }
 
   const toggle = () => {
     setExpanded((prev) => {
@@ -73,8 +116,9 @@ export default function Sidebar() {
 
         <nav className={styles.nav}>
           {navItems.map((item) => {
-            const isActive =
-              pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+            const isActive = pendingHref
+              ? pendingHref === item.href
+              : pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
             const Icon = item.icon;
             const state = isActive ? 'active' : 'inactive';
 
@@ -83,6 +127,7 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(styles.navItemBase, styles.navItemVariants[state])}
+                onClick={() => handleNavigate(item.href)}
               >
                 <span className={cn(styles.navIconBase, styles.navIconVariants[state])}>
                   <Icon size={20} color={isActive ? undefined : item.color} />
@@ -108,7 +153,9 @@ export default function Sidebar() {
       <nav className={styles.mobileTabBar} aria-label="移动端导航">
         {navItems.map((item) => {
           const isActive =
-            pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+            pendingHref === item.href ||
+            pathname === item.href ||
+            (item.href !== '/' && pathname.startsWith(item.href));
           const Icon = item.icon;
           const state = isActive ? 'active' : 'inactive';
 
@@ -118,6 +165,7 @@ export default function Sidebar() {
               href={item.href}
               className={styles.mobileTabItem[state]}
               aria-current={isActive ? 'page' : undefined}
+              onClick={() => handleNavigate(item.href)}
             >
               <Icon size={20} color={isActive ? undefined : item.color} />
               <span className={styles.mobileTabLabel[state]}>{item.label}</span>

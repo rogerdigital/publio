@@ -3,21 +3,19 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { ContentDraft } from '@/lib/drafts/types';
+import { getCachedDraftLibraryData, loadDraftLibraryData } from '@/lib/navigationDataCache';
 import * as styles from './editor.css';
 
-interface DraftsResponse {
-  drafts?: ContentDraft[];
-}
-
 export default function RecentDraftBar() {
-  const [drafts, setDrafts] = useState<ContentDraft[]>([]);
+  const [drafts, setDrafts] = useState<ContentDraft[]>(
+    () => getCachedDraftLibraryData()?.drafts.slice(0, 5) ?? [],
+  );
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/drafts', { cache: 'no-store' })
-      .then((res) => res.json() as Promise<DraftsResponse>)
+    loadDraftLibraryData()
       .then((data) => {
-        if (!cancelled && data.drafts) {
+        if (!cancelled) {
           setDrafts(data.drafts.slice(0, 5));
         }
       })

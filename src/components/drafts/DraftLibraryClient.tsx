@@ -28,16 +28,16 @@ import {
   downloadFile,
   readTextFile,
 } from '@/lib/drafts/importExport';
+import {
+  getCachedDraftLibraryData,
+  loadDraftLibraryData,
+  setCachedDraftLibraryData,
+} from '@/lib/navigationDataCache';
 import EmptyState from '@/components/feedback/EmptyState';
 import * as styles from './drafts.css';
 
 interface DraftsResponse {
   drafts?: ContentDraft[];
-  error?: string;
-}
-
-interface SyncTasksResponse {
-  syncTasks?: SyncTask[];
   error?: string;
 }
 
@@ -90,9 +90,10 @@ interface Props {
 }
 
 export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props) {
-  const [drafts, setDrafts] = useState<ContentDraft[]>([]);
-  const [syncTasks, setSyncTasks] = useState<SyncTask[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cachedData = getCachedDraftLibraryData();
+  const [drafts, setDrafts] = useState<ContentDraft[]>(() => cachedData?.drafts ?? []);
+  const [syncTasks, setSyncTasks] = useState<SyncTask[]>(() => cachedData?.syncTasks ?? []);
+  const [loading, setLoading] = useState(!cachedData);
   const [error, setError] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
@@ -126,25 +127,13 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
 
     async function loadDrafts() {
       try {
-        setLoading(true);
+        if (!getCachedDraftLibraryData()) setLoading(true);
         setError('');
-        const [draftsResponse, syncTasksResponse] = await Promise.all([
-          fetch('/api/drafts', { cache: 'no-store' }),
-          fetch('/api/sync-tasks', { cache: 'no-store' }),
-        ]);
-        const data = (await draftsResponse.json()) as DraftsResponse;
-        const syncData = (await syncTasksResponse.json()) as SyncTasksResponse;
-
-        if (!draftsResponse.ok) {
-          throw new Error(data.error || '稿件读取失败，请稍后重试。');
-        }
-        if (!syncTasksResponse.ok) {
-          throw new Error(syncData.error || '分发记录读取失败，请稍后重试。');
-        }
+        const data = await loadDraftLibraryData();
 
         if (!cancelled) {
-          setDrafts(data.drafts ?? []);
-          setSyncTasks(syncData.syncTasks ?? []);
+          setDrafts(data.drafts);
+          setSyncTasks(data.syncTasks);
         }
       } catch (err) {
         if (!cancelled) {
@@ -187,7 +176,13 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
         // 重新加载列表
         const res = await fetch('/api/drafts');
         const data = (await res.json()) as DraftsResponse;
-        if (data.drafts) setDrafts(data.drafts);
+        if (data.drafts) {
+          setCachedDraftLibraryData({
+            drafts: data.drafts,
+            syncTasks,
+          });
+          setDrafts(data.drafts);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : '导入失败');
       }
@@ -213,7 +208,11 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
     setDeleteError('');
     try {
       await Promise.all(Array.from(selected).map((id) => deleteDraft(id)));
-      setDrafts((prev) => prev.filter((d) => !selected.has(d.id)));
+      setDrafts((prev) => {
+        const nextDrafts = prev.filter((d) => !selected.has(d.id));
+        setCachedDraftLibraryData({ drafts: nextDrafts, syncTasks });
+        return nextDrafts;
+      });
       onExitEditMode();
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : '删除失败，请稍后重试。');
@@ -237,9 +236,13 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
     setDeleteError('');
     try {
       await Promise.all(Array.from(selected).map((id) => updateDraft(id, { status: 'archived' })));
-      setDrafts((prev) =>
-        prev.map((d) => (selected.has(d.id) ? { ...d, status: 'archived' as const } : d)),
-      );
+      setDrafts((prev) => {
+        const nextDrafts = prev.map((d) =>
+          selected.has(d.id) ? { ...d, status: 'archived' as const } : d,
+        );
+        setCachedDraftLibraryData({ drafts: nextDrafts, syncTasks });
+        return nextDrafts;
+      });
       onExitEditMode();
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : '归档失败，请稍后重试。');

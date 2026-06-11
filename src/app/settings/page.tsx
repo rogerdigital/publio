@@ -23,6 +23,11 @@ import type {
   PlatformConnectionRecord,
 } from '@/lib/platformConnections/types';
 import type { PlatformId } from '@/types';
+import {
+  getCachedSettingsPageData,
+  loadSettingsPageData,
+  setCachedSettingsPageData,
+} from '@/lib/navigationDataCache';
 import { useToastStore } from '@/stores/toastStore';
 import PromptEditor from '@/components/settings/PromptEditor';
 import {
@@ -104,19 +109,22 @@ type SectionId = (typeof SECTION_TABS)[number]['id'];
 
 function SettingsContent() {
   const searchParams = useSearchParams();
-  const [values, setValues] = useState<Record<string, string>>({});
-  const [initialValues, setInitialValues] = useState<Record<string, string>>({});
+  const cachedData = getCachedSettingsPageData();
+  const [values, setValues] = useState<Record<string, string>>(() => cachedData?.values ?? {});
+  const [initialValues, setInitialValues] = useState<Record<string, string>>(
+    () => cachedData?.values ?? {},
+  );
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
   const [saved, setSaved] = useState(false);
   const [expandedPlatform, setExpandedPlatform] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [noticeMessage, setNoticeMessage] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cachedData);
   const [checkStates, setCheckStates] = useState<Record<string, CheckState>>({});
   const [disconnectStates, setDisconnectStates] = useState<Record<string, DisconnectState>>({});
   const [connectionRecords, setConnectionRecords] = useState<
     Record<PlatformId, PlatformConnectionRecord>
-  >({} as Record<PlatformId, PlatformConnectionRecord>);
+  >(() => cachedData?.connectionRecords ?? ({} as Record<PlatformId, PlatformConnectionRecord>));
   const [activeSection, setActiveSection] = useState<SectionId>('platforms');
   const [agentTestResult, setAgentTestResult] = useState<{ ok: boolean; message: string } | null>(
     null,
@@ -142,28 +150,14 @@ function SettingsContent() {
 
     async function loadSettings() {
       try {
-        setLoading(true);
+        if (!getCachedSettingsPageData()) setLoading(true);
         setErrorMessage('');
-        const [settingsRes, recordsRes] = await Promise.all([
-          fetch('/api/settings', { cache: 'no-store' }),
-          fetch('/api/platforms/connection/records', { cache: 'no-store' }),
-        ]);
-        const data = (await settingsRes.json()) as Record<string, string>;
-        if (!settingsRes.ok) throw new Error('加载设置失败，请稍后重试');
-        if (!cancelled) {
-          setValues(data);
-          setInitialValues(data);
-        }
+        const data = await loadSettingsPageData();
 
-        if (recordsRes.ok) {
-          const records = (await recordsRes.json()) as PlatformConnectionRecord[];
-          if (!cancelled) {
-            const recordMap = Object.fromEntries(records.map((r) => [r.platform, r])) as Record<
-              PlatformId,
-              PlatformConnectionRecord
-            >;
-            setConnectionRecords(recordMap);
-          }
+        if (!cancelled) {
+          setValues(data.values);
+          setInitialValues(data.values);
+          setConnectionRecords(data.connectionRecords);
         }
       } catch (error) {
         if (!cancelled) {
@@ -316,6 +310,8 @@ function SettingsContent() {
       });
       const data = (await response.json()) as { success?: boolean; error?: string };
       if (!response.ok || !data.success) throw new Error(data.error || '保存失败，请重试');
+      setCachedSettingsPageData({ values, connectionRecords });
+      setInitialValues(values);
       setSaved(true);
       useToastStore.getState().addToast('success', '设置已保存');
       setTimeout(() => setSaved(false), 3000);
