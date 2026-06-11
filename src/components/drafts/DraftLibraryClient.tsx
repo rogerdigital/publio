@@ -5,14 +5,10 @@ import Link from 'next/link';
 import {
   FileText,
   RefreshCcw,
-  PenLine,
-  ArrowRightCircle,
   Trash2,
   Download,
   Upload,
   Archive,
-  LayoutList,
-  Columns3,
   ChevronDown,
   SlidersHorizontal,
   Search,
@@ -81,7 +77,6 @@ function formatDraftTime(value: string) {
   }).format(timestamp);
 }
 
-type ViewMode = 'pipeline' | 'compact';
 const PAGE_SIZE = 20;
 
 interface Props {
@@ -101,7 +96,6 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
   const [statusFilter, setStatusFilter] = useState<DraftStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [tagFilter, setTagFilter] = useState('');
-  const [viewMode, setViewMode] = useState<ViewMode>('compact');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const filterPopoverRef = useRef<HTMLDivElement>(null);
@@ -386,26 +380,6 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
               </div>
             )}
           </div>
-          <div className={styles.viewToggle}>
-            <button
-              type="button"
-              className={styles.viewToggleButton({ active: viewMode === 'compact' })}
-              onClick={() => setViewMode('compact')}
-              aria-label="紧凑列表"
-              title="紧凑列表"
-            >
-              <LayoutList size={16} />
-            </button>
-            <button
-              type="button"
-              className={styles.viewToggleButton({ active: viewMode === 'pipeline' })}
-              onClick={() => setViewMode('pipeline')}
-              aria-label="流水线视图（展开详情）"
-              title="流水线视图（展开详情）"
-            >
-              <Columns3 size={16} />
-            </button>
-          </div>
           <button
             type="button"
             className={styles.importButton}
@@ -492,10 +466,12 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
             </button>
           }
         />
-      ) : viewMode === 'compact' ? (
+      ) : (
         <div className={styles.compactList}>
           {pagedDrafts.map((draft) => {
+            const syncTask = syncTasks.find((t) => t.draftId === draft.id);
             const isSelected = selected.has(draft.id);
+
             return (
               <div
                 key={draft.id}
@@ -537,122 +513,12 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
                 >
                   {draft.title || '无标题'}
                 </Link>
+                <span className={styles.compactMeta}>{sourceLabels[draft.source]}</span>
                 <span className={styles.compactStatus}>{statusLabels[draft.status]}</span>
+                <span className={styles.compactSyncStatus}>
+                  {syncTask ? syncStatusLabels[syncTask.status] : '尚未分发'}
+                </span>
                 <span className={styles.compactTime}>{formatDraftTime(draft.updatedAt)}</span>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className={styles.pipelineList}>
-          {pagedDrafts.map((draft) => {
-            const syncTask = syncTasks.find((t) => t.draftId === draft.id);
-            const isSelected = selected.has(draft.id);
-
-            return (
-              <div
-                key={draft.id}
-                className={
-                  isEditMode
-                    ? styles.pipelineRowSelectable({ selected: isSelected })
-                    : styles.pipelineCard
-                }
-                onClick={isEditMode ? () => toggleSelect(draft.id) : undefined}
-                role={isEditMode ? 'checkbox' : undefined}
-                aria-checked={isEditMode ? isSelected : undefined}
-                tabIndex={isEditMode ? 0 : undefined}
-                onKeyDown={
-                  isEditMode
-                    ? (e) => {
-                        if (e.key === ' ' || e.key === 'Enter') {
-                          e.preventDefault();
-                          toggleSelect(draft.id);
-                        }
-                      }
-                    : undefined
-                }
-              >
-                {isEditMode && (
-                  <input
-                    type="checkbox"
-                    className={styles.draftCardCheckbox}
-                    checked={isSelected}
-                    onChange={() => toggleSelect(draft.id)}
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label={`选择稿件 ${draft.title}`}
-                  />
-                )}
-
-                <div className={styles.pipelineStep}>
-                  <span className={styles.pipelineStepIcon}>
-                    <FileText size={14} />
-                  </span>
-                  <div className={styles.pipelineStepContent}>
-                    <span className={styles.pipelineStepLabel}>{sourceLabels[draft.source]}</span>
-                  </div>
-                </div>
-
-                <ArrowRightCircle size={14} className={styles.pipelineArrow} />
-
-                <div className={styles.pipelineStep}>
-                  <span className={styles.pipelineStepIcon}>
-                    <PenLine size={14} />
-                  </span>
-                  <div className={styles.pipelineStepContent}>
-                    <span className={styles.pipelineStepLabel} title={draft.title}>
-                      {draft.title || '无标题'}
-                    </span>
-                    <Link
-                      href={`/?draftId=${draft.id}`}
-                      className={styles.pipelineStepLink}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {statusLabels[draft.status]}，去编辑
-                    </Link>
-                  </div>
-                </div>
-
-                <ArrowRightCircle size={14} className={styles.pipelineArrow} />
-
-                {syncTask ? (
-                  <div
-                    className={
-                      styles.syncStatusStepVariants[
-                        syncTask.status in styles.syncStatusStepVariants
-                          ? (syncTask.status as keyof typeof styles.syncStatusStepVariants)
-                          : 'default'
-                      ]
-                    }
-                  >
-                    <span className={styles.pipelineStepIcon}>
-                      <FileText size={14} />
-                    </span>
-                    <div className={styles.pipelineStepContent}>
-                      <span
-                        className={
-                          styles.syncStatusLabelVariants[
-                            syncTask.status in styles.syncStatusLabelVariants
-                              ? (syncTask.status as keyof typeof styles.syncStatusLabelVariants)
-                              : 'default'
-                          ]
-                        }
-                      >
-                        {syncStatusLabels[syncTask.status]}
-                      </span>
-                      <span className={styles.pipelineStepHint}>发布记录已内联显示</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className={styles.syncStatusStepVariants.default}>
-                    <span className={styles.pipelineStepIcon}>
-                      <FileText size={14} />
-                    </span>
-                    <div className={styles.pipelineStepContent}>
-                      <span className={styles.syncStatusLabelVariants.default}>尚未分发</span>
-                    </div>
-                  </div>
-                )}
-
                 {!isEditMode && (
                   <button
                     type="button"

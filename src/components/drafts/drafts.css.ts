@@ -197,150 +197,15 @@ export const primaryLink = style({
   textDecoration: 'none',
 });
 
-// Pipeline view
 export const pageContent = style({
   display: 'flex',
   flexDirection: 'column',
   gap: vars.spacing['3xl'],
 });
 
-export const pipelineSection = style({
-  borderRadius: vars.radius.xl,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
-  padding: vars.spacing['2xl'],
-  display: 'flex',
-  flexDirection: 'column',
-  gap: vars.spacing.xl,
-});
-
-export const pipelineSectionTitle = style({
-  margin: 0,
-  fontSize: vars.fontSize.md,
-  fontWeight: 600,
-  color: vars.color.text,
-  textTransform: 'uppercase',
-  letterSpacing: vars.tracking.kicker,
-});
-
-export const pipelineSectionDesc = style({
-  margin: 0,
-  fontSize: vars.fontSize.sm,
-  color: vars.color.textMuted,
-});
-
-export const pipelineList = style({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: vars.spacing.lg,
-});
-
-export const pipelineRow = style({
-  display: 'flex',
-  alignItems: 'center',
-  gap: vars.spacing.md,
-  flexWrap: 'wrap',
-});
-
-export const pipelineStep = style({
-  display: 'flex',
-  alignItems: 'center',
-  gap: vars.spacing.md,
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.bgElevated,
-  padding: `${vars.spacing.md} ${vars.spacing.lg}`,
-  minWidth: '120px',
-});
-
-export const pipelineStepIcon = style({
-  color: vars.color.accent,
-  flexShrink: 0,
-  display: 'flex',
-  alignItems: 'center',
-});
-
-export const pipelineStepContent = style({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: vars.spacing['2xs'],
-  minWidth: 0,
-});
-
-export const pipelineStepLabel = style({
-  fontSize: vars.fontSize.sm,
-  fontWeight: 500,
-  color: vars.color.text,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-});
-
-export const pipelineStepLink = style({
-  fontSize: vars.fontSize.xs,
-  color: vars.color.accent,
-  textDecoration: 'none',
-  ':hover': {
-    color: vars.color.signal,
-  },
-});
-
-export const pipelineStepHint = style({
-  fontSize: vars.fontSize.xs,
-  color: vars.color.textMuted,
-});
-
-export const pipelineArrow = style({
-  color: vars.color.textMuted,
-  flexShrink: 0,
-});
-
 export const deleteErrorText = style({
   fontSize: vars.fontSize.sm,
   color: vars.color.errorText,
-});
-
-// Pipeline card (normal mode)
-export const pipelineCard = style({
-  display: 'flex',
-  alignItems: 'center',
-  gap: vars.spacing.md,
-  flexWrap: 'wrap',
-  padding: '4px 0',
-  '@media': {
-    'screen and (min-width: 900px)': {
-      display: 'grid',
-      gridTemplateColumns: '120px 14px minmax(0, 1fr) 14px 120px 28px',
-      width: '100%',
-    },
-  },
-});
-
-// Pipeline card (edit/selectable mode)
-export const pipelineRowSelectable = recipe({
-  base: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: vars.spacing.md,
-    flexWrap: 'wrap',
-    borderRadius: vars.radius.lg,
-    padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
-    cursor: 'pointer',
-    transition: 'background-color 150ms',
-  },
-  variants: {
-    selected: {
-      true: {
-        background: vars.color.accentSoft,
-      },
-      false: {
-        ':hover': {
-          background: 'rgba(0,0,0,0.03)',
-        },
-      },
-    },
-  },
-  defaultVariants: { selected: false },
 });
 
 // Edit mode toolbar
@@ -615,28 +480,24 @@ export const syncStatusLabelVariants = styleVariants({
 
 // 搜索栏 + 筛选栏
 export const toolbar = style({
-  display: 'grid',
-  gridTemplateColumns: 'auto minmax(0, 1fr) auto',
+  display: 'flex',
   alignItems: 'center',
+  justifyContent: 'flex-end',
   gap: 10,
-  '@media': {
-    'screen and (max-width: 759px)': {
-      gridTemplateColumns: 'auto minmax(0, 1fr) auto',
-    },
-    'screen and (min-width: 760px)': {
-      display: 'flex',
-      flexWrap: 'wrap',
-    },
-  },
+  flexWrap: 'wrap',
 });
 
 export const searchWrap = style({
   position: 'relative',
-  gridColumn: '1 / -1',
-  gridRow: 1,
-  flex: 1,
+  width: '100%',
   minWidth: 0,
   height: 40,
+  '@media': {
+    'screen and (min-width: 760px)': {
+      width: 260,
+      flex: '0 0 260px',
+    },
+  },
 });
 
 export const searchIcon = style({
@@ -839,43 +700,7 @@ export const batchActionButton = style({
   },
 });
 
-// View mode toggle
-export const viewToggle = style({
-  display: 'inline-flex',
-  height: 40,
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  overflow: 'hidden',
-});
-
-export const viewToggleButton = recipe({
-  base: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 38,
-    height: 38,
-    border: 'none',
-    background: 'transparent',
-    color: vars.color.textMuted,
-    cursor: 'pointer',
-    transition: 'background-color 150ms, color 150ms',
-    ':hover': {
-      color: vars.color.text,
-    },
-  },
-  variants: {
-    active: {
-      true: {
-        background: vars.color.accentSoft,
-        color: vars.color.signal,
-      },
-    },
-  },
-  defaultVariants: { active: false },
-});
-
-// Compact list view
+// Unified list view
 export const compactList = style({
   display: 'flex',
   flexDirection: 'column',
@@ -886,16 +711,22 @@ export const compactRow = style({
   display: 'flex',
   alignItems: 'center',
   gap: vars.spacing['md-lg'],
+  flexWrap: 'wrap',
   padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
   borderRadius: vars.radius.md,
   transition: 'background-color 150ms',
   ':hover': {
     background: vars.color.surface,
   },
+  '@media': {
+    'screen and (min-width: 720px)': {
+      flexWrap: 'nowrap',
+    },
+  },
 });
 
 export const compactTitle = style({
-  flex: 1,
+  flex: '1 1 220px',
   minWidth: 0,
   fontSize: vars.fontSize.md,
   fontWeight: 500,
@@ -905,16 +736,34 @@ export const compactTitle = style({
   whiteSpace: 'nowrap',
 });
 
+export const compactMeta = style({
+  width: 'fit-content',
+  borderRadius: vars.radius.full,
+  background: vars.color.bgElevated,
+  padding: `${vars.spacing['2xs']} ${vars.spacing.md}`,
+  fontSize: vars.fontSize.xs,
+  color: vars.color.textMuted,
+});
+
 export const compactStatus = style({
-  flexShrink: 0,
+  width: 'fit-content',
+  borderRadius: vars.radius.full,
+  background: vars.color.accentSoft,
+  padding: `${vars.spacing['2xs']} ${vars.spacing.md}`,
+  fontSize: vars.fontSize.xs,
+  color: vars.color.text,
+});
+
+export const compactSyncStatus = style({
+  width: 'fit-content',
   fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
 });
 
 export const compactTime = style({
-  flexShrink: 0,
   fontSize: vars.fontSize.xs,
   color: vars.color.textMuted,
+  whiteSpace: 'nowrap',
 });
 
 // Load more
