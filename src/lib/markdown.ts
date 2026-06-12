@@ -322,7 +322,12 @@ export function extractMarkdownImageUrls(markdown: string): string[] {
     for (const token of tokens) {
       if (token.type === 'image') {
         const safeSrc = sanitizeUrl(token.href);
-        if (safeSrc && (safeSrc.startsWith('http://') || safeSrc.startsWith('https://'))) {
+        if (
+          safeSrc &&
+          (safeSrc.startsWith('http://') ||
+            safeSrc.startsWith('https://') ||
+            safeSrc.startsWith('/api/uploads/'))
+        ) {
           urls.push(safeSrc);
         }
       }

@@ -1,8 +1,9 @@
-import { TwitterApi } from 'twitter-api-v2';
+import { TwitterApi, EUploadMimeType, type SendTweetV2Params } from 'twitter-api-v2';
 import type { PublishInput, PublishOutput } from './types';
 import { BasePublisher } from './base';
 import { getXConfig } from '@/lib/config';
 import { markdownToPlainText } from '@/lib/markdown';
+import { getLocalImageBuffers } from '@/lib/publishers/imageUpload';
 
 function splitIntoThread(title: string, content: string): string[] {
   const plainText = markdownToPlainText(content);
@@ -65,18 +66,44 @@ export class XPublisher extends BasePublisher {
       accessSecret: accessTokenSecret,
     });
 
+    // Upload local images as media (max 4)
+    const mediaIds: string[] = [];
+    const localImages = await getLocalImageBuffers(input.markdownContent);
+    for (const img of localImages.slice(0, 4)) {
+      try {
+        const mimeMap: Record<string, EUploadMimeType> = {
+          'image/jpeg': EUploadMimeType.Jpeg,
+          'image/png': EUploadMimeType.Png,
+          'image/gif': EUploadMimeType.Gif,
+          'image/webp': EUploadMimeType.Webp,
+        };
+        const mediaId = await client.v1.uploadMedia(img.buffer, {
+          mimeType: mimeMap[img.mimeType] || EUploadMimeType.Png,
+        });
+        mediaIds.push(mediaId);
+      } catch {
+        /* skip failed uploads */
+      }
+    }
+
     const chunks = splitIntoThread(input.title, input.markdownContent);
 
     let firstTweetId: string | undefined;
     let previousTweetId: string | undefined;
 
-    for (const chunk of chunks) {
-      const payload: { text: string; reply?: { in_reply_to_tweet_id: string } } = {
-        text: chunk,
-      };
+    for (let i = 0; i < chunks.length; i++) {
+      const payload: SendTweetV2Params = { text: chunks[i] };
 
       if (previousTweetId) {
         payload.reply = { in_reply_to_tweet_id: previousTweetId };
+      }
+
+      // Attach media to first tweet only
+      if (i === 0 && mediaIds.length > 0) {
+        const ids = mediaIds.slice(0, 4);
+        payload.media = {
+          media_ids: ids as unknown as [string],
+        };
       }
 
       const result = await client.v2.tweet(payload);

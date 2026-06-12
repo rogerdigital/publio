@@ -158,6 +158,11 @@ export class WechatPublisher extends BasePublisher {
     return data.access_token;
   }
 
+  /** Exposed for image upload in executePublish */
+  async getAccessTokenForImages(): Promise<string> {
+    return this.getAccessToken();
+  }
+
   private handleAuthError(errcode: number): void {
     if (errcode === 40001 || errcode === 42001) {
       this.clearCachedToken('wechat');

@@ -2,17 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import {
-  Save,
-  Eye,
-  EyeOff,
-  CheckCircle2,
-  RefreshCw,
-  Unplug,
-  Zap,
-  Sparkles,
-  Github,
-} from 'lucide-react';
+import { Save, Eye, EyeOff, CheckCircle2, RefreshCw, Unplug, Zap, Sparkles } from 'lucide-react';
 
 import AppShellHeader from '@/components/layout/AppShellHeader';
 import SurfaceCard from '@/components/layout/SurfaceCard';
@@ -101,7 +91,6 @@ function CheckResult({
 const SECTION_TABS = [
   { id: 'platforms', label: '平台连接' },
   { id: 'agent', label: 'AI Agent' },
-  { id: 'github-image', label: '图片托管' },
 ] as const;
 
 type SectionId = (typeof SECTION_TABS)[number]['id'];
@@ -810,131 +799,6 @@ function SettingsContent() {
           </div>
         </div>
       ) : null}
-      {activeSection === 'github-image' ? (
-        <div className={styles.platformList}>
-          <div id="github-image" className={styles.sectionAnchor}>
-            <SurfaceCard tone="soft" className={styles.accordionCard}>
-              <div className={styles.accordionTrigger} style={{ cursor: 'default' }}>
-                <div className={styles.accordionIcon}>
-                  <Github size={20} />
-                </div>
-                <div className={styles.accordionBody}>
-                  <p className={styles.accordionTitle}>GitHub 图床</p>
-                  <p className={styles.accordionSummary}>
-                    上传图片到 GitHub 仓库，获取公网可访问 URL
-                  </p>
-                </div>
-              </div>
-              <div className={styles.accordionPanel}>
-                <div className={styles.fieldList}>
-                  <div className={styles.fieldWrap}>
-                    <label htmlFor="GITHUB_IMAGE_ENABLED" className={styles.fieldLabel}>
-                      启用
-                    </label>
-                    <div className={styles.fieldInputWrap}>
-                      <input
-                        id="GITHUB_IMAGE_ENABLED"
-                        type="checkbox"
-                        checked={values['GITHUB_IMAGE_ENABLED'] === 'true'}
-                        onChange={(e) =>
-                          handleChange('GITHUB_IMAGE_ENABLED', e.target.checked ? 'true' : 'false')
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div className={styles.fieldWrap}>
-                    <label htmlFor="GITHUB_IMAGE_TOKEN" className={styles.fieldLabel}>
-                      Personal Access Token
-                    </label>
-                    <div className={styles.fieldInputWrap}>
-                      <input
-                        id="GITHUB_IMAGE_TOKEN"
-                        type={showSecrets['GITHUB_IMAGE_TOKEN'] ? 'text' : 'password'}
-                        value={values['GITHUB_IMAGE_TOKEN'] || ''}
-                        onChange={(e) => handleChange('GITHUB_IMAGE_TOKEN', e.target.value)}
-                        placeholder="ghp_xxxx（需要 repo 权限）"
-                        className={styles.fieldInput}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => toggleSecret('GITHUB_IMAGE_TOKEN')}
-                        className={styles.eyeButton}
-                      >
-                        {showSecrets['GITHUB_IMAGE_TOKEN'] ? (
-                          <EyeOff size={16} />
-                        ) : (
-                          <Eye size={16} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  <div className={styles.fieldWrap}>
-                    <label htmlFor="GITHUB_IMAGE_OWNER" className={styles.fieldLabel}>
-                      仓库所有者
-                    </label>
-                    <div className={styles.fieldInputWrap}>
-                      <input
-                        id="GITHUB_IMAGE_OWNER"
-                        type="text"
-                        value={values['GITHUB_IMAGE_OWNER'] || ''}
-                        onChange={(e) => handleChange('GITHUB_IMAGE_OWNER', e.target.value)}
-                        placeholder="如 rogerdigital"
-                        className={styles.fieldInput}
-                      />
-                    </div>
-                  </div>
-                  <div className={styles.fieldWrap}>
-                    <label htmlFor="GITHUB_IMAGE_REPO" className={styles.fieldLabel}>
-                      仓库名称
-                    </label>
-                    <div className={styles.fieldInputWrap}>
-                      <input
-                        id="GITHUB_IMAGE_REPO"
-                        type="text"
-                        value={values['GITHUB_IMAGE_REPO'] || ''}
-                        onChange={(e) => handleChange('GITHUB_IMAGE_REPO', e.target.value)}
-                        placeholder="如 image-hosting"
-                        className={styles.fieldInput}
-                      />
-                    </div>
-                  </div>
-                  <div className={styles.fieldWrap}>
-                    <label htmlFor="GITHUB_IMAGE_BRANCH" className={styles.fieldLabel}>
-                      分支
-                    </label>
-                    <div className={styles.fieldInputWrap}>
-                      <input
-                        id="GITHUB_IMAGE_BRANCH"
-                        type="text"
-                        value={values['GITHUB_IMAGE_BRANCH'] || ''}
-                        onChange={(e) => handleChange('GITHUB_IMAGE_BRANCH', e.target.value)}
-                        placeholder="main"
-                        className={styles.fieldInput}
-                      />
-                    </div>
-                  </div>
-                  <div className={styles.fieldWrap}>
-                    <label htmlFor="GITHUB_IMAGE_PATH" className={styles.fieldLabel}>
-                      存储路径
-                    </label>
-                    <div className={styles.fieldInputWrap}>
-                      <input
-                        id="GITHUB_IMAGE_PATH"
-                        type="text"
-                        value={values['GITHUB_IMAGE_PATH'] || ''}
-                        onChange={(e) => handleChange('GITHUB_IMAGE_PATH', e.target.value)}
-                        placeholder="如 images/"
-                        className={styles.fieldInput}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </SurfaceCard>
-          </div>
-        </div>
-      ) : null}
-
       {isDirty && !loading && (
         <button type="button" className={styles.floatingSave} onClick={handleSave}>
           <Save size={16} />

@@ -4,6 +4,8 @@ export interface PublishInput {
   title: string;
   markdownContent: string;
   htmlContent: string;
+  /** Xiaohongshu: pre-uploaded image IDs from platform upload API */
+  xhsImageIds?: string[];
 }
 
 export interface PublishOutput {

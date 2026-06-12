@@ -5,6 +5,8 @@ import { WechatPublisher } from '@/lib/publishers/wechat';
 import { XiaohongshuPublisher } from '@/lib/publishers/xiaohongshu';
 import { ZhihuPublisher } from '@/lib/publishers/zhihu';
 import { XPublisher } from '@/lib/publishers/x';
+import { resolveLocalImages, type PlatformImageContext } from '@/lib/publishers/imageUpload';
+import { getWechatConfig, getZhihuConfig, getXhsConfig } from '@/lib/config';
 import type {
   SyncFailureCode,
   SyncNextAction,
@@ -135,14 +137,39 @@ export async function publishToPlatform(
   }
 
   const publisher = createPublisher();
-  const htmlContent =
+
+  // Build image context for local image resolution
+  const imageContext: PlatformImageContext = {};
+  if (platformId === 'wechat') {
+    // WeChat publisher will handle token internally, but we need one for image upload
+    const wechatPublisher = publisher as WechatPublisher;
+    try {
+      imageContext.wechatToken = await wechatPublisher.getAccessTokenForImages();
+    } catch {
+      /* proceed without image upload */
+    }
+  } else if (platformId === 'zhihu') {
+    imageContext.zhihuCookie = getZhihuConfig().cookie;
+  } else if (platformId === 'xiaohongshu') {
+    imageContext.xhsAccessToken = getXhsConfig().accessToken;
+  }
+
+  let htmlContent =
     platformId === 'wechat' || platformId === 'zhihu'
       ? markdownToStyledHtml(title, content, platformId)
       : markdownToHtml(content);
+  let markdownContent = content;
+
+  // Resolve local images: upload to platform and replace URLs
+  const resolved = await resolveLocalImages(markdownContent, htmlContent, platformId, imageContext);
+  markdownContent = resolved.markdownContent;
+  htmlContent = resolved.htmlContent;
+
   const input: PublishInput = {
     title,
-    markdownContent: content,
+    markdownContent,
     htmlContent,
+    xhsImageIds: resolved.xhsImageIds,
   };
   const result = await publisher.publish(input);
 
