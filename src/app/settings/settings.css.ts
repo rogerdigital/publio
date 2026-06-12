@@ -5,62 +5,38 @@ import { vars } from '@/styles/tokens.css';
 export const pageWrap = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: vars.spacing['3xl'],
+  gap: vars.spacing['5xl'],
   paddingBottom: '80px',
 });
 
-// Section anchor nav
-export const sectionNav = style({
-  position: 'sticky',
-  top: '80px',
-  zIndex: 10,
-  display: 'inline-flex',
-  alignSelf: 'flex-start',
-  maxWidth: '100%',
-  gap: vars.spacing['2xs'],
-  overflowX: 'auto',
-  padding: vars.spacing.xs,
-  borderRadius: vars.radius.full,
-  border: `1px solid ${vars.color.borderFaint}`,
-  background: vars.color.glassSurface,
-  backdropFilter: 'blur(16px) saturate(180%)',
-  WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-  boxShadow: vars.shadow.sm,
-  selectors: {
-    '&::-webkit-scrollbar': {
-      display: 'none',
-    },
-  },
+// Section block
+export const sectionBlock = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: vars.spacing['3xl'],
 });
 
-export const sectionTab = recipe({
-  base: {
-    flexShrink: 0,
-    borderRadius: vars.radius.full,
-    border: 'none',
-    background: 'transparent',
-    padding: `${vars.spacing['md-lg']} ${vars.spacing['2xl']}`,
-    fontSize: vars.fontSize.sm,
-    fontWeight: 600,
-    lineHeight: 1,
-    color: vars.color.textMuted,
-    cursor: 'pointer',
-    transition: 'background-color 150ms, color 150ms, box-shadow 150ms',
-    ':hover': {
-      color: vars.color.text,
-      background: vars.color.bgElevated,
-    },
-  },
-  variants: {
-    active: {
-      true: {
-        background: vars.color.accent,
-        color: vars.color.surfaceDarkText,
-        boxShadow: `${vars.shadow.md}, inset 0 0 0 1px ${vars.color.accent}`,
-      },
-    },
-  },
-  defaultVariants: { active: false },
+export const sectionHeading = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: vars.spacing.md,
+  paddingBottom: vars.spacing.xl,
+  borderBottom: `1px solid ${vars.color.borderFaint}`,
+});
+
+export const sectionTitle = style({
+  margin: 0,
+  fontSize: vars.fontSize['2xl'],
+  fontWeight: 600,
+  letterSpacing: '-0.01em',
+  color: vars.color.text,
+});
+
+export const sectionDescription = style({
+  margin: 0,
+  fontSize: vars.fontSize.sm,
+  color: vars.color.textMuted,
+  lineHeight: 1.5,
 });
 
 // Floating save button
@@ -103,13 +79,12 @@ export const sectionAnchor = style({
 
 export const accordionCard = style({
   overflow: 'hidden',
-  padding: 0,
 });
 
 export const platformList = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: vars.spacing.md,
+  gap: vars.spacing.xl,
 });
 
 // Save button / action area
@@ -270,11 +245,10 @@ export const statusBadgeVariants = styleVariants({
 
 // Expanded panel
 export const accordionPanel = style({
-  borderTop: `1px solid ${vars.color.border}`,
-  padding: vars.spacing['2xl'],
+  padding: `${vars.spacing['3xl']} ${vars.spacing['3xl']}`,
   '@media': {
     'screen and (min-width: 640px)': {
-      padding: `${vars.spacing['2xl']} ${vars.spacing['3xl']}`,
+      padding: `${vars.spacing['3xl']} ${vars.spacing['4xl']}`,
     },
   },
 });
@@ -419,7 +393,7 @@ export const checkResultFail = style({
 export const fieldList = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: vars.spacing.xl,
+  gap: vars.spacing['2xl'],
 });
 
 export const fieldWrap = style({
@@ -429,9 +403,11 @@ export const fieldWrap = style({
 });
 
 export const fieldLabel = style({
-  fontSize: vars.fontSize.md,
+  fontSize: vars.fontSize.sm,
   fontWeight: 500,
-  color: vars.color.text,
+  color: vars.color.textMuted,
+  textTransform: 'uppercase',
+  letterSpacing: '0.03em',
 });
 
 export const fieldInputWrap = style({
@@ -440,39 +416,41 @@ export const fieldInputWrap = style({
 
 export const fieldInput = style({
   width: '100%',
-  borderRadius: vars.radius.lg,
+  borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
-  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
+  background: vars.color.bg,
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.xl}`,
   paddingRight: '48px',
   fontSize: vars.fontSize.md,
   color: vars.color.text,
   outline: 'none',
-  transition: 'border-color 150ms',
+  transition: 'border-color 150ms, box-shadow 150ms',
   '::placeholder': {
     color: vars.color.textMuted,
   },
   ':focus': {
     borderColor: vars.color.accent,
+    boxShadow: `0 0 0 3px ${vars.color.accentSoft}`,
   },
 });
 
 export const fieldTextarea = style({
   width: '100%',
   resize: 'none',
-  borderRadius: vars.radius.lg,
+  borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
-  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
+  background: vars.color.bg,
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.xl}`,
   fontSize: vars.fontSize.md,
   color: vars.color.text,
   outline: 'none',
-  transition: 'border-color 150ms',
+  transition: 'border-color 150ms, box-shadow 150ms',
   '::placeholder': {
     color: vars.color.textMuted,
   },
   ':focus': {
     borderColor: vars.color.accent,
+    boxShadow: `0 0 0 3px ${vars.color.accentSoft}`,
   },
 });
 
@@ -494,8 +472,8 @@ export const eyeButton = style({
 });
 
 export const fieldHint = style({
-  marginTop: vars.spacing.xl,
-  fontSize: vars.fontSize.sm,
+  marginTop: vars.spacing.lg,
+  fontSize: vars.fontSize.xs,
   lineHeight: 1.75,
   color: vars.color.textMuted,
 });
@@ -505,6 +483,28 @@ export const inlineCode = style({
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bg,
   padding: '1px 4px',
+});
+
+// Sidebar group divider
+export const sidebarDivider = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.md,
+  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
+  marginTop: vars.spacing.md,
+  fontSize: vars.fontSize.xs,
+  fontWeight: 600,
+  color: vars.color.textMuted,
+  textTransform: 'uppercase',
+  letterSpacing: '0.04em',
+  selectors: {
+    '&::after': {
+      content: '""',
+      flex: 1,
+      height: '1px',
+      background: vars.color.borderFaint,
+    },
+  },
 });
 
 // Two-step OAuth layout
@@ -615,11 +615,11 @@ export const authorizeButton = style({
 export const platformLayout = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: vars.spacing.xl,
+  gap: vars.spacing['2xl'],
   '@media': {
     'screen and (min-width: 1024px)': {
       flexDirection: 'row',
-      gap: vars.spacing['2xl'],
+      gap: vars.spacing['4xl'],
     },
   },
 });
@@ -630,9 +630,10 @@ export const platformSidebar = style({
     'screen and (min-width: 1024px)': {
       display: 'flex',
       flexDirection: 'column',
-      width: '220px',
+      width: '240px',
       flexShrink: 0,
       gap: vars.spacing.xs,
+      paddingTop: vars.spacing.xs,
     },
   },
 });
@@ -643,13 +644,13 @@ export const platformSidebarItem = recipe({
     alignItems: 'center',
     gap: vars.spacing.lg,
     width: '100%',
-    padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
-    borderRadius: vars.radius.lg,
+    padding: `${vars.spacing['md-lg']} ${vars.spacing.xl}`,
+    borderRadius: vars.radius.md,
     border: 'none',
     background: 'transparent',
     textAlign: 'left',
     cursor: 'pointer',
-    transition: 'background-color 150ms',
+    transition: 'background-color 150ms, box-shadow 150ms',
     ':hover': {
       background: vars.color.bgElevated,
     },
@@ -657,8 +658,8 @@ export const platformSidebarItem = recipe({
   variants: {
     active: {
       true: {
-        background: vars.color.bgElevated,
-        boxShadow: `inset 3px 0 0 ${vars.color.accent}`,
+        background: vars.color.accentSoft,
+        color: vars.color.accent,
       },
     },
   },
@@ -699,17 +700,19 @@ export const platformDetail = style({
 });
 
 export const platformDetailInner = style({
-  maxWidth: '560px',
-  padding: `${vars.spacing['2xl']} ${vars.spacing['2xl']}`,
+  maxWidth: '580px',
+  padding: `${vars.spacing['3xl']} ${vars.spacing['3xl']}`,
   display: 'flex',
   flexDirection: 'column',
-  gap: vars.spacing['2xl'],
+  gap: vars.spacing['3xl'],
 });
 
 export const platformDetailHeader = style({
   display: 'flex',
   alignItems: 'center',
   gap: vars.spacing.xl,
+  paddingBottom: vars.spacing['2xl'],
+  borderBottom: `1px solid ${vars.color.borderFaint}`,
 });
 
 // Mobile platform tabs (horizontal, <1024px only)
