@@ -17,7 +17,12 @@ export class XiaohongshuPublisher extends BasePublisher {
 
     const plainText = markdownToPlainText(input.markdownContent);
     const truncatedContent = plainText.length > 1000 ? plainText.slice(0, 997) + '...' : plainText;
-    const imageUrls = extractMarkdownImageUrls(input.markdownContent).slice(0, 9);
+    const imageUrls = extractMarkdownImageUrls(input.markdownContent)
+      .filter((url) => url.startsWith('http://') || url.startsWith('https://'))
+      .slice(0, 9);
+
+    // Use pre-uploaded image IDs if available (from local image upload)
+    const imageIds = input.xhsImageIds ?? [];
 
     const noteRes = await fetch('https://open.xiaohongshu.com/api/note/publish', {
       method: 'POST',
@@ -28,8 +33,8 @@ export class XiaohongshuPublisher extends BasePublisher {
       body: JSON.stringify({
         title: input.title.slice(0, 20),
         content: truncatedContent,
-        note_type: imageUrls.length > 0 ? 'image' : 'normal',
-        image_ids: [],
+        note_type: imageUrls.length > 0 || imageIds.length > 0 ? 'image' : 'normal',
+        image_ids: imageIds,
         image_urls: imageUrls,
       }),
     });
