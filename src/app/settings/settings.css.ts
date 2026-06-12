@@ -609,3 +609,158 @@ export const authorizeButton = style({
     cursor: 'not-allowed',
   },
 });
+
+// ── Platform two-column layout ─────────────────────────────────────
+
+export const platformLayout = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: vars.spacing.xl,
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      flexDirection: 'row',
+      gap: vars.spacing['2xl'],
+    },
+  },
+});
+
+export const platformSidebar = style({
+  display: 'none',
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '220px',
+      flexShrink: 0,
+      gap: vars.spacing.xs,
+    },
+  },
+});
+
+export const platformSidebarItem = recipe({
+  base: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: vars.spacing.lg,
+    width: '100%',
+    padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
+    borderRadius: vars.radius.lg,
+    border: 'none',
+    background: 'transparent',
+    textAlign: 'left',
+    cursor: 'pointer',
+    transition: 'background-color 150ms',
+    ':hover': {
+      background: vars.color.bgElevated,
+    },
+  },
+  variants: {
+    active: {
+      true: {
+        background: vars.color.bgElevated,
+        boxShadow: `inset 3px 0 0 ${vars.color.accent}`,
+      },
+    },
+  },
+  defaultVariants: { active: false },
+});
+
+export const sidebarItemIcon = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '28px',
+  height: '28px',
+  flexShrink: 0,
+});
+
+export const sidebarItemBody = style({
+  flex: 1,
+  minWidth: 0,
+});
+
+export const sidebarItemName = style({
+  margin: 0,
+  fontSize: vars.fontSize.sm,
+  fontWeight: 500,
+  color: vars.color.text,
+});
+
+export const sidebarItemStatus = style({
+  margin: 0,
+  marginTop: '2px',
+  fontSize: vars.fontSize.xs,
+  color: vars.color.textMuted,
+});
+
+export const platformDetail = style({
+  flex: 1,
+  minWidth: 0,
+});
+
+export const platformDetailInner = style({
+  maxWidth: '560px',
+  padding: `${vars.spacing['2xl']} ${vars.spacing['2xl']}`,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: vars.spacing['2xl'],
+});
+
+export const platformDetailHeader = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.xl,
+});
+
+// Mobile platform tabs (horizontal, <1024px only)
+export const platformMobileTabs = style({
+  display: 'inline-flex',
+  alignSelf: 'flex-start',
+  maxWidth: '100%',
+  gap: vars.spacing['2xs'],
+  overflowX: 'auto',
+  padding: vars.spacing.xs,
+  borderRadius: vars.radius.full,
+  border: `1px solid ${vars.color.borderFaint}`,
+  background: vars.color.glassSurface,
+  backdropFilter: 'blur(16px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      display: 'none',
+    },
+  },
+  selectors: {
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
+  },
+});
+
+export const platformMobileTab = recipe({
+  base: {
+    flexShrink: 0,
+    borderRadius: vars.radius.full,
+    border: 'none',
+    background: 'transparent',
+    padding: `${vars.spacing.md} ${vars.spacing.xl}`,
+    fontSize: vars.fontSize.sm,
+    fontWeight: 500,
+    color: vars.color.textMuted,
+    cursor: 'pointer',
+    transition: 'background-color 150ms, color 150ms',
+    ':hover': {
+      color: vars.color.text,
+      background: vars.color.bgElevated,
+    },
+  },
+  variants: {
+    active: {
+      true: {
+        background: vars.color.accent,
+        color: vars.color.surfaceDarkText,
+      },
+    },
+  },
+  defaultVariants: { active: false },
+});
