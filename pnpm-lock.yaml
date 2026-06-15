@@ -60,13 +60,28 @@ importers:
       '@hono/node-server':
         specifier: ^1.13.0
         version: 1.19.14(hono@4.12.25)
+      eventsource-parser:
+        specifier: ^3.0.8
+        version: 3.0.8
       hono:
         specifier: ^4.6.0
         version: 4.12.25
+      marked:
+        specifier: ^15.0.0
+        version: 15.0.12
+      sanitize-html:
+        specifier: ^2.17.4
+        version: 2.17.4
+      twitter-api-v2:
+        specifier: ^1.18.0
+        version: 1.29.0
     devDependencies:
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.17
+      '@types/sanitize-html':
+        specifier: ^2.16.1
+        version: 2.16.1
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -2652,6 +2667,9 @@ packages:
     resolution: {integrity: sha512-5C1sg4USs1lfG0GFb2RLXsdpXqBSEhAaA/0kPL01wxzpMqLILNxIxIOKiILz+cdg/pLnOUxFYOR5yhHU666wbw==}
     engines: {node: '>=18.0.0'}
     hasBin: true
+
+  twitter-api-v2@1.29.0:
+    resolution: {integrity: sha512-v473q5bwme4N+DWSg6qY+JCvfg1nSJRWwui3HUALafxfqCvVkKiYmS/5x/pVeJwTmyeBxexMbzHwnzrH4h6oYQ==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -5672,6 +5690,8 @@ snapshots:
       get-tsconfig: 4.13.7
     optionalDependencies:
       fsevents: 2.3.3
+
+  twitter-api-v2@1.29.0: {}
 
   type-check@0.4.0:
     dependencies:

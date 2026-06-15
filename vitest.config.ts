@@ -2,20 +2,15 @@ import { defineConfig } from 'vitest/config';
 import path from 'node:path';
 
 export default defineConfig({
-  oxc: {
-    jsx: {
-      runtime: 'automatic',
-    },
-  },
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./src/test/setup.ts'],
-    exclude: ['**/node_modules/**', '**/.next/**', '**/.worktrees/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.worktrees/**'],
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './apps/web/src'),
+      '@shared-types': path.resolve(__dirname, './packages/shared-types/src'),
     },
   },
 });

@@ -3,9 +3,7 @@ node_modules/
 
 # Build output
 dist/
-.next/
 *.tsbuildinfo
-next-env.d.ts
 
 # Runtime
 .quantpilot-runtime/
