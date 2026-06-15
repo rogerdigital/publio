@@ -10,7 +10,8 @@
     "build": "pnpm --filter @publio/web build",
     "preview": "pnpm --filter @publio/web preview",
     "lint": "eslint apps/web/src --ext .ts,.tsx",
-    "test": "vitest run",
+    "check:no-js-source": "tsx scripts/check-no-js-source.ts",
+    "test": "vitest run --passWithNoTests",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"
