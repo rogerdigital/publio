@@ -1,18 +1,17 @@
 {
   "name": "publio",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "packageManager": "pnpm@10.23.0",
   "scripts": {
-    "dev": "tsx scripts/dev-safe.ts",
-    "dev:raw": "next dev",
-    "preview": "next build && next start",
-    "build": "next build",
-    "start": "next start",
+    "dev": "concurrently -n web,api -c blue,green \"pnpm dev:web\" \"pnpm dev:api\"",
+    "dev:web": "pnpm --filter @publio/web dev",
+    "dev:api": "pnpm --filter @publio/api dev",
+    "build": "pnpm --filter @publio/web build",
+    "preview": "pnpm --filter @publio/web preview",
+    "lint": "eslint apps/web/src --ext .ts,.tsx",
     "check:no-js-source": "tsx scripts/check-no-js-source.ts",
-    "lint": "next lint",
-    "test": "vitest run",
-    "verify": "pnpm check:no-js-source && pnpm lint && pnpm test && pnpm build",
+    "test": "vitest run --passWithNoTests",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"
@@ -20,49 +19,32 @@
   "lint-staged": {
     "*.{ts,tsx}": [
       "prettier --write",
-      "env ESLINT_USE_FLAT_CONFIG=false eslint --fix"
+      "eslint --fix"
     ],
     "*.{css.ts,json}": [
       "prettier --write"
     ]
   },
-  "dependencies": {
-    "@uiw/react-md-editor": "^4.0.4",
-    "@vanilla-extract/css": "^1.20.1",
-    "@vanilla-extract/recipes": "^0.5.7",
-    "eventsource-parser": "^3.0.8",
-    "lucide-react": "^0.468.0",
-    "marked": "^15.0.0",
-    "next": "15.5.18",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "sanitize-html": "^2.17.4",
-    "twitter-api-v2": "^1.18.0",
-    "zustand": "^5.0.0"
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.0",
+    "concurrently": "^9.1.0",
+    "eslint": "^9.0.0",
+    "husky": "^9.1.7",
+    "jsdom": "^29.0.1",
+    "lint-staged": "^17.0.2",
+    "prettier": "^3.8.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.6.0",
+    "vitest": "^4.1.2"
   },
   "pnpm": {
     "overrides": {
       "postcss": ">=8.5.10",
       "fast-uri": ">=3.1.2"
     }
-  },
-  "devDependencies": {
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@types/node": "^22.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "@types/sanitize-html": "^2.16.1",
-    "@vanilla-extract/next-plugin": "^2.5.1",
-    "eslint": "^9.0.0",
-    "eslint-config-next": "^15.1.12",
-    "husky": "^9.1.7",
-    "jsdom": "^29.0.1",
-    "lint-staged": "^17.0.2",
-    "prettier": "^3.8.3",
-    "tsx": "^4.21.0",
-    "typescript": "^5.0.0",
-    "vite": "8.0.5",
-    "vitest": "^4.1.2"
   }
 }

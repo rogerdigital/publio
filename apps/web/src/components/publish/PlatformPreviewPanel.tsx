@@ -1,0 +1,179 @@
+import { useState } from 'react';
+import { ChevronDown, AlertTriangle } from 'lucide-react';
+import type { PlatformId } from '@/types';
+import type { PlatformContentDrafts } from '@/lib/platformAdapters/types';
+import { validateForPlatform } from '@/lib/platformRules/validate';
+import PlatformAdaptButton from './PlatformAdaptButton';
+import WeChatArticlePreview from './WeChatArticlePreview';
+import XhsNotePreview from './XhsNotePreview';
+import * as styles from './publish.css';
+
+const platformLabels: Record<PlatformId, string> = {
+  wechat: '微信公众号',
+  xiaohongshu: '小红书',
+  zhihu: '知乎',
+  x: 'X (Twitter)',
+};
+
+const formatLabels = {
+  article: '长文',
+  note: '笔记',
+  thread: 'Thread',
+};
+
+interface PlatformPreviewPanelProps {
+  adaptations: PlatformContentDrafts;
+  selectedPlatforms: PlatformId[];
+  agentEnabled?: boolean;
+}
+
+// 去除常见 Markdown 语法，返回纯文本
+function stripMarkdown(content: string) {
+  return content
+    .replace(/!\[.*?\]\(.*?\)/g, '') // 图片
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1') // 链接 → 保留文字
+    .replace(/#{1,6}\s*/g, '') // 标题
+    .replace(/\*{1,2}([^*]*)\*{1,2}/g, '$1') // 粗体 / 斜体
+    .replace(/_{1,2}([^_]*)_{1,2}/g, '$1')
+    .replace(/`{1,3}[^`]*`{1,3}/g, '') // 代码
+    .replace(/^[-*+]\s+/gm, '') // 无序列表
+    .replace(/^\d+\.\s+/gm, '') // 有序列表
+    .replace(/^>\s*/gm, '') // 引用
+    .replace(/---+/g, '') // 分割线
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function createExcerpt(value: string) {
+  const plain = stripMarkdown(value);
+  return plain.length > 220 ? `${plain.slice(0, 220)}…` : plain;
+}
+
+// 提取 Markdown 中第一张图片的 URL
+function extractFirstImage(content: string): string | null {
+  const match = /!\[.*?\]\((https?:\/\/[^)]+)\)/.exec(content);
+  return match ? match[1] : null;
+}
+
+export default function PlatformPreviewPanel({
+  adaptations,
+  selectedPlatforms,
+  agentEnabled = false,
+}: PlatformPreviewPanelProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (selectedPlatforms.length === 0) return null;
+
+  return (
+    <div className={styles.rightPanelSection}>
+      <button
+        type="button"
+        className={styles.collapseToggle}
+        onClick={() => setIsOpen((v) => !v)}
+        aria-expanded={isOpen}
+      >
+        <span className={styles.rightPanelSectionTitle}>内容配置</span>
+        <ChevronDown
+          size={14}
+          className={`${styles.collapseChevron}${isOpen ? ` ${styles.collapseChevronOpen}` : ''}`}
+        />
+      </button>
+
+      <div className={styles.collapseContent} style={{ maxHeight: isOpen ? '600px' : 0 }}>
+        <div className={styles.previewGrid} style={{ marginTop: '8px' }}>
+          {selectedPlatforms.map((platform) => {
+            const draft = adaptations[platform];
+            const displayBody = draft.aiAdapted && draft.aiBody ? draft.aiBody : draft.body;
+            const firstImage = extractFirstImage(displayBody);
+            const validation = validateForPlatform(draft.title, displayBody, platform);
+
+            return (
+              <article key={platform} className={styles.previewCard}>
+                {/* 平台名 + 状态 + AI 适配按钮 */}
+                <div className={styles.previewMeta}>
+                  <p className={styles.previewPlatform}>{platformLabels[platform]}</p>
+                  <PlatformAdaptButton platform={platform} agentEnabled={agentEnabled} />
+                  <span
+                    className={`${styles.previewState} ${draft.isReady ? '' : styles.previewStateNotReady}`}
+                  >
+                    {draft.aiAdapted ? '✨ AI' : ''} {draft.isReady ? '可发布' : '待补全'} ·{' '}
+                    {formatLabels[draft.format]}
+                  </span>
+                </div>
+
+                {/* 首图预览（外部 URL，无法提前配置 next/image 域名白名单） */}
+                {firstImage && platform !== 'wechat' && platform !== 'xiaohongshu' ? (
+                  <img src={firstImage} alt="" className={styles.previewImage} />
+                ) : null}
+
+                {/* 增强预览：微信 */}
+                {platform === 'wechat' && displayBody ? (
+                  <WeChatArticlePreview title={draft.title} body={displayBody} />
+                ) : null}
+
+                {/* 增强预览：小红书 */}
+                {platform === 'xiaohongshu' && displayBody ? (
+                  <XhsNotePreview
+                    title={draft.title}
+                    body={displayBody}
+                    tags={draft.suggestedTags}
+                  />
+                ) : null}
+
+                {/* 通用内容摘要（非微信/小红书） */}
+                {platform !== 'wechat' && platform !== 'xiaohongshu' && displayBody ? (
+                  <p className={styles.previewBody}>{createExcerpt(displayBody)}</p>
+                ) : null}
+
+                {/* Warnings */}
+                {draft.warnings.length > 0 ? (
+                  <ul className={styles.previewWarningList}>
+                    {draft.warnings.map((warning) => (
+                      <li key={warning}>{warning}</li>
+                    ))}
+                  </ul>
+                ) : null}
+
+                {/* Platform rule validation */}
+                {validation.issues.length > 0 ? (
+                  <ul className={styles.previewWarningList}>
+                    {validation.issues.map((issue, i) => (
+                      <li key={i}>
+                        <AlertTriangle
+                          size={11}
+                          style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }}
+                        />
+                        {issue.message}
+                        {issue.current !== undefined && issue.limit !== undefined
+                          ? ` (${issue.current}/${issue.limit})`
+                          : ''}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+
+                {/* 小红书：话题标签 */}
+                {draft.suggestedTags.length > 0 ? (
+                  <div className={styles.previewTagList}>
+                    {draft.suggestedTags.map((tag) => (
+                      <span key={tag}>#{tag}</span>
+                    ))}
+                  </div>
+                ) : null}
+
+                {/* X：Thread 分段预览 */}
+                {draft.threadParts.length > 1 ? (
+                  <ol className={styles.previewThreadList}>
+                    {draft.threadParts.map((part, index) => (
+                      <li key={`${index}-${part.slice(0, 20)}`}>{`${index + 1}. ${part}`}</li>
+                    ))}
+                  </ol>
+                ) : null}
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

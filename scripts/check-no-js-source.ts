@@ -1,10 +1,11 @@
-import { readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
-const sourceRoots = ['src', 'scripts'];
+// First-party source roots across the pnpm workspace.
+const sourceRoots = ['apps/web/src', 'apps/api/src', 'packages/shared-types/src', 'scripts'];
 const blockedExtensions = new Set(['.js', '.mjs', '.cjs']);
-const ignoredDirs = new Set(['.git', '.next', 'coverage', 'dist', 'node_modules']);
+const ignoredDirs = new Set(['.git', 'coverage', 'dist', 'node_modules']);
 
 function walk(dirPath: string, hits: string[]) {
   const entries = readdirSync(dirPath, { withFileTypes: true });
@@ -31,7 +32,11 @@ function main() {
   const hits: string[] = [];
 
   for (const sourceRoot of sourceRoots) {
-    walk(join(repoRoot, sourceRoot), hits);
+    const absoluteRoot = join(repoRoot, sourceRoot);
+    if (!existsSync(absoluteRoot)) {
+      continue;
+    }
+    walk(absoluteRoot, hits);
   }
 
   if (hits.length > 0) {

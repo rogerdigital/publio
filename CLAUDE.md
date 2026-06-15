@@ -5,103 +5,93 @@
 ## Project Overview
 
 - **Name**: publio
-- **Version**: 0.1.0
+- **Version**: 0.2.0
 - **Tagline**: Write once, adapt per platform.
-- **Runtime**: Next.js 15 (App Router, React 19)
+- **Runtime**: Vite SPA (React 19) + Hono API server
 - **Private**: true
 
 ## Tech Stack
 
 | Layer | Tech |
 |-------|------|
-| Framework | Next.js 15 (App Router) |
+| Frontend | Vite 6 SPA (React 19) |
+| Backend | Hono 4 (`@hono/node-server`) |
 | Language | TypeScript 5 (strict mode) |
 | UI | React 19, lucide-react |
+| Router | react-router-dom 6 |
 | CSS | vanilla-extract (`@vanilla-extract/css` + `@vanilla-extract/recipes`) |
 | Editor | `@uiw/react-md-editor` |
 | State | Zustand 5 |
 | Markdown | marked 15 + sanitize-html |
 | LLM Streaming | `eventsource-parser` |
 | Social API | `twitter-api-v2` |
-| Lint | ESLint 9 + eslint-config-next |
-| Package Manager | pnpm |
+| Lint | ESLint 9 (flat config) |
+| Monorepo | pnpm workspaces |
 
 ## Architecture
 
+pnpm workspaces monorepo. Frontend SPA (`apps/web`) talks to a Hono API
+server (`apps/api`) over `/api/*`; Vite dev proxies `/api` → `localhost:8787`.
+
 ```text
-src/
-├── app/
-│   ├── page.tsx               # 写作台
-│   ├── drafts/                # 稿件库
-│   ├── settings/              # 设置页
-│   └── api/
-│       ├── agent/             # status / write / adapt
-│       ├── drafts/            # 草稿 CRUD、版本、渠道版本
-│       ├── platforms/         # 平台连接管理
-│       ├── publish/           # 发布入口和状态检查
-│       ├── sync-tasks/        # 发布任务状态 API
-│       ├── templates/         # 内容模板
-│       └── uploads/           # 图片上传
-├── components/
-│   ├── agent/
-│   ├── drafts/
-│   ├── editor/
-│   ├── feedback/
-│   ├── layout/
-│   ├── publish/
-│   ├── settings/
-│   └── ui/
-├── hooks/
-├── lib/
-│   ├── agent/
-│   ├── drafts/
-│   ├── moderation/
-│   ├── platformAdapters/
-│   ├── platformConnections/
-│   ├── platformRules/
-│   ├── platformVariants/
-│   ├── publishChecks/
-│   ├── publishers/
-│   ├── storage/
-│   ├── sync/
-│   ├── templates/
-│   └── upload/
-├── stores/
-├── styles/
-└── types/
+apps/
+├── web/                       # Vite SPA
+│   ├── index.html
+│   ├── vite.config.ts
+│   └── src/
+│       ├── main.tsx           # 入口
+│       ├── app/
+│       │   ├── App.tsx        # 根布局 + 主题
+│       │   ├── routes/        # AppRouter (react-router)
+│       │   └── styles/        # 全局 vanilla-extract
+│       ├── pages/             # Home / Drafts / Settings
+│       ├── components/
+│       ├── hooks/
+│       ├── stores/
+│       ├── lib/               # 纯前端 lib
+│       └── types/
+└── api/                       # Hono API server (port 8787)
+    └── src/
+        ├── main.ts            # 入口 (@hono/node-server)
+        ├── app.ts             # Hono app + 中间件挂载
+        ├── routes/            # settings/drafts/agent/publish/...
+        ├── middleware/        # localhostGuard + rateLimit
+        └── lib/               # 后端 lib (storage/agent/publishers/sync)
+packages/
+└── shared-types/              # 前后端共享类型
 ```
 
 ## Commands
 
 ```bash
 pnpm install          # 安装依赖
-pnpm dev              # 开发模式（含端口清理 + 缓存清除）
-pnpm run dev:raw      # 跳过清理直接启动
-pnpm build            # 生产构建
-pnpm start            # 启动生产服务
-pnpm preview          # 构建 + 启动
+pnpm dev              # concurrently 启动 web + api
+pnpm dev:web          # 仅启动前端 (Vite, port 3000)
+pnpm dev:api          # 仅启动后端 (Hono, port 8787)
+pnpm build            # 构建前端 (tsc + vite build)
+pnpm preview          # 预览构建产物
 pnpm lint             # ESLint 检查
 pnpm test             # Vitest 测试
-pnpm verify           # check:no-js-source + lint + test + build
 ```
 
 ## Code Conventions
 
-- 路径别名: `@/*` -> `./src/*`
-- TypeScript strict mode。
-- App Router 页面和组件优先使用 `export default function`。
-- 客户端组件必须显式标注 `'use client'`。
-- API Routes 使用 Route Handlers (`route.ts`)。
-- 样式使用 vanilla-extract，同目录 `.css.ts`。
-- `keyframes` 动画用 `keyframes()` 单独定义。
-- 中文注释和 UI 文案是项目惯例。
+- 路径别名: `@/*` -> 各 app 的 `./src/*`；共享类型用 `@shared-types`
+- TypeScript strict mode，`moduleResolution: Bundler`
+- 前端页面/组件用 `export default function`；SPA 全是客户端，无需 `'use client'`
+- 路由用 react-router-dom：`useNavigate` / `useSearchParams` / `useLocation` / `Link to=`
+- 动态导入用 `React.lazy` + `Suspense`（非 `next/dynamic`）
+- API 路由用 Hono：按域分组的 `routes/*.ts`，`c.json()` / `c.req.param()`
+- 样式使用 vanilla-extract，同目录 `.css.ts`
+- `keyframes` 动画用 `keyframes()` 单独定义
+- 中文注释和 UI 文案是项目惯例
 
 ## State And Data
 
 - `publishStore` 管理编辑器内容、平台选择、渠道版本和发布状态。
 - `agentStore` 只管理当前 Agent 流式输出和 AbortController。
-- 本地运行数据在 `.publio-data/`，通过 `src/lib/storage/jsonFileCollection.ts` 原子写。
-- 发布任务状态由 `src/lib/sync/**` 和 `/api/sync-tasks/**` 管理。
+- 本地运行数据在 `.publio-data/`，通过 `apps/api/src/lib/storage/jsonFileCollection.ts` 原子写。
+- 发布任务状态由 `apps/api/src/lib/sync/**` 和 `/api/sync-tasks/**` 管理。
 
 ## Agent System
 
@@ -152,7 +142,7 @@ pnpm verify           # check:no-js-source + lint + test + build
 ## Important Guardrails
 
 - `.env` / `.env.local` 不提交。
-- `.next/` / `node_modules/` 不提交。
-- 第一方源码必须 TypeScript，禁止 `.js`/`.mjs`/`.cjs`。
-- `scripts/dev-safe.ts` 在开发启动前清理端口和缓存。
+- `dist/` / `node_modules/` 不提交。
+- 第一方源码必须 TypeScript，禁止 `.js`/`.mjs`/`.cjs`（配置文件如 `eslint.config.js` 除外）。
+- API server 仅监听 127.0.0.1，`localhostGuard` 中间件拒绝非本地请求。
 - main 分支有保护规则：必须通过 PR + 状态检查。
