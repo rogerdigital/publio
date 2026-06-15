@@ -17,7 +17,7 @@ const READINESS_LABELS: Record<string, string> = {
   failed: '发布失败',
 };
 
-export default function PublishChecklist({ agentEnabled }: { agentEnabled: boolean }) {
+export default function PublishChecklist() {
   const { platforms, platformDrafts, overallStatus, results } = usePublishStore();
 
   const selectedPlatforms = useMemo(

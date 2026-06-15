@@ -46,7 +46,7 @@ const modeConfig: Record<ThemeMode, { icon: typeof Sun; label: string }> = {
   system: { icon: Monitor, label: 'System' },
 };
 
-export default function ThemeToggle({ expanded = false }: { expanded?: boolean }) {
+export default function ThemeToggle() {
   const [mode, setMode] = useState<ThemeMode>('light');
   const [open, setOpen] = useState(false);
 

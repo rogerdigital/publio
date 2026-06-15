@@ -7,13 +7,10 @@ import AppShellHeader from '@/components/layout/AppShellHeader';
 
 const MarkdownEditor = lazy(() => import('@/components/editor/MarkdownEditor'));
 import RecentDraftBar from '@/components/editor/RecentDraftBar';
-import PublishButton from '@/components/publish/PublishButton';
-import PublishStatusPanel from '@/components/publish/PublishStatusPanel';
 import PublishChecklist from '@/components/publish/PublishChecklist';
 import TemplatePicker from '@/components/editor/TemplatePicker';
 import MediaLibrary from '@/components/editor/MediaLibrary';
 
-const PlatformPreviewPanel = lazy(() => import('@/components/publish/PlatformPreviewPanel'));
 const PlatformVariantPanel = lazy(() => import('@/components/publish/PlatformVariantPanel'));
 const PublishProgressOverlay = lazy(() => import('@/components/publish/PublishProgressOverlay'));
 const VersionHistory = lazy(() => import('@/components/editor/VersionHistory'));
@@ -30,12 +27,10 @@ function HomePageContent() {
     title,
     content,
     platforms,
-    platformDrafts,
     syncPlatformDrafts,
     setTitle,
     setContent,
     reset,
-    overallStatus,
     currentDraftId,
     setCurrentDraftId,
     activeTab,
@@ -293,7 +288,7 @@ function HomePageContent() {
             )}
 
             <div className={publishStyles.rightPanelSection}>
-              <PublishChecklist agentEnabled={agentEnabled} />
+              <PublishChecklist />
             </div>
 
             {currentDraftId && (
@@ -326,7 +321,7 @@ function HomePageContent() {
           <div className={styles.mobileSheet} onClick={(e) => e.stopPropagation()}>
             <div className={styles.mobileSheetHandle} />
             <div className={styles.mobileSheetTitle}>发布设置</div>
-            <PublishChecklist agentEnabled={agentEnabled} />
+            <PublishChecklist />
           </div>
         </div>
       )}

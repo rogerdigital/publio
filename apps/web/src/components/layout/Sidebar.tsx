@@ -130,7 +130,7 @@ export default function Sidebar() {
 
         <div className={styles.footer}>
           <div className={styles.themeToggleRow}>
-            <ThemeToggle expanded={expanded} />
+            <ThemeToggle />
           </div>
         </div>
       </aside>

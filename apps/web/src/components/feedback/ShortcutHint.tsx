@@ -1,4 +1,4 @@
-import { formatShortcut, type ShortcutDef } from '@/hooks/useKeyboardShortcuts';
+import { formatShortcut } from '@/hooks/useKeyboardShortcuts';
 import * as css from './ShortcutHint.css';
 
 type ShortcutDefLike = Parameters<typeof formatShortcut>[0] & { label?: string };

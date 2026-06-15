@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Sparkles, Save } from 'lucide-react';
-import type { PlatformId } from '@/types';
 import { PLATFORMS } from '@/types';
 import * as styles from './settings.css';
 
