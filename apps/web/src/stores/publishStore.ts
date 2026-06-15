@@ -1,0 +1,165 @@
+import { create } from 'zustand';
+import { PlatformId, PlatformPublishResult, PLATFORMS, PublishStatus } from '@/types';
+import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
+import type { PlatformContentDrafts } from '@/lib/platformAdapters/types';
+import { resolveOverallPublishStatus } from '@/lib/publishStatus';
+
+interface PublishStore {
+  title: string;
+  content: string;
+  setTitle: (title: string) => void;
+  setContent: (content: string) => void;
+
+  currentDraftId: string | null;
+  setCurrentDraftId: (id: string | null) => void;
+
+  variantIds: Record<PlatformId, string | null>;
+  setVariantId: (platform: PlatformId, id: string | null) => void;
+  resetVariantIds: () => void;
+
+  activeTab: 'edit' | 'preview';
+  setActiveTab: (tab: 'edit' | 'preview') => void;
+
+  platforms: Record<PlatformId, boolean>;
+  togglePlatform: (id: PlatformId) => void;
+  setAllPlatforms: (checked: boolean) => void;
+
+  platformDrafts: PlatformContentDrafts;
+  syncPlatformDrafts: () => void;
+  setAIAdaptedContent: (platform: PlatformId, aiBody: string) => void;
+  revertAIDraft: (platform: PlatformId) => void;
+
+  overallStatus: PublishStatus;
+  results: PlatformPublishResult[];
+  setPublishing: () => void;
+  setResults: (results: PlatformPublishResult[]) => void;
+  reset: () => void;
+
+  lastSyncTaskId: string | null;
+  isProgressOverlayOpen: boolean;
+  setLastSyncTaskId: (id: string | null) => void;
+  openProgressOverlay: () => void;
+  closeProgressOverlay: () => void;
+
+  editorMode: 'source' | 'live';
+  setEditorMode: (mode: 'source' | 'live') => void;
+}
+
+const platformIds = PLATFORMS.map((platform) => platform.id);
+const emptyPlatformDrafts = adaptContentForPlatforms({
+  title: '',
+  content: '',
+  platforms: platformIds,
+});
+
+export const usePublishStore = create<PublishStore>((set) => ({
+  title: '',
+  content: '',
+  setTitle: (title) => set({ title }),
+  setContent: (content) => set({ content }),
+
+  currentDraftId: null,
+  setCurrentDraftId: (id) => set({ currentDraftId: id }),
+
+  variantIds: { wechat: null, xiaohongshu: null, zhihu: null, x: null },
+  setVariantId: (platform, id) =>
+    set((state) => ({ variantIds: { ...state.variantIds, [platform]: id } })),
+  resetVariantIds: () =>
+    set({ variantIds: { wechat: null, xiaohongshu: null, zhihu: null, x: null } }),
+
+  activeTab: 'edit',
+  setActiveTab: (tab) => set({ activeTab: tab }),
+
+  platforms: {
+    wechat: true,
+    xiaohongshu: true,
+    zhihu: true,
+    x: true,
+  },
+  togglePlatform: (id) =>
+    set((state) => ({
+      platforms: { ...state.platforms, [id]: !state.platforms[id] },
+    })),
+  setAllPlatforms: (checked) =>
+    set(() => ({
+      platforms: Object.fromEntries(platformIds.map((id) => [id, checked])) as Record<
+        PlatformId,
+        boolean
+      >,
+    })),
+
+  platformDrafts: emptyPlatformDrafts,
+  syncPlatformDrafts: () =>
+    set((state) => ({
+      platformDrafts: adaptContentForPlatforms({
+        title: state.title,
+        content: state.content,
+        platforms: platformIds,
+      }),
+    })),
+
+  setAIAdaptedContent: (platform, aiBody) =>
+    set((state) => {
+      const draft = state.platformDrafts[platform];
+      return {
+        platformDrafts: {
+          ...state.platformDrafts,
+          [platform]: {
+            ...draft,
+            aiBody,
+            aiAdapted: true,
+            originalBody: draft.originalBody || draft.body,
+          },
+        },
+      };
+    }),
+
+  revertAIDraft: (platform) =>
+    set((state) => {
+      const draft = state.platformDrafts[platform];
+      return {
+        platformDrafts: {
+          ...state.platformDrafts,
+          [platform]: {
+            ...draft,
+            aiBody: undefined,
+            aiAdapted: false,
+            originalBody: undefined,
+          },
+        },
+      };
+    }),
+
+  overallStatus: 'idle',
+  results: [],
+  setPublishing: () => set({ overallStatus: 'publishing', results: [] }),
+  setResults: (results) =>
+    set({
+      results,
+      overallStatus: resolveOverallPublishStatus(results),
+    }),
+  reset: () =>
+    set({ overallStatus: 'idle', results: [], lastSyncTaskId: null, isProgressOverlayOpen: false }),
+
+  lastSyncTaskId: null,
+  isProgressOverlayOpen: false,
+  setLastSyncTaskId: (id) => set({ lastSyncTaskId: id }),
+  openProgressOverlay: () => set({ isProgressOverlayOpen: true }),
+  closeProgressOverlay: () => set({ isProgressOverlayOpen: false }),
+
+  editorMode: (() => {
+    try {
+      return (localStorage.getItem('publio-editor-mode') as 'source' | 'live') || 'source';
+    } catch {
+      return 'source';
+    }
+  })(),
+  setEditorMode: (mode) => {
+    try {
+      localStorage.setItem('publio-editor-mode', mode);
+    } catch {
+      // ignore
+    }
+    set({ editorMode: mode });
+  },
+}));
