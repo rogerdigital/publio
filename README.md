@@ -78,7 +78,7 @@ Runtime data is stored in `.publio-data/`.
 
 ## Development
 
-Built as a pnpm workspaces monorepo: a Vite 6 SPA frontend (`apps/web`, React 19 + react-router) talks to a standalone Hono 4 API server (`apps/api`, port 8787) over `/api/*`. TypeScript 5 (strict), vanilla-extract, and Zustand throughout. Shared types live in `packages/shared-types`.
+Built as a pnpm workspaces monorepo: a Vite 8 SPA frontend (`apps/web`, React 19 + react-router) talks to a standalone Hono 4 API server (`apps/api`, port 8787) over `/api/*`. TypeScript 5 (strict), vanilla-extract, and Zustand throughout. Shared types live in `packages/shared-types`.
 
 ```bash
 pnpm dev              # start web (3000) + api (8787) concurrently

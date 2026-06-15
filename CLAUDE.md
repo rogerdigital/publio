@@ -14,7 +14,7 @@
 
 | Layer | Tech |
 |-------|------|
-| Frontend | Vite 6 SPA (React 19) |
+| Frontend | Vite 8 SPA (React 19) |
 | Backend | Hono 4 (`@hono/node-server`) |
 | Language | TypeScript 5 (strict mode) |
 | UI | React 19, lucide-react |
