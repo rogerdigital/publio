@@ -47,7 +47,8 @@ export function useAutoSave({
     const currentContent = contentRef.current;
 
     if (!currentTitle.trim() && !currentContent.trim()) return;
-    if (!currentTitle.trim() && !draftIdRef.current) return;
+    // 创建新草稿时后端要求标题和内容都非空，避免无谓的 400。
+    if (!draftIdRef.current && (!currentTitle.trim() || !currentContent.trim())) return;
 
     setSaveStatus('saving');
     try {
