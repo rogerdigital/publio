@@ -55,6 +55,8 @@ export default [
         HTMLDivElement: 'readonly',
         Node: 'readonly',
         crypto: 'readonly',
+        Buffer: 'readonly',
+        AbortSignal: 'readonly',
         TextDecoderStream: 'readonly',
         TextEncoderStream: 'readonly',
         DOMException: 'readonly',
@@ -77,6 +79,8 @@ export default [
       ...tsPlugin.configs.recommended.rules,
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'no-unused-vars': 'off',
+      'no-useless-escape': 'off',
+      'preserve-caught-error': 'off',
     },
   },
   {

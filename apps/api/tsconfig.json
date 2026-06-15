@@ -3,9 +3,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@/*": ["src/*"],
       "@shared-types": ["../../packages/shared-types/src/index.ts"],
       "@shared-types/*": ["../../packages/shared-types/src/*"]
-    }
+    },
+    "types": ["node"]
   },
   "include": ["src"]
 }
