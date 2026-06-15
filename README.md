@@ -2,10 +2,11 @@
 
 [English](./README.md) | [中文](./README_zh.md)
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](./package.json)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](./package.json)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](./tsconfig.json)
-[![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF.svg)](https://vite.dev/)
+[![Hono](https://img.shields.io/badge/Hono-4-E36002.svg)](https://hono.dev/)
 
 > A focused writing and multi-platform publishing tool for individual creators. Write once, adapt per platform.
 
@@ -77,17 +78,19 @@ Runtime data is stored in `.publio-data/`.
 
 ## Development
 
-Built with Next.js 15 (App Router), TypeScript 5 (strict), vanilla-extract, and Zustand.
+Built as a pnpm workspaces monorepo: a Vite 6 SPA frontend (`apps/web`, React 19 + react-router) talks to a standalone Hono 4 API server (`apps/api`, port 8787) over `/api/*`. TypeScript 5 (strict), vanilla-extract, and Zustand throughout. Shared types live in `packages/shared-types`.
 
 ```bash
-pnpm dev              # development with port cleanup
-pnpm build            # production build
+pnpm dev              # start web (3000) + api (8787) concurrently
+pnpm dev:web          # frontend only (Vite, port 3000)
+pnpm dev:api          # backend only (Hono, port 8787)
+pnpm build            # production build (tsc + vite build)
 pnpm test             # run Vitest tests
 pnpm lint             # ESLint
-pnpm verify           # check:no-js-source + lint + test + build
+pnpm check:no-js-source  # enforce TypeScript-only source roots
 ```
 
-The test suite includes route and module smoke coverage for the current core surface.
+CI runs `check:no-js-source`, `lint`, `format:check`, `tsc --noEmit`, `test`, and `build` on every pull request to `main`.
 
 ---
 
