@@ -47,9 +47,9 @@ export const eyebrow = style({
 
 export const sectionTitle = style({
   fontFamily: vars.font.serif,
-  marginTop: vars.spacing.md,
+  marginTop: vars.spacing.lg,
   fontSize: vars.fontSize['4xl'],
-  lineHeight: 1.3,
+  lineHeight: 1.4,
   color: vars.color.text,
   '@media': {
     'screen and (min-width: 640px)': {
@@ -59,7 +59,7 @@ export const sectionTitle = style({
 });
 
 export const sectionDescription = style({
-  marginTop: vars.spacing.lg,
+  marginTop: vars.spacing.xl,
   maxWidth: '48rem',
   fontSize: vars.fontSize.md,
   lineHeight: 1.75,
