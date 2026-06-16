@@ -62,10 +62,6 @@ export const mobileOnly = style({
 
 export const editorCard = style({
   overflow: 'hidden',
-  borderRadius: vars.radius.xl,
-  background: vars.color.surface,
-  border: `1px solid ${vars.color.border}`,
-  boxShadow: vars.shadow.md,
   outline: 'none',
 });
 

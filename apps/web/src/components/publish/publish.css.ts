@@ -502,14 +502,17 @@ export const previewThreadList = style({
 
 // 右侧面板区块容器
 export const rightPanelSection = style({
-  borderRadius: vars.radius.xl,
-  background: vars.color.surface,
-  border: `1px solid ${vars.color.border}`,
-  boxShadow: vars.shadow.sm,
-  padding: `${vars.spacing['lg-xl']} ${vars.spacing.xl}`,
+  borderTop: `1px solid ${vars.color.borderFaint}`,
+  paddingTop: vars.spacing.xl,
   display: 'flex',
   flexDirection: 'column',
   gap: vars.spacing['md-lg'],
+  selectors: {
+    '&:first-child': {
+      borderTop: 'none',
+      paddingTop: 0,
+    },
+  },
 });
 
 export const rightPanelSectionTitle = style({

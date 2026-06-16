@@ -11,7 +11,6 @@ export default function DraftsPageClient() {
   return (
     <div className={styles.pageWrap}>
       <AppShellHeader
-        kicker="Draft library"
         title="稿件库"
         description="管理草稿，查看发布进展。"
         action={
