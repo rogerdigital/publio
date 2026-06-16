@@ -154,7 +154,6 @@ function HomePageContent() {
   return (
     <div className={styles.pageWrap}>
       <AppShellHeader
-        kicker="Compose & publish"
         title="写作台"
         description="写作、预览、多平台分发。"
         action={
