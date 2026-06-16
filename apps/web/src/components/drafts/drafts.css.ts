@@ -3,18 +3,19 @@ import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/app/styles/tokens.css';
 
 export const draftList = style({
-  display: 'grid',
-  gap: vars.spacing.lg,
+  display: 'flex',
+  flexDirection: 'column',
 });
 
 export const draftCard = style({
   display: 'grid',
   gap: vars.spacing['xl-2xl'],
-  borderRadius: vars.radius.xl,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
-  boxShadow: vars.shadow.sm,
-  padding: vars.spacing['xl-2xl'],
+  borderBottom: `1px solid ${vars.color.borderFaint}`,
+  padding: `${vars.spacing.xl} ${vars.spacing.md}`,
+  transition: 'background-color 150ms',
+  ':hover': {
+    background: vars.color.bgElevated,
+  },
   '@media': {
     'screen and (min-width: 760px)': {
       gridTemplateColumns: 'minmax(0, 1fr) auto',
@@ -280,12 +281,10 @@ export const draftCardSelectable = recipe({
   base: {
     display: 'grid',
     gap: vars.spacing['xl-2xl'],
-    borderRadius: vars.radius.xl,
-    border: `1px solid ${vars.color.border}`,
-    background: vars.color.surface,
-    padding: vars.spacing['xl-2xl'],
+    borderBottom: `1px solid ${vars.color.borderFaint}`,
+    padding: `${vars.spacing.xl} ${vars.spacing.md}`,
     cursor: 'pointer',
-    transition: 'border-color 150ms, background-color 150ms',
+    transition: 'background-color 150ms',
     '@media': {
       'screen and (min-width: 760px)': {
         gridTemplateColumns: 'auto minmax(0, 1fr) auto',
@@ -296,12 +295,11 @@ export const draftCardSelectable = recipe({
   variants: {
     selected: {
       true: {
-        borderColor: vars.color.accent,
         background: vars.color.accentSoft,
       },
       false: {
         ':hover': {
-          borderColor: vars.color.borderStrong,
+          background: vars.color.bgElevated,
         },
       },
     },

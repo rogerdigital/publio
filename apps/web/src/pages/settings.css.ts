@@ -618,7 +618,6 @@ export const platformDetail = style({
 
 export const platformDetailInner = style({
   maxWidth: '580px',
-  padding: `${vars.spacing['3xl']} ${vars.spacing['3xl']}`,
   display: 'flex',
   flexDirection: 'column',
   gap: vars.spacing['3xl'],
