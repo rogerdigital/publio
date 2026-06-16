@@ -7,6 +7,10 @@ export const pageWrap = style({
   flexDirection: 'column',
   gap: vars.spacing['5xl'],
   paddingBottom: '80px',
+  width: '100%',
+  maxWidth: '1080px',
+  marginLeft: 'auto',
+  marginRight: 'auto',
 });
 
 // Section block
@@ -485,28 +489,6 @@ export const inlineCode = style({
   padding: '1px 4px',
 });
 
-// Sidebar group divider
-export const sidebarDivider = style({
-  display: 'flex',
-  alignItems: 'center',
-  gap: vars.spacing.md,
-  padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
-  marginTop: vars.spacing.md,
-  fontSize: vars.fontSize.xs,
-  fontWeight: 600,
-  color: vars.color.textMuted,
-  textTransform: 'uppercase',
-  letterSpacing: '0.04em',
-  selectors: {
-    '&::after': {
-      content: '""',
-      flex: 1,
-      height: '1px',
-      background: vars.color.borderFaint,
-    },
-  },
-});
-
 // Two-step OAuth layout
 export const oauthSteps = style({
   display: 'flex',
@@ -618,85 +600,20 @@ export const platformLayout = style({
   gap: vars.spacing['2xl'],
   '@media': {
     'screen and (min-width: 1024px)': {
-      flexDirection: 'row',
-      gap: vars.spacing['4xl'],
+      marginTop: vars.spacing['3xl'],
     },
   },
-});
-
-export const platformSidebar = style({
-  display: 'none',
-  '@media': {
-    'screen and (min-width: 1024px)': {
-      display: 'flex',
-      flexDirection: 'column',
-      width: '240px',
-      flexShrink: 0,
-      gap: vars.spacing.xs,
-      paddingTop: vars.spacing.xs,
-    },
-  },
-});
-
-export const platformSidebarItem = recipe({
-  base: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: vars.spacing.lg,
-    width: '100%',
-    padding: `${vars.spacing['md-lg']} ${vars.spacing.xl}`,
-    borderRadius: vars.radius.md,
-    border: 'none',
-    background: 'transparent',
-    textAlign: 'left',
-    cursor: 'pointer',
-    transition: 'background-color 150ms, box-shadow 150ms',
-    ':hover': {
-      background: vars.color.bgElevated,
-    },
-  },
-  variants: {
-    active: {
-      true: {
-        background: vars.color.accentSoft,
-        color: vars.color.accent,
-      },
-    },
-  },
-  defaultVariants: { active: false },
-});
-
-export const sidebarItemIcon = style({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: '28px',
-  height: '28px',
-  flexShrink: 0,
-});
-
-export const sidebarItemBody = style({
-  flex: 1,
-  minWidth: 0,
-});
-
-export const sidebarItemName = style({
-  margin: 0,
-  fontSize: vars.fontSize.sm,
-  fontWeight: 500,
-  color: vars.color.text,
-});
-
-export const sidebarItemStatus = style({
-  margin: 0,
-  marginTop: '2px',
-  fontSize: vars.fontSize.xs,
-  color: vars.color.textMuted,
 });
 
 export const platformDetail = style({
   flex: 1,
   minWidth: 0,
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      width: '100%',
+      maxWidth: '680px',
+    },
+  },
 });
 
 export const platformDetailInner = style({
@@ -766,4 +683,117 @@ export const platformMobileTab = recipe({
     },
   },
   defaultVariants: { active: false },
+});
+
+// ── 方案1: 顶部 tab 横排 + 单栏内容 (desktop ≥1024px) ──────────────
+export const topTabsBar = style({
+  display: 'none',
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      display: 'flex',
+      alignItems: 'flex-end',
+      gap: vars.spacing.xs,
+      width: '100%',
+      borderBottom: `1px solid ${vars.color.borderFaint}`,
+      overflowX: 'auto',
+    },
+  },
+  selectors: {
+    '&::-webkit-scrollbar': { display: 'none' },
+  },
+});
+
+export const topTab = recipe({
+  base: {
+    position: 'relative',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: vars.spacing.md,
+    flexShrink: 0,
+    border: 'none',
+    background: 'transparent',
+    padding: `${vars.spacing.lg} ${vars.spacing.lg}`,
+    marginBottom: '-1px',
+    fontSize: vars.fontSize.md,
+    fontWeight: 500,
+    color: vars.color.textMuted,
+    cursor: 'pointer',
+    borderBottom: '2px solid transparent',
+    transition: 'color 150ms, border-color 150ms',
+    ':hover': {
+      color: vars.color.text,
+    },
+  },
+  variants: {
+    active: {
+      true: {
+        color: vars.color.text,
+        fontWeight: 600,
+        borderBottom: `2px solid ${vars.color.accent}`,
+      },
+    },
+  },
+  defaultVariants: { active: false },
+});
+
+export const topTabIcon = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+  color: 'inherit',
+});
+
+export const topTabDot = styleVariants({
+  connected: {
+    width: '6px',
+    height: '6px',
+    borderRadius: vars.radius.full,
+    flexShrink: 0,
+    background: vars.color.successText,
+  },
+  available: {
+    width: '6px',
+    height: '6px',
+    borderRadius: vars.radius.full,
+    flexShrink: 0,
+    background: vars.color.signal,
+  },
+  'manual-required': {
+    width: '6px',
+    height: '6px',
+    borderRadius: vars.radius.full,
+    flexShrink: 0,
+    background: vars.color.borderStrong,
+  },
+});
+
+export const topTabDivider = style({
+  display: 'none',
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      display: 'block',
+      alignSelf: 'center',
+      width: '1px',
+      height: '18px',
+      flexShrink: 0,
+      margin: `0 ${vars.spacing.sm}`,
+      background: vars.color.borderFaint,
+    },
+  },
+});
+
+// 单栏内容容器：居中收窄，消灭右侧留白
+export const singleColumnContent = style({
+  display: 'none',
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      display: 'block',
+      width: '100%',
+      maxWidth: '640px',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      marginTop: vars.spacing['3xl'],
+    },
+  },
 });

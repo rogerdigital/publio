@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Fragment, Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Save,
@@ -324,6 +324,35 @@ function SettingsContent() {
     values['AGENT_MODEL']
   );
 
+  const tabItems = [
+    ...platformConfigs.map((platform) => {
+      const profile = connectionProfiles.find((p) => p.platform === platform.id);
+      return {
+        id: platform.id as string,
+        name: platform.name,
+        Icon: platform.Icon,
+        status: profile?.status ?? ('manual-required' as const),
+        group: 'platform' as const,
+      };
+    }),
+    {
+      id: 'agent-config',
+      name: '连接配置',
+      Icon: Bot,
+      status: (agentConfigured ? 'connected' : 'manual-required') as
+        | 'connected'
+        | 'manual-required',
+      group: 'agent' as const,
+    },
+    {
+      id: 'agent-prompt',
+      name: 'Prompt',
+      Icon: Sparkles,
+      status: 'available' as const,
+      group: 'agent' as const,
+    },
+  ];
+
   return (
     <div className={styles.pageWrap}>
       <AppShellHeader
@@ -383,62 +412,32 @@ function SettingsContent() {
         </button>
       </nav>
 
-      <div className={styles.platformLayout}>
-        {/* Desktop: sidebar */}
-        <nav className={styles.platformSidebar}>
-          {platformConfigs.map((platform) => {
-            const { Icon } = platform;
-            const connectionProfile = connectionProfiles.find((p) => p.platform === platform.id);
-            return (
+      {/* Desktop: horizontal top tabs */}
+      <nav className={styles.topTabsBar}>
+        {tabItems.map((tab, index) => {
+          const { Icon } = tab;
+          const prev = tabItems[index - 1];
+          const showDivider = prev && prev.group !== tab.group;
+          return (
+            <Fragment key={tab.id}>
+              {showDivider ? <span className={styles.topTabDivider} /> : null}
               <button
-                key={platform.id}
                 type="button"
-                className={styles.platformSidebarItem({
-                  active: selectedItem === platform.id,
-                })}
-                onClick={() => setSelectedItem(platform.id)}
+                className={styles.topTab({ active: selectedItem === tab.id })}
+                onClick={() => setSelectedItem(tab.id)}
               >
-                <span className={styles.sidebarItemIcon}>
-                  <Icon size={18} />
+                <span className={styles.topTabIcon}>
+                  <Icon size={16} />
                 </span>
-                <span className={styles.sidebarItemBody}>
-                  <p className={styles.sidebarItemName}>{platform.name}</p>
-                  <p className={styles.sidebarItemStatus}>
-                    {connectionProfile ? statusLabels[connectionProfile.status] : '未配置'}
-                  </p>
-                </span>
+                {tab.name}
+                <span className={styles.topTabDot[tab.status]} />
               </button>
-            );
-          })}
-          <div className={styles.sidebarDivider}>AI 助手</div>
-          <button
-            type="button"
-            className={styles.platformSidebarItem({ active: selectedItem === 'agent-config' })}
-            onClick={() => setSelectedItem('agent-config')}
-          >
-            <span className={styles.sidebarItemIcon}>
-              <Bot size={18} />
-            </span>
-            <span className={styles.sidebarItemBody}>
-              <p className={styles.sidebarItemName}>连接配置</p>
-              <p className={styles.sidebarItemStatus}>{agentConfigured ? '已配置' : '未配置'}</p>
-            </span>
-          </button>
-          <button
-            type="button"
-            className={styles.platformSidebarItem({ active: selectedItem === 'agent-prompt' })}
-            onClick={() => setSelectedItem('agent-prompt')}
-          >
-            <span className={styles.sidebarItemIcon}>
-              <Sparkles size={18} />
-            </span>
-            <span className={styles.sidebarItemBody}>
-              <p className={styles.sidebarItemName}>Prompt 设置</p>
-              <p className={styles.sidebarItemStatus}>自定义提示词</p>
-            </span>
-          </button>
-        </nav>
+            </Fragment>
+          );
+        })}
+      </nav>
 
+      <div className={styles.platformLayout}>
         {/* Detail panel */}
         <div className={styles.platformDetail}>
           {isPlatformSelected ? (
