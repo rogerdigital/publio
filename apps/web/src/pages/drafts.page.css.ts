@@ -11,6 +11,8 @@ export const headerActions = style({
   display: 'flex',
   alignItems: 'center',
   gap: vars.spacing.md,
+  flexWrap: 'wrap',
+  justifyContent: 'flex-end',
 });
 
 export const newDraftLink = style({

@@ -12,8 +12,8 @@ export const variantCard = style({
   flexDirection: 'column',
   gap: vars.spacing.md,
   borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.bgElevated,
+  border: `1px solid ${vars.color.borderFaint}`,
+  background: vars.color.surfaceStrong,
   padding: vars.spacing.lg,
 });
 

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Eye, SquarePen, Eraser, History, Send, MoreHorizontal, FileText } from 'lucide-react';
+import { Eye, SquarePen, Eraser, MoreHorizontal, FileText } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import { useAgentStore } from '@/stores/agentStore';
 import AppShellHeader from '@/components/layout/AppShellHeader';
@@ -13,7 +13,6 @@ import MediaLibrary from '@/components/editor/MediaLibrary';
 
 const PlatformVariantPanel = lazy(() => import('@/components/publish/PlatformVariantPanel'));
 const PublishProgressOverlay = lazy(() => import('@/components/publish/PublishProgressOverlay'));
-const VersionHistory = lazy(() => import('@/components/editor/VersionHistory'));
 const AgentPanel = lazy(() => import('@/components/agent/AgentPanel'));
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
@@ -42,9 +41,7 @@ function HomePageContent() {
   const cachedChromeData = getCachedHomePageChromeData();
   const [draftLoadError, setDraftLoadError] = useState('');
   const [clearConfirming, setClearConfirming] = useState(false);
-  const [mobilePublishOpen, setMobilePublishOpen] = useState(false);
   const [agentEnabled, setAgentEnabled] = useState(cachedChromeData?.agentEnabled ?? false);
-  const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [imageBedLabel, setImageBedLabel] = useState<string | undefined>(
     cachedChromeData?.imageBedLabel,
@@ -88,14 +85,6 @@ function HomePageContent() {
     draftId: currentDraftId,
     onDraftCreated: handleDraftCreated,
   });
-
-  const handleVersionRestore = useCallback(
-    (version: { title: string; content: string }) => {
-      setTitle(version.title);
-      setContent(version.content);
-    },
-    [setTitle, setContent],
-  );
 
   const handleNewDraft = useCallback(() => {
     setTitle('');
@@ -259,71 +248,29 @@ function HomePageContent() {
                 agentEnabled={agentEnabled}
               />
             </div>
-          </div>
 
-          {agentStatus !== 'idle' && <AgentPanel />}
+            {agentStatus !== 'idle' && <AgentPanel />}
 
-          <div className={styles.rightPanel}>
-            {currentDraftId && (
+            {/* 发布区：编辑区下方 */}
+            <div className={styles.publishPanel}>
               <div className={publishStyles.rightPanelSection}>
-                <button
-                  type="button"
-                  className={publishStyles.collapseToggle}
-                  onClick={() => setShowVersionHistory((v) => !v)}
-                  aria-expanded={showVersionHistory}
-                >
-                  <span className={publishStyles.rightPanelSectionTitle}>
-                    <History size={12} style={{ marginRight: 4 }} />
-                    版本历史
-                  </span>
-                  <span style={{ fontSize: 11, color: 'var(--color-text-muted, #999)' }}>
-                    {showVersionHistory ? '收起' : '展开'}
-                  </span>
-                </button>
-                {showVersionHistory && (
-                  <VersionHistory draftId={currentDraftId} onRestore={handleVersionRestore} />
-                )}
+                <PublishChecklist />
               </div>
-            )}
 
-            <div className={publishStyles.rightPanelSection}>
-              <PublishChecklist />
+              {currentDraftId && (
+                <div className={publishStyles.rightPanelSection}>
+                  <span className={publishStyles.rightPanelSectionTitle}>渠道版本</span>
+                  <PlatformVariantPanel
+                    selectedPlatforms={selectedPlatforms}
+                    agentEnabled={agentEnabled}
+                  />
+                </div>
+              )}
             </div>
-
-            {currentDraftId && (
-              <div className={publishStyles.rightPanelSection}>
-                <span className={publishStyles.rightPanelSectionTitle}>渠道版本</span>
-                <PlatformVariantPanel
-                  selectedPlatforms={selectedPlatforms}
-                  agentEnabled={agentEnabled}
-                />
-              </div>
-            )}
           </div>
         </div>
       </div>
       <PublishProgressOverlay />
-
-      {/* Mobile publish FAB */}
-      <button
-        type="button"
-        className={styles.mobilePublishFab}
-        onClick={() => setMobilePublishOpen(true)}
-      >
-        <Send size={18} />
-        发布
-      </button>
-
-      {/* Mobile publish sheet */}
-      {mobilePublishOpen && (
-        <div className={styles.mobileSheetOverlay} onClick={() => setMobilePublishOpen(false)}>
-          <div className={styles.mobileSheet} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.mobileSheetHandle} />
-            <div className={styles.mobileSheetTitle}>发布设置</div>
-            <PublishChecklist />
-          </div>
-        </div>
-      )}
 
       {/* Clear confirm modal */}
       {clearConfirming && (

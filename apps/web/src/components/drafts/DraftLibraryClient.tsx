@@ -1,27 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  FileText,
-  RefreshCcw,
-  Trash2,
-  Download,
-  Upload,
-  Archive,
-  ChevronDown,
-  SlidersHorizontal,
-  Search,
-} from 'lucide-react';
-import type { ContentDraft, DraftSource, DraftStatus } from '@/lib/drafts/types';
-import FilterChipGroup from '@/components/ui/FilterChipGroup';
-import { useClickOutside } from '@/hooks/useClickOutside';
-import type { SyncTask, SyncTaskStatus } from '@/lib/sync/types';
-import { deleteDraft, createDraft, updateDraft } from '@/lib/drafts/client';
-import {
-  exportDraftToMarkdown,
-  parseMarkdownToDraft,
-  downloadFile,
-  readTextFile,
-} from '@/lib/drafts/importExport';
+import { FileText, RefreshCcw, Trash2, Download, Archive, ChevronDown } from 'lucide-react';
+import type { ContentDraft, DraftStatus } from '@/lib/drafts/types';
+import type { SyncTask } from '@/lib/sync/types';
+import { deleteDraft, updateDraft } from '@/lib/drafts/client';
+import { exportDraftToMarkdown, downloadFile } from '@/lib/drafts/importExport';
+import { statusLabels, sourceLabels, syncStatusLabels } from '@/lib/drafts/labels';
 import {
   getCachedDraftLibraryData,
   loadDraftLibraryData,
@@ -29,42 +13,6 @@ import {
 } from '@/lib/navigationDataCache';
 import EmptyState from '@/components/feedback/EmptyState';
 import * as styles from './drafts.css';
-
-interface DraftsResponse {
-  drafts?: ContentDraft[];
-  error?: string;
-}
-
-const statusLabels: Record<DraftStatus, string> = {
-  draft: '草稿',
-  ready: '待同步',
-  syncing: '同步中',
-  synced: '已同步',
-  failed: '同步失败',
-  archived: '已归档',
-};
-
-const STATUS_FILTER_OPTIONS = [
-  { value: 'all' as const, label: '全部' },
-  ...(['draft', 'ready', 'syncing', 'synced', 'failed'] as const).map((s) => ({
-    value: s,
-    label: statusLabels[s],
-  })),
-];
-
-const sourceLabels: Record<DraftSource, string> = {
-  manual: '手动创建',
-  import: '导入',
-};
-
-const syncStatusLabels: Record<SyncTaskStatus, string> = {
-  pending: '待分发',
-  syncing: '分发中',
-  completed: '已完成',
-  failed: '失败',
-  partial: '部分完成',
-  'needs-action': '需要处理',
-};
 
 function formatDraftTime(value: string) {
   const timestamp = Date.parse(value);
@@ -75,14 +23,38 @@ function formatDraftTime(value: string) {
   }).format(timestamp);
 }
 
+// 从 Markdown 正文提取纯文本摘要，去掉标记符号
+function extractExcerpt(content: string) {
+  return content
+    .replace(/```[\s\S]*?```/g, ' ') // 代码块
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ') // 图片
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1') // 链接保留文字
+    .replace(/^#{1,6}\s+/gm, '') // 标题符号
+    .replace(/^\s*>+\s?/gm, '') // 引用
+    .replace(/^\s*[-*+]\s+/gm, '') // 无序列表
+    .replace(/^\s*\d+\.\s+/gm, '') // 有序列表
+    .replace(/[*_~`]/g, '') // 强调/行内代码符号
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 const PAGE_SIZE = 20;
 
 interface Props {
   isEditMode: boolean;
   onExitEditMode: () => void;
+  searchQuery: string;
+  statusFilter: DraftStatus | 'all';
+  onClearFilters: () => void;
 }
 
-export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props) {
+export default function DraftLibraryClient({
+  isEditMode,
+  onExitEditMode,
+  searchQuery,
+  statusFilter,
+  onClearFilters,
+}: Props) {
   const cachedData = getCachedDraftLibraryData();
   const [drafts, setDrafts] = useState<ContentDraft[]>(() => cachedData?.drafts ?? []);
   const [syncTasks, setSyncTasks] = useState<SyncTask[]>(() => cachedData?.syncTasks ?? []);
@@ -91,13 +63,8 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
-  const [statusFilter, setStatusFilter] = useState<DraftStatus | 'all'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
   const [tagFilter, setTagFilter] = useState('');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const filterPopoverRef = useRef<HTMLDivElement>(null);
-  const mobileFilterSheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isEditMode) {
@@ -109,10 +76,6 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [statusFilter, searchQuery, tagFilter]);
-
-  useClickOutside([filterPopoverRef, mobileFilterSheetRef], mobileFilterOpen, () =>
-    setMobileFilterOpen(false),
-  );
 
   useEffect(() => {
     let cancelled = false;
@@ -143,44 +106,6 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
       cancelled = true;
     };
   }, []);
-
-  function handleExport(draft: ContentDraft) {
-    const md = exportDraftToMarkdown(draft);
-    const filename = `${draft.title.replace(/[^a-zA-Z0-9一-鿿]/g, '_').slice(0, 40) || 'draft'}.md`;
-    downloadFile(filename, md);
-  }
-
-  async function handleImport() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.md,.markdown,.txt';
-    input.multiple = true;
-    input.onchange = async () => {
-      const files = Array.from(input.files ?? []);
-      if (files.length === 0) return;
-
-      try {
-        for (const file of files) {
-          const text = await readTextFile(file);
-          const parsed = parseMarkdownToDraft(text);
-          await createDraft(parsed);
-        }
-        // 重新加载列表
-        const res = await fetch('/api/drafts');
-        const data = (await res.json()) as DraftsResponse;
-        if (data.drafts) {
-          setCachedDraftLibraryData({
-            drafts: data.drafts,
-            syncTasks,
-          });
-          setDrafts(data.drafts);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : '导入失败');
-      }
-    };
-    input.click();
-  }
 
   function toggleSelect(id: string) {
     setSelected((prev) => {
@@ -338,88 +263,13 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
         </div>
       )}
 
-      {!isEditMode && (
-        <div className={styles.toolbar}>
-          <div className={styles.searchWrap}>
-            <Search size={15} className={styles.searchIcon} />
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="搜索稿件标题或内容..."
-              aria-label="搜索稿件"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div ref={filterPopoverRef} className={styles.filterPopoverWrap}>
-            <button
-              type="button"
-              className={styles.importButton}
-              onClick={() => setMobileFilterOpen((open) => !open)}
-              title="筛选"
-              aria-expanded={mobileFilterOpen}
-              aria-label="打开筛选面板"
-            >
-              <SlidersHorizontal size={14} />
-              筛选
-            </button>
-            {mobileFilterOpen && (
-              <div className={styles.filterPopover}>
-                <p className={styles.filterPopoverTitle}>筛选状态</p>
-                <FilterChipGroup
-                  options={STATUS_FILTER_OPTIONS}
-                  value={statusFilter}
-                  onChange={(v) => {
-                    setStatusFilter(v);
-                    setMobileFilterOpen(false);
-                  }}
-                  className={styles.filterBar}
-                />
-              </div>
-            )}
-          </div>
-          <button
-            type="button"
-            className={styles.importButton}
-            onClick={() => void handleImport()}
-            title="导入 Markdown 文件"
-          >
-            <Upload size={14} />
-            导入
-          </button>
-        </div>
-      )}
-
-      {/* Mobile filter sheet */}
-      {mobileFilterOpen && (
-        <div className={styles.mobileFilterOverlay} onClick={() => setMobileFilterOpen(false)}>
-          <div
-            ref={mobileFilterSheetRef}
-            className={styles.mobileFilterSheet}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={styles.mobileFilterHandle} />
-            <p className={styles.mobileFilterTitle}>筛选</p>
-            <FilterChipGroup
-              options={STATUS_FILTER_OPTIONS}
-              value={statusFilter}
-              onChange={(v) => {
-                setStatusFilter(v);
-                setMobileFilterOpen(false);
-              }}
-              className={styles.filterBar}
-            />
-          </div>
-        </div>
-      )}
-
       {/* 标签筛选 */}
       {!isEditMode &&
         (() => {
           const allTags = [...new Set(drafts.flatMap((d) => d.tags ?? []))];
           if (allTags.length === 0) return null;
           return (
-            <div className={styles.tagContainer}>
+            <div className={styles.tagBar}>
               {tagFilter && (
                 <button
                   type="button"
@@ -455,8 +305,7 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
               type="button"
               className={styles.primaryLink}
               onClick={() => {
-                setSearchQuery('');
-                setStatusFilter('all');
+                onClearFilters();
                 setTagFilter('');
               }}
             >
@@ -469,67 +318,62 @@ export default function DraftLibraryClient({ isEditMode, onExitEditMode }: Props
           {pagedDrafts.map((draft) => {
             const syncTask = syncTasks.find((t) => t.draftId === draft.id);
             const isSelected = selected.has(draft.id);
+            const excerpt = extractExcerpt(draft.content);
+
+            const body = (
+              <div className={styles.compactBody}>
+                <span className={styles.compactTitle}>{draft.title || '无标题'}</span>
+                {excerpt ? (
+                  <p className={styles.compactExcerpt}>{excerpt}</p>
+                ) : (
+                  <p className={styles.compactExcerptEmpty}>暂无正文内容</p>
+                )}
+                <div className={styles.compactMetaRow}>
+                  <span className={styles.compactMeta}>{sourceLabels[draft.source]}</span>
+                  <span className={styles.compactStatus}>{statusLabels[draft.status]}</span>
+                  <span className={styles.compactSyncStatus}>
+                    {syncTask ? syncStatusLabels[syncTask.status] : '尚未分发'}
+                  </span>
+                  <span className={styles.compactTime}>{formatDraftTime(draft.updatedAt)}</span>
+                </div>
+              </div>
+            );
+
+            if (!isEditMode) {
+              return (
+                <Link key={draft.id} to={`/?draftId=${draft.id}`} className={styles.compactRow}>
+                  {body}
+                </Link>
+              );
+            }
 
             return (
               <div
                 key={draft.id}
                 className={styles.compactRow}
                 style={
-                  isEditMode && isSelected
-                    ? { background: 'var(--accent-soft, rgba(0,0,0,0.04))' }
-                    : undefined
+                  isSelected ? { background: 'var(--accent-soft, rgba(0,0,0,0.04))' } : undefined
                 }
-                onClick={isEditMode ? () => toggleSelect(draft.id) : undefined}
-                role={isEditMode ? 'checkbox' : undefined}
-                aria-checked={isEditMode ? isSelected : undefined}
-                tabIndex={isEditMode ? 0 : undefined}
-                onKeyDown={
-                  isEditMode
-                    ? (e) => {
-                        if (e.key === ' ' || e.key === 'Enter') {
-                          e.preventDefault();
-                          toggleSelect(draft.id);
-                        }
-                      }
-                    : undefined
-                }
+                onClick={() => toggleSelect(draft.id)}
+                role="checkbox"
+                aria-checked={isSelected}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    toggleSelect(draft.id);
+                  }
+                }}
               >
-                {isEditMode && (
-                  <input
-                    type="checkbox"
-                    className={styles.draftCardCheckbox}
-                    checked={isSelected}
-                    onChange={() => toggleSelect(draft.id)}
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label={`选择稿件 ${draft.title}`}
-                  />
-                )}
-                <Link
-                  to={`/?draftId=${draft.id}`}
-                  className={styles.compactTitle}
-                  onClick={(e) => isEditMode && e.preventDefault()}
-                >
-                  {draft.title || '无标题'}
-                </Link>
-                <span className={styles.compactMeta}>{sourceLabels[draft.source]}</span>
-                <span className={styles.compactStatus}>{statusLabels[draft.status]}</span>
-                <span className={styles.compactSyncStatus}>
-                  {syncTask ? syncStatusLabels[syncTask.status] : '尚未分发'}
-                </span>
-                <span className={styles.compactTime}>{formatDraftTime(draft.updatedAt)}</span>
-                {!isEditMode && (
-                  <button
-                    type="button"
-                    className={styles.exportButton}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleExport(draft);
-                    }}
-                    title="导出为 Markdown"
-                  >
-                    <Download size={13} />
-                  </button>
-                )}
+                <input
+                  type="checkbox"
+                  className={styles.draftCardCheckbox}
+                  checked={isSelected}
+                  onChange={() => toggleSelect(draft.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label={`选择稿件 ${draft.title}`}
+                />
+                {body}
               </div>
             );
           })}

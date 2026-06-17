@@ -3,10 +3,14 @@ import { Link } from 'react-router-dom';
 import { Pencil, Plus } from 'lucide-react';
 import AppShellHeader from '@/components/layout/AppShellHeader';
 import DraftLibraryClient from '@/components/drafts/DraftLibraryClient';
+import DraftLibraryToolbar from '@/components/drafts/DraftLibraryToolbar';
+import type { DraftStatus } from '@/lib/drafts/types';
 import * as styles from './drafts.page.css';
 
 export default function DraftsPageClient() {
   const [isEditMode, setIsEditMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<DraftStatus | 'all'>('all');
 
   return (
     <div className={styles.pageWrap}>
@@ -21,28 +25,43 @@ export default function DraftsPageClient() {
                 className={styles.editCancelButton}
                 onClick={() => setIsEditMode(false)}
               >
-                取消编辑
+                取消管理
               </button>
             ) : (
               <>
-                <Link to="/" className={styles.newDraftLink}>
-                  <Plus size={14} />
-                  新建稿件
-                </Link>
+                <DraftLibraryToolbar
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  statusFilter={statusFilter}
+                  onStatusChange={setStatusFilter}
+                />
                 <button
                   type="button"
                   className={styles.editToggleButton}
                   onClick={() => setIsEditMode(true)}
                 >
                   <Pencil size={14} />
-                  编辑
+                  管理
                 </button>
+                <Link to="/" className={styles.newDraftLink}>
+                  <Plus size={14} />
+                  新建稿件
+                </Link>
               </>
             )}
           </div>
         }
       />
-      <DraftLibraryClient isEditMode={isEditMode} onExitEditMode={() => setIsEditMode(false)} />
+      <DraftLibraryClient
+        isEditMode={isEditMode}
+        onExitEditMode={() => setIsEditMode(false)}
+        searchQuery={searchQuery}
+        statusFilter={statusFilter}
+        onClearFilters={() => {
+          setSearchQuery('');
+          setStatusFilter('all');
+        }}
+      />
     </div>
   );
 }
