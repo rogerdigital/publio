@@ -212,14 +212,28 @@ export const newDraftButtonDanger = style({
   transition: `all ${vars.transition.fast}`,
 });
 
-export const saveStatusHint = style({
-  fontSize: vars.fontSize.xs,
-  color: vars.color.textMuted,
-  display: 'none',
-  '@media': {
-    'screen and (min-width: 1024px)': {
-      display: 'inline',
-    },
+// 写作台保存按钮：黑底白字主按钮，与设置页主按钮风格一致。
+export const saveButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: vars.spacing.sm,
+  height: 38,
+  flexShrink: 0,
+  borderRadius: vars.radius.md,
+  border: '1px solid transparent',
+  background: vars.color.accent,
+  padding: `0 ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.sm,
+  fontWeight: 500,
+  color: vars.color.surfaceDarkText,
+  cursor: 'pointer',
+  transition: 'filter 150ms',
+  ':hover': {
+    filter: 'brightness(1.05)',
+  },
+  ':disabled': {
+    opacity: 0.4,
+    cursor: 'not-allowed',
   },
 });
 
