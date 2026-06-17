@@ -47,6 +47,9 @@ export const main = style({
   minWidth: 0,
   flex: 1,
   position: 'relative',
+  width: '100%',
+  marginLeft: 'auto',
+  marginRight: 'auto',
   padding: vars.spacing.xl,
   paddingBottom: `calc(48px + ${vars.layout.tabBarHeight} + env(safe-area-inset-bottom))`,
   '@media': {
@@ -55,6 +58,7 @@ export const main = style({
       paddingBottom: `calc(52px + ${vars.layout.tabBarHeight} + env(safe-area-inset-bottom))`,
     },
     'screen and (min-width: 1024px)': {
+      maxWidth: '920px',
       padding: '28px 36px',
       paddingBottom: '28px',
     },
