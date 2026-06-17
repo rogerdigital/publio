@@ -93,12 +93,6 @@ draftsRoutes.delete('/:id', (c) => {
   return apiResponse(c, { draft });
 });
 
-draftsRoutes.get('/:id/versions', (c) => {
-  const draft = getDraftRegistry().getDraft(c.req.param('id'));
-  if (!draft) return apiError(c, '稿件不存在', 404);
-  return apiResponse(c, { versions: draft.versions ?? [] });
-});
-
 draftsRoutes.get('/:id/variants', (c) => {
   const id = c.req.param('id');
   const draft = getDraftRegistry().getDraft(id);

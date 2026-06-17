@@ -4,14 +4,6 @@ export type DraftStatus = 'draft' | 'ready' | 'syncing' | 'synced' | 'failed' | 
 
 export type DraftSource = 'manual' | 'import';
 
-export interface DraftVersion {
-  id: string;
-  title: string;
-  content: string;
-  savedAt: string;
-  changeSummary?: string;
-}
-
 export interface ContentDraft {
   id: string;
   title: string;
@@ -20,7 +12,6 @@ export interface ContentDraft {
   source: DraftSource;
   platforms?: PlatformId[];
   tags?: string[];
-  versions?: DraftVersion[];
   createdAt: string;
   updatedAt: string;
 }
