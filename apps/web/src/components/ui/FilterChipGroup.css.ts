@@ -4,15 +4,17 @@ import { vars } from '@/app/styles/tokens.css';
 
 export const filterBar = style({
   display: 'flex',
-  flexWrap: 'nowrap',
+  flexWrap: 'wrap',
   gap: vars.spacing.sm,
 });
 
 export const filterChip = recipe({
   base: {
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
     borderRadius: vars.radius.full,
     border: `1px solid ${vars.color.border}`,
-    padding: `${vars.spacing.xs} ${vars.spacing.lg}`,
+    padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
     fontSize: vars.fontSize.xs,
     cursor: 'pointer',
     transition: 'background-color 150ms, color 150ms, border-color 150ms',

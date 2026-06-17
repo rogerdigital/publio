@@ -32,24 +32,6 @@ export const newDraftLink = style({
   },
 });
 
-export const editToggleButton = style({
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: vars.spacing.sm,
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: 'transparent',
-  padding: `${vars.spacing.md} ${vars.spacing['lg-xl']}`,
-  fontSize: vars.fontSize.md,
-  color: vars.color.textMuted,
-  cursor: 'pointer',
-  transition: 'color 150ms, border-color 150ms',
-  ':hover': {
-    color: vars.color.text,
-    borderColor: vars.color.borderStrong,
-  },
-});
-
 export const editCancelButton = style({
   display: 'inline-flex',
   alignItems: 'center',

@@ -2,10 +2,10 @@ import { globalStyle, style } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/app/styles/tokens.css';
 
-// MarkdownEditor outer wrapper
+// MarkdownEditor outer wrapper（底色由外层 editorCard 提供，自身透明）
 export const editorRoot = style({
   overflow: 'hidden',
-  background: vars.color.surface,
+  background: 'transparent',
 });
 
 // Title input area
@@ -169,34 +169,23 @@ export const statsDot = style({
   color: vars.color.borderStrong,
 });
 
-// Preview area
+// Preview area — 容器零内边距，使 frame 与写作态编辑卡同位置同尺寸
 export const previewWrap = style({
   display: 'flex',
-  minHeight: '34rem',
   alignItems: 'flex-start',
-  justifyContent: 'center',
-  background: `linear-gradient(180deg, ${vars.color.surface} 0%, ${vars.color.bg} 100%)`,
-  padding: vars.spacing['2xl'],
-  '@media': {
-    'screen and (min-width: 640px)': {
-      padding: vars.spacing['4xl'],
-    },
-    'screen and (min-width: 1024px)': {
-      minHeight: '36rem',
-      paddingTop: vars.spacing['5xl'],
-    },
-  },
+  justifyContent: 'stretch',
+  background: 'transparent',
+  padding: 0,
 });
 
 // 模拟手机/公众号文章阅读容器
 export const previewPhoneFrame = style({
   width: '100%',
-  maxWidth: '680px',
-  minHeight: '24rem',
+  // 与写作台编辑卡空态等高：titleRow(70) + 编辑区(420) + 数据栏(~45) ≈ 535px
+  minHeight: '33.5rem',
   borderRadius: vars.radius.xl,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.surface,
-  boxShadow: vars.shadow.lg,
   overflow: 'hidden',
 });
 

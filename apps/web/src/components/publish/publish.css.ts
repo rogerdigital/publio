@@ -55,11 +55,11 @@ export const platformLabel = recipe({
         color: vars.color.signal,
       },
       false: {
-        background: vars.color.bgElevated,
-        color: vars.color.textMuted,
+        background: vars.color.surface,
+        color: vars.color.text,
         ':hover': {
-          background: vars.color.surface,
-          color: vars.color.text,
+          background: vars.color.bgElevated,
+          color: vars.color.textMuted,
         },
       },
     },
