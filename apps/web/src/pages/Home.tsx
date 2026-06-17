@@ -241,7 +241,7 @@ function HomePageContent() {
               <RecentDraftBar />
             </div>
 
-            <div className={styles.editorCard}>
+            <div className={styles.editorCard({ preview: activeTab === 'preview' })}>
               <MarkdownEditor
                 activeTab={activeTab}
                 onSave={triggerSave}

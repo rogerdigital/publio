@@ -7,10 +7,6 @@ export const pageWrap = style({
   flexDirection: 'column',
   gap: vars.spacing['5xl'],
   paddingBottom: '80px',
-  width: '100%',
-  maxWidth: '1080px',
-  marginLeft: 'auto',
-  marginRight: 'auto',
 });
 
 // Section block
@@ -601,6 +597,9 @@ export const platformLayout = style({
   '@media': {
     'screen and (min-width: 1024px)': {
       marginTop: vars.spacing['3xl'],
+      // 各 tab 内容高度不一，切换时若页面变矮会触发浏览器钳制滚动导致跳动。
+      // 用 minHeight 填满 header+tabs 下方视口，保证页面高度稳定，切换不改变滚动位置。
+      minHeight: 'calc(100dvh - 220px)',
     },
   },
 });
@@ -690,9 +689,19 @@ export const topTabsBar = style({
   '@media': {
     'screen and (min-width: 1024px)': {
       display: 'flex',
+      // 贴紧 header 下方并始终悬浮（sticky）。top = header 高度，使其紧贴 header 底部
+      position: 'sticky',
+      top: '83px',
+      zIndex: 30,
       alignItems: 'flex-end',
       gap: vars.spacing.xs,
-      width: '100%',
+      // 抵消 header marginBottom(24) + pageWrap gap(40)，让 tab 紧贴 header
+      marginTop: '-64px',
+      // 全宽出血到页面边缘（与 header 一致），内容靠 padding 内缩与正文对齐
+      marginLeft: '-36px',
+      marginRight: '-36px',
+      padding: `${vars.spacing.md} 36px 0`,
+      background: vars.color.bg,
       borderBottom: `1px solid ${vars.color.borderFaint}`,
       overflowX: 'auto',
     },
@@ -727,7 +736,6 @@ export const topTab = recipe({
     active: {
       true: {
         color: vars.color.text,
-        fontWeight: 600,
         borderBottom: `2px solid ${vars.color.accent}`,
       },
     },

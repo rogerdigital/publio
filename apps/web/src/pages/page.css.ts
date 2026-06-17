@@ -53,11 +53,23 @@ export const mobileOnly = style({
   },
 });
 
-export const editorCard = style({
-  overflow: 'hidden',
-  outline: 'none',
-  borderRadius: vars.radius.xl,
-  background: vars.color.surface,
+export const editorCard = recipe({
+  base: {
+    overflow: 'hidden',
+    outline: 'none',
+    borderRadius: vars.radius.xl,
+    background: vars.color.surface,
+  },
+  variants: {
+    // 预览态去掉卡底色/圆角，让 phone frame 直接浮在页面背景上，消除卡中卡
+    preview: {
+      true: {
+        overflow: 'visible',
+        borderRadius: 0,
+        background: 'transparent',
+      },
+    },
+  },
 });
 
 export const draftLoadError = style({
@@ -96,6 +108,8 @@ export const resetLink = style({
 
 export const tabSwitcher = style({
   display: 'inline-flex',
+  alignItems: 'center',
+  height: 38,
   borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.border}`,
   background: vars.color.bgElevated,
@@ -107,9 +121,10 @@ export const tabButton = recipe({
     display: 'inline-flex',
     alignItems: 'center',
     gap: vars.spacing.sm,
+    height: '100%',
     borderRadius: vars.radius.sm,
     border: 'none',
-    padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
+    padding: `0 ${vars.spacing.lg}`,
     fontSize: vars.fontSize.sm,
     fontWeight: 500,
     cursor: 'pointer',
@@ -163,11 +178,13 @@ export const headerActions = style({
 export const newDraftButton = style({
   display: 'inline-flex',
   alignItems: 'center',
+  justifyContent: 'center',
   gap: vars.spacing.sm,
+  height: 38,
   borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.border}`,
   background: 'transparent',
-  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
+  padding: `0 ${vars.spacing['md-lg']}`,
   fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
   cursor: 'pointer',

@@ -343,24 +343,6 @@ export const listHeader = style({
   gap: vars.spacing.md,
 });
 
-export const editToggleButton = style({
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: vars.spacing.sm,
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: 'transparent',
-  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
-  fontSize: vars.fontSize.sm,
-  color: vars.color.textMuted,
-  cursor: 'pointer',
-  transition: 'color 150ms, border-color 150ms',
-  ':hover': {
-    color: vars.color.text,
-    borderColor: vars.color.borderStrong,
-  },
-});
-
 // 分发状态步骤变体（按状态显示不同颜色徽标）
 export const syncStatusStepVariants = styleVariants({
   default: {
@@ -487,7 +469,7 @@ export const searchWrap = style({
   position: 'relative',
   width: 240,
   minWidth: 0,
-  height: 40,
+  height: 36,
   '@media': {
     'screen and (max-width: 899px)': {
       display: 'none',
@@ -638,7 +620,7 @@ export const filterButton = recipe({
     alignItems: 'center',
     justifyContent: 'center',
     gap: vars.spacing.sm,
-    height: 40,
+    height: 36,
     borderRadius: vars.radius.lg,
     border: `1px solid ${vars.color.border}`,
     background: 'transparent',

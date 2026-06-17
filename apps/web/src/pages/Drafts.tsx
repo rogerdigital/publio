@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Pencil, Plus } from 'lucide-react';
+import { ListChecks, Plus } from 'lucide-react';
 import AppShellHeader from '@/components/layout/AppShellHeader';
 import DraftLibraryClient from '@/components/drafts/DraftLibraryClient';
 import DraftLibraryToolbar from '@/components/drafts/DraftLibraryToolbar';
+import { filterButton } from '@/components/drafts/drafts.css';
 import type { DraftStatus } from '@/lib/drafts/types';
 import * as styles from './drafts.page.css';
 
@@ -37,10 +38,10 @@ export default function DraftsPageClient() {
                 />
                 <button
                   type="button"
-                  className={styles.editToggleButton}
+                  className={filterButton({ active: false })}
                   onClick={() => setIsEditMode(true)}
                 >
-                  <Pencil size={14} />
+                  <ListChecks size={14} />
                   管理
                 </button>
                 <Link to="/" className={styles.newDraftLink}>
