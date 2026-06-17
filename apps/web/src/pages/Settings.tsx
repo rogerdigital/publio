@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 
 import AppShellHeader from '@/components/layout/AppShellHeader';
+import * as layoutStyles from '@/app/styles/layout.css';
 import { getPlatformConnectionProfiles } from '@/lib/platformConnections/profiles';
 import type {
   PlatformConnectionMode,
@@ -326,12 +327,24 @@ function SettingsContent() {
   const tabItems = [
     ...platformConfigs.map((platform) => {
       const profile = connectionProfiles.find((p) => p.platform === platform.id);
+      const status = profile?.status ?? ('manual-required' as const);
+      const accountName =
+        (checkStates[platform.id]?.ok && checkStates[platform.id]?.accountName) ||
+        (!checkStates[platform.id] && connectionRecords[platform.id]?.accountName) ||
+        null;
+      // tooltip 组合 header 原有的独有信息：摘要 + 状态 + 账号名
+      const tooltipParts = [
+        platform.summary,
+        statusLabels[status],
+        accountName ? `账号：${accountName}` : '',
+      ].filter(Boolean);
       return {
         id: platform.id as string,
         name: platform.name,
         Icon: platform.Icon,
-        status: profile?.status ?? ('manual-required' as const),
+        status,
         group: 'platform' as const,
+        tooltip: tooltipParts.join(' · '),
       };
     }),
     {
@@ -342,6 +355,7 @@ function SettingsContent() {
         | 'connected'
         | 'manual-required',
       group: 'agent' as const,
+      tooltip: agentConfigured ? 'AI 助手已配置' : '配置 LLM 接口以启用写作辅助',
     },
     {
       id: 'agent-prompt',
@@ -349,6 +363,7 @@ function SettingsContent() {
       Icon: Sparkles,
       status: 'available' as const,
       group: 'agent' as const,
+      tooltip: '自定义 AI 改写和适配的提示词模板',
     },
   ];
 
@@ -384,18 +399,24 @@ function SettingsContent() {
 
       {/* Mobile: horizontal pill tabs */}
       <nav className={styles.platformMobileTabs}>
-        {platformConfigs.map((platform) => (
-          <button
-            key={platform.id}
-            type="button"
-            className={styles.platformMobileTab({ active: selectedItem === platform.id })}
-            onClick={() => setSelectedItem(platform.id)}
-          >
-            {platform.name}
-          </button>
-        ))}
+        {platformConfigs.map((platform) => {
+          const profile = connectionProfiles.find((p) => p.platform === platform.id);
+          const tooltip = `${platform.summary} · ${statusLabels[profile?.status ?? 'manual-required']}`;
+          return (
+            <button
+              key={platform.id}
+              type="button"
+              title={tooltip}
+              className={styles.platformMobileTab({ active: selectedItem === platform.id })}
+              onClick={() => setSelectedItem(platform.id)}
+            >
+              {platform.name}
+            </button>
+          );
+        })}
         <button
           type="button"
+          title={agentConfigured ? 'AI 助手已配置' : '配置 LLM 接口以启用写作辅助'}
           className={styles.platformMobileTab({ active: selectedItem === 'agent-config' })}
           onClick={() => setSelectedItem('agent-config')}
         >
@@ -403,6 +424,7 @@ function SettingsContent() {
         </button>
         <button
           type="button"
+          title="自定义 AI 改写和适配的提示词模板"
           className={styles.platformMobileTab({ active: selectedItem === 'agent-prompt' })}
           onClick={() => setSelectedItem('agent-prompt')}
         >
@@ -421,6 +443,7 @@ function SettingsContent() {
               {showDivider ? <span className={styles.topTabDivider} /> : null}
               <button
                 type="button"
+                title={tab.tooltip}
                 className={styles.topTab({ active: selectedItem === tab.id })}
                 onClick={() => setSelectedItem(tab.id)}
               >
@@ -435,67 +458,166 @@ function SettingsContent() {
         })}
       </nav>
 
-      <div className={styles.platformLayout}>
-        {/* Detail panel */}
-        <div className={styles.platformDetail}>
-          {isPlatformSelected ? (
-            <div className={styles.platformDetailInner}>
-              {(() => {
-                const platform = platformConfigs.find((p) => p.id === selectedItem)!;
-                const { Icon } = platform;
-                const connectionProfile = connectionProfiles.find(
-                  (p) => p.platform === platform.id,
-                );
-                const isVerifyOnly = VERIFY_ONLY_PLATFORMS.has(platform.id);
-                const record = connectionRecords[platform.id];
-                const connectedAccountName =
-                  (checkStates[platform.id]?.ok && checkStates[platform.id]?.accountName) ||
-                  (!checkStates[platform.id] && record?.accountName) ||
-                  null;
-                const isConnected =
-                  connectionProfile?.status === 'connected' && !disconnectStates[platform.id]?.done;
+      <div className={layoutStyles.scrollArea}>
+        <div className={styles.platformLayout}>
+          {/* Detail panel */}
+          <div className={styles.platformDetail}>
+            {isPlatformSelected ? (
+              <div className={styles.platformDetailInner}>
+                {(() => {
+                  const platform = platformConfigs.find((p) => p.id === selectedItem)!;
+                  const connectionProfile = connectionProfiles.find(
+                    (p) => p.platform === platform.id,
+                  );
+                  const isVerifyOnly = VERIFY_ONLY_PLATFORMS.has(platform.id);
+                  const record = connectionRecords[platform.id];
 
-                return (
-                  <>
-                    <div className={styles.platformDetailHeader}>
-                      <span className={styles.accordionIcon}>
-                        <Icon size={22} />
-                      </span>
-                      <div>
-                        <p className={styles.accordionTitle}>{platform.name}</p>
-                        {isConnected && connectedAccountName ? (
-                          <p className={styles.accordionAccountName}>
-                            <CheckCircle2 size={11} />
-                            {connectedAccountName}
-                          </p>
-                        ) : (
-                          <p className={styles.accordionSummary}>{platform.summary}</p>
-                        )}
-                      </div>
-                      {connectionProfile ? (
-                        <span
-                          className={`${styles.statusBadge} ${styles.statusBadgeVariants[connectionProfile.status]}`}
-                        >
-                          {statusLabels[connectionProfile.status]}
-                        </span>
-                      ) : null}
-                    </div>
-
-                    {connectionProfile?.mode === 'oauth' ? (
-                      <div className={styles.oauthSteps}>
-                        <div className={styles.oauthStep}>
-                          <div className={styles.oauthStepHeader}>
-                            <span
-                              className={
-                                connectionProfile.status === 'connected'
-                                  ? styles.oauthStepBadgeActive
-                                  : styles.oauthStepBadge
-                              }
-                            >
-                              1
-                            </span>
-                            <p className={styles.oauthStepTitle}>填写开发者凭证</p>
+                  return (
+                    <>
+                      {connectionProfile?.mode === 'oauth' ? (
+                        <div className={styles.oauthSteps}>
+                          <div className={styles.oauthStep}>
+                            <div className={styles.oauthStepHeader}>
+                              <span
+                                className={
+                                  connectionProfile.status === 'connected'
+                                    ? styles.oauthStepBadgeActive
+                                    : styles.oauthStepBadge
+                                }
+                              >
+                                1
+                              </span>
+                              <p className={styles.oauthStepTitle}>填写开发者凭证</p>
+                            </div>
+                            <div className={styles.fieldList}>
+                              {platform.fields.map((field) => (
+                                <div key={field.key} className={styles.fieldWrap}>
+                                  <label htmlFor={field.key} className={styles.fieldLabel}>
+                                    {field.label}
+                                  </label>
+                                  <div className={styles.fieldInputWrap}>
+                                    <input
+                                      id={field.key}
+                                      type={
+                                        field.type === 'password' && !showSecrets[field.key]
+                                          ? 'password'
+                                          : 'text'
+                                      }
+                                      value={values[field.key] || ''}
+                                      onChange={(event) =>
+                                        handleChange(field.key, event.target.value)
+                                      }
+                                      placeholder={field.placeholder}
+                                      className={styles.fieldInput}
+                                    />
+                                    {field.type === 'password' ? (
+                                      <button
+                                        type="button"
+                                        onClick={() => toggleSecret(field.key)}
+                                        aria-label={`${showSecrets[field.key] ? '隐藏' : '显示'} ${field.label}`}
+                                        className={styles.eyeButton}
+                                      >
+                                        {showSecrets[field.key] ? (
+                                          <EyeOff size={16} />
+                                        ) : (
+                                          <Eye size={16} />
+                                        )}
+                                      </button>
+                                    ) : null}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <p className={styles.fieldHint}>{platform.hint}</p>
                           </div>
+
+                          <div className={styles.oauthStep}>
+                            <div className={styles.oauthStepHeader}>
+                              <span
+                                className={
+                                  connectionProfile.status === 'connected'
+                                    ? styles.oauthStepBadgeActive
+                                    : styles.oauthStepBadge
+                                }
+                              >
+                                2
+                              </span>
+                              <p className={styles.oauthStepTitle}>
+                                {isVerifyOnly ? '验证连接' : '账号授权'}
+                              </p>
+                            </div>
+                            <p className={styles.oauthStepDesc}>
+                              {isVerifyOnly
+                                ? connectionProfile.status === 'connected'
+                                  ? `已配置全部 ${connectionProfile.configuredKeys.length} 项凭证。点击「验证连接」确认凭证有效性。`
+                                  : `填写上方全部凭证后点击「验证连接」。还差 ${connectionProfile.missingKeys.length} 项。`
+                                : connectionProfile.status === 'connected'
+                                  ? `已配置全部 ${connectionProfile.configuredKeys.length} 项凭证。点击「检查连接」验证有效性，或重新授权刷新令牌。`
+                                  : connectionProfile.missingKeys.length > 0
+                                    ? `填写上方全部凭证后，即可点击「一键授权」完成账号绑定。还差 ${connectionProfile.missingKeys.length} 项。`
+                                    : '凭证已填写完毕，点击「一键授权」完成账号绑定。'}
+                            </p>
+                            <CheckResult
+                              checkState={checkStates[platform.id]}
+                              connectionRecord={connectionRecords[platform.id]}
+                              disconnectDone={disconnectStates[platform.id]?.done}
+                            />
+                            <div className={styles.oauthAuthorizeRow}>
+                              <button
+                                type="button"
+                                className={styles.authorizeButton}
+                                disabled={
+                                  connectionProfile.missingKeys.length > 0 ||
+                                  checkStates[platform.id]?.checking
+                                }
+                                onClick={() =>
+                                  void handleConnectionAction(
+                                    platform.id,
+                                    platform.name,
+                                    connectionProfile.mode,
+                                  )
+                                }
+                              >
+                                {isVerifyOnly ? <RefreshCw size={15} /> : <Zap size={15} />}
+                                {checkStates[platform.id]?.checking
+                                  ? '验证中…'
+                                  : isVerifyOnly
+                                    ? connectionProfile.status === 'connected'
+                                      ? '重新验证'
+                                      : '验证连接'
+                                    : connectionProfile.status === 'connected'
+                                      ? '重新授权'
+                                      : '一键授权'}
+                              </button>
+                              {connectionProfile.status === 'connected' && !isVerifyOnly ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    className={styles.checkButton}
+                                    disabled={checkStates[platform.id]?.checking}
+                                    onClick={() => void handleCheckConnection(platform.id)}
+                                  >
+                                    <RefreshCw size={13} />
+                                    {checkStates[platform.id]?.checking ? '检查中…' : '检查连接'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className={styles.disconnectButton}
+                                    disabled={disconnectStates[platform.id]?.disconnecting}
+                                    onClick={() => void handleDisconnect(platform.id)}
+                                  >
+                                    <Unplug size={13} />
+                                    {disconnectStates[platform.id]?.disconnecting
+                                      ? '处理中…'
+                                      : '断开连接'}
+                                  </button>
+                                </>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
                           <div className={styles.fieldList}>
                             {platform.fields.map((field) => (
                               <div key={field.key} className={styles.fieldWrap}>
@@ -503,20 +625,33 @@ function SettingsContent() {
                                   {field.label}
                                 </label>
                                 <div className={styles.fieldInputWrap}>
-                                  <input
-                                    id={field.key}
-                                    type={
-                                      field.type === 'password' && !showSecrets[field.key]
-                                        ? 'password'
-                                        : 'text'
-                                    }
-                                    value={values[field.key] || ''}
-                                    onChange={(event) =>
-                                      handleChange(field.key, event.target.value)
-                                    }
-                                    placeholder={field.placeholder}
-                                    className={styles.fieldInput}
-                                  />
+                                  {field.type === 'textarea' ? (
+                                    <textarea
+                                      id={field.key}
+                                      value={values[field.key] || ''}
+                                      onChange={(event) =>
+                                        handleChange(field.key, event.target.value)
+                                      }
+                                      placeholder={field.placeholder}
+                                      rows={4}
+                                      className={styles.fieldTextarea}
+                                    />
+                                  ) : (
+                                    <input
+                                      id={field.key}
+                                      type={
+                                        field.type === 'password' && !showSecrets[field.key]
+                                          ? 'password'
+                                          : 'text'
+                                      }
+                                      value={values[field.key] || ''}
+                                      onChange={(event) =>
+                                        handleChange(field.key, event.target.value)
+                                      }
+                                      placeholder={field.placeholder}
+                                      className={styles.fieldInput}
+                                    />
+                                  )}
                                   {field.type === 'password' ? (
                                     <button
                                       type="button"
@@ -536,277 +671,138 @@ function SettingsContent() {
                             ))}
                           </div>
                           <p className={styles.fieldHint}>{platform.hint}</p>
-                        </div>
-
-                        <div className={styles.oauthStep}>
-                          <div className={styles.oauthStepHeader}>
-                            <span
-                              className={
-                                connectionProfile.status === 'connected'
-                                  ? styles.oauthStepBadgeActive
-                                  : styles.oauthStepBadge
+                          <div className={styles.oauthAuthorizeRow}>
+                            <button
+                              type="button"
+                              className={styles.checkButton}
+                              disabled={
+                                checkStates[platform.id]?.checking || !values['ZHIHU_COOKIE']
                               }
+                              onClick={() => void handleCheckConnection(platform.id)}
                             >
-                              2
-                            </span>
-                            <p className={styles.oauthStepTitle}>
-                              {isVerifyOnly ? '验证连接' : '账号授权'}
-                            </p>
+                              <RefreshCw size={13} />
+                              {checkStates[platform.id]?.checking ? '验证中…' : '测试连接'}
+                            </button>
                           </div>
-                          <p className={styles.oauthStepDesc}>
-                            {isVerifyOnly
-                              ? connectionProfile.status === 'connected'
-                                ? `已配置全部 ${connectionProfile.configuredKeys.length} 项凭证。点击「验证连接」确认凭证有效性。`
-                                : `填写上方全部凭证后点击「验证连接」。还差 ${connectionProfile.missingKeys.length} 项。`
-                              : connectionProfile.status === 'connected'
-                                ? `已配置全部 ${connectionProfile.configuredKeys.length} 项凭证。点击「检查连接」验证有效性，或重新授权刷新令牌。`
-                                : connectionProfile.missingKeys.length > 0
-                                  ? `填写上方全部凭证后，即可点击「一键授权」完成账号绑定。还差 ${connectionProfile.missingKeys.length} 项。`
-                                  : '凭证已填写完毕，点击「一键授权」完成账号绑定。'}
-                          </p>
                           <CheckResult
                             checkState={checkStates[platform.id]}
                             connectionRecord={connectionRecords[platform.id]}
                             disconnectDone={disconnectStates[platform.id]?.done}
                           />
-                          <div className={styles.oauthAuthorizeRow}>
-                            <button
-                              type="button"
-                              className={styles.authorizeButton}
-                              disabled={
-                                connectionProfile.missingKeys.length > 0 ||
-                                checkStates[platform.id]?.checking
-                              }
-                              onClick={() =>
-                                void handleConnectionAction(
-                                  platform.id,
-                                  platform.name,
-                                  connectionProfile.mode,
-                                )
-                              }
-                            >
-                              {isVerifyOnly ? <RefreshCw size={15} /> : <Zap size={15} />}
-                              {checkStates[platform.id]?.checking
-                                ? '验证中…'
-                                : isVerifyOnly
-                                  ? connectionProfile.status === 'connected'
-                                    ? '重新验证'
-                                    : '验证连接'
-                                  : connectionProfile.status === 'connected'
-                                    ? '重新授权'
-                                    : '一键授权'}
-                            </button>
-                            {connectionProfile.status === 'connected' && !isVerifyOnly ? (
-                              <>
-                                <button
-                                  type="button"
-                                  className={styles.checkButton}
-                                  disabled={checkStates[platform.id]?.checking}
-                                  onClick={() => void handleCheckConnection(platform.id)}
-                                >
-                                  <RefreshCw size={13} />
-                                  {checkStates[platform.id]?.checking ? '检查中…' : '检查连接'}
-                                </button>
-                                <button
-                                  type="button"
-                                  className={styles.disconnectButton}
-                                  disabled={disconnectStates[platform.id]?.disconnecting}
-                                  onClick={() => void handleDisconnect(platform.id)}
-                                >
-                                  <Unplug size={13} />
-                                  {disconnectStates[platform.id]?.disconnecting
-                                    ? '处理中…'
-                                    : '断开连接'}
-                                </button>
-                              </>
-                            ) : null}
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <div className={styles.fieldList}>
-                          {platform.fields.map((field) => (
-                            <div key={field.key} className={styles.fieldWrap}>
-                              <label htmlFor={field.key} className={styles.fieldLabel}>
-                                {field.label}
-                              </label>
-                              <div className={styles.fieldInputWrap}>
-                                {field.type === 'textarea' ? (
-                                  <textarea
-                                    id={field.key}
-                                    value={values[field.key] || ''}
-                                    onChange={(event) =>
-                                      handleChange(field.key, event.target.value)
-                                    }
-                                    placeholder={field.placeholder}
-                                    rows={4}
-                                    className={styles.fieldTextarea}
-                                  />
-                                ) : (
-                                  <input
-                                    id={field.key}
-                                    type={
-                                      field.type === 'password' && !showSecrets[field.key]
-                                        ? 'password'
-                                        : 'text'
-                                    }
-                                    value={values[field.key] || ''}
-                                    onChange={(event) =>
-                                      handleChange(field.key, event.target.value)
-                                    }
-                                    placeholder={field.placeholder}
-                                    className={styles.fieldInput}
-                                  />
-                                )}
-                                {field.type === 'password' ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => toggleSecret(field.key)}
-                                    aria-label={`${showSecrets[field.key] ? '隐藏' : '显示'} ${field.label}`}
-                                    className={styles.eyeButton}
-                                  >
-                                    {showSecrets[field.key] ? (
-                                      <EyeOff size={16} />
-                                    ) : (
-                                      <Eye size={16} />
-                                    )}
-                                  </button>
-                                ) : null}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <p className={styles.fieldHint}>{platform.hint}</p>
-                        <div className={styles.oauthAuthorizeRow}>
-                          <button
-                            type="button"
-                            className={styles.checkButton}
-                            disabled={checkStates[platform.id]?.checking || !values['ZHIHU_COOKIE']}
-                            onClick={() => void handleCheckConnection(platform.id)}
-                          >
-                            <RefreshCw size={13} />
-                            {checkStates[platform.id]?.checking ? '验证中…' : '测试连接'}
-                          </button>
-                        </div>
-                        <CheckResult
-                          checkState={checkStates[platform.id]}
-                          connectionRecord={connectionRecords[platform.id]}
-                          disconnectDone={disconnectStates[platform.id]?.done}
-                        />
-                      </>
-                    )}
-                  </>
-                );
-              })()}
-            </div>
-          ) : selectedItem === 'agent-config' ? (
-            <div className={styles.platformDetailInner}>
-              <div className={styles.platformDetailHeader}>
-                <span className={styles.accordionIcon}>
-                  <Bot size={22} />
-                </span>
-                <div>
-                  <p className={styles.accordionTitle}>AI 连接配置</p>
-                  <p className={styles.accordionSummary}>配置 LLM 接口，启用写作辅助与平台适配</p>
-                </div>
+                        </>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
-              <div className={styles.fieldList}>
-                <div className={styles.fieldWrap}>
-                  <label htmlFor="AGENT_BASE_URL" className={styles.fieldLabel}>
-                    API Base URL
-                  </label>
-                  <div className={styles.fieldInputWrap}>
-                    <input
-                      id="AGENT_BASE_URL"
-                      type="text"
-                      value={values['AGENT_BASE_URL'] || ''}
-                      onChange={(event) => handleChange('AGENT_BASE_URL', event.target.value)}
-                      placeholder="如 https://api.openai.com/v1 或 https://api.deepseek.com"
-                      className={styles.fieldInput}
-                    />
-                  </div>
-                </div>
-                <div className={styles.fieldWrap}>
-                  <label htmlFor="AGENT_API_KEY" className={styles.fieldLabel}>
-                    API Key
-                  </label>
-                  <div className={styles.fieldInputWrap}>
-                    <input
-                      id="AGENT_API_KEY"
-                      type={showSecrets['AGENT_API_KEY'] ? 'text' : 'password'}
-                      value={values['AGENT_API_KEY'] || ''}
-                      onChange={(event) => handleChange('AGENT_API_KEY', event.target.value)}
-                      placeholder="输入 API Key"
-                      className={styles.fieldInput}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => toggleSecret('AGENT_API_KEY')}
-                      aria-label={`${showSecrets['AGENT_API_KEY'] ? '隐藏' : '显示'} API Key`}
-                      className={styles.eyeButton}
-                    >
-                      {showSecrets['AGENT_API_KEY'] ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
-                <div className={styles.fieldWrap}>
-                  <label htmlFor="AGENT_MODEL" className={styles.fieldLabel}>
-                    模型名称
-                  </label>
-                  <div className={styles.fieldInputWrap}>
-                    <input
-                      id="AGENT_MODEL"
-                      type="text"
-                      value={values['AGENT_MODEL'] || ''}
-                      onChange={(event) => handleChange('AGENT_MODEL', event.target.value)}
-                      placeholder="如 gpt-4o-mini、deepseek-chat、qwen-plus"
-                      className={styles.fieldInput}
-                    />
-                  </div>
-                </div>
-              </div>
-              <p className={styles.fieldHint}>
-                填写任意 OpenAI 兼容 API 的地址、密钥和模型名称。三项全部填写并保存后：
-              </p>
-              <ul className={styles.fieldHint} style={{ margin: '4px 0 0 16px', padding: 0 }}>
-                <li>
-                  编辑器输入 <code className={styles.inlineCode}>/</code> 查看 AI 命令
-                </li>
-                <li>发布预览面板出现「AI 适配」按钮</li>
-              </ul>
-              <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <button
-                  type="button"
-                  className={styles.checkButton}
-                  onClick={handleTestAgent}
-                  disabled={agentTesting}
-                >
-                  {agentTesting ? '测试中...' : '测试连接'}
-                </button>
-                {agentTestResult && (
-                  <span
-                    className={agentTestResult.ok ? styles.checkResultOk : styles.checkResultFail}
-                  >
-                    {agentTestResult.message}
+            ) : selectedItem === 'agent-config' ? (
+              <div className={styles.platformDetailInner}>
+                <div className={styles.platformDetailHeader}>
+                  <span className={styles.accordionIcon}>
+                    <Bot size={22} />
                   </span>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className={styles.platformDetailInner}>
-              <div className={styles.platformDetailHeader}>
-                <span className={styles.accordionIcon}>
-                  <Sparkles size={22} />
-                </span>
-                <div>
-                  <p className={styles.accordionTitle}>Prompt 设置</p>
-                  <p className={styles.accordionSummary}>自定义 AI 改写和适配的提示词模板</p>
+                  <div>
+                    <p className={styles.accordionTitle}>AI 连接配置</p>
+                    <p className={styles.accordionSummary}>配置 LLM 接口，启用写作辅助与平台适配</p>
+                  </div>
+                </div>
+                <div className={styles.fieldList}>
+                  <div className={styles.fieldWrap}>
+                    <label htmlFor="AGENT_BASE_URL" className={styles.fieldLabel}>
+                      API Base URL
+                    </label>
+                    <div className={styles.fieldInputWrap}>
+                      <input
+                        id="AGENT_BASE_URL"
+                        type="text"
+                        value={values['AGENT_BASE_URL'] || ''}
+                        onChange={(event) => handleChange('AGENT_BASE_URL', event.target.value)}
+                        placeholder="如 https://api.openai.com/v1 或 https://api.deepseek.com"
+                        className={styles.fieldInput}
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.fieldWrap}>
+                    <label htmlFor="AGENT_API_KEY" className={styles.fieldLabel}>
+                      API Key
+                    </label>
+                    <div className={styles.fieldInputWrap}>
+                      <input
+                        id="AGENT_API_KEY"
+                        type={showSecrets['AGENT_API_KEY'] ? 'text' : 'password'}
+                        value={values['AGENT_API_KEY'] || ''}
+                        onChange={(event) => handleChange('AGENT_API_KEY', event.target.value)}
+                        placeholder="输入 API Key"
+                        className={styles.fieldInput}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => toggleSecret('AGENT_API_KEY')}
+                        aria-label={`${showSecrets['AGENT_API_KEY'] ? '隐藏' : '显示'} API Key`}
+                        className={styles.eyeButton}
+                      >
+                        {showSecrets['AGENT_API_KEY'] ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.fieldWrap}>
+                    <label htmlFor="AGENT_MODEL" className={styles.fieldLabel}>
+                      模型名称
+                    </label>
+                    <div className={styles.fieldInputWrap}>
+                      <input
+                        id="AGENT_MODEL"
+                        type="text"
+                        value={values['AGENT_MODEL'] || ''}
+                        onChange={(event) => handleChange('AGENT_MODEL', event.target.value)}
+                        placeholder="如 gpt-4o-mini、deepseek-chat、qwen-plus"
+                        className={styles.fieldInput}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className={styles.fieldHint}>
+                  填写任意 OpenAI 兼容 API 的地址、密钥和模型名称。三项全部填写并保存后：
+                </p>
+                <ul className={styles.fieldHint} style={{ margin: '4px 0 0 16px', padding: 0 }}>
+                  <li>
+                    编辑器输入 <code className={styles.inlineCode}>/</code> 查看 AI 命令
+                  </li>
+                  <li>发布预览面板出现「AI 适配」按钮</li>
+                </ul>
+                <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <button
+                    type="button"
+                    className={styles.checkButton}
+                    onClick={handleTestAgent}
+                    disabled={agentTesting}
+                  >
+                    {agentTesting ? '测试中...' : '测试连接'}
+                  </button>
+                  {agentTestResult && (
+                    <span
+                      className={agentTestResult.ok ? styles.checkResultOk : styles.checkResultFail}
+                    >
+                      {agentTestResult.message}
+                    </span>
+                  )}
                 </div>
               </div>
-              <PromptEditor />
-            </div>
-          )}
+            ) : (
+              <div className={styles.platformDetailInner}>
+                <div className={styles.platformDetailHeader}>
+                  <span className={styles.accordionIcon}>
+                    <Sparkles size={22} />
+                  </span>
+                  <div>
+                    <p className={styles.accordionTitle}>Prompt 设置</p>
+                    <p className={styles.accordionSummary}>自定义 AI 改写和适配的提示词模板</p>
+                  </div>
+                </div>
+                <PromptEditor />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

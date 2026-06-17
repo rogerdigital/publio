@@ -4,6 +4,7 @@ import { Eye, SquarePen, Eraser, MoreHorizontal, FileText } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import { useAgentStore } from '@/stores/agentStore';
 import AppShellHeader from '@/components/layout/AppShellHeader';
+import * as layoutStyles from '@/app/styles/layout.css';
 
 const MarkdownEditor = lazy(() => import('@/components/editor/MarkdownEditor'));
 import RecentDraftBar from '@/components/editor/RecentDraftBar';
@@ -228,44 +229,46 @@ function HomePageContent() {
         }
       />
 
-      <div className={styles.editorLayout}>
-        <div className={styles.mainContentArea}>
-          <div className={styles.editorSection}>
-            {draftLoadError ? (
-              <div className={styles.draftLoadError} role="status">
-                {draftLoadError}
-              </div>
-            ) : null}
-
-            <div className={styles.mobileOnly}>
-              <RecentDraftBar />
-            </div>
-
-            <div className={styles.editorCard({ preview: activeTab === 'preview' })}>
-              <MarkdownEditor
-                activeTab={activeTab}
-                onSave={triggerSave}
-                agentEnabled={agentEnabled}
-              />
-            </div>
-
-            {agentStatus !== 'idle' && <AgentPanel />}
-
-            {/* 发布区：编辑区下方 */}
-            <div className={styles.publishPanel}>
-              <div className={publishStyles.rightPanelSection}>
-                <PublishChecklist />
-              </div>
-
-              {currentDraftId && (
-                <div className={publishStyles.rightPanelSection}>
-                  <span className={publishStyles.rightPanelSectionTitle}>渠道版本</span>
-                  <PlatformVariantPanel
-                    selectedPlatforms={selectedPlatforms}
-                    agentEnabled={agentEnabled}
-                  />
+      <div className={layoutStyles.scrollArea}>
+        <div className={styles.editorLayout}>
+          <div className={styles.mainContentArea}>
+            <div className={styles.editorSection}>
+              {draftLoadError ? (
+                <div className={styles.draftLoadError} role="status">
+                  {draftLoadError}
                 </div>
-              )}
+              ) : null}
+
+              <div className={styles.mobileOnly}>
+                <RecentDraftBar />
+              </div>
+
+              <div className={styles.editorCard({ preview: activeTab === 'preview' })}>
+                <MarkdownEditor
+                  activeTab={activeTab}
+                  onSave={triggerSave}
+                  agentEnabled={agentEnabled}
+                />
+              </div>
+
+              {agentStatus !== 'idle' && <AgentPanel />}
+
+              {/* 发布区：编辑区下方 */}
+              <div className={styles.publishPanel}>
+                <div className={publishStyles.rightPanelSection}>
+                  <PublishChecklist />
+                </div>
+
+                {currentDraftId && (
+                  <div className={publishStyles.rightPanelSection}>
+                    <span className={publishStyles.rightPanelSectionTitle}>渠道版本</span>
+                    <PlatformVariantPanel
+                      selectedPlatforms={selectedPlatforms}
+                      agentEnabled={agentEnabled}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

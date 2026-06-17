@@ -43,13 +43,34 @@ export const shell = style({
   },
 });
 
+// main 改为定高 flex 列容器：顶部固定区(header/tabs) + 正文滚动区。
+// 这样透明 header 滚动时不会被下方内容穿透（容器滚动后内容不进入 header 区域）。
 export const main = style({
   minWidth: 0,
   flex: 1,
   position: 'relative',
   width: '100%',
+  height: '100dvh',
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
   marginLeft: 'auto',
   marginRight: 'auto',
+  '@media': {
+    'screen and (min-width: 1024px)': {
+      maxWidth: '920px',
+    },
+  },
+});
+
+// 共享滚动区：正文容器，padding 从原 main 下放至此处。
+// 滚动区顶边天然紧贴 header 底边，移动端 paddingBottom 避开底部 mobileTabBar。
+export const scrollArea = style({
+  flex: 1,
+  minWidth: 0,
+  minHeight: 0,
+  overflowY: 'auto',
+  WebkitOverflowScrolling: 'touch',
   padding: vars.spacing.xl,
   paddingBottom: `calc(48px + ${vars.layout.tabBarHeight} + env(safe-area-inset-bottom))`,
   '@media': {
@@ -58,7 +79,6 @@ export const main = style({
       paddingBottom: `calc(52px + ${vars.layout.tabBarHeight} + env(safe-area-inset-bottom))`,
     },
     'screen and (min-width: 1024px)': {
-      maxWidth: '920px',
       padding: '28px 36px',
       paddingBottom: '28px',
     },

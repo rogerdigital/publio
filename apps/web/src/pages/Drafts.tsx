@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ListChecks, Plus } from 'lucide-react';
 import AppShellHeader from '@/components/layout/AppShellHeader';
+import * as layoutStyles from '@/app/styles/layout.css';
 import DraftLibraryClient from '@/components/drafts/DraftLibraryClient';
 import DraftLibraryToolbar from '@/components/drafts/DraftLibraryToolbar';
 import { filterButton } from '@/components/drafts/drafts.css';
@@ -53,16 +54,18 @@ export default function DraftsPageClient() {
           </div>
         }
       />
-      <DraftLibraryClient
-        isEditMode={isEditMode}
-        onExitEditMode={() => setIsEditMode(false)}
-        searchQuery={searchQuery}
-        statusFilter={statusFilter}
-        onClearFilters={() => {
-          setSearchQuery('');
-          setStatusFilter('all');
-        }}
-      />
+      <div className={layoutStyles.scrollArea}>
+        <DraftLibraryClient
+          isEditMode={isEditMode}
+          onExitEditMode={() => setIsEditMode(false)}
+          searchQuery={searchQuery}
+          statusFilter={statusFilter}
+          onClearFilters={() => {
+            setSearchQuery('');
+            setStatusFilter('all');
+          }}
+        />
+      </div>
     </div>
   );
 }

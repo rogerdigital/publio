@@ -3,10 +3,10 @@ import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/app/styles/tokens.css';
 
 export const pageWrap = style({
+  flex: 1,
+  minHeight: 0,
   display: 'flex',
   flexDirection: 'column',
-  gap: vars.spacing['5xl'],
-  paddingBottom: '80px',
 });
 
 // Section block
@@ -258,9 +258,6 @@ export const connectionPanel = style({
   flexDirection: 'column',
   gap: vars.spacing.xl,
   marginBottom: vars.spacing['2xl'],
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.bgElevated,
   padding: vars.spacing.xl,
   '@media': {
     'screen and (min-width: 720px)': {
@@ -334,16 +331,15 @@ export const checkButton = style({
   gap: vars.spacing.sm,
   flexShrink: 0,
   borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.borderStrong}`,
-  background: vars.color.surface,
+  border: '1px solid transparent',
+  background: vars.color.accent,
   padding: `${vars.spacing.md} ${vars.spacing['lg-xl']}`,
   fontSize: vars.fontSize.sm,
   fontWeight: 500,
-  color: vars.color.text,
-  transition: 'border-color 150ms, background-color 150ms',
+  color: vars.color.surfaceDarkText,
+  transition: 'filter 150ms',
   ':hover': {
-    borderColor: vars.color.accent,
-    background: vars.color.accentSoft,
+    filter: 'brightness(1.05)',
   },
   ':disabled': {
     opacity: 0.5,
@@ -596,10 +592,8 @@ export const platformLayout = style({
   gap: vars.spacing['2xl'],
   '@media': {
     'screen and (min-width: 1024px)': {
-      marginTop: vars.spacing['3xl'],
-      // 各 tab 内容高度不一，切换时若页面变矮会触发浏览器钳制滚动导致跳动。
-      // 用 minHeight 填满 header+tabs 下方视口，保证页面高度稳定，切换不改变滚动位置。
-      minHeight: 'calc(100dvh - 220px)',
+      // 容器滚动后切 tab 不再触发 window 滚动钳制跳动，移除原 minHeight hack。
+      minHeight: '100%',
     },
   },
 });
@@ -625,10 +619,13 @@ export const platformDetailHeader = style({
 });
 
 // Mobile platform tabs (horizontal, <1024px only)
+// 留在固定区（scrollArea 之前），紧贴 header 下方；自带内边距与正文对齐。
 export const platformMobileTabs = style({
   display: 'inline-flex',
+  flexShrink: 0,
   alignSelf: 'flex-start',
   maxWidth: '100%',
+  margin: `${vars.spacing.sm} ${vars.spacing.xl} 0`,
   gap: vars.spacing['2xs'],
   overflowX: 'auto',
   padding: vars.spacing.xs,
@@ -638,6 +635,9 @@ export const platformMobileTabs = style({
   backdropFilter: 'blur(16px) saturate(180%)',
   WebkitBackdropFilter: 'blur(16px) saturate(180%)',
   '@media': {
+    'screen and (min-width: 640px)': {
+      margin: `${vars.spacing.md} ${vars.spacing['3xl']} 0`,
+    },
     'screen and (min-width: 1024px)': {
       display: 'none',
     },
@@ -683,20 +683,12 @@ export const topTabsBar = style({
   '@media': {
     'screen and (min-width: 1024px)': {
       display: 'flex',
-      // 贴紧 header 下方并始终悬浮（sticky）。top = header 高度，使其紧贴 header 底部
-      position: 'sticky',
-      top: '83px',
-      zIndex: 30,
+      // 容器滚动后，topTabsBar 留在固定区（scrollArea 之前），自然紧贴 header 下方。
+      flexShrink: 0,
       alignItems: 'flex-end',
       gap: vars.spacing.xs,
-      // 抵消 header marginBottom(24) + pageWrap gap(40)，让 tab 紧贴 header
-      marginTop: '-64px',
-      // 全宽出血到页面边缘（与 header 一致），内容靠 padding 内缩与正文对齐
-      marginLeft: '-36px',
-      marginRight: '-36px',
       padding: `${vars.spacing.md} 36px 0`,
       background: 'transparent',
-      borderBottom: `1px solid ${vars.color.borderFaint}`,
       overflowX: 'auto',
     },
   },

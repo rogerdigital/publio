@@ -2,22 +2,41 @@ import { style } from '@vanilla-extract/css';
 import { vars } from '@/app/styles/tokens.css';
 
 export const header = style({
-  position: 'sticky',
-  top: 0,
-  zIndex: 40,
+  flexShrink: 0,
+  position: 'relative',
   width: 'auto',
-  margin: `calc(-1 * ${vars.spacing.xl}) calc(-1 * ${vars.spacing.xl}) ${vars.spacing.xl}`,
   padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
-  borderBottom: `1px solid ${vars.color.borderFaint}`,
   background: 'transparent',
+  // 底部分割线用 ::after 伪元素，左右内缩到与标题文字内容齐宽
+  selectors: {
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      left: vars.spacing.xl,
+      right: vars.spacing.xl,
+      bottom: 0,
+      height: '1px',
+      background: vars.color.borderFaint,
+    },
+  },
   '@media': {
     'screen and (min-width: 640px)': {
-      margin: `calc(-1 * ${vars.spacing['2xl']}) calc(-1 * ${vars.spacing['3xl']}) ${vars.spacing.xl}`,
       padding: `${vars.spacing.lg} ${vars.spacing['3xl']}`,
+      selectors: {
+        '&::after': {
+          left: vars.spacing['3xl'],
+          right: vars.spacing['3xl'],
+        },
+      },
     },
     'screen and (min-width: 1024px)': {
-      margin: '-28px -36px 24px',
       padding: '18px 36px',
+      selectors: {
+        '&::after': {
+          left: '36px',
+          right: '36px',
+        },
+      },
     },
   },
 });

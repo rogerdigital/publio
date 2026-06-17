@@ -2,9 +2,10 @@ import { style } from '@vanilla-extract/css';
 import { vars } from '@/app/styles/tokens.css';
 
 export const pageWrap = style({
+  flex: 1,
+  minHeight: 0,
   display: 'flex',
   flexDirection: 'column',
-  gap: vars.spacing['3xl'],
 });
 
 export const headerActions = style({
