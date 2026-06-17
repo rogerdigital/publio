@@ -14,6 +14,19 @@
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      React Fast Refresh preamble（手动注入）。
+      vite 8 + @vitejs/plugin-react 的 transformIndexHtml 自动注入在此环境失效，
+      导致组件 transform 出的 $RefreshSig$ / $RefreshReg$ 运行时未定义而白屏。
+      此处显式加载 /@react-refresh runtime 并挂全局 hook，须在 main.tsx 之前执行。
+      生产构建时 /@react-refresh 不存在，script 会静默失败（type=module 网络错误不阻断）。
+    -->
+    <script type="module">
+      import { injectIntoGlobalHook } from '/@react-refresh';
+      injectIntoGlobalHook(window);
+      window.$RefreshReg$ = () => {};
+      window.$RefreshSig$ = () => (type) => type;
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
