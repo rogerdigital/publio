@@ -1,6 +1,15 @@
-import { lazy, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Eye, SquarePen, Eraser, MoreHorizontal, FileText } from 'lucide-react';
+import { Eye, SquarePen, Eraser, MoreHorizontal, FileText, Save } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import { useAgentStore } from '@/stores/agentStore';
 import AppShellHeader from '@/components/layout/AppShellHeader';
@@ -18,7 +27,7 @@ const AgentPanel = lazy(() => import('@/components/agent/AgentPanel'));
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
 import { getCachedHomePageChromeData, loadHomePageChromeData } from '@/lib/navigationDataCache';
-import { useAutoSave } from '@/hooks/useAutoSave';
+import { useManualSave } from '@/hooks/useManualSave';
 import type { PlatformId } from '@/types';
 import * as styles from './page.css';
 
@@ -42,6 +51,8 @@ function HomePageContent() {
   const cachedChromeData = getCachedHomePageChromeData();
   const [draftLoadError, setDraftLoadError] = useState('');
   const [clearConfirming, setClearConfirming] = useState(false);
+  // 记录已加载的 draftId，防止 URL 变化但 draftId 相同时重复拉取草稿。
+  const loadedDraftIdRef = useRef<string | null>(null);
   const [agentEnabled, setAgentEnabled] = useState(cachedChromeData?.agentEnabled ?? false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [imageBedLabel, setImageBedLabel] = useState<string | undefined>(
@@ -75,12 +86,15 @@ function HomePageContent() {
   const handleDraftCreated = useCallback(
     (id: string) => {
       setCurrentDraftId(id);
+      // 标记该 draftId 已"加载"，防止紧接着的 URL 变化触发 loadDraft effect
+      // 重新拉取并覆盖用户内容。
+      loadedDraftIdRef.current = id;
       navigate(`/?draftId=${id}`, { replace: true });
     },
     [setCurrentDraftId, navigate],
   );
 
-  const { saveStatus, triggerSave } = useAutoSave({
+  const { saveStatus, canSave, save, syncSnapshot } = useManualSave({
     title,
     content,
     draftId: currentDraftId,
@@ -91,6 +105,7 @@ function HomePageContent() {
     setTitle('');
     setContent('');
     setCurrentDraftId(null);
+    loadedDraftIdRef.current = null;
     reset();
     navigate('/', { replace: true });
   }, [reset, navigate, setContent, setTitle, setCurrentDraftId]);
@@ -115,6 +130,11 @@ function HomePageContent() {
   useEffect(() => {
     const draftId = searchParams.get('draftId');
     if (!draftId) return;
+    // 首次保存创建草稿后会 navigate('/?draftId=xxx')，URL 变化但 draftId 相同。
+    // 用 ref 记录上次加载的 draftId，相同则跳过重新拉取，避免覆盖用户可能已继续
+    // 输入的内容、以及由此引发的页面闪烁。
+    if (loadedDraftIdRef.current === draftId) return;
+    loadedDraftIdRef.current = draftId;
 
     const selectedDraftId = draftId;
     let cancelled = false;
@@ -128,6 +148,8 @@ function HomePageContent() {
         setContent(draft.content);
         setCurrentDraftId(selectedDraftId);
         reset();
+        // 载入后同步快照为载入值，避免误判 dirty。
+        syncSnapshot({ title: draft.title, content: draft.content });
       } catch (error) {
         if (!cancelled) {
           setDraftLoadError(error instanceof Error ? error.message : '稿件读取失败，请稍后重试。');
@@ -139,7 +161,7 @@ function HomePageContent() {
     return () => {
       cancelled = true;
     };
-  }, [reset, searchParams, setContent, setTitle, setCurrentDraftId]);
+  }, [reset, searchParams, setContent, setTitle, setCurrentDraftId, syncSnapshot]);
 
   return (
     <div className={styles.pageWrap}>
@@ -148,8 +170,15 @@ function HomePageContent() {
         description="写作、预览、多平台分发。"
         action={
           <div className={styles.headerActions}>
-            {saveStatus === 'saving' && <span className={styles.saveStatusHint}>保存中…</span>}
-            {saveStatus === 'saved' && <span className={styles.saveStatusHint}>已自动保存</span>}
+            <button
+              type="button"
+              className={styles.saveButton}
+              onClick={() => void save()}
+              disabled={!canSave || saveStatus === 'saving'}
+            >
+              <Save size={15} />
+              {saveStatus === 'saving' ? '保存中…' : '保存'}
+            </button>
             <div className={styles.tabSwitcher}>
               <button
                 type="button"
@@ -244,11 +273,7 @@ function HomePageContent() {
               </div>
 
               <div className={styles.editorCard({ preview: activeTab === 'preview' })}>
-                <MarkdownEditor
-                  activeTab={activeTab}
-                  onSave={triggerSave}
-                  agentEnabled={agentEnabled}
-                />
+                <MarkdownEditor activeTab={activeTab} onSave={save} agentEnabled={agentEnabled} />
               </div>
 
               {agentStatus !== 'idle' && <AgentPanel />}

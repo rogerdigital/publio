@@ -470,7 +470,6 @@ function SettingsContent() {
                     (p) => p.platform === platform.id,
                   );
                   const isVerifyOnly = VERIFY_ONLY_PLATFORMS.has(platform.id);
-                  const record = connectionRecords[platform.id];
 
                   return (
                     <>
