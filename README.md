@@ -5,12 +5,12 @@
 [![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](./package.json)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](./tsconfig.json)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF.svg)](https://vite.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF.svg)](https://vite.dev/)
 [![Hono](https://img.shields.io/badge/Hono-4-E36002.svg)](https://hono.dev/)
 
 > A focused writing and multi-platform publishing tool for individual creators. Write once, adapt per platform.
 
-- **Writing desk** — Markdown editing, live preview, auto-save, version history, templates, and image uploads.
+- **Writing desk** — Markdown editing, live preview, manual save with close/crash fallback, version history, templates, and image uploads.
 - **Draft library** — Manage drafts, publish state, and platform variants.
 - **Multi-platform publishing** — Publish to WeChat, Xiaohongshu, Zhihu, and X (Twitter) with progress tracking.
 - **Optional AI assistance** — Rewrite, title suggestions, and platform adaptation; AI entry points are hidden when unconfigured.
@@ -48,7 +48,7 @@ Open http://localhost:3000. Configure platform credentials and AI agent in Setti
 
 ### Writing Desk
 
-Markdown editor with live preview, immersive full-screen mode, auto-save, version history restore, content templates, media library, and GitHub image bed uploads.
+Markdown editor with live preview, immersive full-screen mode, manual save (with a fallback that runs if the page closes or crashes before saving), version history restore, content templates, media library, and GitHub image bed uploads.
 
 ### AI Assistance
 
