@@ -3,9 +3,10 @@ import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/app/styles/tokens.css';
 
 export const pageWrap = style({
+  flex: 1,
+  minHeight: 0,
   display: 'flex',
   flexDirection: 'column',
-  gap: vars.spacing['2xl'],
 });
 
 export const editorLayout = style({
