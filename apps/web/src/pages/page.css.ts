@@ -20,13 +20,6 @@ export const mainContentArea = style({
   display: 'flex',
   flexDirection: 'column',
   gap: vars.spacing.xl,
-  '@media': {
-    'screen and (min-width: 1024px)': {
-      flexDirection: 'row',
-      alignItems: 'start',
-      gap: vars.spacing['2xl'],
-    },
-  },
 });
 
 export const editorSection = style({
@@ -37,17 +30,17 @@ export const editorSection = style({
   gap: vars.spacing.xl,
 });
 
-export const rightPanel = style({
-  display: 'none',
+// 发布区：编辑器下方，主稿宽度内居中收窄
+export const publishPanel = style({
+  display: 'flex',
   flexDirection: 'column',
-  gap: vars.spacing.lg,
+  gap: vars.spacing.xl,
+  borderRadius: vars.radius.xl,
+  background: vars.color.surface,
+  padding: vars.spacing.xl,
   '@media': {
-    'screen and (min-width: 1024px)': {
-      display: 'flex',
-      width: '320px',
-      flexShrink: 0,
-      position: 'sticky',
-      top: '84px',
+    'screen and (min-width: 640px)': {
+      padding: vars.spacing['2xl'],
     },
   },
 });
@@ -63,6 +56,8 @@ export const mobileOnly = style({
 export const editorCard = style({
   overflow: 'hidden',
   outline: 'none',
+  borderRadius: vars.radius.xl,
+  background: vars.color.surface,
 });
 
 export const draftLoadError = style({
@@ -281,76 +276,6 @@ export const moreMenuItemDanger = style({
   ':hover': {
     background: vars.color.errorBg,
   },
-});
-
-// Mobile publish FAB
-export const mobilePublishFab = style({
-  position: 'fixed',
-  bottom: 'calc(68px + env(safe-area-inset-bottom))',
-  right: vars.spacing.xl,
-  zIndex: 90,
-  display: 'flex',
-  alignItems: 'center',
-  gap: vars.spacing.md,
-  borderRadius: vars.radius.xl,
-  border: 'none',
-  background: vars.color.brand,
-  color: '#FFFFFF',
-  padding: `${vars.spacing.lg} ${vars.spacing['2xl']}`,
-  fontSize: vars.fontSize.base,
-  fontWeight: 600,
-  cursor: 'pointer',
-  boxShadow: vars.shadow.lg,
-  transition: `all ${vars.transition.fast}`,
-  ':hover': {
-    background: vars.color.brandHover,
-    transform: 'translateY(-1px)',
-    boxShadow: vars.shadow.xl,
-  },
-  ':active': {
-    transform: 'translateY(0)',
-  },
-  '@media': {
-    'screen and (min-width: 1024px)': {
-      display: 'none',
-    },
-  },
-});
-
-// Mobile publish sheet overlay
-export const mobileSheetOverlay = style({
-  position: 'fixed',
-  inset: 0,
-  zIndex: 200,
-  background: 'rgba(0, 0, 0, 0.4)',
-  display: 'flex',
-  alignItems: 'flex-end',
-  justifyContent: 'center',
-});
-
-export const mobileSheet = style({
-  width: '100%',
-  maxHeight: '80vh',
-  overflowY: 'auto',
-  background: vars.color.surface,
-  borderRadius: `${vars.radius.xl} ${vars.radius.xl} 0 0`,
-  padding: `${vars.spacing['2xl']} ${vars.spacing.xl}`,
-  paddingBottom: 'calc(20px + env(safe-area-inset-bottom))',
-});
-
-export const mobileSheetHandle = style({
-  width: '36px',
-  height: '4px',
-  borderRadius: '2px',
-  background: vars.color.borderStrong,
-  margin: '0 auto 16px',
-});
-
-export const mobileSheetTitle = style({
-  fontSize: vars.fontSize.lg,
-  fontWeight: 600,
-  color: vars.color.text,
-  marginBottom: vars.spacing.xl,
 });
 
 // Clear confirm modal
