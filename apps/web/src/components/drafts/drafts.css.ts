@@ -1,4 +1,4 @@
-import { style, styleVariants } from '@vanilla-extract/css';
+import { globalStyle, style, styleVariants } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/app/styles/tokens.css';
 
@@ -201,7 +201,7 @@ export const primaryLink = style({
 export const pageContent = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: vars.spacing['3xl'],
+  gap: vars.spacing['xl-2xl'],
 });
 
 export const deleteErrorText = style({
@@ -477,23 +477,20 @@ export const syncStatusLabelVariants = styleVariants({
 });
 
 // 搜索栏 + 筛选栏
-export const toolbar = style({
+export const headerToolbar = style({
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'flex-end',
-  gap: 10,
-  flexWrap: 'wrap',
+  gap: vars.spacing.md,
 });
 
 export const searchWrap = style({
   position: 'relative',
-  width: '100%',
+  width: 240,
   minWidth: 0,
   height: 40,
   '@media': {
-    'screen and (min-width: 760px)': {
-      width: 260,
-      flex: '0 0 260px',
+    'screen and (max-width: 899px)': {
+      display: 'none',
     },
   },
 });
@@ -528,11 +525,10 @@ export const searchInput = style({
   },
 });
 
-export const tagContainer = style({
+export const tagBar = style({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: 4,
-  marginTop: 6,
+  gap: vars.spacing.sm,
 });
 
 export const tagChip = recipe({
@@ -574,7 +570,7 @@ export const filterPopoverWrap = style({
 export const filterPopover = style({
   display: 'none',
   '@media': {
-    'screen and (min-width: 760px)': {
+    'screen and (min-width: 900px)': {
       position: 'absolute',
       top: 'calc(100% + 8px)',
       right: 0,
@@ -635,43 +631,59 @@ export const filterChip = recipe({
   defaultVariants: { active: false },
 });
 
-export const importButton = style({
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: vars.spacing.sm,
-  height: 40,
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: 'transparent',
-  padding: `0 ${vars.spacing['lg-xl']}`,
-  fontSize: vars.fontSize.sm,
-  color: vars.color.textMuted,
-  cursor: 'pointer',
-  transition: 'background-color 150ms, color 150ms, border-color 150ms',
-  ':hover': {
-    background: vars.color.canvasDeep,
-    color: vars.color.text,
-    borderColor: vars.color.borderStrong,
+// 筛选按钮：未选中与已选中（高亮）两态
+export const filterButton = recipe({
+  base: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: vars.spacing.sm,
+    height: 40,
+    borderRadius: vars.radius.lg,
+    border: `1px solid ${vars.color.border}`,
+    background: 'transparent',
+    padding: `0 ${vars.spacing['lg-xl']}`,
+    fontSize: vars.fontSize.sm,
+    color: vars.color.textMuted,
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    transition: 'background-color 150ms, color 150ms, border-color 150ms',
+    ':hover': {
+      background: vars.color.canvasDeep,
+      color: vars.color.text,
+      borderColor: vars.color.borderStrong,
+    },
   },
+  variants: {
+    active: {
+      true: {
+        background: vars.color.accent,
+        borderColor: vars.color.accent,
+        color: vars.color.surfaceDarkText,
+        fontWeight: 500,
+        ':hover': {
+          background: vars.color.accentHover,
+          borderColor: vars.color.accentHover,
+          color: vars.color.surfaceDarkText,
+        },
+      },
+    },
+  },
+  defaultVariants: { active: false },
 });
 
-export const exportButton = style({
+export const filterClear = style({
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  width: 28,
-  height: 28,
-  borderRadius: vars.radius.lg,
-  border: 'none',
-  background: 'transparent',
-  color: vars.color.textMuted,
+  marginLeft: vars.spacing['2xs'],
+  marginRight: `calc(-1 * ${vars.spacing.xs})`,
+  borderRadius: vars.radius.full,
+  opacity: 0.7,
   cursor: 'pointer',
-  flexShrink: 0,
-  transition: 'background-color 150ms, color 150ms',
+  transition: 'opacity 150ms',
   ':hover': {
-    background: vars.color.bgElevated,
-    color: vars.color.text,
+    opacity: 1,
   },
 });
 
@@ -702,36 +714,75 @@ export const batchActionButton = style({
 export const compactList = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: vars.spacing['2xs'],
 });
 
 export const compactRow = style({
   display: 'flex',
-  alignItems: 'center',
-  gap: vars.spacing['md-lg'],
-  flexWrap: 'wrap',
-  padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
+  alignItems: 'flex-start',
+  gap: vars.spacing.lg,
+  padding: `${vars.spacing['xl-2xl']} ${vars.spacing['lg-xl']}`,
+  borderBottom: `1px solid ${vars.color.borderFaint}`,
   borderRadius: vars.radius.md,
+  cursor: 'pointer',
+  color: 'inherit',
+  textDecoration: 'none',
   transition: 'background-color 150ms',
   ':hover': {
-    background: vars.color.surface,
-  },
-  '@media': {
-    'screen and (min-width: 720px)': {
-      flexWrap: 'nowrap',
-    },
+    background: vars.color.bgElevated,
   },
 });
 
-export const compactTitle = style({
-  flex: '1 1 220px',
+export const compactBody = style({
+  flex: 1,
   minWidth: 0,
-  fontSize: vars.fontSize.md,
-  fontWeight: 500,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: vars.spacing.md,
+});
+
+export const compactTitle = style({
+  display: 'block',
+  fontFamily: vars.font.serif,
+  fontSize: vars.fontSize.xl,
+  fontWeight: 600,
+  lineHeight: 1.4,
   color: vars.color.text,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
+  textDecoration: 'none',
+  transition: 'color 150ms',
+});
+
+globalStyle(`${compactRow}:hover ${compactTitle}`, {
+  color: vars.color.accent,
+});
+
+export const compactExcerpt = style({
+  margin: 0,
+  fontSize: vars.fontSize.md,
+  lineHeight: 1.7,
+  color: vars.color.textMuted,
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+});
+
+export const compactExcerptEmpty = style({
+  margin: 0,
+  fontSize: vars.fontSize.md,
+  lineHeight: 1.7,
+  color: vars.color.borderStrong,
+  fontStyle: 'italic',
+});
+
+export const compactMetaRow = style({
+  display: 'flex',
+  alignItems: 'center',
+  flexWrap: 'wrap',
+  gap: vars.spacing.md,
+  marginTop: vars.spacing.xs,
 });
 
 export const compactMeta = style({
@@ -806,7 +857,7 @@ export const mobileFilterOverlay = style({
   alignItems: 'flex-end',
   justifyContent: 'center',
   '@media': {
-    'screen and (max-width: 759px)': {
+    'screen and (max-width: 899px)': {
       display: 'flex',
     },
   },
