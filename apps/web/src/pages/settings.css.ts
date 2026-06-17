@@ -607,16 +607,10 @@ export const platformLayout = style({
 export const platformDetail = style({
   flex: 1,
   minWidth: 0,
-  '@media': {
-    'screen and (min-width: 1024px)': {
-      width: '100%',
-      maxWidth: '680px',
-    },
-  },
+  width: '100%',
 });
 
 export const platformDetailInner = style({
-  maxWidth: '580px',
   display: 'flex',
   flexDirection: 'column',
   gap: vars.spacing['3xl'],
@@ -701,7 +695,7 @@ export const topTabsBar = style({
       marginLeft: '-36px',
       marginRight: '-36px',
       padding: `${vars.spacing.md} 36px 0`,
-      background: vars.color.bg,
+      background: 'transparent',
       borderBottom: `1px solid ${vars.color.borderFaint}`,
       overflowX: 'auto',
     },
@@ -786,21 +780,6 @@ export const topTabDivider = style({
       flexShrink: 0,
       margin: `0 ${vars.spacing.sm}`,
       background: vars.color.borderFaint,
-    },
-  },
-});
-
-// 单栏内容容器：居中收窄，消灭右侧留白
-export const singleColumnContent = style({
-  display: 'none',
-  '@media': {
-    'screen and (min-width: 1024px)': {
-      display: 'block',
-      width: '100%',
-      maxWidth: '640px',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      marginTop: vars.spacing['3xl'],
     },
   },
 });

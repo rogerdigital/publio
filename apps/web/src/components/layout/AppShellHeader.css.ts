@@ -9,7 +9,7 @@ export const header = style({
   margin: `calc(-1 * ${vars.spacing.xl}) calc(-1 * ${vars.spacing.xl}) ${vars.spacing.xl}`,
   padding: `${vars.spacing.lg} ${vars.spacing.xl}`,
   borderBottom: `1px solid ${vars.color.borderFaint}`,
-  background: vars.color.bg,
+  background: 'transparent',
   '@media': {
     'screen and (min-width: 640px)': {
       margin: `calc(-1 * ${vars.spacing['2xl']}) calc(-1 * ${vars.spacing['3xl']}) ${vars.spacing.xl}`,
