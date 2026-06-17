@@ -83,9 +83,6 @@ export const syncSummary = style({
   flexDirection: 'column',
   gap: vars.spacing.xs,
   marginTop: vars.spacing['lg-xl'],
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.bgElevated,
   padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
 });
 
@@ -137,9 +134,6 @@ export const statePanel = style({
   display: 'flex',
   alignItems: 'center',
   gap: vars.spacing['md-lg'],
-  borderRadius: vars.radius.xl,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
   padding: vars.spacing['xl-2xl'],
   color: vars.color.textMuted,
 });
@@ -151,9 +145,6 @@ export const emptyState = style({
   alignItems: 'center',
   justifyContent: 'center',
   gap: vars.spacing.lg,
-  borderRadius: vars.radius.xl,
-  border: `1px dashed ${vars.color.borderStrong}`,
-  background: vars.color.surface,
   padding: vars.spacing['4xl'],
   textAlign: 'center',
 });
@@ -215,9 +206,6 @@ export const editModeBar = style({
   alignItems: 'center',
   justifyContent: 'space-between',
   gap: vars.spacing.lg,
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.bgElevated,
   padding: `${vars.spacing['md-lg']} ${vars.spacing['lg-xl']}`,
 });
 
@@ -702,9 +690,21 @@ export const compactRow = style({
   display: 'flex',
   alignItems: 'flex-start',
   gap: vars.spacing.lg,
+  position: 'relative',
   padding: `${vars.spacing['xl-2xl']} ${vars.spacing['lg-xl']}`,
-  borderBottom: `1px solid ${vars.color.borderFaint}`,
   borderRadius: vars.radius.md,
+  // 分割线用 ::after 伪元素绘制，左右内缩到与文字内容齐宽（扣除 row 的左右 padding）
+  selectors: {
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      left: vars.spacing['lg-xl'],
+      right: vars.spacing['lg-xl'],
+      bottom: 0,
+      height: '1px',
+      background: vars.color.borderFaint,
+    },
+  },
   cursor: 'pointer',
   color: 'inherit',
   textDecoration: 'none',

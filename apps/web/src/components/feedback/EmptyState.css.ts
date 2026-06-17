@@ -8,9 +8,6 @@ export const container = style({
   justifyContent: 'center',
   gap: vars.spacing['lg-xl'],
   minHeight: 280,
-  borderRadius: vars.radius.xl,
-  background: vars.color.surface,
-  border: `1px solid ${vars.color.border}`,
   padding: `${vars.spacing['5xl']} ${vars.spacing['4xl']}`,
   textAlign: 'center',
 });
