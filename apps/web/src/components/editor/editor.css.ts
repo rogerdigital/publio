@@ -69,16 +69,18 @@ globalStyle(`${editorWrap} .w-md-editor:focus-within`, {
 globalStyle(`${editorWrap} .w-md-editor-toolbar`, {
   borderTop: `1px solid ${vars.color.borderFaint}`,
   borderBottom: `1px solid ${vars.color.borderFaint}`,
-  background: vars.color.surface,
+  background: vars.color.surfaceStrong,
   padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
 });
 
 globalStyle(`${editorWrap} .w-md-editor-toolbar button`, {
   color: vars.color.textMuted,
+  borderRadius: vars.radius.xs,
+  padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
 });
 
 globalStyle(`${editorWrap} .w-md-editor-toolbar button:hover`, {
-  background: vars.color.bgElevated,
+  background: vars.color.accentSoft,
   color: vars.color.text,
 });
 
@@ -167,6 +169,16 @@ export const statsRow = style({
 
 export const statsDot = style({
   color: vars.color.borderStrong,
+});
+
+// 统计栏：数字用主色提对比，单位保持弱化，改善暗色下 11px 文字可读性
+export const statsValue = style({
+  color: vars.color.text,
+  fontWeight: 500,
+});
+
+export const statsUnit = style({
+  color: vars.color.textMuted,
 });
 
 // Preview area — 容器零内边距，使 frame 与写作态编辑卡同位置同尺寸

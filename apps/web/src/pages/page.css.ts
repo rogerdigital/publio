@@ -31,13 +31,15 @@ export const editorSection = style({
   gap: vars.spacing.xl,
 });
 
-// 发布区：编辑器下方，主稿宽度内居中收窄
+// 发布区：编辑器下方配角卡，elevation(shadow.sm) 弱于 editorCard(shadow.md) 以建立主次
 export const publishPanel = style({
   display: 'flex',
   flexDirection: 'column',
   gap: vars.spacing.xl,
   borderRadius: vars.radius.xl,
   background: vars.color.surface,
+  border: `1px solid ${vars.color.border}`,
+  boxShadow: vars.shadow.sm,
   padding: vars.spacing.xl,
   '@media': {
     'screen and (min-width: 640px)': {
@@ -60,14 +62,18 @@ export const editorCard = recipe({
     outline: 'none',
     borderRadius: vars.radius.xl,
     background: vars.color.surface,
+    border: `1px solid ${vars.color.border}`,
+    boxShadow: vars.shadow.md,
   },
   variants: {
-    // 预览态去掉卡底色/圆角，让 phone frame 直接浮在页面背景上，消除卡中卡
+    // 预览态去掉卡底色/圆角/边框/阴影，让 phone frame 直接浮在页面背景上，消除卡中卡
     preview: {
       true: {
         overflow: 'visible',
         borderRadius: 0,
         background: 'transparent',
+        border: 'none',
+        boxShadow: 'none',
       },
     },
   },
@@ -184,7 +190,7 @@ export const newDraftButton = style({
   height: 38,
   borderRadius: vars.radius.md,
   border: `1px solid ${vars.color.border}`,
-  background: 'transparent',
+  background: vars.color.bgElevated,
   padding: `0 ${vars.spacing['md-lg']}`,
   fontSize: vars.fontSize.sm,
   color: vars.color.textMuted,
