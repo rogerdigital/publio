@@ -234,13 +234,28 @@ export default function MarkdownEditor({
         {/* 底部数据栏 */}
         <div className={styles.statsBar}>
           <div className={styles.statsRow}>
-            <span>{countCharacters(cleanContent)} 字符</span>
+            <span>
+              <span className={styles.statsValue}>{countCharacters(cleanContent)}</span>{' '}
+              <span className={styles.statsUnit}>字符</span>
+            </span>
             <span className={styles.statsDot}>·</span>
-            <span>{countParagraphs(cleanContent)} 段落</span>
+            <span>
+              <span className={styles.statsValue}>{countParagraphs(cleanContent)}</span>{' '}
+              <span className={styles.statsUnit}>段落</span>
+            </span>
             <span className={styles.statsDot}>·</span>
-            <span>{countHeadings(cleanContent)} 标题</span>
+            <span>
+              <span className={styles.statsValue}>{countHeadings(cleanContent)}</span>{' '}
+              <span className={styles.statsUnit}>标题</span>
+            </span>
             <span className={styles.statsDot}>·</span>
-            <span>约 {cleanContent ? estimateReadTime(cleanContent) : '1 分钟'} 阅读</span>
+            <span>
+              <span className={styles.statsUnit}>约</span>{' '}
+              <span className={styles.statsValue}>
+                {cleanContent ? estimateReadTime(cleanContent) : '1 分钟'}
+              </span>{' '}
+              <span className={styles.statsUnit}>阅读</span>
+            </span>
             <button
               type="button"
               onClick={immersive.enter}
