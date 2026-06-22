@@ -9,7 +9,7 @@ import {
   useState,
 } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Eye, SquarePen, Eraser, MoreHorizontal, FileText, Save } from 'lucide-react';
+import { Eye, SquarePen, Eraser, MoreHorizontal, FileText } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import { useAgentStore } from '@/stores/agentStore';
 import AppShellHeader from '@/components/layout/AppShellHeader';
@@ -170,15 +170,6 @@ function HomePageContent() {
         description="写作、预览、多平台分发。"
         action={
           <div className={styles.headerActions}>
-            <button
-              type="button"
-              className={styles.saveButton}
-              onClick={() => void save()}
-              disabled={!canSave || saveStatus === 'saving'}
-            >
-              <Save size={15} />
-              {saveStatus === 'saving' ? '保存中…' : '保存'}
-            </button>
             <div className={styles.tabSwitcher}>
               <button
                 type="button"
@@ -273,7 +264,13 @@ function HomePageContent() {
               </div>
 
               <div className={styles.editorCard({ preview: activeTab === 'preview' })}>
-                <MarkdownEditor activeTab={activeTab} onSave={save} agentEnabled={agentEnabled} />
+                <MarkdownEditor
+                  activeTab={activeTab}
+                  onSave={save}
+                  agentEnabled={agentEnabled}
+                  saveStatus={saveStatus}
+                  canSave={canSave}
+                />
               </div>
 
               {agentStatus !== 'idle' && <AgentPanel />}

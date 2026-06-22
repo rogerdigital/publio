@@ -47,6 +47,34 @@ export const titleInput = style({
   },
 });
 
+// 编辑器标题行内的保存按钮：accent 实心，样式/逻辑与改动前 header 保存按钮一致
+export const editorSaveBtn = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: vars.spacing.xs,
+  height: 32,
+  flexShrink: 0,
+  borderRadius: vars.radius.sm,
+  border: '1px solid transparent',
+  background: vars.color.accent,
+  padding: `0 ${vars.spacing.lg}`,
+  fontSize: vars.fontSize.xs,
+  fontWeight: 500,
+  color: vars.color.surfaceDarkText,
+  cursor: 'pointer',
+  transition: 'filter 150ms',
+  ':hover': { filter: 'brightness(1.05)' },
+  ':disabled': { opacity: 0.4, cursor: 'not-allowed' },
+});
+
+// 「源码/实时」toggle 槽位：absolute 定位到 md-editor 工具栏最右侧
+export const toolbarSlot = style({
+  position: 'absolute',
+  top: vars.spacing.sm,
+  right: vars.spacing.lg,
+  zIndex: 2,
+});
+
 // MDEditor wrapper — globalStyle overrides for third-party component
 export const editorWrap = style({
   background: vars.color.surface,
@@ -70,7 +98,8 @@ globalStyle(`${editorWrap} .w-md-editor-toolbar`, {
   borderTop: `1px solid ${vars.color.borderFaint}`,
   borderBottom: `1px solid ${vars.color.borderFaint}`,
   background: vars.color.surfaceStrong,
-  padding: `${vars.spacing.sm} ${vars.spacing.lg}`,
+  // 右侧留位给「源码/实时」toggle（absolute 定位到工具栏尾部）
+  padding: `${vars.spacing.sm} 116px ${vars.spacing.sm} ${vars.spacing.lg}`,
 });
 
 globalStyle(`${editorWrap} .w-md-editor-toolbar button`, {

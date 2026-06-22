@@ -161,7 +161,7 @@ export const tabButton = recipe({
 export const headerActions = style({
   display: 'flex',
   alignItems: 'center',
-  gap: vars.spacing.md,
+  gap: vars.spacing.xl,
   minWidth: 0,
   flexWrap: 'wrap',
   '@media': {
@@ -216,31 +216,6 @@ export const newDraftButtonDanger = style({
   color: vars.color.errorText,
   cursor: 'pointer',
   transition: `all ${vars.transition.fast}`,
-});
-
-// 写作台保存按钮：黑底白字主按钮，与设置页主按钮风格一致。
-export const saveButton = style({
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: vars.spacing.sm,
-  height: 38,
-  flexShrink: 0,
-  borderRadius: vars.radius.md,
-  border: '1px solid transparent',
-  background: vars.color.accent,
-  padding: `0 ${vars.spacing.lg}`,
-  fontSize: vars.fontSize.sm,
-  fontWeight: 500,
-  color: vars.color.surfaceDarkText,
-  cursor: 'pointer',
-  transition: 'filter 150ms',
-  ':hover': {
-    filter: 'brightness(1.05)',
-  },
-  ':disabled': {
-    opacity: 0.4,
-    cursor: 'not-allowed',
-  },
 });
 
 // More menu (dropdown)
