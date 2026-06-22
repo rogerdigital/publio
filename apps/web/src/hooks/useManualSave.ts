@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { updateDraft, ensureDraft } from '@/lib/drafts/client';
 import { useToastStore } from '@/stores/toastStore';
-
-export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
 interface UseManualSaveOptions {
   title: string;
@@ -12,17 +11,14 @@ interface UseManualSaveOptions {
 }
 
 interface UseManualSaveResult {
-  saveStatus: SaveStatus;
-  isDirty: boolean;
-  /** 是否允许保存：dirty 且标题与内容都非空。 */
-  canSave: boolean;
   save: () => Promise<void>;
   /** 载入草稿后调用，把快照同步为载入值，避免载入即误判 dirty。 */
   syncSnapshot: (snapshot: { title: string; content: string }) => void;
 }
 
 /**
- * 写作台手动保存 + 兜底保存。
+ * 写作台手动保存 + 兜底保存。保存状态（saveStatus/isDirty）写入独立的
+ * useSaveStatusStore，由保存按钮组件自行订阅，避免保存时整棵编辑器重渲染。
  *
  * - 手动保存：`save()` 走正常 fetch（有 draftId → PATCH；无 → POST 创建）。
  * - 兜底保存：页面 beforeunload / 切到后台（visibilitychange）时，若 dirty
@@ -36,8 +32,6 @@ export function useManualSave({
   draftId,
   onDraftCreated,
 }: UseManualSaveOptions): UseManualSaveResult {
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
-
   // 最新值与快照都放 ref，事件监听器读最新值，无需重建监听器。
   const titleRef = useRef(title);
   const contentRef = useRef(content);
@@ -47,9 +41,8 @@ export function useManualSave({
     title,
     content,
   });
-  // dirty 用 ref 存，避免事件回调闭包陈旧；同时镜像到 state 供 UI 渲染。
+  // dirty 用 ref 存，避免事件回调闭包陈旧；UI 侧通过 store 订阅。
   const dirtyRef = useRef(false);
-  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     titleRef.current = title;
@@ -64,11 +57,12 @@ export function useManualSave({
     onDraftCreatedRef.current = onDraftCreated;
   }, [onDraftCreated]);
 
-  // title/content 变化 → 比对快照 → 更新 dirty。
+  // title/content 变化 → 比对快照 → 更新 dirty（写入 store）。
   useEffect(() => {
     const changed =
       title !== lastSavedRef.current.title || content !== lastSavedRef.current.content;
     dirtyRef.current = changed;
+    const { setIsDirty, setSaveStatus } = useSaveStatusStore.getState();
     setIsDirty(changed);
     // 进入编辑即清除"已保存"提示，避免误导。
     if (changed) setSaveStatus('idle');
@@ -78,6 +72,7 @@ export function useManualSave({
   const syncSnapshot = useCallback((snapshot: { title: string; content: string }) => {
     lastSavedRef.current = snapshot;
     dirtyRef.current = false;
+    const { setIsDirty, setSaveStatus } = useSaveStatusStore.getState();
     setIsDirty(false);
     setSaveStatus('idle');
   }, []);
@@ -89,6 +84,7 @@ export function useManualSave({
       content: contentRef.current,
     };
     dirtyRef.current = false;
+    const { setIsDirty, setSaveStatus } = useSaveStatusStore.getState();
     setIsDirty(false);
     setSaveStatus('saved');
   }, []);
@@ -101,7 +97,7 @@ export function useManualSave({
     // 空校验：标题与内容必须都非空才保存（收紧：任一为空即跳过）。
     if (!currentTitle.trim() || !currentContent.trim()) return;
 
-    setSaveStatus('saving');
+    useSaveStatusStore.getState().setSaveStatus('saving');
     try {
       if (draftIdRef.current) {
         await updateDraft(draftIdRef.current, {
@@ -119,7 +115,7 @@ export function useManualSave({
       markSaved();
       useToastStore.getState().addToast('success', '草稿已保存');
     } catch {
-      setSaveStatus('error');
+      useSaveStatusStore.getState().setSaveStatus('error');
       useToastStore.getState().addToast('error', '草稿保存失败，请检查网络后重试');
     }
   }, [markSaved]);
@@ -166,9 +162,6 @@ export function useManualSave({
   }, [flushSave]);
 
   return {
-    saveStatus,
-    isDirty,
-    canSave: isDirty && !!title.trim() && !!content.trim(),
     save,
     syncSnapshot,
   };

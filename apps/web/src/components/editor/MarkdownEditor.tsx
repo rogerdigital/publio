@@ -1,8 +1,7 @@
 import '@uiw/react-md-editor/markdown-editor.css';
 import type { ICommand } from '@uiw/react-md-editor';
-import { lazy, Suspense, useEffect, useRef, useState, useCallback } from 'react';
-import { Maximize2, Minimize2, Save } from 'lucide-react';
-import type { SaveStatus } from '@/hooks/useManualSave';
+import { lazy, memo, Suspense, useEffect, useRef, useState, useCallback } from 'react';
+import { Maximize2, Minimize2 } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import { markdownToHtml } from '@/lib/markdown';
 import {
@@ -18,6 +17,7 @@ import { useImmersiveMode } from '@/hooks/useImmersiveMode';
 import { useClickOutside } from '@/hooks/useClickOutside';
 import SlashCommandMenu from './SlashCommandMenu';
 import EditorModeToggle from './EditorModeToggle';
+import SaveButton from './SaveButton';
 import * as styles from './editor.css';
 
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
@@ -30,18 +30,16 @@ interface MarkdownEditorProps {
   activeTab: 'edit' | 'preview';
   onSave?: () => Promise<void>;
   agentEnabled?: boolean;
-  saveStatus?: SaveStatus;
-  canSave?: boolean;
 }
 
-export default function MarkdownEditor({
-  activeTab,
-  onSave,
-  agentEnabled = false,
-  saveStatus = 'idle',
-  canSave = false,
-}: MarkdownEditorProps) {
-  const { title, setTitle, content, setContent, setActiveTab, editorMode } = usePublishStore();
+function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEditorProps) {
+  // 用 selector 订阅，避免 currentDraftId 等无关字段变化触发重渲染。
+  const title = usePublishStore((s) => s.title);
+  const setTitle = usePublishStore((s) => s.setTitle);
+  const content = usePublishStore((s) => s.content);
+  const setContent = usePublishStore((s) => s.setContent);
+  const setActiveTab = usePublishStore((s) => s.setActiveTab);
+  const editorMode = usePublishStore((s) => s.editorMode);
   const [editorHeight, setEditorHeight] = useState<number | undefined>(undefined);
   const [isDesktop, setIsDesktop] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -107,16 +105,19 @@ export default function MarkdownEditor({
   }, [slash]);
 
   const lastContentForSlashRef = useRef(content);
-  const handleContentChange = (val?: string) => {
-    const newValue = val || '';
-    setContent(newValue);
-    // 仅当内容确实由用户输入变化时检测 slash command
-    if (newValue !== lastContentForSlashRef.current) {
-      lastContentForSlashRef.current = newValue;
-      // 简单检测：如果新内容比旧内容多且包含 /，触发 slash 检测
-      slash.onTextChange(newValue, newValue.length);
-    }
-  };
+  const handleContentChange = useCallback(
+    (val?: string) => {
+      const newValue = val || '';
+      setContent(newValue);
+      // 仅当内容确实由用户输入变化时检测 slash command
+      if (newValue !== lastContentForSlashRef.current) {
+        lastContentForSlashRef.current = newValue;
+        // 简单检测：如果新内容比旧内容多且包含 /，触发 slash 检测
+        slash.onTextChange(newValue, newValue.length);
+      }
+    },
+    [setContent, slash],
+  );
 
   const handleImageUpload = useCallback(
     async (file: File) => {
@@ -178,16 +179,7 @@ export default function MarkdownEditor({
             placeholder="给文章起个标题"
             className={styles.titleInput}
           />
-          <button
-            type="button"
-            className={styles.editorSaveBtn}
-            onClick={() => void onSave?.()}
-            disabled={!canSave || saveStatus === 'saving'}
-            title="保存草稿 (Ctrl+S)"
-          >
-            <Save size={13} />
-            {saveStatus === 'saving' ? '保存中…' : '保存'}
-          </button>
+          <SaveButton onSave={onSave} />
         </div>
 
         {/* 正文编辑区 */}
@@ -372,3 +364,5 @@ export default function MarkdownEditor({
     </div>
   );
 }
+
+export default memo(MarkdownEditor);
