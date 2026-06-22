@@ -106,7 +106,9 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
 
   const lastContentForSlashRef = useRef(content);
   const handleContentChange = useCallback(
-    (val?: string) => {
+    (val?: string, event?: React.ChangeEvent<HTMLTextAreaElement>) => {
+      // IME 合成中（拼音未确认）不计入，等选词确认后再更新
+      if ((event?.nativeEvent as { isComposing?: boolean } | undefined)?.isComposing) return;
       const newValue = val || '';
       setContent(newValue);
       // 仅当内容确实由用户输入变化时检测 slash command
@@ -241,7 +243,7 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
             <textarea
               ref={textareaRef}
               value={content}
-              onChange={(e) => handleContentChange(e.target.value)}
+              onChange={(e) => handleContentChange(e.target.value, e)}
               placeholder="开始写作，支持 Markdown 语法..."
               className={styles.mobileTextarea}
             />
