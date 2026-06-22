@@ -1,6 +1,8 @@
 import '@uiw/react-md-editor/markdown-editor.css';
+import type { ICommand } from '@uiw/react-md-editor';
 import { lazy, Suspense, useEffect, useRef, useState, useCallback } from 'react';
-import { Maximize2, Minimize2 } from 'lucide-react';
+import { Maximize2, Minimize2, Save } from 'lucide-react';
+import type { SaveStatus } from '@/hooks/useManualSave';
 import { usePublishStore } from '@/stores/publishStore';
 import { markdownToHtml } from '@/lib/markdown';
 import {
@@ -20,16 +22,24 @@ import * as styles from './editor.css';
 
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 
+// 隐藏 md-editor 自带的视图模式按钮（编辑/实时/预览），视图切换统一走「源码/实时」toggle
+const stripEditorModeCommands = (_cmd: ICommand, isExtra: boolean): false | ICommand =>
+  isExtra ? false : _cmd;
+
 interface MarkdownEditorProps {
   activeTab: 'edit' | 'preview';
   onSave?: () => Promise<void>;
   agentEnabled?: boolean;
+  saveStatus?: SaveStatus;
+  canSave?: boolean;
 }
 
 export default function MarkdownEditor({
   activeTab,
   onSave,
   agentEnabled = false,
+  saveStatus = 'idle',
+  canSave = false,
 }: MarkdownEditorProps) {
   const { title, setTitle, content, setContent, setActiveTab, editorMode } = usePublishStore();
   const [editorHeight, setEditorHeight] = useState<number | undefined>(undefined);
@@ -168,7 +178,16 @@ export default function MarkdownEditor({
             placeholder="给文章起个标题"
             className={styles.titleInput}
           />
-          {isDesktop && <EditorModeToggle />}
+          <button
+            type="button"
+            className={styles.editorSaveBtn}
+            onClick={() => void onSave?.()}
+            disabled={!canSave || saveStatus === 'saving'}
+            title="保存草稿 (Ctrl+S)"
+          >
+            <Save size={13} />
+            {saveStatus === 'saving' ? '保存中…' : '保存'}
+          </button>
         </div>
 
         {/* 正文编辑区 */}
@@ -192,6 +211,11 @@ export default function MarkdownEditor({
             }
           }}
         >
+          {isDesktop && (
+            <div className={styles.toolbarSlot}>
+              <EditorModeToggle />
+            </div>
+          )}
           {slash.visible && (
             <div data-slash-menu>
               <SlashCommandMenu
@@ -218,6 +242,7 @@ export default function MarkdownEditor({
                 height={editorHeight}
                 preview={editorMode === 'live' ? 'live' : 'edit'}
                 visibleDragbar={false}
+                commandsFilter={stripEditorModeCommands}
               />
             </Suspense>
           ) : (
@@ -330,6 +355,7 @@ export default function MarkdownEditor({
                     height={500}
                     preview="edit"
                     visibleDragbar={false}
+                    commandsFilter={stripEditorModeCommands}
                   />
                 </Suspense>
               </div>
