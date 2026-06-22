@@ -267,7 +267,11 @@ function HomePageContent() {
                 <MarkdownEditor activeTab={activeTab} onSave={save} agentEnabled={agentEnabled} />
               </div>
 
-              {agentStatus !== 'idle' && <AgentPanel />}
+              {agentStatus !== 'idle' && (
+                <Suspense fallback={null}>
+                  <AgentPanel />
+                </Suspense>
+              )}
 
               {/* 发布区：编辑区下方 */}
               <div className={styles.publishPanel}>
@@ -291,7 +295,9 @@ function HomePageContent() {
           </div>
         </div>
       </div>
-      <PublishProgressOverlay />
+      <Suspense fallback={null}>
+        <PublishProgressOverlay />
+      </Suspense>
 
       {/* Clear confirm modal */}
       {clearConfirming && (
