@@ -94,7 +94,7 @@ function HomePageContent() {
     [setCurrentDraftId, navigate],
   );
 
-  const { saveStatus, canSave, save, syncSnapshot } = useManualSave({
+  const { save, syncSnapshot } = useManualSave({
     title,
     content,
     draftId: currentDraftId,
@@ -264,13 +264,7 @@ function HomePageContent() {
               </div>
 
               <div className={styles.editorCard({ preview: activeTab === 'preview' })}>
-                <MarkdownEditor
-                  activeTab={activeTab}
-                  onSave={save}
-                  agentEnabled={agentEnabled}
-                  saveStatus={saveStatus}
-                  canSave={canSave}
-                />
+                <MarkdownEditor activeTab={activeTab} onSave={save} agentEnabled={agentEnabled} />
               </div>
 
               {agentStatus !== 'idle' && <AgentPanel />}
@@ -284,10 +278,12 @@ function HomePageContent() {
                 {currentDraftId && (
                   <div className={publishStyles.rightPanelSection}>
                     <span className={publishStyles.rightPanelSectionTitle}>渠道版本</span>
-                    <PlatformVariantPanel
-                      selectedPlatforms={selectedPlatforms}
-                      agentEnabled={agentEnabled}
-                    />
+                    <Suspense fallback={null}>
+                      <PlatformVariantPanel
+                        selectedPlatforms={selectedPlatforms}
+                        agentEnabled={agentEnabled}
+                      />
+                    </Suspense>
                   </div>
                 )}
               </div>
