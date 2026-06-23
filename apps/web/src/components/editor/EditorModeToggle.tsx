@@ -12,6 +12,7 @@ export default function EditorModeToggle() {
         className={styles.modeToggleBtn({ active: editorMode === 'source' })}
         onClick={() => setEditorMode('source')}
         aria-label="源码模式"
+        title="源码模式（仅编辑，无预览）"
       >
         <Code size={13} />
         源码
@@ -21,6 +22,7 @@ export default function EditorModeToggle() {
         className={styles.modeToggleBtn({ active: editorMode === 'live' })}
         onClick={() => setEditorMode('live')}
         aria-label="实时预览模式"
+        title="实时预览（编辑与渲染并排）"
       >
         <Columns2 size={13} />
         实时

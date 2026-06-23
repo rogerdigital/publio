@@ -654,16 +654,23 @@ export const immersiveInner = style({
   maxWidth: '720px',
 });
 
+export const immersiveTitleRow = style({
+  display: 'flex',
+  alignItems: 'baseline',
+  gap: vars.spacing.lg,
+  marginBottom: vars.spacing['3xl'],
+});
+
 export const immersiveTitleInput = style({
   fontFamily: vars.font.serif,
-  width: '100%',
+  flex: 1,
+  minWidth: 0,
   border: 0,
   background: 'transparent',
   fontSize: '32px',
   lineHeight: 1.3,
   color: vars.color.text,
   outline: 'none',
-  marginBottom: vars.spacing['3xl'],
   '::placeholder': {
     color: vars.color.textMuted,
   },
@@ -762,12 +769,12 @@ export const immersiveEntryBtn = style({
 });
 
 // --- Editor Mode Toggle ---
+// 与 md-editor 工具栏原生按钮视觉对齐：无边框容器、小圆角、hover 用 accentSoft。
 
 export const modeToggle = style({
   display: 'inline-flex',
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  overflow: 'hidden',
+  alignItems: 'center',
+  gap: vars.spacing['2xs'],
 });
 
 export const modeToggleBtn = recipe({
@@ -777,19 +784,21 @@ export const modeToggleBtn = recipe({
     gap: vars.spacing.xs,
     border: 'none',
     background: 'transparent',
-    padding: `${vars.spacing.xs} ${vars.spacing['md-lg']}`,
+    borderRadius: vars.radius.xs,
+    padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
     fontSize: vars.fontSize.xs,
     color: vars.color.textMuted,
     cursor: 'pointer',
     transition: 'all 150ms',
     ':hover': {
+      background: vars.color.accentSoft,
       color: vars.color.text,
     },
   },
   variants: {
     active: {
       true: {
-        background: vars.color.bgElevated,
+        background: vars.color.accentSoft,
         color: vars.color.text,
         fontWeight: 500,
       },
