@@ -40,6 +40,9 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
   const setContent = usePublishStore((s) => s.setContent);
   const setActiveTab = usePublishStore((s) => s.setActiveTab);
   const editorMode = usePublishStore((s) => s.editorMode);
+  // 统计用的"已确认内容"：IME 合成中不更新，避免拼音临时字符计入字符统计
+  const isComposingRef = useRef(false);
+  const [confirmedContent, setConfirmedContent] = useState(content);
   const [editorHeight, setEditorHeight] = useState<number | undefined>(undefined);
   const [isDesktop, setIsDesktop] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -119,6 +122,11 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
     [setContent, slash],
   );
 
+  // content 变化时同步统计用的 confirmedContent，但跳过 IME 合成中
+  useEffect(() => {
+    if (!isComposingRef.current) setConfirmedContent(content);
+  }, [content]);
+
   const handleImageUpload = useCallback(
     async (file: File) => {
       if (!file.type.startsWith('image/')) return;
@@ -164,6 +172,7 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
   );
 
   const cleanContent = content.trim();
+  const cleanConfirmed = confirmedContent.trim();
   const previewHtml = markdownToHtml(cleanContent || '开始写作后，这里会显示文章预览。');
 
   return (
@@ -189,6 +198,15 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
           onPaste={handlePaste}
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
+          onCompositionStart={() => {
+            isComposingRef.current = true;
+          }}
+          onCompositionEnd={() => {
+            isComposingRef.current = false;
+            // 合成结束直接读 textarea 最终文本同步统计，避免依赖后续 onChange
+            const ta = editorWrapRef.current?.querySelector<HTMLTextAreaElement>('textarea');
+            if (ta) setConfirmedContent(ta.value);
+          }}
           onClick={(e) => {
             const target = e.target as HTMLElement;
             if (target.closest('.w-md-editor-toolbar')) return;
@@ -252,24 +270,24 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
         <div className={styles.statsBar}>
           <div className={styles.statsRow}>
             <span>
-              <span className={styles.statsValue}>{countCharacters(cleanContent)}</span>{' '}
+              <span className={styles.statsValue}>{countCharacters(cleanConfirmed)}</span>{' '}
               <span className={styles.statsUnit}>字符</span>
             </span>
             <span className={styles.statsDot}>·</span>
             <span>
-              <span className={styles.statsValue}>{countParagraphs(cleanContent)}</span>{' '}
+              <span className={styles.statsValue}>{countParagraphs(cleanConfirmed)}</span>{' '}
               <span className={styles.statsUnit}>段落</span>
             </span>
             <span className={styles.statsDot}>·</span>
             <span>
-              <span className={styles.statsValue}>{countHeadings(cleanContent)}</span>{' '}
+              <span className={styles.statsValue}>{countHeadings(cleanConfirmed)}</span>{' '}
               <span className={styles.statsUnit}>标题</span>
             </span>
             <span className={styles.statsDot}>·</span>
             <span>
               <span className={styles.statsUnit}>约</span>{' '}
               <span className={styles.statsValue}>
-                {cleanContent ? estimateReadTime(cleanContent) : '1 分钟'}
+                {cleanConfirmed ? estimateReadTime(cleanConfirmed) : '1 分钟'}
               </span>{' '}
               <span className={styles.statsUnit}>阅读</span>
             </span>
@@ -355,8 +373,8 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
           </div>
           <div className={styles.immersiveFooter}>
             <span className={styles.immersiveFooterText}>
-              {countCharacters(cleanContent)} 字符 · {countParagraphs(cleanContent)} 段落 · 约{' '}
-              {cleanContent ? estimateReadTime(cleanContent) : '1 分钟'} 阅读 · ESC 退出
+              {countCharacters(cleanConfirmed)} 字符 · {countParagraphs(cleanConfirmed)} 段落 · 约{' '}
+              {cleanConfirmed ? estimateReadTime(cleanConfirmed) : '1 分钟'} 阅读 · ESC 退出
             </span>
           </div>
         </div>
