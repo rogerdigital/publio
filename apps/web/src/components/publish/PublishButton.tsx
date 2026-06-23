@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePublishStore } from '@/stores/publishStore';
+import { countCharacters, TITLE_LIMIT, CONTENT_LIMIT } from '@/lib/contentStats';
 import { PlatformId, PublishResponse } from '@/types';
 import { SendHorizonal, Loader2, AlertCircle } from 'lucide-react';
 import { publishButton } from './publish.css';
@@ -42,9 +43,13 @@ export default function PublishButton() {
     return !draft?.title?.trim() || !draft?.body?.trim();
   });
 
+  const titleOver = countCharacters(title) > TITLE_LIMIT;
+  const contentOver = countCharacters(content) > CONTENT_LIMIT;
   const isDisabled =
     !title.trim() ||
     !content.trim() ||
+    titleOver ||
+    contentOver ||
     selectedPlatforms.length === 0 ||
     notReadyPlatforms.length > 0 ||
     overallStatus === 'publishing';
@@ -177,6 +182,8 @@ export default function PublishButton() {
   let label: string;
   if (overallStatus === 'publishing') {
     label = '提交中...';
+  } else if (titleOver || contentOver) {
+    label = '内容超出长度限制';
   } else if (selectedPlatforms.length === 0) {
     label = '请先选择平台';
   } else if (notReadyPlatforms.length > 0) {

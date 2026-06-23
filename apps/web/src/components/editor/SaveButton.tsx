@@ -1,6 +1,7 @@
 import { Save } from 'lucide-react';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 import { usePublishStore } from '@/stores/publishStore';
+import { countCharacters, TITLE_LIMIT, CONTENT_LIMIT } from '@/lib/contentStats';
 import * as styles from './editor.css';
 
 interface SaveButtonProps {
@@ -16,7 +17,9 @@ export default function SaveButton({ onSave }: SaveButtonProps) {
   const isDirty = useSaveStatusStore((s) => s.isDirty);
   const title = usePublishStore((s) => s.title);
   const content = usePublishStore((s) => s.content);
-  const canSave = isDirty && !!title.trim() && !!content.trim();
+  const titleOver = countCharacters(title) > TITLE_LIMIT;
+  const contentOver = countCharacters(content) > CONTENT_LIMIT;
+  const canSave = isDirty && !!title.trim() && !!content.trim() && !titleOver && !contentOver;
 
   return (
     <button

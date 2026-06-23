@@ -1,3 +1,7 @@
+// 草稿长度上限（软提示 + 超出阻断保存/发布）。对齐微信公众号最宽限制。
+export const TITLE_LIMIT = 64;
+export const CONTENT_LIMIT = 20000;
+
 export function countCharacters(content: string) {
   return content.replace(/\s/g, '').length;
 }

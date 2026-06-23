@@ -9,6 +9,8 @@ import {
   countParagraphs,
   countHeadings,
   estimateReadTime,
+  TITLE_LIMIT,
+  CONTENT_LIMIT,
 } from '@/lib/contentStats';
 import { useSlashCommands } from '@/hooks/useSlashCommands';
 import { useAgentStream } from '@/hooks/useAgentStream';
@@ -40,9 +42,11 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
   const setContent = usePublishStore((s) => s.setContent);
   const setActiveTab = usePublishStore((s) => s.setActiveTab);
   const editorMode = usePublishStore((s) => s.editorMode);
-  // 统计用的"已确认内容"：IME 合成中不更新，避免拼音临时字符计入字符统计
+  // 统计用的"已确认"值：IME 合成中不更新，避免拼音临时字符计入字符统计
   const isComposingRef = useRef(false);
   const [confirmedContent, setConfirmedContent] = useState(content);
+  const isComposingTitleRef = useRef(false);
+  const [confirmedTitle, setConfirmedTitle] = useState(title);
   const [editorHeight, setEditorHeight] = useState<number | undefined>(undefined);
   const [isDesktop, setIsDesktop] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -127,6 +131,11 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
     if (!isComposingRef.current) setConfirmedContent(content);
   }, [content]);
 
+  // title 变化时同步统计用的 confirmedTitle，但跳过 IME 合成中
+  useEffect(() => {
+    if (!isComposingTitleRef.current) setConfirmedTitle(title);
+  }, [title]);
+
   const handleImageUpload = useCallback(
     async (file: File) => {
       if (!file.type.startsWith('image/')) return;
@@ -173,6 +182,10 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
 
   const cleanContent = content.trim();
   const cleanConfirmed = confirmedContent.trim();
+  const titleCount = countCharacters(confirmedTitle);
+  const titleOver = titleCount > TITLE_LIMIT;
+  const contentCount = countCharacters(cleanConfirmed);
+  const contentOver = contentCount > CONTENT_LIMIT;
   const previewHtml = markdownToHtml(cleanContent || '开始写作后，这里会显示文章预览。');
 
   return (
@@ -185,9 +198,19 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            onCompositionStart={() => {
+              isComposingTitleRef.current = true;
+            }}
+            onCompositionEnd={(e) => {
+              isComposingTitleRef.current = false;
+              setConfirmedTitle(e.currentTarget.value);
+            }}
             placeholder="给文章起个标题"
             className={styles.titleInput}
           />
+          <span className={styles.limitCount({ over: titleOver })}>
+            {titleCount}/{TITLE_LIMIT}
+          </span>
           <SaveButton onSave={onSave} />
         </div>
 
@@ -270,23 +293,23 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
         <div className={styles.statsBar}>
           <div className={styles.statsRow}>
             <span>
-              <span className={styles.statsValue}>{countCharacters(cleanConfirmed)}</span>{' '}
-              <span className={styles.statsUnit}>字符</span>
+              <span className={styles.statsValue({ over: contentOver })}>{contentCount}</span>{' '}
+              <span className={styles.statsUnit}>/ {CONTENT_LIMIT} 字符</span>
             </span>
             <span className={styles.statsDot}>·</span>
             <span>
-              <span className={styles.statsValue}>{countParagraphs(cleanConfirmed)}</span>{' '}
+              <span className={styles.statsValue()}>{countParagraphs(cleanConfirmed)}</span>{' '}
               <span className={styles.statsUnit}>段落</span>
             </span>
             <span className={styles.statsDot}>·</span>
             <span>
-              <span className={styles.statsValue}>{countHeadings(cleanConfirmed)}</span>{' '}
+              <span className={styles.statsValue()}>{countHeadings(cleanConfirmed)}</span>{' '}
               <span className={styles.statsUnit}>标题</span>
             </span>
             <span className={styles.statsDot}>·</span>
             <span>
               <span className={styles.statsUnit}>约</span>{' '}
-              <span className={styles.statsValue}>
+              <span className={styles.statsValue()}>
                 {cleanConfirmed ? estimateReadTime(cleanConfirmed) : '1 分钟'}
               </span>{' '}
               <span className={styles.statsUnit}>阅读</span>
