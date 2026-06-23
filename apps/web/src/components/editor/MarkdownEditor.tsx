@@ -9,6 +9,8 @@ import {
   countParagraphs,
   countHeadings,
   estimateReadTime,
+  TITLE_LIMIT,
+  CONTENT_LIMIT,
 } from '@/lib/contentStats';
 import { useSlashCommands } from '@/hooks/useSlashCommands';
 import { useAgentStream } from '@/hooks/useAgentStream';
@@ -25,10 +27,6 @@ const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 // 隐藏 md-editor 自带的视图模式按钮（编辑/实时/预览），视图切换统一走「源码/实时」toggle
 const stripEditorModeCommands = (_cmd: ICommand, isExtra: boolean): false | ICommand =>
   isExtra ? false : _cmd;
-
-// 草稿长度上限（软提示，超出标红不阻断）。对齐微信公众号最宽限制。
-const TITLE_LIMIT = 64;
-const CONTENT_LIMIT = 20000;
 
 interface MarkdownEditorProps {
   activeTab: 'edit' | 'preview';
