@@ -371,13 +371,25 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
           </div>
           <div className={styles.immersiveBody}>
             <div className={styles.immersiveInner}>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="给文章起个标题"
-                className={styles.immersiveTitleInput}
-              />
+              <div className={styles.immersiveTitleRow}>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  onCompositionStart={() => {
+                    isComposingTitleRef.current = true;
+                  }}
+                  onCompositionEnd={(e) => {
+                    isComposingTitleRef.current = false;
+                    setConfirmedTitle(e.currentTarget.value);
+                  }}
+                  placeholder="给文章起个标题"
+                  className={styles.immersiveTitleInput}
+                />
+                <span className={styles.limitCount({ over: titleOver })}>
+                  {titleCount}/{TITLE_LIMIT}
+                </span>
+              </div>
               <div className={styles.immersiveEditorWrap}>
                 <Suspense fallback={<div style={{ height: 500 }} />}>
                   <MDEditor
@@ -396,7 +408,19 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
           </div>
           <div className={styles.immersiveFooter}>
             <span className={styles.immersiveFooterText}>
-              {stats.chars} 字符 · {stats.paragraphs} 段落 · 约 {stats.readTime} 阅读 · ESC 退出
+              <span className={styles.statsValue({ over: contentOver })}>{stats.chars}</span>{' '}
+              <span className={styles.statsUnit}>/ {CONTENT_LIMIT} 字符</span>
+              <span className={styles.statsDot}> · </span>
+              <span className={styles.statsValue()}>{stats.paragraphs}</span>{' '}
+              <span className={styles.statsUnit}>段落</span>
+              <span className={styles.statsDot}> · </span>
+              <span className={styles.statsValue()}>{stats.headings}</span>{' '}
+              <span className={styles.statsUnit}>标题</span>
+              <span className={styles.statsDot}> · </span>
+              <span className={styles.statsUnit}>约</span>{' '}
+              <span className={styles.statsValue()}>{stats.readTime}</span>{' '}
+              <span className={styles.statsUnit}>阅读</span>
+              <span className={styles.statsDot}> · ESC 退出</span>
             </span>
           </div>
         </div>
