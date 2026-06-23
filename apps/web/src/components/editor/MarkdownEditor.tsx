@@ -109,11 +109,7 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
 
   const lastContentForSlashRef = useRef(content);
   const handleContentChange = useCallback(
-    (val?: string, event?: React.ChangeEvent<HTMLTextAreaElement>) => {
-      // 记录 IME 合成状态：合成中不更新统计用的 confirmedContent（由下面的 effect 同步）
-      isComposingRef.current =
-        (event?.nativeEvent as { isComposing?: boolean } | undefined)?.isComposing ??
-        isComposingRef.current;
+    (val?: string) => {
       const newValue = val || '';
       setContent(newValue);
       // 仅当内容确实由用户输入变化时检测 slash command
@@ -202,6 +198,15 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
           onPaste={handlePaste}
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
+          onCompositionStart={() => {
+            isComposingRef.current = true;
+          }}
+          onCompositionEnd={() => {
+            isComposingRef.current = false;
+            // 合成结束直接读 textarea 最终文本同步统计，避免依赖后续 onChange
+            const ta = editorWrapRef.current?.querySelector<HTMLTextAreaElement>('textarea');
+            if (ta) setConfirmedContent(ta.value);
+          }}
           onClick={(e) => {
             const target = e.target as HTMLElement;
             if (target.closest('.w-md-editor-toolbar')) return;
@@ -254,7 +259,7 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
             <textarea
               ref={textareaRef}
               value={content}
-              onChange={(e) => handleContentChange(e.target.value, e)}
+              onChange={(e) => handleContentChange(e.target.value)}
               placeholder="开始写作，支持 Markdown 语法..."
               className={styles.mobileTextarea}
             />
