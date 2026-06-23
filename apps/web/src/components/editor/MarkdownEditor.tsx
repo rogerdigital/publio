@@ -42,9 +42,11 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
   const setContent = usePublishStore((s) => s.setContent);
   const setActiveTab = usePublishStore((s) => s.setActiveTab);
   const editorMode = usePublishStore((s) => s.editorMode);
-  // 统计用的"已确认内容"：IME 合成中不更新，避免拼音临时字符计入字符统计
+  // 统计用的"已确认"值：IME 合成中不更新，避免拼音临时字符计入字符统计
   const isComposingRef = useRef(false);
   const [confirmedContent, setConfirmedContent] = useState(content);
+  const isComposingTitleRef = useRef(false);
+  const [confirmedTitle, setConfirmedTitle] = useState(title);
   const [editorHeight, setEditorHeight] = useState<number | undefined>(undefined);
   const [isDesktop, setIsDesktop] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -129,6 +131,11 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
     if (!isComposingRef.current) setConfirmedContent(content);
   }, [content]);
 
+  // title 变化时同步统计用的 confirmedTitle，但跳过 IME 合成中
+  useEffect(() => {
+    if (!isComposingTitleRef.current) setConfirmedTitle(title);
+  }, [title]);
+
   const handleImageUpload = useCallback(
     async (file: File) => {
       if (!file.type.startsWith('image/')) return;
@@ -175,7 +182,7 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
 
   const cleanContent = content.trim();
   const cleanConfirmed = confirmedContent.trim();
-  const titleCount = countCharacters(title);
+  const titleCount = countCharacters(confirmedTitle);
   const titleOver = titleCount > TITLE_LIMIT;
   const contentCount = countCharacters(cleanConfirmed);
   const contentOver = contentCount > CONTENT_LIMIT;
@@ -191,6 +198,13 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            onCompositionStart={() => {
+              isComposingTitleRef.current = true;
+            }}
+            onCompositionEnd={(e) => {
+              isComposingTitleRef.current = false;
+              setConfirmedTitle(e.currentTarget.value);
+            }}
             placeholder="给文章起个标题"
             className={styles.titleInput}
           />
