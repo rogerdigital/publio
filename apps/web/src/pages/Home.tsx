@@ -32,19 +32,18 @@ import type { PlatformId } from '@/types';
 import * as styles from './page.css';
 
 function HomePageContent() {
-  const {
-    title,
-    content,
-    platforms,
-    syncPlatformDrafts,
-    setTitle,
-    setContent,
-    reset,
-    currentDraftId,
-    setCurrentDraftId,
-    activeTab,
-    setActiveTab,
-  } = usePublishStore();
+  // 用 selector 订阅，避免 platformDrafts/results 等无关字段变化触发整页重渲染。
+  const title = usePublishStore((s) => s.title);
+  const content = usePublishStore((s) => s.content);
+  const platforms = usePublishStore((s) => s.platforms);
+  const syncPlatformDrafts = usePublishStore((s) => s.syncPlatformDrafts);
+  const setTitle = usePublishStore((s) => s.setTitle);
+  const setContent = usePublishStore((s) => s.setContent);
+  const reset = usePublishStore((s) => s.reset);
+  const currentDraftId = usePublishStore((s) => s.currentDraftId);
+  const setCurrentDraftId = usePublishStore((s) => s.setCurrentDraftId);
+  const activeTab = usePublishStore((s) => s.activeTab);
+  const setActiveTab = usePublishStore((s) => s.setActiveTab);
   const agentStatus = useAgentStore((s) => s.status);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

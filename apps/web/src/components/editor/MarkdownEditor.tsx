@@ -6,13 +6,13 @@ import {
   Suspense,
   useEffect,
   useDeferredValue,
+  useMemo,
   useRef,
   useState,
   useCallback,
 } from 'react';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
-import { markdownToHtml } from '@/lib/markdown';
 import {
   countCharacters,
   countParagraphs,
@@ -29,6 +29,7 @@ import { useClickOutside } from '@/hooks/useClickOutside';
 import SlashCommandMenu from './SlashCommandMenu';
 import EditorModeToggle from './EditorModeToggle';
 import SaveButton from './SaveButton';
+import ArticlePreview from './ArticlePreview';
 import * as styles from './editor.css';
 
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
@@ -189,16 +190,23 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
     [handleImageUpload],
   );
 
-  const cleanContent = content.trim();
   // 统计用 deferred 值：大文本下输入时不阻塞（低优先级重算）
   const deferredConfirmedContent = useDeferredValue(confirmedContent);
   const deferredConfirmedTitle = useDeferredValue(confirmedTitle);
   const cleanConfirmed = deferredConfirmedContent.trim();
   const titleCount = countCharacters(deferredConfirmedTitle);
   const titleOver = titleCount > TITLE_LIMIT;
-  const contentCount = countCharacters(cleanConfirmed);
-  const contentOver = contentCount > CONTENT_LIMIT;
-  const previewHtml = markdownToHtml(cleanContent || '开始写作后，这里会显示文章预览。');
+  // 正文统计合并一次算完，避免底部栏和沉浸态 footer 各扫一遍。
+  const stats = useMemo(
+    () => ({
+      chars: countCharacters(cleanConfirmed),
+      paragraphs: countParagraphs(cleanConfirmed),
+      headings: countHeadings(cleanConfirmed),
+      readTime: cleanConfirmed ? estimateReadTime(cleanConfirmed) : '1 分钟',
+    }),
+    [cleanConfirmed],
+  );
+  const contentOver = stats.chars > CONTENT_LIMIT;
 
   return (
     <div data-color-mode="light" className={styles.editorRoot}>
@@ -288,6 +296,10 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
                 preview={editorMode === 'live' ? 'live' : 'edit'}
                 visibleDragbar={false}
                 commandsFilter={stripEditorModeCommands}
+                // 源码模式下关闭语法高亮 overlay：库会为 textarea 挂一个每次按键
+                // 对全文同步跑 rehype-prism 的 overlay（processSync），大文本下
+                // 阻塞主线程造成卡顿。live 模式保留高亮，实时预览仍需着色。
+                highlightEnable={editorMode === 'live'}
                 textareaProps={{ spellCheck: false, autoCapitalize: 'off', autoCorrect: 'off' }}
               />
             </Suspense>
@@ -306,25 +318,23 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
         <div className={styles.statsBar}>
           <div className={styles.statsRow}>
             <span>
-              <span className={styles.statsValue({ over: contentOver })}>{contentCount}</span>{' '}
+              <span className={styles.statsValue({ over: contentOver })}>{stats.chars}</span>{' '}
               <span className={styles.statsUnit}>/ {CONTENT_LIMIT} 字符</span>
             </span>
             <span className={styles.statsDot}>·</span>
             <span>
-              <span className={styles.statsValue()}>{countParagraphs(cleanConfirmed)}</span>{' '}
+              <span className={styles.statsValue()}>{stats.paragraphs}</span>{' '}
               <span className={styles.statsUnit}>段落</span>
             </span>
             <span className={styles.statsDot}>·</span>
             <span>
-              <span className={styles.statsValue()}>{countHeadings(cleanConfirmed)}</span>{' '}
+              <span className={styles.statsValue()}>{stats.headings}</span>{' '}
               <span className={styles.statsUnit}>标题</span>
             </span>
             <span className={styles.statsDot}>·</span>
             <span>
               <span className={styles.statsUnit}>约</span>{' '}
-              <span className={styles.statsValue()}>
-                {cleanConfirmed ? estimateReadTime(cleanConfirmed) : '1 分钟'}
-              </span>{' '}
+              <span className={styles.statsValue()}>{stats.readTime}</span>{' '}
               <span className={styles.statsUnit}>阅读</span>
             </span>
             <button
@@ -341,33 +351,8 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
         </div>
       </div>
 
-      {/* 预览区 */}
-      {activeTab === 'preview' && (
-        <div className={styles.previewWrap}>
-          <div className={styles.previewPhoneFrame}>
-            {/* 模拟公众号/手机阅读顶栏 */}
-            <div className={styles.previewPhoneBar}>
-              <div className={styles.previewPhoneBarDots}>
-                <span className={styles.previewPhoneBarDot} />
-                <span className={styles.previewPhoneBarDot} />
-                <span className={styles.previewPhoneBarDot} />
-              </div>
-              <span className={styles.previewPhoneBarLabel}>成稿预览</span>
-              <div style={{ width: '36px' }} />
-            </div>
-            <div className={styles.previewInner}>
-              <div className={styles.previewTitleBlock}>
-                <p className={styles.previewKicker}>文章</p>
-                <h3 className={styles.previewTitle}>{title || '未命名稿件'}</h3>
-              </div>
-              <div
-                className={styles.previewContent}
-                dangerouslySetInnerHTML={{ __html: previewHtml }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 预览区：仅在预览态挂载，markdown 解析隔离在子组件内，编辑态零开销 */}
+      {activeTab === 'preview' && <ArticlePreview title={title} content={content} />}
 
       {/* 沉浸式写作模式 */}
       {immersive.active && (
@@ -402,6 +387,8 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
                     preview="edit"
                     visibleDragbar={false}
                     commandsFilter={stripEditorModeCommands}
+                    // 沉浸模式固定源码态，关闭语法高亮 overlay 避免大文本卡顿。
+                    highlightEnable={false}
                   />
                 </Suspense>
               </div>
@@ -409,8 +396,7 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
           </div>
           <div className={styles.immersiveFooter}>
             <span className={styles.immersiveFooterText}>
-              {countCharacters(cleanConfirmed)} 字符 · {countParagraphs(cleanConfirmed)} 段落 · 约{' '}
-              {cleanConfirmed ? estimateReadTime(cleanConfirmed) : '1 分钟'} 阅读 · ESC 退出
+              {stats.chars} 字符 · {stats.paragraphs} 段落 · 约 {stats.readTime} 阅读 · ESC 退出
             </span>
           </div>
         </div>
