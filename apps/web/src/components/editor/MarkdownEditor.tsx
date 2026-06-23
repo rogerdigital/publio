@@ -1,6 +1,15 @@
 import '@uiw/react-md-editor/markdown-editor.css';
 import type { ICommand } from '@uiw/react-md-editor';
-import { lazy, memo, Suspense, useEffect, useRef, useState, useCallback } from 'react';
+import {
+  lazy,
+  memo,
+  Suspense,
+  useEffect,
+  useDeferredValue,
+  useRef,
+  useState,
+  useCallback,
+} from 'react';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import { markdownToHtml } from '@/lib/markdown';
@@ -181,8 +190,11 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
   );
 
   const cleanContent = content.trim();
-  const cleanConfirmed = confirmedContent.trim();
-  const titleCount = countCharacters(confirmedTitle);
+  // 统计用 deferred 值：大文本下输入时不阻塞（低优先级重算）
+  const deferredConfirmedContent = useDeferredValue(confirmedContent);
+  const deferredConfirmedTitle = useDeferredValue(confirmedTitle);
+  const cleanConfirmed = deferredConfirmedContent.trim();
+  const titleCount = countCharacters(deferredConfirmedTitle);
   const titleOver = titleCount > TITLE_LIMIT;
   const contentCount = countCharacters(cleanConfirmed);
   const contentOver = contentCount > CONTENT_LIMIT;
@@ -276,6 +288,7 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
                 preview={editorMode === 'live' ? 'live' : 'edit'}
                 visibleDragbar={false}
                 commandsFilter={stripEditorModeCommands}
+                textareaProps={{ spellCheck: false, autoCapitalize: 'off', autoCorrect: 'off' }}
               />
             </Suspense>
           ) : (

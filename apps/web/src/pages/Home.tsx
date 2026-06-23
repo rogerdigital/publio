@@ -124,8 +124,9 @@ function HomePageContent() {
   const deferredContent = useDeferredValue(content);
 
   useEffect(() => {
-    syncPlatformDrafts();
-  }, [deferredContent, syncPlatformDrafts, deferredTitle]);
+    const timer = setTimeout(() => syncPlatformDrafts(), 500);
+    return () => clearTimeout(timer);
+  }, [deferredContent, deferredTitle, syncPlatformDrafts]);
 
   useEffect(() => {
     const draftId = searchParams.get('draftId');
