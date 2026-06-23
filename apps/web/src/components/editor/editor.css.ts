@@ -144,6 +144,20 @@ globalStyle(`${editorWrap} .w-md-editor-text-input::placeholder`, {
   color: vars.color.textMuted,
 });
 
+// highlightEnable={false} 时不再渲染高亮 overlay（.w-md-editor-text-pre），
+// 而原布局靠 overlay 的 <pre> 自身内容撑开高度。没有 overlay 时高度链断裂，
+// textarea（absolute/height:100%）随之塌缩。这里给整条高度链显式补上 100%，
+// 让 textarea 直接撑满外层 .w-md-editor 的固定高度。
+globalStyle(`${editorWrap} .w-md-editor-show-edit .w-md-editor-input`, {
+  height: '100%',
+});
+globalStyle(`${editorWrap} .w-md-editor-area`, {
+  height: '100%',
+});
+globalStyle(`${editorWrap} .w-md-editor-text`, {
+  height: '100%',
+});
+
 globalStyle(`${editorWrap} .wmde-markdown`, {
   background: 'transparent',
   color: vars.color.text,
@@ -684,6 +698,17 @@ globalStyle(`${immersiveEditorWrap} .w-md-editor-text-input`, {
   background: 'transparent',
   color: vars.color.text,
   outline: 'none',
+});
+
+// highlightEnable={false}：补全高度链（同 editorWrap 处理）。
+globalStyle(`${immersiveEditorWrap} .w-md-editor-show-edit .w-md-editor-input`, {
+  height: '100%',
+});
+globalStyle(`${immersiveEditorWrap} .w-md-editor-area`, {
+  height: '100%',
+});
+globalStyle(`${immersiveEditorWrap} .w-md-editor-text`, {
+  height: '100%',
 });
 
 globalStyle(`${immersiveEditorWrap} .wmde-markdown`, {
