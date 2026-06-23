@@ -26,6 +26,10 @@ const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 const stripEditorModeCommands = (_cmd: ICommand, isExtra: boolean): false | ICommand =>
   isExtra ? false : _cmd;
 
+// 草稿长度上限（软提示，超出标红不阻断）。对齐微信公众号最宽限制。
+const TITLE_LIMIT = 64;
+const CONTENT_LIMIT = 20000;
+
 interface MarkdownEditorProps {
   activeTab: 'edit' | 'preview';
   onSave?: () => Promise<void>;
@@ -173,6 +177,10 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
 
   const cleanContent = content.trim();
   const cleanConfirmed = confirmedContent.trim();
+  const titleCount = countCharacters(title);
+  const titleOver = titleCount > TITLE_LIMIT;
+  const contentCount = countCharacters(cleanConfirmed);
+  const contentOver = contentCount > CONTENT_LIMIT;
   const previewHtml = markdownToHtml(cleanContent || '开始写作后，这里会显示文章预览。');
 
   return (
@@ -188,6 +196,9 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
             placeholder="给文章起个标题"
             className={styles.titleInput}
           />
+          <span className={styles.limitCount({ over: titleOver })}>
+            {titleCount}/{TITLE_LIMIT}
+          </span>
           <SaveButton onSave={onSave} />
         </div>
 
@@ -270,23 +281,23 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
         <div className={styles.statsBar}>
           <div className={styles.statsRow}>
             <span>
-              <span className={styles.statsValue}>{countCharacters(cleanConfirmed)}</span>{' '}
-              <span className={styles.statsUnit}>字符</span>
+              <span className={styles.statsValue({ over: contentOver })}>{contentCount}</span>{' '}
+              <span className={styles.statsUnit}>/ {CONTENT_LIMIT} 字符</span>
             </span>
             <span className={styles.statsDot}>·</span>
             <span>
-              <span className={styles.statsValue}>{countParagraphs(cleanConfirmed)}</span>{' '}
+              <span className={styles.statsValue()}>{countParagraphs(cleanConfirmed)}</span>{' '}
               <span className={styles.statsUnit}>段落</span>
             </span>
             <span className={styles.statsDot}>·</span>
             <span>
-              <span className={styles.statsValue}>{countHeadings(cleanConfirmed)}</span>{' '}
+              <span className={styles.statsValue()}>{countHeadings(cleanConfirmed)}</span>{' '}
               <span className={styles.statsUnit}>标题</span>
             </span>
             <span className={styles.statsDot}>·</span>
             <span>
               <span className={styles.statsUnit}>约</span>{' '}
-              <span className={styles.statsValue}>
+              <span className={styles.statsValue()}>
                 {cleanConfirmed ? estimateReadTime(cleanConfirmed) : '1 分钟'}
               </span>{' '}
               <span className={styles.statsUnit}>阅读</span>

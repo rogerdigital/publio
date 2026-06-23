@@ -201,13 +201,39 @@ export const statsDot = style({
 });
 
 // 统计栏：数字用主色提对比，单位保持弱化，改善暗色下 11px 文字可读性
-export const statsValue = style({
-  color: vars.color.text,
-  fontWeight: 500,
+export const statsValue = recipe({
+  base: {
+    color: vars.color.text,
+    fontWeight: 500,
+  },
+  variants: {
+    over: {
+      true: { color: vars.color.errorText },
+      false: {},
+    },
+  },
+  defaultVariants: { over: false },
 });
 
 export const statsUnit = style({
   color: vars.color.textMuted,
+});
+
+// 长度限制计数（标题）：超出上限标红提醒
+export const limitCount = recipe({
+  base: {
+    fontSize: vars.fontSize['2xs'],
+    color: vars.color.textMuted,
+    fontVariantNumeric: 'tabular-nums',
+    flexShrink: 0,
+  },
+  variants: {
+    over: {
+      true: { color: vars.color.errorText, fontWeight: 500 },
+      false: {},
+    },
+  },
+  defaultVariants: { over: false },
 });
 
 // Preview area — 容器零内边距，使 frame 与写作态编辑卡同位置同尺寸
