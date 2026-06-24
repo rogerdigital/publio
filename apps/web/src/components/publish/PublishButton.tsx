@@ -214,7 +214,6 @@ export default function PublishButton() {
 
       <PublishConfirmDialog
         open={confirmOpen}
-        title={title}
         platforms={selectedPlatforms}
         validationErrors={validationErrors}
         validating={checking}
