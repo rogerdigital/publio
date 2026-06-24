@@ -177,7 +177,7 @@ export const promptTab = recipe({
 export const promptTextarea = style({
   width: '100%',
   borderRadius: vars.radius.md,
-  border: 'none',
+  border: `1px solid transparent`,
   background: vars.color.glassInput,
   padding: `${vars.spacing['md-lg']} ${vars.spacing['lg-xl']}`,
   fontSize: vars.fontSize.sm,
@@ -187,7 +187,7 @@ export const promptTextarea = style({
   outline: 'none',
   transition: `border-color ${vars.transition.fast}`,
   ':focus': {
-    border: `1px solid ${vars.color.glassInputFocus}`,
+    borderColor: vars.color.glassInputFocus,
   },
 });
 

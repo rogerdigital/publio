@@ -109,15 +109,16 @@ export const saveForm = style({
 
 export const saveInput = style({
   flex: 1,
-  padding: `${vars.spacing.sm} ${vars.spacing['md-lg']}`,
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
+  borderRadius: vars.radius.md,
+  border: `1px solid transparent`,
+  background: vars.color.glassInput,
   color: vars.color.text,
   fontSize: vars.fontSize.sm,
   outline: 'none',
+  transition: 'border-color 150ms',
   ':focus': {
-    borderColor: vars.color.accent,
+    borderColor: vars.color.glassInputFocus,
   },
 });
 

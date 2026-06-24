@@ -413,40 +413,38 @@ export const fieldInputWrap = style({
 export const fieldInput = style({
   width: '100%',
   borderRadius: vars.radius.md,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.bg,
+  border: `1px solid transparent`,
+  background: vars.color.glassInput,
   padding: `${vars.spacing['md-lg']} ${vars.spacing.xl}`,
   paddingRight: '48px',
   fontSize: vars.fontSize.md,
   color: vars.color.text,
   outline: 'none',
-  transition: 'border-color 150ms, box-shadow 150ms',
+  transition: 'border-color 150ms',
   '::placeholder': {
     color: vars.color.textMuted,
   },
   ':focus': {
-    borderColor: vars.color.accent,
-    boxShadow: `0 0 0 3px ${vars.color.accentSoft}`,
+    borderColor: vars.color.glassInputFocus,
   },
 });
 
 export const fieldTextarea = style({
   width: '100%',
-  resize: 'none',
+  resize: 'vertical',
   borderRadius: vars.radius.md,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.bg,
+  border: `1px solid transparent`,
+  background: vars.color.glassInput,
   padding: `${vars.spacing['md-lg']} ${vars.spacing.xl}`,
   fontSize: vars.fontSize.md,
   color: vars.color.text,
   outline: 'none',
-  transition: 'border-color 150ms, box-shadow 150ms',
+  transition: 'border-color 150ms',
   '::placeholder': {
     color: vars.color.textMuted,
   },
   ':focus': {
-    borderColor: vars.color.accent,
-    boxShadow: `0 0 0 3px ${vars.color.accentSoft}`,
+    borderColor: vars.color.glassInputFocus,
   },
 });
 

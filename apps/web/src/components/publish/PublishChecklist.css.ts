@@ -227,17 +227,20 @@ export const resultLink = style({
 export const platformCards = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: vars.spacing['md-lg'],
 });
 
+// 平铺样式：去掉卡片边框/背景/圆角，靠底部分隔线区分条目
 export const variantCard = style({
   display: 'flex',
   flexDirection: 'column',
   gap: vars.spacing.md,
-  borderRadius: vars.radius.lg,
-  border: `1px solid ${vars.color.borderFaint}`,
-  background: vars.color.surfaceStrong,
-  padding: vars.spacing.lg,
+  padding: `${vars.spacing.md} 0`,
+  borderBottom: `1px solid ${vars.color.borderFaint}`,
+  selectors: {
+    '&:last-child': {
+      borderBottom: 'none',
+    },
+  },
 });
 
 export const cardHeader = style({
@@ -353,17 +356,17 @@ export const metaTag = style({
 
 export const titleInput = style({
   width: '100%',
-  borderRadius: vars.radius.sm,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
-  padding: `${vars.spacing.sm} ${vars.spacing.md}`,
+  borderRadius: vars.radius.md,
+  border: `1px solid transparent`,
+  background: vars.color.glassInput,
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
   fontSize: vars.fontSize.sm,
   fontWeight: 500,
   color: vars.color.text,
   outline: 'none',
   transition: 'border-color 150ms',
   ':focus': {
-    borderColor: vars.color.accent,
+    borderColor: vars.color.glassInputFocus,
   },
 });
 
@@ -371,10 +374,10 @@ export const contentArea = style({
   width: '100%',
   minHeight: '80px',
   maxHeight: '200px',
-  borderRadius: vars.radius.sm,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
-  padding: `${vars.spacing.sm} ${vars.spacing.md}`,
+  borderRadius: vars.radius.md,
+  border: `1px solid transparent`,
+  background: vars.color.glassInput,
+  padding: `${vars.spacing['md-lg']} ${vars.spacing.lg}`,
   fontSize: vars.fontSize.xs,
   lineHeight: 1.6,
   color: vars.color.text,
@@ -383,7 +386,7 @@ export const contentArea = style({
   fontFamily: 'inherit',
   transition: 'border-color 150ms',
   ':focus': {
-    borderColor: vars.color.accent,
+    borderColor: vars.color.glassInputFocus,
   },
 });
 
