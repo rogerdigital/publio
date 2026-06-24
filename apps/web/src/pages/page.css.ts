@@ -36,10 +36,9 @@ export const publishPanel = style({
   display: 'flex',
   flexDirection: 'column',
   gap: vars.spacing.xl,
-  borderRadius: vars.radius.xl,
-  background: vars.color.surface,
-  border: `1px solid ${vars.color.border}`,
-  boxShadow: vars.shadow.sm,
+  borderRadius: vars.radius.lg,
+  background: vars.color.glassInput,
+  border: `1px solid transparent`,
   padding: vars.spacing.xl,
   '@media': {
     'screen and (min-width: 640px)': {
@@ -61,9 +60,8 @@ export const editorCard = recipe({
     overflow: 'hidden',
     outline: 'none',
     borderRadius: vars.radius.xl,
-    background: vars.color.surface,
-    border: `1px solid ${vars.color.border}`,
-    boxShadow: vars.shadow.md,
+    background: vars.color.glassInput,
+    border: `1px solid transparent`,
   },
   variants: {
     // 预览态去掉卡底色/圆角/边框/阴影，让 phone frame 直接浮在页面背景上，消除卡中卡
@@ -73,7 +71,6 @@ export const editorCard = recipe({
         borderRadius: 0,
         background: 'transparent',
         border: 'none',
-        boxShadow: 'none',
       },
     },
   },
