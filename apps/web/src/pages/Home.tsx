@@ -1,13 +1,4 @@
-import {
-  lazy,
-  Suspense,
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { lazy, Suspense, useCallback, useDeferredValue, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, SquarePen, Eraser, MoreHorizontal, FileText } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
@@ -21,21 +12,18 @@ import PublishChecklist from '@/components/publish/PublishChecklist';
 import TemplatePicker from '@/components/editor/TemplatePicker';
 import MediaLibrary from '@/components/editor/MediaLibrary';
 
-const PlatformVariantPanel = lazy(() => import('@/components/publish/PlatformVariantPanel'));
 const PublishProgressOverlay = lazy(() => import('@/components/publish/PublishProgressOverlay'));
 const AgentPanel = lazy(() => import('@/components/agent/AgentPanel'));
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
 import { getCachedHomePageChromeData, loadHomePageChromeData } from '@/lib/navigationDataCache';
 import { useManualSave } from '@/hooks/useManualSave';
-import type { PlatformId } from '@/types';
 import * as styles from './page.css';
 
 function HomePageContent() {
   // 用 selector 订阅，避免 platformDrafts/results 等无关字段变化触发整页重渲染。
   const title = usePublishStore((s) => s.title);
   const content = usePublishStore((s) => s.content);
-  const platforms = usePublishStore((s) => s.platforms);
   const syncPlatformDrafts = usePublishStore((s) => s.syncPlatformDrafts);
   const setTitle = usePublishStore((s) => s.setTitle);
   const setContent = usePublishStore((s) => s.setContent);
@@ -74,14 +62,6 @@ function HomePageContent() {
       cancelled = true;
     };
   }, []);
-  const selectedPlatforms = useMemo(
-    () =>
-      Object.entries(platforms)
-        .filter(([, selected]) => selected)
-        .map(([platform]) => platform as PlatformId),
-    [platforms],
-  );
-
   const handleDraftCreated = useCallback(
     (id: string) => {
       setCurrentDraftId(id);
@@ -273,23 +253,11 @@ function HomePageContent() {
                 </Suspense>
               )}
 
-              {/* 发布区：编辑区下方 */}
+              {/* 发布区：编辑区下方（检查就绪已整合渠道版本） */}
               <div className={styles.publishPanel}>
                 <div className={publishStyles.rightPanelSection}>
-                  <PublishChecklist />
+                  <PublishChecklist agentEnabled={agentEnabled} />
                 </div>
-
-                {currentDraftId && (
-                  <div className={publishStyles.rightPanelSection}>
-                    <span className={publishStyles.rightPanelSectionTitle}>渠道版本</span>
-                    <Suspense fallback={null}>
-                      <PlatformVariantPanel
-                        selectedPlatforms={selectedPlatforms}
-                        agentEnabled={agentEnabled}
-                      />
-                    </Suspense>
-                  </div>
-                )}
               </div>
             </div>
           </div>

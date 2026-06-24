@@ -37,7 +37,6 @@ export default function Sidebar() {
       prefetchSettingsPageData();
       void import('@/components/editor/MarkdownEditor');
       void import('@/components/publish/PlatformPreviewPanel');
-      void import('@/components/publish/PlatformVariantPanel');
       void import('@/components/publish/PublishProgressOverlay');
     };
 
