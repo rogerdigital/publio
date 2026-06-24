@@ -77,7 +77,7 @@ export const toolbarSlot = style({
 
 // MDEditor wrapper — globalStyle overrides for third-party component
 export const editorWrap = style({
-  background: vars.color.surface,
+  background: 'transparent',
   position: 'relative',
   outline: 'none',
 });
@@ -95,9 +95,11 @@ globalStyle(`${editorWrap} .w-md-editor:focus-within`, {
 });
 
 globalStyle(`${editorWrap} .w-md-editor-toolbar`, {
+  // 与编辑器输入区一致：透明背景，透出外层 editorCard 的 glass 底色
+  background: 'transparent',
+  // 上下各一条很轻的分隔线
   borderTop: `1px solid ${vars.color.borderFaint}`,
   borderBottom: `1px solid ${vars.color.borderFaint}`,
-  background: vars.color.surfaceStrong,
   // 右侧留位给「源码/实时」toggle（absolute 定位到工具栏尾部）
   padding: `${vars.spacing.sm} 116px ${vars.spacing.sm} ${vars.spacing.lg}`,
 });
@@ -264,9 +266,9 @@ export const previewPhoneFrame = style({
   width: '100%',
   // 与写作台编辑卡空态等高：titleRow(70) + 编辑区(420) + 数据栏(~45) ≈ 535px
   minHeight: '33.5rem',
-  borderRadius: vars.radius.xl,
-  border: `1px solid ${vars.color.border}`,
-  background: vars.color.surface,
+  borderRadius: vars.radius.lg,
+  border: `1px solid transparent`,
+  background: vars.color.glassInput,
   overflow: 'hidden',
 });
 
@@ -278,7 +280,7 @@ export const previewPhoneBar = style({
   height: '38px',
   padding: `0 ${vars.spacing['lg-xl']}`,
   borderBottom: `1px solid ${vars.color.borderFaint}`,
-  background: vars.color.surfaceStrong,
+  background: 'transparent',
 });
 
 export const previewPhoneBarDot = style({
@@ -302,6 +304,7 @@ export const previewPhoneBarLabel = style({
 // 文章内容内边距容器
 export const previewInner = style({
   padding: `${vars.spacing['4xl']} ${vars.spacing['4xl']} ${vars.spacing['5xl']}`,
+  background: 'transparent',
 });
 
 export const previewKicker = style({
