@@ -1,11 +1,11 @@
 import type { PlatformId } from '@/types';
-import type { PlatformContentDraft } from '@/lib/platformAdapters/types';
+import { validateForPlatform } from '@/lib/platformRules/validate';
 
 export type PlatformReadiness =
   | 'unconfigured'
   | 'ready'
   | 'needs-content'
-  | 'needs-adapt'
+  | 'needs-review'
   | 'publishing'
   | 'success'
   | 'failed';
@@ -18,10 +18,14 @@ export interface PlatformReadinessInfo {
 
 /**
  * 判断单个平台的发布就绪状态
+ *
+ * @param displayTitle 校验用标题（适配后，与平台预览面板一致）
+ * @param displayBody  校验用正文（适配后：优先 draft.aiBody，否则 draft.body）
  */
 export function getPlatformReadiness(
   platform: PlatformId,
-  draft: PlatformContentDraft | undefined,
+  displayTitle: string | undefined,
+  displayBody: string | undefined,
   overallStatus: string,
   publishResult?: { status: string; message?: string },
 ): PlatformReadinessInfo {
@@ -40,9 +44,21 @@ export function getPlatformReadiness(
     }
   }
 
-  // 内容不完整
-  if (!draft?.title?.trim() || !draft?.body?.trim()) {
-    return { platform, status: 'needs-content', message: '标题或内容为空' };
+  // 接入平台规则校验（与平台预览面板同一套标准、同一份适配后内容）
+  const result = validateForPlatform(displayTitle ?? '', displayBody ?? '', platform);
+  const error = result.issues.find((i) => i.severity === 'error');
+  const warning = result.issues.find((i) => i.severity === 'warning');
+
+  if (error) {
+    return { platform, status: 'needs-content', message: error.message };
+  }
+  if (warning) {
+    // 超限等为 warning：不阻塞发布，但提示用户注意
+    const detail =
+      warning.current !== undefined && warning.limit !== undefined
+        ? `${warning.message}（${warning.current}/${warning.limit}）`
+        : warning.message;
+    return { platform, status: 'needs-review', message: detail };
   }
 
   // 就绪
