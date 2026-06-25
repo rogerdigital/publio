@@ -5,7 +5,7 @@
 ## Project Overview
 
 - **Name**: publio
-- **Version**: 0.2.0
+- **Version**: 0.1.0
 - **Tagline**: Write once, adapt per platform.
 - **Runtime**: Vite SPA (React 19) + Hono API server
 - **Private**: true
