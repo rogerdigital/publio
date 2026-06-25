@@ -29,7 +29,7 @@ The current app keeps only three user-facing routes:
 |-------|---------|
 | `/` | Write, preview, manage platform variants, run checks, and publish |
 | `/drafts` | Reopen drafts and inspect publish state |
-| `/settings` | Configure platform credentials, AI agent settings, and GitHub image hosting |
+| `/settings` | Configure platform credentials and AI agent settings |
 
 ## Quick Start
 
@@ -48,7 +48,7 @@ Open http://localhost:3000. Configure platform credentials and AI agent in Setti
 
 ### Writing Desk
 
-Markdown editor with live preview, immersive full-screen mode, manual save (with a fallback that runs if the page closes or crashes before saving), version history restore, content templates, media library, and GitHub image bed uploads.
+Markdown editor with live preview, immersive full-screen mode, manual save (with a fallback that runs if the page closes or crashes before saving), version history restore, content templates, and a media library.
 
 ### AI Assistance
 
@@ -70,7 +70,7 @@ The API surface covers drafts, platform variants, publishing, publish status, se
 
 ## Configuration
 
-See [docs/configuration.md](./docs/configuration.md) for platform credentials, AI agent setup, and GitHub image bed.
+See [docs/configuration.md](./docs/configuration.md) for platform credentials and AI agent setup.
 
 Runtime data is stored in `.publio-data/`.
 
