@@ -119,15 +119,6 @@ pnpm test             # Vitest 测试
 - `AGENT_MAX_TOKENS`
 - `AGENT_TEMPERATURE`
 
-### GitHub 图床
-
-- `GITHUB_IMAGE_ENABLED`
-- `GITHUB_IMAGE_TOKEN`
-- `GITHUB_IMAGE_OWNER`
-- `GITHUB_IMAGE_REPO`
-- `GITHUB_IMAGE_BRANCH`
-- `GITHUB_IMAGE_PATH`
-
 ## Removed Product Areas
 
 以下功能代码和资源已删除，不要在新代码中引用：
@@ -138,6 +129,7 @@ pnpm test             # Vitest 测试
 - Copilot、品牌画像、风格学习、选题推荐。
 - 工作空间级导入导出。
 - 独立分发记录页面。
+- GitHub 图床（远程图片托管）。
 
 ## Important Guardrails
 

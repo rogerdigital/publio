@@ -42,18 +42,14 @@ function HomePageContent() {
   const loadedDraftIdRef = useRef<string | null>(null);
   const [agentEnabled, setAgentEnabled] = useState(cachedChromeData?.agentEnabled ?? false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
-  const [imageBedLabel, setImageBedLabel] = useState<string | undefined>(
-    cachedChromeData?.imageBedLabel,
-  );
 
-  // 检查 Agent 和图床是否已配置
+  // 检查 Agent 是否已配置
   useEffect(() => {
     let cancelled = false;
     loadHomePageChromeData()
       .then((data) => {
         if (cancelled) return;
         setAgentEnabled(data.agentEnabled);
-        setImageBedLabel(data.imageBedLabel);
       })
       .catch(() => {
         if (!cancelled) setAgentEnabled(false);
@@ -189,7 +185,6 @@ function HomePageContent() {
                       }}
                     />
                     <MediaLibrary
-                      imageBedLabel={imageBedLabel}
                       onSelect={(url, filename) => {
                         const insertion = `\n![${filename}](${url})\n`;
                         setContent(content + insertion);
