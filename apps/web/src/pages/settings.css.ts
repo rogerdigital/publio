@@ -40,39 +40,6 @@ export const sectionDescription = style({
 });
 
 // Floating save button
-export const floatingSave = style({
-  position: 'fixed',
-  bottom: vars.spacing['3xl'],
-  right: vars.spacing['3xl'],
-  zIndex: 50,
-  display: 'flex',
-  alignItems: 'center',
-  gap: vars.spacing.md,
-  borderRadius: vars.radius.full,
-  border: 'none',
-  background: vars.color.accent,
-  padding: `${vars.spacing.lg} ${vars.spacing['3xl']}`,
-  fontSize: vars.fontSize.md,
-  fontWeight: 600,
-  color: vars.color.surfaceDarkText,
-  boxShadow: vars.shadow.lg,
-  cursor: 'pointer',
-  transition: 'transform 200ms, opacity 200ms, filter 150ms',
-  ':hover': {
-    filter: 'brightness(1.05)',
-  },
-  ':disabled': {
-    opacity: 0.5,
-    cursor: 'not-allowed',
-  },
-  '@media': {
-    'screen and (min-width: 640px)': {
-      right: vars.spacing['4xl'],
-      bottom: vars.spacing['4xl'],
-    },
-  },
-});
-
 export const sectionAnchor = style({
   scrollMarginTop: '112px',
 });

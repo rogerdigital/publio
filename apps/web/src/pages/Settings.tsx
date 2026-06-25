@@ -162,8 +162,16 @@ function SettingsContent() {
     };
   }, []);
 
-  const isDirty = Object.keys(values).some((key) => values[key] !== initialValues[key]);
-  const dirtyCount = Object.keys(values).filter((key) => values[key] !== initialValues[key]).length;
+  // 归一化比较：空串与 undefined 视为等价。清空一个原本未配置的字段
+  //（initialValues 无此 key）时，'' !== undefined 仍判定为 dirty，导致
+  // 删除改动后按钮状态不刷新。
+  const isEmpty = (v: unknown) => v == null || String(v).trim() === '';
+  const isDirty = Object.keys(values).some(
+    (key) => isEmpty(values[key]) !== isEmpty(initialValues[key]),
+  );
+  const dirtyCount = Object.keys(values).filter(
+    (key) => isEmpty(values[key]) !== isEmpty(initialValues[key]),
+  ).length;
 
   function handleChange(key: string, value: string) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -377,11 +385,11 @@ function SettingsContent() {
             <button
               onClick={handleSave}
               type="button"
-              disabled={loading}
+              disabled={loading || !isDirty}
               className={styles.saveButton}
             >
               <Save size={16} />
-              {loading ? '正在读取...' : '保存设置'}
+              {loading ? '正在读取...' : isDirty ? `保存（${dirtyCount} 项修改）` : '保存设置'}
             </button>
             {saved ? (
               <span className={styles.savedIndicator}>
@@ -804,13 +812,6 @@ function SettingsContent() {
           </div>
         </div>
       </div>
-
-      {isDirty && !loading && (
-        <button type="button" className={styles.floatingSave} onClick={handleSave}>
-          <Save size={16} />
-          保存 {dirtyCount} 项修改
-        </button>
-      )}
     </div>
   );
 }
