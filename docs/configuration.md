@@ -32,21 +32,6 @@ AI features gracefully degrade when unconfigured. Core writing, draft storage, p
 
 ---
 
-## GitHub Image Bed
-
-Upload images to a GitHub repo as persistent hosting. Optional.
-
-| Variable | Description |
-|----------|-------------|
-| `GITHUB_IMAGE_ENABLED` | Set to `true` to enable |
-| `GITHUB_IMAGE_TOKEN` | GitHub personal access token with `repo` scope |
-| `GITHUB_IMAGE_OWNER` | GitHub username or org |
-| `GITHUB_IMAGE_REPO` | Target repository name |
-| `GITHUB_IMAGE_BRANCH` | Optional, default `main` |
-| `GITHUB_IMAGE_PATH` | Optional, default `images/` |
-
----
-
 ## Local Data
 
 Runtime data is stored under `.publio-data/`. The simplification keeps historical local data files on disk, but the app no longer reads or writes removed entities such as signals, topics, briefs, feedback, metrics, RSS sources, or scheduler state.

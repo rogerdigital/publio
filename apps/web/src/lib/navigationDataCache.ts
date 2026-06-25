@@ -25,7 +25,6 @@ export interface SettingsPageData {
 
 export interface HomePageChromeData {
   agentEnabled: boolean;
-  imageBedLabel?: string;
 }
 
 let draftLibraryData: DraftLibraryData | null = null;
@@ -129,22 +128,12 @@ export function getCachedHomePageChromeData() {
 export async function loadHomePageChromeData() {
   if (homePageChromePromise) return homePageChromePromise;
 
-  homePageChromePromise = Promise.all([
-    fetch('/api/agent/status')
-      .then((response) => response.json())
-      .catch(() => null),
-    loadSettingsPageData().catch(() => null),
-  ])
-    .then(([agentStatus, settingsData]) => {
-      const values = settingsData?.values ?? {};
+  homePageChromePromise = fetch('/api/agent/status')
+    .then((response) => response.json())
+    .catch(() => null)
+    .then((agentStatus) => {
       const nextData = {
         agentEnabled: agentStatus?.available === true,
-        imageBedLabel:
-          values.GITHUB_IMAGE_ENABLED === 'true' &&
-          values.GITHUB_IMAGE_OWNER &&
-          values.GITHUB_IMAGE_REPO
-            ? 'GitHub'
-            : undefined,
       };
       homePageChromeData = nextData;
       return nextData;

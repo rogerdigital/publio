@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { readdir, stat, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createLocalDataPath } from '@/lib/storage/localDataPath';
-import { saveFileWithImageBed, getUploadFilePath } from '@/lib/upload/saveFile';
+import { saveUploadedFile, getUploadFilePath } from '@/lib/upload/saveFile';
 import { apiResponse, apiError } from '@/lib/response';
 
 const CONTENT_TYPES: Record<string, string> = {
@@ -30,7 +30,7 @@ uploadRoutes.post('/upload', async (c) => {
     if (!file || !(file instanceof File)) {
       return c.json({ error: '请选择要上传的文件' }, 400);
     }
-    const { url, filename } = await saveFileWithImageBed(file);
+    const { url, filename } = await saveUploadedFile(file);
     return c.json({ url, filename });
   } catch (error) {
     const message = error instanceof Error ? error.message : '上传失败';

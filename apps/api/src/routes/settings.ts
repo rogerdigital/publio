@@ -14,7 +14,6 @@ const SECRET_KEYS = [
   'X_API_SECRET',
   'X_ACCESS_TOKEN_SECRET',
   'AGENT_API_KEY',
-  'GITHUB_IMAGE_TOKEN',
 ];
 
 const WRITABLE_KEYS = [
@@ -33,12 +32,6 @@ const WRITABLE_KEYS = [
   'AGENT_MODEL',
   'AGENT_MAX_TOKENS',
   'AGENT_TEMPERATURE',
-  'GITHUB_IMAGE_ENABLED',
-  'GITHUB_IMAGE_TOKEN',
-  'GITHUB_IMAGE_OWNER',
-  'GITHUB_IMAGE_REPO',
-  'GITHUB_IMAGE_BRANCH',
-  'GITHUB_IMAGE_PATH',
 ] as const;
 
 const writableKeySet = new Set<string>(WRITABLE_KEYS);
@@ -60,9 +53,6 @@ function isMaskedSecretValue(key: string, value: string): boolean {
 }
 
 function validateSettingValue(key: string, value: string): string | null {
-  if (key === 'GITHUB_IMAGE_ENABLED' && value && value !== 'true' && value !== 'false') {
-    return 'GITHUB_IMAGE_ENABLED 必须为 true 或 false';
-  }
   if (key === 'AGENT_MAX_TOKENS' && value) {
     const parsed = Number(value);
     if (!Number.isInteger(parsed) || parsed <= 0) {
