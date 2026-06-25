@@ -108,39 +108,36 @@ function HomePageContent() {
   }, [deferredContent, deferredTitle, syncPlatformDrafts]);
 
   useEffect(() => {
-    const draftId = searchParams.get('draftId');
-    if (!draftId) return;
+    const draftIdParam = searchParams.get('draftId');
+    if (!draftIdParam) return;
+    const draftId: string = draftIdParam;
     // 首次保存创建草稿后会 navigate('/?draftId=xxx')，URL 变化但 draftId 相同。
     // 用 ref 记录上次加载的 draftId，相同则跳过重新拉取，避免覆盖用户可能已继续
     // 输入的内容、以及由此引发的页面闪烁。
     if (loadedDraftIdRef.current === draftId) return;
     loadedDraftIdRef.current = draftId;
 
-    const selectedDraftId = draftId;
-    let cancelled = false;
     setDraftLoadError('');
 
     async function loadDraft() {
       try {
-        const draft = await fetchDraftById(selectedDraftId);
-        if (cancelled) return;
+        const draft = await fetchDraftById(draftId);
+        // 防陈旧：fetch 期间若用户已切换到别的草稿（ref 变了），丢弃本次结果。
+        if (loadedDraftIdRef.current !== draftId) return;
         setTitle(draft.title);
         setContent(draft.content);
-        setCurrentDraftId(selectedDraftId);
+        setCurrentDraftId(draftId);
         reset();
         // 载入后同步快照为载入值，避免误判 dirty。
         syncSnapshot({ title: draft.title, content: draft.content });
       } catch (error) {
-        if (!cancelled) {
+        if (loadedDraftIdRef.current === draftId) {
           setDraftLoadError(error instanceof Error ? error.message : '稿件读取失败，请稍后重试。');
         }
       }
     }
 
     void loadDraft();
-    return () => {
-      cancelled = true;
-    };
   }, [reset, searchParams, setContent, setTitle, setCurrentDraftId, syncSnapshot]);
 
   return (
