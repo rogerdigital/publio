@@ -41,6 +41,9 @@ export function createOpenAIProvider(config: AgentConfig): LLMProvider {
         stream: true,
       };
 
+      // 阶段一：建立连接（建连失败可重试）。一旦拿到 response 就 break，
+      // 避免流消费中途失败后重试导致已 yield 的内容被重复输出。
+      let response: Response | undefined;
       let lastError: Error | undefined;
 
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -50,71 +53,36 @@ export function createOpenAIProvider(config: AgentConfig): LLMProvider {
           await delay(backoff);
         }
 
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
         try {
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${config.apiKey}`,
+            },
+            body: JSON.stringify(body),
+            signal: controller.signal,
+          });
 
-          let response: Response;
-          try {
-            response = await fetch(url, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${config.apiKey}`,
-              },
-              body: JSON.stringify(body),
-              signal: controller.signal,
-            });
-          } finally {
-            clearTimeout(timeout);
-          }
-
-          if (!response.ok) {
-            const errorText = await response.text().catch(() => '');
-            const err = new Error(
-              `LLM API error ${response.status}: ${errorText || response.statusText}`,
-            );
-
-            if (isRetryable(response.status) && attempt < MAX_RETRIES) {
+          if (!res.ok) {
+            const errorText = await res.text().catch(() => '');
+            const err = new Error(`LLM API error ${res.status}: ${errorText || res.statusText}`);
+            if (isRetryable(res.status) && attempt < MAX_RETRIES) {
               lastError = err;
               continue;
             }
             throw err;
           }
 
-          if (!response.body) {
+          if (!res.body) {
             throw new Error('LLM API returned empty body');
           }
 
-          const eventStream = response.body
-            .pipeThrough(new TextDecoderStream())
-            .pipeThrough(new EventSourceParserStream());
-
-          const reader = eventStream.getReader();
-
-          try {
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-
-              const data = value.data;
-              if (data === '[DONE]') break;
-
-              try {
-                const parsed = JSON.parse(data);
-                const content = parsed.choices?.[0]?.delta?.content;
-                if (content) {
-                  yield content;
-                }
-              } catch {
-                // 跳过无法解析的 event（如心跳）
-              }
-            }
-          } finally {
-            reader.releaseLock();
-          }
-
-          return;
+          response = res;
+          break;
         } catch (err) {
           if (err instanceof DOMException && err.name === 'AbortError') {
             lastError = new Error('LLM request timeout');
@@ -125,10 +93,44 @@ export function createOpenAIProvider(config: AgentConfig): LLMProvider {
           }
 
           if (attempt < MAX_RETRIES) continue;
+          throw lastError;
+        } finally {
+          clearTimeout(timeout);
         }
       }
 
-      throw lastError ?? new Error('LLM request failed after retries');
+      if (!response || !response.body) {
+        throw lastError ?? new Error('LLM request failed after retries');
+      }
+
+      // 阶段二：消费流（一旦开始 yield 就不再重试，直接抛错）。
+      const eventStream = response.body
+        .pipeThrough(new TextDecoderStream())
+        .pipeThrough(new EventSourceParserStream());
+
+      const reader = eventStream.getReader();
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const data = value.data;
+          if (data === '[DONE]') break;
+
+          try {
+            const parsed = JSON.parse(data);
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              yield content;
+            }
+          } catch {
+            // 跳过无法解析的 event（如心跳）
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
     },
   };
 }

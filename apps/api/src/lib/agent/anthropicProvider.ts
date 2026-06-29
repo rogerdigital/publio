@@ -49,6 +49,9 @@ export function createAnthropicProvider(config: AgentConfig): LLMProvider {
         body.system = systemMessages.join('\n\n');
       }
 
+      // 阶段一：建立连接（建连失败可重试）。一旦拿到 response 就 break，
+      // 避免流消费中途失败后重试导致已 yield 的内容被重复输出。
+      let response: Response | undefined;
       let lastError: Error | undefined;
 
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -61,89 +64,39 @@ export function createAnthropicProvider(config: AgentConfig): LLMProvider {
           await delay(backoff);
         }
 
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
         try {
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': config.apiKey,
+              'anthropic-version': '2023-06-01',
+            },
+            body: JSON.stringify(body),
+            signal: controller.signal,
+          });
 
-          let response: Response;
-          try {
-            response = await fetch(url, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': config.apiKey,
-                'anthropic-version': '2023-06-01',
-              },
-              body: JSON.stringify(body),
-              signal: controller.signal,
-            });
-          } finally {
-            clearTimeout(timeout);
-          }
-
-          if (!response.ok) {
-            const errorText = await response.text().catch(() => '');
+          if (!res.ok) {
+            const errorText = await res.text().catch(() => '');
             const err = new Error(
-              `Anthropic API error ${response.status}: ${errorText || response.statusText}`,
+              `Anthropic API error ${res.status}: ${errorText || res.statusText}`,
             );
-
-            if (isRetryable(response.status) && attempt < MAX_RETRIES) {
+            if (isRetryable(res.status) && attempt < MAX_RETRIES) {
               lastError = err;
               continue;
             }
             throw err;
           }
 
-          if (!response.body) {
+          if (!res.body) {
             throw new Error('Anthropic API returned empty body');
           }
 
-          // Parse SSE stream manually (Anthropic uses a different event format)
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = '';
-
-          try {
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-
-              buffer += decoder.decode(value, { stream: true });
-              const lines = buffer.split('\n');
-              buffer = lines.pop() ?? '';
-
-              for (const line of lines) {
-                if (!line.startsWith('data: ')) continue;
-                const data = line.slice(6);
-                if (!data || data === '[DONE]') continue;
-
-                try {
-                  const parsed = JSON.parse(data);
-
-                  // Anthropic streaming events:
-                  // content_block_delta: { type: 'content_block_delta', delta: { type: 'text_delta', text: '...' } }
-                  // message_stop: end of stream
-                  if (
-                    parsed.type === 'content_block_delta' &&
-                    parsed.delta?.type === 'text_delta' &&
-                    parsed.delta?.text
-                  ) {
-                    yield parsed.delta.text;
-                  }
-
-                  if (parsed.type === 'message_stop') {
-                    return;
-                  }
-                } catch {
-                  // Skip unparseable events
-                }
-              }
-            }
-          } finally {
-            reader.releaseLock();
-          }
-
-          return;
+          response = res;
+          break;
         } catch (err) {
           if (err instanceof DOMException && err.name === 'AbortError') {
             lastError = new Error('Anthropic request timeout');
@@ -154,10 +107,61 @@ export function createAnthropicProvider(config: AgentConfig): LLMProvider {
           }
 
           if (attempt < MAX_RETRIES) continue;
+          throw lastError;
+        } finally {
+          clearTimeout(timeout);
         }
       }
 
-      throw lastError ?? new Error('Anthropic request failed after retries');
+      if (!response || !response.body) {
+        throw lastError ?? new Error('Anthropic request failed after retries');
+      }
+
+      // 阶段二：消费流（一旦开始 yield 就不再重试，直接抛错）。
+      // Parse SSE stream manually (Anthropic uses a different event format)
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const data = line.slice(6);
+            if (!data || data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+
+              // Anthropic streaming events:
+              // content_block_delta: { type: 'content_block_delta', delta: { type: 'text_delta', text: '...' } }
+              // message_stop: end of stream
+              if (
+                parsed.type === 'content_block_delta' &&
+                parsed.delta?.type === 'text_delta' &&
+                parsed.delta?.text
+              ) {
+                yield parsed.delta.text;
+              }
+
+              if (parsed.type === 'message_stop') {
+                return;
+              }
+            } catch {
+              // Skip unparseable events
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
     },
   };
 }
