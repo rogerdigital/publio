@@ -95,6 +95,9 @@ export function createSyncHistoryStore(options: SyncHistoryStoreOptions = {}) {
           attempts: 0,
           updatedAt: timestamp,
         })),
+        ...(input.variantIds && Object.keys(input.variantIds).length > 0
+          ? { variantIds: input.variantIds }
+          : {}),
       };
 
       task = appendEvent(task, { type: 'created' });

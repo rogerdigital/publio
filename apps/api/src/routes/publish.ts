@@ -16,6 +16,35 @@ import { logger } from '@/lib/logger';
 
 const VALID_PLATFORMS = PLATFORMS.map((p) => p.id);
 
+/**
+ * 把各平台选定的变体 ID 解析为平台专属内容，并返回成功命中的变体 ID 映射。
+ * 变体不存在（被删除等）的平台回退到默认 title/content。
+ */
+export function resolveVariantsToDrafts(
+  platforms: PlatformId[],
+  variantIds: Record<string, string> | undefined,
+  fallbackTitle: string,
+  fallbackContent: string,
+  baseDrafts: PlatformPublishDrafts,
+): { drafts: PlatformPublishDrafts; resolvedIds: Record<string, string> } {
+  if (!variantIds || typeof variantIds !== 'object') {
+    return { drafts: baseDrafts, resolvedIds: {} };
+  }
+  const variantRegistry = getPlatformVariantRegistry();
+  const drafts = { ...baseDrafts };
+  const resolvedIds: Record<string, string> = {};
+  for (const platform of platforms) {
+    const vid = variantIds[platform];
+    if (!vid) continue;
+    const variant = variantRegistry.getVariant(vid);
+    if (variant) {
+      drafts[platform] = { title: variant.title, content: variant.content };
+      resolvedIds[platform] = vid;
+    }
+  }
+  return { drafts, resolvedIds };
+}
+
 export const publishRoutes = new Hono();
 
 publishRoutes.post('/', async (c) => {
@@ -33,20 +62,14 @@ publishRoutes.post('/', async (c) => {
     const platformErr = validatePlatforms(platforms);
     if (platformErr) return apiError(c, platformErr);
 
-    const resolvedVariantIds: Record<string, string> = {};
-    if (variantIds && typeof variantIds === 'object') {
-      const variantRegistry = getPlatformVariantRegistry();
-      for (const platform of platforms as PlatformId[]) {
-        const vid = variantIds[platform];
-        if (vid) {
-          const variant = variantRegistry.getVariant(vid);
-          if (variant) {
-            platformDrafts[platform] = { title: variant.title, content: variant.content };
-            resolvedVariantIds[platform] = vid;
-          }
-        }
-      }
-    }
+    const { drafts: resolvedDrafts, resolvedIds: resolvedVariantIds } = resolveVariantsToDrafts(
+      platforms as PlatformId[],
+      variantIds && typeof variantIds === 'object' ? variantIds : undefined,
+      title,
+      content,
+      platformDrafts,
+    );
+    platformDrafts = resolvedDrafts;
 
     const moderation = checkContent(`${title}\n${content}`);
     const forcePublish = body.forcePublish === true;
@@ -81,6 +104,7 @@ publishRoutes.post('/', async (c) => {
       draftId: typeof draftId === 'string' && draftId.trim() ? draftId.trim() : undefined,
       title,
       platforms: platforms as PlatformId[],
+      variantIds: Object.keys(resolvedVariantIds).length > 0 ? resolvedVariantIds : undefined,
     });
 
     syncStore.appendTaskEvent(syncTask.id, {
