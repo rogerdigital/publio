@@ -75,6 +75,8 @@ export interface SyncTask {
   status: SyncTaskStatus;
   receipts: PlatformSyncReceipt[];
   events: SyncEvent[];
+  /** 发布时各平台选定的变体 ID，用于重试时重建平台专属内容 */
+  variantIds?: Record<string, string>;
   createdAt: string;
   updatedAt: string;
 }
@@ -83,6 +85,7 @@ export interface CreateSyncTaskInput {
   draftId?: string;
   title: string;
   platforms: PlatformId[];
+  variantIds?: Record<string, string>;
 }
 
 export type UpdateSyncReceiptInput = Partial<

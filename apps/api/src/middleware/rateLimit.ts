@@ -13,12 +13,6 @@ const CLEANUP_INTERVAL = 300_000;
 const store = new Map<string, RateLimitEntry>();
 let lastCleanup = Date.now();
 
-function getIp(headers: Headers): string {
-  return (
-    headers.get('x-forwarded-for')?.split(',')[0]?.trim() || headers.get('x-real-ip') || '127.0.0.1'
-  );
-}
-
 function isAgentEndpoint(pathname: string): boolean {
   return pathname.startsWith('/api/agent/');
 }
@@ -43,11 +37,12 @@ export const rateLimit: MiddlewareHandler = async (c, next) => {
 
   maybeCleanup();
 
-  const ip = getIp(c.req.raw.headers);
+  // 本地单用户工具：所有请求同源，直接用固定 key。
+  // 之前信任 x-forwarded-for / x-real-ip，这两个头完全可伪造，换 IP 即可绕过限流。
   const isAgent = isAgentEndpoint(pathname);
   const limit = isAgent ? AGENT_LIMIT : DEFAULT_LIMIT;
   const now = Date.now();
-  const key = `${ip}:${isAgent ? 'agent' : 'default'}`;
+  const key = isAgent ? 'local:agent' : 'local:default';
   const entry = store.get(key);
 
   if (!entry || now >= entry.resetAt) {

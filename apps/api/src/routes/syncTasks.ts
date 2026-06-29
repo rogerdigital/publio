@@ -4,6 +4,7 @@ import { getDraftRegistry } from '@/lib/drafts/registry';
 import { getSyncHistoryStore } from '@/lib/sync/registry';
 import { runPublishJob } from '@/lib/publishers/publishJobRunner';
 import { toDraftStatus } from '@/lib/publishers/executePublish';
+import { resolveVariantsToDrafts } from '@/routes/publish';
 import { apiResponse, apiError } from '@/lib/response';
 
 function isPlatformId(value: unknown): value is PlatformId {
@@ -73,12 +74,23 @@ syncTasksRoutes.post('/:id/retry', async (c) => {
     return apiError(c, '没有可重试的平台（需要重新授权的平台请先前往设置页重新连接）');
   }
 
+  // 重试时用当时选定的平台变体内容，而非原始正文
+  const { drafts: platformDrafts, resolvedIds: resolvedVariantIds } = resolveVariantsToDrafts(
+    retryPlatforms,
+    syncTask.variantIds,
+    draft.title,
+    draft.content,
+    {},
+  );
+
   syncStore.appendRetryEvent(syncTask.id);
   const { syncTask: updatedTask, results } = await runPublishJob({
     syncTaskId: syncTask.id,
     title: draft.title,
     content: draft.content,
     platforms: retryPlatforms,
+    platformDrafts,
+    variantIds: Object.keys(resolvedVariantIds).length > 0 ? resolvedVariantIds : undefined,
   });
 
   return apiResponse(c, { syncTask: updatedTask, retriedPlatforms: retryPlatforms, results });
