@@ -1,6 +1,7 @@
 import type { PublishInput, PublishOutput } from './types';
 import { BasePublisher } from './base';
 import { getWechatConfig } from '@/lib/config';
+import { markdownToPlainText } from '@/lib/markdown';
 
 async function uploadDefaultThumb(token: string): Promise<string> {
   // Create a minimal 1x1 JPEG as placeholder thumbnail
@@ -87,7 +88,7 @@ export class WechatPublisher extends BasePublisher {
     }
 
     // Step 3: Create draft
-    const digest = input.markdownContent.replace(/[#*`>\-\[\]()!]/g, '').slice(0, 120);
+    const digest = markdownToPlainText(input.markdownContent).slice(0, 120);
 
     const draftRes = await fetch(
       `https://api.weixin.qq.com/cgi-bin/draft/add?access_token=${token}`,
