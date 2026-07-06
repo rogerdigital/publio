@@ -49,7 +49,6 @@ export const SHORTCUT_DEFINITIONS: Array<{
   label: string;
 }> = [
   { key: 's', mod: true, label: '保存草稿' },
-  { key: 'Enter', mod: true, label: '发布' },
   { key: 'p', mod: true, label: '切换预览' },
   { key: '/', mod: true, shift: true, label: '快捷键帮助' },
 ];

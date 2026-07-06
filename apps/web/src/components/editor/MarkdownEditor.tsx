@@ -89,12 +89,6 @@ function MarkdownEditor({ activeTab, onSave, agentEnabled = false }: MarkdownEdi
     shortcuts: [
       { key: 's', mod: true, description: '保存草稿', handler: () => onSave?.() },
       {
-        key: 'Enter',
-        mod: true,
-        description: '发布',
-        handler: () => document.dispatchEvent(new CustomEvent('publio:publish')),
-      },
-      {
         key: 'p',
         mod: true,
         description: '切换预览',
