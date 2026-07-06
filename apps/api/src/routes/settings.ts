@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseEnvFile, serializeEnvFile } from '@/lib/storage/envFile';
+import { invalidateEnvCache } from '@/lib/config';
 import { apiResponse, apiError } from '@/lib/response';
 
 const ENV_FILE = join(process.cwd(), '.env.local');
@@ -123,6 +124,8 @@ settingsRoutes.put('/', async (c) => {
     }
 
     await writeFile(ENV_FILE, serializeEnvFile(existing), 'utf-8');
+    // 配置热更新：让后续 getter 重新读取 .env.local
+    invalidateEnvCache();
     return apiResponse(c, { success: true });
   } catch (error) {
     return apiError(c, error instanceof Error ? error.message : '保存失败', 500);
