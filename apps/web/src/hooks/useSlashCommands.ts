@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { WritingAction } from '@/lib/agent/types';
 
 export interface SlashCommand {
@@ -119,6 +119,14 @@ export function useSlashCommands(
       cmd.label.toLowerCase().includes(filterText.toLowerCase()) ||
       cmd.key.toLowerCase().includes(filterText.toLowerCase()),
   );
+
+  // 过滤后列表缩短时，把 selectedIndex 收敛到合法范围，避免指向不存在的项
+  useEffect(() => {
+    setSelectedIndex((prev) => {
+      const maxIndex = Math.max(0, filteredCommands.length - 1);
+      return prev > maxIndex ? maxIndex : prev;
+    });
+  }, [filteredCommands.length]);
 
   const hide = useCallback(() => {
     setVisible(false);
