@@ -1,6 +1,4 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { parseEnvFile } from '@/lib/storage/envFile';
+import { getEnvValue } from '@/lib/config';
 import type { AgentConfig, LLMProviderType } from './types';
 
 /**
@@ -8,34 +6,26 @@ import type { AgentConfig, LLMProviderType } from './types';
  * 所有必填字段（baseUrl / apiKey / model）为空时返回 null。
  */
 export function getAgentConfig(): (AgentConfig & { provider: LLMProviderType }) | null {
-  // 优先从文件实时读取，支持热更新（settings 页面保存后立即生效）
-  let envValues: Record<string, string> = {};
-  try {
-    const content = readFileSync(join(process.cwd(), '.env.local'), 'utf-8');
-    envValues = parseEnvFile(content);
-  } catch {
-    // 文件不存在，fallback 到 process.env
-  }
-
-  const baseUrl = (envValues.AGENT_BASE_URL || process.env.AGENT_BASE_URL || '').trim();
-  const apiKey = (envValues.AGENT_API_KEY || process.env.AGENT_API_KEY || '').trim();
-  const model = (envValues.AGENT_MODEL || process.env.AGENT_MODEL || '').trim();
+  const baseUrl = getEnvValue('AGENT_BASE_URL').trim();
+  const apiKey = getEnvValue('AGENT_API_KEY').trim();
+  const model = getEnvValue('AGENT_MODEL').trim();
 
   if (!baseUrl || !apiKey || !model) {
     return null;
   }
 
-  const providerRaw = (envValues.AGENT_PROVIDER || process.env.AGENT_PROVIDER || 'openai')
-    .trim()
-    .toLowerCase();
+  const providerRaw = getEnvValue('AGENT_PROVIDER').trim().toLowerCase();
   const provider: LLMProviderType = providerRaw === 'anthropic' ? 'anthropic' : 'openai';
+
+  const maxTokensRaw = getEnvValue('AGENT_MAX_TOKENS');
+  const temperatureRaw = getEnvValue('AGENT_TEMPERATURE');
 
   return {
     baseUrl: baseUrl.replace(/\/$/, ''),
     apiKey,
     model,
-    maxTokens: parseInt(envValues.AGENT_MAX_TOKENS || process.env.AGENT_MAX_TOKENS || '2048', 10),
-    temperature: parseFloat(envValues.AGENT_TEMPERATURE || process.env.AGENT_TEMPERATURE || '0.7'),
+    maxTokens: parseInt(maxTokensRaw || '2048', 10),
+    temperature: parseFloat(temperatureRaw || '0.7'),
     provider,
   };
 }
