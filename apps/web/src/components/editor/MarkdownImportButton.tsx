@@ -33,8 +33,7 @@ export default function MarkdownImportButton({ className, onImported }: Markdown
       onImported(draft);
       useToastStore.getState().addToast('success', 'Markdown 已导入并保存');
     } catch (error) {
-      const message =
-        error instanceof Error && error.message ? error.message : 'Markdown 导入失败，请稍后重试';
+      const message = error instanceof Error && error.message ? error.message : 'Markdown 导入失败';
       useToastStore.getState().addToast('error', message);
     } finally {
       input.value = '';

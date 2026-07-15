@@ -108,4 +108,32 @@ describe('MarkdownImportButton', () => {
       false,
     );
   });
+
+  it('uses the exact fallback for non-Error failures and remains reusable', async () => {
+    vi.mocked(createDraft).mockRejectedValueOnce('request failed');
+    const addToast = vi.spyOn(useToastStore.getState(), 'addToast');
+    const onImported = vi.fn();
+    const { container } = render(
+      <MarkdownImportButton className="more-menu-item" onImported={onImported} />,
+    );
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+
+    fireEvent.change(input, { target: { files: [createMarkdownFile()] } });
+
+    await waitFor(() => {
+      expect(addToast).toHaveBeenCalledWith('error', 'Markdown 导入失败');
+    });
+    expect(onImported).not.toHaveBeenCalled();
+    expect(input.value).toBe('');
+    expect(screen.getByRole('button', { name: '导入 Markdown' }).hasAttribute('disabled')).toBe(
+      false,
+    );
+
+    vi.mocked(createDraft).mockResolvedValueOnce(importedDraft);
+    fireEvent.change(input, { target: { files: [createMarkdownFile()] } });
+
+    await waitFor(() => {
+      expect(onImported).toHaveBeenCalledWith(importedDraft);
+    });
+  });
 });
