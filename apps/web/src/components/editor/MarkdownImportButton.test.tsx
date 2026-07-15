@@ -191,4 +191,62 @@ describe('MarkdownImportButton', () => {
     expect(onImported).not.toHaveBeenCalled();
     expect(addToast).not.toHaveBeenCalledWith('success', 'Markdown 已导入并保存');
   });
+
+  it('keeps a created import in the library when saving starts before creation completes', async () => {
+    const pendingDraft = deferred<ContentDraft>();
+    vi.mocked(createDraft).mockReturnValue(pendingDraft.promise);
+    const addToast = vi.spyOn(useToastStore.getState(), 'addToast');
+    const onImported = vi.fn();
+    const { container } = render(
+      <MarkdownImportButton className="more-menu-item" onImported={onImported} />,
+    );
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+
+    fireEvent.change(input, { target: { files: [createMarkdownFile()] } });
+    await waitFor(() => expect(createDraft).toHaveBeenCalledTimes(1));
+    act(() => useSaveStatusStore.getState().setSaveStatus('saving'));
+
+    await act(async () => {
+      pendingDraft.resolve(importedDraft);
+      await pendingDraft.promise;
+      await Promise.resolve();
+    });
+
+    expect(onImported).not.toHaveBeenCalled();
+    expect(addToast).toHaveBeenCalledWith(
+      'success',
+      'Markdown 已导入并保存到稿件库；当前稿件保存完成后可从稿件库打开',
+    );
+    expect(addToast).not.toHaveBeenCalledWith('success', 'Markdown 已导入并保存');
+  });
+
+  it('does not create a draft when saving starts during file reading', async () => {
+    const pendingText = deferred<string>();
+    const file = new File(['# Imported title\n\nParagraph'], 'article.md', {
+      type: 'text/markdown',
+    });
+    Object.defineProperty(file, 'text', {
+      value: vi.fn().mockReturnValue(pendingText.promise),
+    });
+    vi.mocked(createDraft).mockResolvedValue(importedDraft);
+    const addToast = vi.spyOn(useToastStore.getState(), 'addToast');
+    const onImported = vi.fn();
+    const { container } = render(
+      <MarkdownImportButton className="more-menu-item" onImported={onImported} />,
+    );
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+
+    fireEvent.change(input, { target: { files: [file] } });
+    act(() => useSaveStatusStore.getState().setSaveStatus('saving'));
+
+    await act(async () => {
+      pendingText.resolve('# Imported title\n\nParagraph');
+      await pendingText.promise;
+      await Promise.resolve();
+    });
+
+    expect(createDraft).not.toHaveBeenCalled();
+    expect(onImported).not.toHaveBeenCalled();
+    expect(addToast).toHaveBeenCalledWith('error', '正在保存当前稿件，请稍后再导入');
+  });
 });
