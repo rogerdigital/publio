@@ -1,6 +1,6 @@
 # Publio Personal Multiplatform Publishing Workbench Design
 
-- Status: Approved in discussion; pending final written-spec review
+- Status: Approved
 - Approved on: 2026-07-15
 - Product mode: Single-user, local-first personal tool
 - Target platforms: WeChat Official Account, Xiaohongshu, Zhihu, and X
