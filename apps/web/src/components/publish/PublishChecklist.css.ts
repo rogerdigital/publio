@@ -264,6 +264,18 @@ export const cardPlatformName = style({
   color: vars.color.text,
 });
 
+export const staleBadge = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  borderRadius: vars.radius.sm,
+  border: `1px solid ${vars.color.warningBorder}`,
+  background: vars.color.warningBg,
+  padding: `${vars.spacing['2xs']} ${vars.spacing.sm}`,
+  fontSize: '10px',
+  fontWeight: 500,
+  color: vars.color.warningText,
+});
+
 // variant 同步状态徽章（已同步/AI适配/已编辑/已发布 等）
 export const variantStatusBadge = styleVariants({
   synced: {

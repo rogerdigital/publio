@@ -4,6 +4,10 @@ import { usePublishStore } from '@/stores/publishStore';
 import { PLATFORMS, PlatformId } from '@/types';
 import type { PlatformVariant, VariantStatus } from '@/lib/platformVariants/types';
 import { getPlatformReadiness } from '@/lib/publishChecks/platformReadiness';
+import {
+  getVariantFreshnessLabel,
+  shouldConfirmVariantReplacement,
+} from '@/lib/platformVariants/presentation';
 import { validateForPlatform } from '@/lib/platformRules/validate';
 import PlatformSelector from './PlatformSelector';
 import PublishButton from './PublishButton';
@@ -43,6 +47,8 @@ interface VariantCardData {
   status: VariantStatus;
   generatedByAgent: boolean;
   manuallyEdited: boolean;
+  sourceDraftRevision: number;
+  stale: boolean;
   changeSummary?: string;
 }
 
@@ -138,6 +144,8 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
           status: v.status,
           generatedByAgent: v.generatedByAgent,
           manuallyEdited: v.manuallyEdited,
+          sourceDraftRevision: v.sourceDraftRevision,
+          stale: v.stale,
           changeSummary: v.changeSummary,
         };
         setVariantId(v.platform, v.id);
@@ -158,34 +166,44 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
     async (platform: PlatformId) => {
       const requestedDraftId = currentDraftId;
       if (!requestedDraftId || activeDraftIdRef.current !== requestedDraftId) return;
+      const currentVariant = variants[platform];
+      if (
+        currentVariant &&
+        shouldConfirmVariantReplacement(currentVariant) &&
+        !window.confirm('重新生成会覆盖这个渠道版本的人工或 AI 修改，是否继续？')
+      ) {
+        return;
+      }
       const res = await fetch(`/api/drafts/${requestedDraftId}/variants`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ platforms: [platform] }),
+        body: JSON.stringify({ platforms: [platform], force: true }),
       });
       if (res.ok && activeDraftIdRef.current === requestedDraftId) {
         const data = await res.json();
         if (activeDraftIdRef.current !== requestedDraftId) return;
-        const v = data.variants?.[0];
+        const v = data.variants?.[0] as PlatformVariant | undefined;
         if (v) {
-          await fetch(`/api/platform-variants/${v.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              title,
-              content,
-              status: 'synced',
-              manuallyEdited: false,
-              generatedByAgent: false,
-            }),
-          });
-          if (activeDraftIdRef.current !== requestedDraftId) return;
           setVariantId(platform, v.id);
-          void fetchVariants();
+          setVariants((current) => ({
+            ...current,
+            [platform]: {
+              id: v.id,
+              platform: v.platform,
+              title: v.title,
+              content: v.content,
+              status: v.status,
+              generatedByAgent: v.generatedByAgent,
+              manuallyEdited: v.manuallyEdited,
+              sourceDraftRevision: v.sourceDraftRevision,
+              stale: v.stale,
+              changeSummary: v.changeSummary,
+            },
+          }));
         }
       }
     },
-    [currentDraftId, title, content, setVariantId, fetchVariants],
+    [currentDraftId, variants, setVariantId],
   );
 
   const startEdit = useCallback(
@@ -292,6 +310,7 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
               const wordCount = displayContent.replace(/\s/g, '').length;
               const validation = validateForPlatform(displayTitle, displayContent, platform);
               const hasVariant = !!currentDraftId && !!variant;
+              const freshnessLabel = variant ? getVariantFreshnessLabel(variant) : null;
 
               return (
                 <div key={platform} className={styles.variantCard}>
@@ -306,6 +325,9 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
                         <span className={styles.variantStatusBadge[variant.status]}>
                           {statusLabels[variant.status]}
                         </span>
+                      )}
+                      {freshnessLabel && (
+                        <span className={styles.staleBadge}>{freshnessLabel}</span>
                       )}
                     </div>
                     {/* 校验原因（需注意/待补全时展示具体问题） */}
