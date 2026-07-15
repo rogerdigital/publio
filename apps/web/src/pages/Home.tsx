@@ -72,7 +72,7 @@ function HomePageContent() {
     [setCurrentDraftId, navigate],
   );
 
-  const { save, syncSnapshot } = useManualSave({
+  const { save, invalidateSession, syncSnapshot } = useManualSave({
     title,
     content,
     draftId: currentDraftId,
@@ -101,8 +101,9 @@ function HomePageContent() {
     setCurrentDraftId(null);
     loadedDraftIdRef.current = null;
     reset();
+    syncSnapshot({ title: '', content: '' });
     navigate('/', { replace: true });
-  }, [reset, navigate, setContent, setTitle, setCurrentDraftId]);
+  }, [reset, navigate, setContent, setTitle, setCurrentDraftId, syncSnapshot]);
 
   const handleClearClick = useCallback(() => {
     setClearConfirming(true);
@@ -131,7 +132,8 @@ function HomePageContent() {
     // 输入的内容、以及由此引发的页面闪烁。
     if (loadedDraftIdRef.current === draftId) return;
     loadedDraftIdRef.current = draftId;
-
+    // 在请求新稿件前立即让旧保存会话失效，避免等待期间旧响应回写当前稿件。
+    invalidateSession();
     setDraftLoadError('');
 
     async function loadDraft() {
@@ -153,7 +155,15 @@ function HomePageContent() {
     }
 
     void loadDraft();
-  }, [reset, searchParams, setContent, setTitle, setCurrentDraftId, syncSnapshot]);
+  }, [
+    invalidateSession,
+    reset,
+    searchParams,
+    setContent,
+    setTitle,
+    setCurrentDraftId,
+    syncSnapshot,
+  ]);
 
   return (
     <div className={styles.pageWrap}>

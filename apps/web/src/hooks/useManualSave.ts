@@ -12,6 +12,8 @@ interface UseManualSaveOptions {
 
 interface UseManualSaveResult {
   save: () => Promise<void>;
+  /** 开始切换稿件时立即调用，使旧会话中的异步保存失效。 */
+  invalidateSession: () => void;
   /** 载入草稿后调用，把快照同步为载入值，避免载入即误判 dirty。 */
   syncSnapshot: (snapshot: { title: string; content: string }) => void;
 }
@@ -44,21 +46,31 @@ export function useManualSave({
   // dirty 用 ref 存，避免事件回调闭包陈旧；UI 侧通过 store 订阅。
   const dirtyRef = useRef(false);
   const mountedRef = useRef(true);
-  const saveOperationRef = useRef<{ token: symbol; promise: Promise<void> } | null>(null);
+  const sessionGenerationRef = useRef(0);
+  const saveOperationRef = useRef<{
+    session: number;
+    token: symbol;
+    promise: Promise<void>;
+  } | null>(null);
+
+  const invalidateSession = useCallback(() => {
+    sessionGenerationRef.current += 1;
+    const hadActiveSave = saveOperationRef.current !== null;
+    saveOperationRef.current = null;
+    if (hadActiveSave) {
+      const state = useSaveStatusStore.getState();
+      state.setIsSaving(false);
+      if (state.saveStatus === 'saving') state.setSaveStatus('idle');
+    }
+  }, []);
 
   useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
-      const hadActiveSave = saveOperationRef.current !== null;
-      saveOperationRef.current = null;
-      if (hadActiveSave) {
-        const state = useSaveStatusStore.getState();
-        state.setIsSaving(false);
-        if (state.saveStatus === 'saving') state.setSaveStatus('idle');
-      }
+      invalidateSession();
     };
-  }, []);
+  }, [invalidateSession]);
 
   useEffect(() => {
     titleRef.current = title;
@@ -85,13 +97,17 @@ export function useManualSave({
   }, [title, content]);
 
   /** 载入草稿后调用，把快照同步为载入值，避免载入即误判 dirty。 */
-  const syncSnapshot = useCallback((snapshot: { title: string; content: string }) => {
-    lastSavedRef.current = snapshot;
-    dirtyRef.current = false;
-    const { setIsDirty, setSaveStatus } = useSaveStatusStore.getState();
-    setIsDirty(false);
-    setSaveStatus('idle');
-  }, []);
+  const syncSnapshot = useCallback(
+    (snapshot: { title: string; content: string }) => {
+      invalidateSession();
+      lastSavedRef.current = snapshot;
+      dirtyRef.current = false;
+      const { setIsDirty, setSaveStatus } = useSaveStatusStore.getState();
+      setIsDirty(false);
+      setSaveStatus('idle');
+    },
+    [invalidateSession],
+  );
 
   /** 用请求发起时的内容更新快照，并保留请求期间产生的新修改。 */
   const markSavedSnapshot = useCallback((snapshot: { title: string; content: string }) => {
@@ -118,9 +134,16 @@ export function useManualSave({
     if (!snapshot.title.trim() || !snapshot.content.trim()) return Promise.resolve();
 
     const token = Symbol('manual-save');
+    const session = sessionGenerationRef.current;
     const saveStatus = useSaveStatusStore.getState();
     saveStatus.setIsSaving(true);
     saveStatus.setSaveStatus('saving');
+
+    const isActiveOperation = () =>
+      mountedRef.current &&
+      sessionGenerationRef.current === session &&
+      saveOperationRef.current?.session === session &&
+      saveOperationRef.current?.token === token;
 
     const operation = Promise.resolve().then(async () => {
       try {
@@ -132,27 +155,27 @@ export function useManualSave({
           createdDraftId = draft.id;
         }
 
-        if (!mountedRef.current || saveOperationRef.current?.token !== token) return;
+        if (!isActiveOperation()) return;
 
         const hasUnsavedChanges = markSavedSnapshot(snapshot);
         if (createdDraftId) onDraftCreatedRef.current(createdDraftId);
-        if (!mountedRef.current || saveOperationRef.current?.token !== token) return;
+        if (!isActiveOperation()) return;
         if (!hasUnsavedChanges) {
           useToastStore.getState().addToast('success', '草稿已保存');
         }
       } catch {
-        if (!mountedRef.current || saveOperationRef.current?.token !== token) return;
+        if (!isActiveOperation()) return;
         useSaveStatusStore.getState().setSaveStatus('error');
         useToastStore.getState().addToast('error', '草稿保存失败，请检查网络后重试');
       } finally {
-        if (saveOperationRef.current?.token === token) {
+        if (isActiveOperation()) {
           saveOperationRef.current = null;
           useSaveStatusStore.getState().setIsSaving(false);
         }
       }
     });
 
-    saveOperationRef.current = { token, promise: operation };
+    saveOperationRef.current = { session, token, promise: operation };
     return operation;
   }, [markSavedSnapshot]);
 
@@ -199,6 +222,7 @@ export function useManualSave({
 
   return {
     save,
+    invalidateSession,
     syncSnapshot,
   };
 }

@@ -1,4 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ensureDraft, updateDraft } from '@/lib/drafts/client';
 import type { ContentDraft } from '@/lib/drafts/types';
@@ -85,6 +86,168 @@ describe('useManualSave', () => {
     );
   });
 
+  it('discards a pending first save after switching to another draft session', async () => {
+    const pendingSave = deferred<ContentDraft>();
+    vi.mocked(ensureDraft).mockReturnValue(pendingSave.promise);
+    const onDraftCreated = vi.fn();
+    const { result, rerender } = renderHook(
+      ({ title, content, draftId }) => useManualSave({ title, content, draftId, onDraftCreated }),
+      {
+        initialProps: {
+          title: 'Draft A',
+          content: 'Content A',
+          draftId: null as string | null,
+        },
+      },
+    );
+
+    const oldSavePromise = result.current.save();
+    await waitFor(() => expect(ensureDraft).toHaveBeenCalledTimes(1));
+
+    act(() => result.current.invalidateSession());
+    rerender({ title: 'Draft B', content: 'Content B', draftId: 'draft-b' });
+    act(() => result.current.syncSnapshot({ title: 'Draft B', content: 'Content B' }));
+
+    await act(async () => {
+      pendingSave.resolve(savedDraft);
+      await oldSavePromise;
+    });
+
+    expect(onDraftCreated).not.toHaveBeenCalled();
+    expect(useToastStore.getState().toasts).toEqual([]);
+    expect(useSaveStatusStore.getState()).toMatchObject({
+      isSaving: false,
+      isDirty: false,
+      saveStatus: 'idle',
+    });
+  });
+
+  it('does not let a pending patch overwrite the loaded draft snapshot', async () => {
+    const pendingSave = deferred<ContentDraft>();
+    vi.mocked(updateDraft).mockReturnValue(pendingSave.promise);
+    const { result, rerender } = renderHook(
+      ({ title, content, draftId }) =>
+        useManualSave({ title, content, draftId, onDraftCreated: vi.fn() }),
+      {
+        initialProps: {
+          title: 'Draft A',
+          content: 'Content A',
+          draftId: 'draft-a' as string | null,
+        },
+      },
+    );
+
+    const oldSavePromise = result.current.save();
+    await waitFor(() =>
+      expect(updateDraft).toHaveBeenCalledWith('draft-a', {
+        title: 'Draft A',
+        content: 'Content A',
+      }),
+    );
+
+    act(() => result.current.invalidateSession());
+    rerender({ title: 'Draft B', content: 'Content B', draftId: 'draft-b' });
+    act(() => result.current.syncSnapshot({ title: 'Draft B', content: 'Content B' }));
+
+    await act(async () => {
+      pendingSave.resolve(savedDraft);
+      await oldSavePromise;
+    });
+
+    expect(useToastStore.getState().toasts).toEqual([]);
+    expect(useSaveStatusStore.getState()).toMatchObject({
+      isSaving: false,
+      isDirty: false,
+      saveStatus: 'idle',
+    });
+  });
+
+  it('discards an error from an invalidated draft session', async () => {
+    const pendingSave = deferred<ContentDraft>();
+    vi.mocked(updateDraft).mockReturnValue(pendingSave.promise);
+    const { result, rerender } = renderHook(
+      ({ title, content, draftId }) =>
+        useManualSave({ title, content, draftId, onDraftCreated: vi.fn() }),
+      {
+        initialProps: {
+          title: 'Draft A',
+          content: 'Content A',
+          draftId: 'draft-a' as string | null,
+        },
+      },
+    );
+
+    const oldSavePromise = result.current.save();
+    await waitFor(() => expect(updateDraft).toHaveBeenCalledTimes(1));
+    act(() => result.current.invalidateSession());
+    rerender({ title: 'Draft B', content: 'Content B', draftId: 'draft-b' });
+    act(() => result.current.syncSnapshot({ title: 'Draft B', content: 'Content B' }));
+
+    await act(async () => {
+      pendingSave.reject(new Error('Draft A failed'));
+      await oldSavePromise;
+    });
+
+    expect(useToastStore.getState().toasts).toEqual([]);
+    expect(useSaveStatusStore.getState()).toMatchObject({
+      isSaving: false,
+      isDirty: false,
+      saveStatus: 'idle',
+    });
+  });
+
+  it('allows a new session save while the invalidated operation is still pending', async () => {
+    const oldSave = deferred<ContentDraft>();
+    const newSave = deferred<ContentDraft>();
+    vi.mocked(ensureDraft).mockReturnValue(oldSave.promise);
+    vi.mocked(updateDraft).mockReturnValue(newSave.promise);
+    const onDraftCreated = vi.fn();
+    const { result, rerender } = renderHook(
+      ({ title, content, draftId }) => useManualSave({ title, content, draftId, onDraftCreated }),
+      {
+        initialProps: {
+          title: 'Draft A',
+          content: 'Content A',
+          draftId: null as string | null,
+        },
+      },
+    );
+
+    const oldSavePromise = result.current.save();
+    await waitFor(() => expect(ensureDraft).toHaveBeenCalledTimes(1));
+    act(() => result.current.invalidateSession());
+    rerender({ title: 'Draft B', content: 'Content B', draftId: 'draft-b' });
+    act(() => result.current.syncSnapshot({ title: 'Draft B', content: 'Content B' }));
+
+    const newSavePromise = result.current.save();
+    expect(newSavePromise).not.toBe(oldSavePromise);
+    await waitFor(() =>
+      expect(updateDraft).toHaveBeenCalledWith('draft-b', {
+        title: 'Draft B',
+        content: 'Content B',
+      }),
+    );
+
+    await act(async () => {
+      oldSave.resolve(savedDraft);
+      await oldSavePromise;
+    });
+    expect(onDraftCreated).not.toHaveBeenCalled();
+    expect(useSaveStatusStore.getState().isSaving).toBe(true);
+    expect(result.current.save()).toBe(newSavePromise);
+
+    await act(async () => {
+      newSave.resolve({ ...savedDraft, id: 'draft-b', title: 'Draft B', content: 'Content B' });
+      await newSavePromise;
+    });
+    expect(useSaveStatusStore.getState()).toMatchObject({
+      isSaving: false,
+      isDirty: false,
+      saveStatus: 'saved',
+    });
+    expect(useToastStore.getState().toasts).toHaveLength(1);
+  });
+
   it('flushes the latest edits when the page hides during a pending manual save', async () => {
     const pendingSave = deferred<ContentDraft>();
     vi.mocked(ensureDraft).mockReturnValue(pendingSave.promise);
@@ -152,6 +315,39 @@ describe('useManualSave', () => {
       await result.current.save();
     });
 
+    expect(useSaveStatusStore.getState()).toMatchObject({
+      isSaving: false,
+      isDirty: false,
+      saveStatus: 'saved',
+    });
+    expect(useToastStore.getState().toasts).toContainEqual(
+      expect.objectContaining({ type: 'success', message: '草稿已保存' }),
+    );
+  });
+
+  it('keeps a successful first save active when its created id updates the hook props', async () => {
+    vi.mocked(ensureDraft).mockResolvedValue(savedDraft);
+    const onDraftCreated = vi.fn();
+    const { result } = renderHook(() => {
+      const [draftId, setDraftId] = useState<string | null>(null);
+      const manualSave = useManualSave({
+        title: 'Draft A',
+        content: 'Original content',
+        draftId,
+        onDraftCreated: (id) => {
+          onDraftCreated(id);
+          setDraftId(id);
+        },
+      });
+      return { ...manualSave, draftId };
+    });
+
+    await act(async () => {
+      await result.current.save();
+    });
+
+    expect(result.current.draftId).toBe('draft-a');
+    expect(onDraftCreated).toHaveBeenCalledWith('draft-a');
     expect(useSaveStatusStore.getState()).toMatchObject({
       isSaving: false,
       isDirty: false,
