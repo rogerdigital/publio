@@ -1,13 +1,17 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ContentDraft } from '@/lib/drafts/types';
-import { createDraft } from '@/lib/drafts/client';
+import { createDraft, ensureDraft } from '@/lib/drafts/client';
+import { useManualSave } from '@/hooks/useManualSave';
+import { usePublishStore } from '@/stores/publishStore';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 import { useToastStore } from '@/stores/toastStore';
 import MarkdownImportButton from './MarkdownImportButton';
 
 vi.mock('@/lib/drafts/client', () => ({
   createDraft: vi.fn(),
+  ensureDraft: vi.fn(),
+  updateDraft: vi.fn(),
 }));
 
 const importedDraft: ContentDraft = {
@@ -37,11 +41,51 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
+function SaveImportHarness() {
+  const title = usePublishStore((state) => state.title);
+  const content = usePublishStore((state) => state.content);
+  const currentDraftId = usePublishStore((state) => state.currentDraftId);
+  const setTitle = usePublishStore((state) => state.setTitle);
+  const setContent = usePublishStore((state) => state.setContent);
+  const setCurrentDraftId = usePublishStore((state) => state.setCurrentDraftId);
+  const { save } = useManualSave({
+    title,
+    content,
+    draftId: currentDraftId,
+    onDraftCreated: setCurrentDraftId,
+  });
+
+  return (
+    <>
+      <button type="button" onClick={() => void save()}>
+        开始保存
+      </button>
+      <button type="button" onClick={() => setContent('Edited while saving')}>
+        继续编辑
+      </button>
+      <span data-testid="draft-id">{currentDraftId ?? 'none'}</span>
+      <span data-testid="draft-content">{content}</span>
+      <MarkdownImportButton
+        onImported={(draft) => {
+          setTitle(draft.title);
+          setContent(draft.content);
+          setCurrentDraftId(draft.id);
+        }}
+      />
+    </>
+  );
+}
+
 describe('MarkdownImportButton', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useSaveStatusStore.setState({ isDirty: false, saveStatus: 'idle' });
+    useSaveStatusStore.setState({ isDirty: false, isSaving: false, saveStatus: 'idle' });
     useToastStore.setState({ toasts: [] });
+    usePublishStore.setState({
+      title: 'Draft A',
+      content: 'Original A',
+      currentDraftId: null,
+    });
   });
 
   afterEach(() => {
@@ -158,7 +202,7 @@ describe('MarkdownImportButton', () => {
     );
     const input = container.querySelector('input[type="file"]') as HTMLInputElement;
 
-    act(() => useSaveStatusStore.getState().setSaveStatus('saving'));
+    act(() => useSaveStatusStore.setState({ isSaving: true, saveStatus: 'idle' }));
     fireEvent.change(input, { target: { files: [file] } });
 
     expect(pendingText).not.toHaveBeenCalled();
@@ -204,7 +248,7 @@ describe('MarkdownImportButton', () => {
 
     fireEvent.change(input, { target: { files: [createMarkdownFile()] } });
     await waitFor(() => expect(createDraft).toHaveBeenCalledTimes(1));
-    act(() => useSaveStatusStore.getState().setSaveStatus('saving'));
+    act(() => useSaveStatusStore.setState({ isSaving: true, saveStatus: 'idle' }));
 
     await act(async () => {
       pendingDraft.resolve(importedDraft);
@@ -237,7 +281,7 @@ describe('MarkdownImportButton', () => {
     const input = container.querySelector('input[type="file"]') as HTMLInputElement;
 
     fireEvent.change(input, { target: { files: [file] } });
-    act(() => useSaveStatusStore.getState().setSaveStatus('saving'));
+    act(() => useSaveStatusStore.setState({ isSaving: true, saveStatus: 'idle' }));
 
     await act(async () => {
       pendingText.resolve('# Imported title\n\nParagraph');
@@ -248,5 +292,51 @@ describe('MarkdownImportButton', () => {
     expect(createDraft).not.toHaveBeenCalled();
     expect(onImported).not.toHaveBeenCalled();
     expect(addToast).toHaveBeenCalledWith('error', '正在保存当前稿件，请稍后再导入');
+  });
+
+  it('keeps a pending first save isolated from editing and import', async () => {
+    const pendingSave = deferred<ContentDraft>();
+    vi.mocked(ensureDraft).mockReturnValue(pendingSave.promise);
+    vi.mocked(createDraft).mockResolvedValue(importedDraft);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const { container } = render(<SaveImportHarness />);
+
+    fireEvent.click(screen.getByRole('button', { name: '开始保存' }));
+    await waitFor(() => expect(ensureDraft).toHaveBeenCalledTimes(1));
+
+    fireEvent.click(screen.getByRole('button', { name: '继续编辑' }));
+    await waitFor(() => expect(useSaveStatusStore.getState().saveStatus).toBe('idle'));
+    expect(useSaveStatusStore.getState().isSaving).toBe(true);
+
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [createMarkdownFile()] } });
+    await waitFor(() => expect(useToastStore.getState().toasts.length).toBeGreaterThan(0));
+
+    await act(async () => {
+      pendingSave.resolve({
+        ...importedDraft,
+        id: 'saved-draft-a',
+        title: 'Draft A',
+        content: 'Original A',
+        source: 'manual',
+      });
+      await pendingSave.promise;
+      await Promise.resolve();
+    });
+
+    expect(createDraft).not.toHaveBeenCalled();
+    expect(screen.getByTestId('draft-id').textContent).toBe('saved-draft-a');
+    expect(screen.getByTestId('draft-content').textContent).toBe('Edited while saving');
+    expect(useSaveStatusStore.getState()).toMatchObject({
+      isSaving: false,
+      isDirty: true,
+      saveStatus: 'idle',
+    });
+    expect(useToastStore.getState().toasts).toContainEqual(
+      expect.objectContaining({
+        type: 'error',
+        message: '正在保存当前稿件，请稍后再导入',
+      }),
+    );
   });
 });

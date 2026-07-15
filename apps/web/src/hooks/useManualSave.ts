@@ -43,6 +43,22 @@ export function useManualSave({
   });
   // dirty 用 ref 存，避免事件回调闭包陈旧；UI 侧通过 store 订阅。
   const dirtyRef = useRef(false);
+  const mountedRef = useRef(true);
+  const saveOperationRef = useRef<{ token: symbol; promise: Promise<void> } | null>(null);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      const hadActiveSave = saveOperationRef.current !== null;
+      saveOperationRef.current = null;
+      if (hadActiveSave) {
+        const state = useSaveStatusStore.getState();
+        state.setIsSaving(false);
+        if (state.saveStatus === 'saving') state.setSaveStatus('idle');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     titleRef.current = title;
@@ -77,55 +93,75 @@ export function useManualSave({
     setSaveStatus('idle');
   }, []);
 
-  /** 标记已保存（更新快照 + 清 dirty）。 */
-  const markSaved = useCallback(() => {
-    lastSavedRef.current = {
-      title: titleRef.current,
-      content: contentRef.current,
-    };
-    dirtyRef.current = false;
+  /** 用请求发起时的内容更新快照，并保留请求期间产生的新修改。 */
+  const markSavedSnapshot = useCallback((snapshot: { title: string; content: string }) => {
+    lastSavedRef.current = snapshot;
+    const changed = titleRef.current !== snapshot.title || contentRef.current !== snapshot.content;
+    dirtyRef.current = changed;
     const { setIsDirty, setSaveStatus } = useSaveStatusStore.getState();
-    setIsDirty(false);
-    setSaveStatus('saved');
+    setIsDirty(changed);
+    setSaveStatus(changed ? 'idle' : 'saved');
+    return changed;
   }, []);
 
   /** 手动保存：走正常 fetch（可 await、可更新 UI 状态）。 */
-  const save = useCallback(async () => {
-    const currentTitle = titleRef.current;
-    const currentContent = contentRef.current;
+  const save = useCallback((): Promise<void> => {
+    if (saveOperationRef.current) return saveOperationRef.current.promise;
+
+    const snapshot = {
+      title: titleRef.current,
+      content: contentRef.current,
+    };
+    const requestedDraftId = draftIdRef.current;
 
     // 空校验：标题与内容必须都非空才保存（收紧：任一为空即跳过）。
-    if (!currentTitle.trim() || !currentContent.trim()) return;
+    if (!snapshot.title.trim() || !snapshot.content.trim()) return Promise.resolve();
 
-    useSaveStatusStore.getState().setSaveStatus('saving');
-    try {
-      if (draftIdRef.current) {
-        await updateDraft(draftIdRef.current, {
-          title: currentTitle,
-          content: currentContent,
-        });
-      } else {
-        const draft = await ensureDraft({
-          title: currentTitle,
-          content: currentContent,
-          source: 'manual',
-        });
-        onDraftCreatedRef.current(draft.id);
+    const token = Symbol('manual-save');
+    const saveStatus = useSaveStatusStore.getState();
+    saveStatus.setIsSaving(true);
+    saveStatus.setSaveStatus('saving');
+
+    const operation = Promise.resolve().then(async () => {
+      try {
+        let createdDraftId: string | undefined;
+        if (requestedDraftId) {
+          await updateDraft(requestedDraftId, snapshot);
+        } else {
+          const draft = await ensureDraft({ ...snapshot, source: 'manual' });
+          createdDraftId = draft.id;
+        }
+
+        if (!mountedRef.current || saveOperationRef.current?.token !== token) return;
+
+        const hasUnsavedChanges = markSavedSnapshot(snapshot);
+        if (createdDraftId) onDraftCreatedRef.current(createdDraftId);
+        if (!mountedRef.current || saveOperationRef.current?.token !== token) return;
+        if (!hasUnsavedChanges) {
+          useToastStore.getState().addToast('success', '草稿已保存');
+        }
+      } catch {
+        if (!mountedRef.current || saveOperationRef.current?.token !== token) return;
+        useSaveStatusStore.getState().setSaveStatus('error');
+        useToastStore.getState().addToast('error', '草稿保存失败，请检查网络后重试');
+      } finally {
+        if (saveOperationRef.current?.token === token) {
+          saveOperationRef.current = null;
+          useSaveStatusStore.getState().setIsSaving(false);
+        }
       }
-      markSaved();
-      useToastStore.getState().addToast('success', '草稿已保存');
-    } catch {
-      useSaveStatusStore.getState().setSaveStatus('error');
-      useToastStore.getState().addToast('error', '草稿保存失败，请检查网络后重试');
-    }
-  }, [markSaved]);
+    });
+
+    saveOperationRef.current = { token, promise: operation };
+    return operation;
+  }, [markSavedSnapshot]);
 
   /**
    * 兜底保存：unload 期间用 keepalive fetch 发出，不 await、不更新 React 状态
    * （组件即将卸载/已卸载）。成功后立即置 dirty=false 避免重复触发。
    */
   const flushSave = useCallback(() => {
-    if (!dirtyRef.current) return;
+    if (!dirtyRef.current || useSaveStatusStore.getState().isSaving) return;
     const currentTitle = titleRef.current;
     const currentContent = contentRef.current;
     // 空校验：标题与内容必须都非空。

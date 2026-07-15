@@ -28,8 +28,8 @@ export default function MarkdownImportButton({ className, onImported }: Markdown
     const file = input.files?.[0];
     if (!file) return;
 
-    const { isDirty, saveStatus } = useSaveStatusStore.getState();
-    if (saveStatus === 'saving') {
+    const { isDirty, isSaving } = useSaveStatusStore.getState();
+    if (isSaving) {
       useToastStore.getState().addToast('error', '正在保存当前稿件，请稍后再导入');
       input.value = '';
       return;
@@ -44,14 +44,14 @@ export default function MarkdownImportButton({ className, onImported }: Markdown
     try {
       const raw = await file.text();
       if (!mountedRef.current) return;
-      if (useSaveStatusStore.getState().saveStatus === 'saving') {
+      if (useSaveStatusStore.getState().isSaving) {
         useToastStore.getState().addToast('error', '正在保存当前稿件，请稍后再导入');
         return;
       }
       const parsed = parseMarkdownImport(file.name, raw);
       const draft = await createDraft({ ...parsed, source: 'import' });
       if (!mountedRef.current) return;
-      if (useSaveStatusStore.getState().saveStatus === 'saving') {
+      if (useSaveStatusStore.getState().isSaving) {
         useToastStore
           .getState()
           .addToast('success', 'Markdown 已导入并保存到稿件库；当前稿件保存完成后可从稿件库打开');
