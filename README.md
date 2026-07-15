@@ -48,7 +48,7 @@ Open http://localhost:3000. Configure platform credentials and AI agent in Setti
 
 ### Writing Desk
 
-Markdown editor with live preview, .md import, immersive full-screen mode, manual save with best-effort save when closing or moving the page to the background, revision-aware platform variants, content templates, and a media library.
+Markdown editor with live preview, .md import, immersive full-screen mode, manual save with best-effort save when closing or moving the page to the background, content templates, and a media library. Platform variants track the main-draft revision, so main-draft updates do not silently overwrite manual or AI edits.
 
 ### AI Assistance
 
