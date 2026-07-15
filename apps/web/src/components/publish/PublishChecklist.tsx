@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { RefreshCw, Sparkles, Bot, Pencil, GitCommitHorizontal, CheckCircle2 } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import { PLATFORMS, PlatformId } from '@/types';
@@ -61,6 +61,7 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
     content,
     variantIds,
     setVariantId,
+    resetVariantIds,
   } = usePublishStore();
 
   const selectedPlatforms = useMemo(
@@ -77,43 +78,94 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const requestGenerationRef = useRef(0);
+  const requestControllerRef = useRef<AbortController | null>(null);
+  const activeDraftIdRef = useRef(currentDraftId);
+
+  const invalidateVariantRequest = useCallback(() => {
+    requestGenerationRef.current += 1;
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = null;
+  }, []);
+
+  useLayoutEffect(() => {
+    activeDraftIdRef.current = currentDraftId;
+    invalidateVariantRequest();
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = undefined;
+    setVariants({});
+    setEditingPlatform(null);
+    setEditTitle('');
+    setEditContent('');
+    resetVariantIds();
+
+    return () => {
+      invalidateVariantRequest();
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [currentDraftId, invalidateVariantRequest, resetVariantIds]);
 
   const fetchVariants = useCallback(async () => {
-    if (!currentDraftId) return;
-    const res = await fetch(`/api/drafts/${currentDraftId}/variants`);
-    if (!res.ok) return;
-    const data = await res.json();
-    const map: Record<string, VariantCardData> = {};
-    for (const v of data.variants as PlatformVariant[]) {
-      map[v.platform] = {
-        id: v.id,
-        platform: v.platform,
-        title: v.title,
-        content: v.content,
-        status: v.status,
-        generatedByAgent: v.generatedByAgent,
-        manuallyEdited: v.manuallyEdited,
-        changeSummary: v.changeSummary,
-      };
-      setVariantId(v.platform, v.id);
+    const requestedDraftId = currentDraftId;
+    if (!requestedDraftId || activeDraftIdRef.current !== requestedDraftId) return;
+
+    requestControllerRef.current?.abort();
+    const controller = new AbortController();
+    const generation = requestGenerationRef.current + 1;
+    requestGenerationRef.current = generation;
+    requestControllerRef.current = controller;
+    const isCurrentRequest = () =>
+      requestGenerationRef.current === generation &&
+      activeDraftIdRef.current === requestedDraftId &&
+      !controller.signal.aborted;
+
+    try {
+      const res = await fetch(`/api/drafts/${requestedDraftId}/variants`, {
+        signal: controller.signal,
+      });
+      if (!res.ok || !isCurrentRequest()) return;
+      const data = await res.json();
+      if (!isCurrentRequest()) return;
+
+      const map: Record<string, VariantCardData> = {};
+      resetVariantIds();
+      for (const v of data.variants as PlatformVariant[]) {
+        map[v.platform] = {
+          id: v.id,
+          platform: v.platform,
+          title: v.title,
+          content: v.content,
+          status: v.status,
+          generatedByAgent: v.generatedByAgent,
+          manuallyEdited: v.manuallyEdited,
+          changeSummary: v.changeSummary,
+        };
+        setVariantId(v.platform, v.id);
+      }
+      setVariants(map);
+    } catch {
+      // 切换稿件会主动中止旧请求；网络失败沿用空状态。
+    } finally {
+      if (requestControllerRef.current === controller) requestControllerRef.current = null;
     }
-    setVariants(map);
-  }, [currentDraftId, setVariantId]);
+  }, [currentDraftId, resetVariantIds, setVariantId]);
 
   useEffect(() => {
-    fetchVariants();
+    void fetchVariants();
   }, [fetchVariants]);
 
   const handleResync = useCallback(
     async (platform: PlatformId) => {
-      if (!currentDraftId) return;
-      const res = await fetch(`/api/drafts/${currentDraftId}/variants`, {
+      const requestedDraftId = currentDraftId;
+      if (!requestedDraftId || activeDraftIdRef.current !== requestedDraftId) return;
+      const res = await fetch(`/api/drafts/${requestedDraftId}/variants`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ platforms: [platform] }),
       });
-      if (res.ok) {
+      if (res.ok && activeDraftIdRef.current === requestedDraftId) {
         const data = await res.json();
+        if (activeDraftIdRef.current !== requestedDraftId) return;
         const v = data.variants?.[0];
         if (v) {
           await fetch(`/api/platform-variants/${v.id}`, {
@@ -127,8 +179,9 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
               generatedByAgent: false,
             }),
           });
+          if (activeDraftIdRef.current !== requestedDraftId) return;
           setVariantId(platform, v.id);
-          fetchVariants();
+          void fetchVariants();
         }
       }
     },
@@ -148,8 +201,9 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
 
   const saveEdit = useCallback(
     async (platform: PlatformId) => {
+      const requestedDraftId = currentDraftId;
       const variantId = variantIds[platform];
-      if (!variantId) return;
+      if (!variantId || !requestedDraftId || activeDraftIdRef.current !== requestedDraftId) return;
       await fetch(`/api/platform-variants/${variantId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -158,10 +212,11 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
           content: editContent,
         }),
       });
+      if (activeDraftIdRef.current !== requestedDraftId) return;
       setEditingPlatform(null);
-      fetchVariants();
+      void fetchVariants();
     },
-    [variantIds, editTitle, editContent, fetchVariants],
+    [currentDraftId, variantIds, editTitle, editContent, fetchVariants],
   );
 
   const handleEditContentChange = useCallback(

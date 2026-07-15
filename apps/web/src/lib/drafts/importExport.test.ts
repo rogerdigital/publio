@@ -30,6 +30,33 @@ describe('parseMarkdownImport', () => {
     });
   });
 
+  it('ignores H1-like lines inside backtick fences', () => {
+    const content = '```sh\n# shell comment\necho done\n```';
+
+    expect(parseMarkdownImport('backtick.md', content)).toEqual({
+      title: 'backtick',
+      content,
+    });
+  });
+
+  it('ignores H1-like lines inside tilde fences', () => {
+    const content = '~~~sh\n# shell comment\necho done\n~~~';
+
+    expect(parseMarkdownImport('tilde.md', content)).toEqual({
+      title: 'tilde',
+      content,
+    });
+  });
+
+  it('ignores H1-like lines in indented code', () => {
+    const content = '    # shell comment\n\t# tab comment\nParagraph';
+
+    expect(parseMarkdownImport('indented.md', content)).toEqual({
+      title: 'indented',
+      content,
+    });
+  });
+
   it('rejects non-Markdown files', () => {
     expect(() => parseMarkdownImport('article.txt', '# Title\n\nBody')).toThrow(
       '请选择 Markdown 文件',

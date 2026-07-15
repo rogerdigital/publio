@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ContentDraft } from '@/lib/drafts/types';
 import { createDraft } from '@/lib/drafts/client';
@@ -27,6 +27,14 @@ function createMarkdownFile(contents = '# Imported title\n\nParagraph') {
     value: vi.fn().mockResolvedValue(contents),
   });
   return file;
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
 }
 
 describe('MarkdownImportButton', () => {
@@ -135,5 +143,52 @@ describe('MarkdownImportButton', () => {
     await waitFor(() => {
       expect(onImported).toHaveBeenCalledWith(importedDraft);
     });
+  });
+
+  it('blocks import when saving starts after the file dialog opens', () => {
+    const pendingText = vi.fn(() => new Promise<string>(() => {}));
+    const file = new File(['# Imported title\n\nParagraph'], 'article.md', {
+      type: 'text/markdown',
+    });
+    Object.defineProperty(file, 'text', { value: pendingText });
+    const addToast = vi.spyOn(useToastStore.getState(), 'addToast');
+    const onImported = vi.fn();
+    const { container } = render(
+      <MarkdownImportButton className="more-menu-item" onImported={onImported} />,
+    );
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+
+    act(() => useSaveStatusStore.getState().setSaveStatus('saving'));
+    fireEvent.change(input, { target: { files: [file] } });
+
+    expect(pendingText).not.toHaveBeenCalled();
+    expect(createDraft).not.toHaveBeenCalled();
+    expect(onImported).not.toHaveBeenCalled();
+    expect(addToast).toHaveBeenCalledWith('error', '正在保存当前稿件，请稍后再导入');
+    expect(input.value).toBe('');
+  });
+
+  it('ignores a completed import after the component unmounts', async () => {
+    const pendingDraft = deferred<ContentDraft>();
+    vi.mocked(createDraft).mockReturnValue(pendingDraft.promise);
+    const addToast = vi.spyOn(useToastStore.getState(), 'addToast');
+    const onImported = vi.fn();
+    const { container, unmount } = render(
+      <MarkdownImportButton className="more-menu-item" onImported={onImported} />,
+    );
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+
+    fireEvent.change(input, { target: { files: [createMarkdownFile()] } });
+    await waitFor(() => expect(createDraft).toHaveBeenCalledTimes(1));
+    unmount();
+
+    await act(async () => {
+      pendingDraft.resolve(importedDraft);
+      await pendingDraft.promise;
+      await Promise.resolve();
+    });
+
+    expect(onImported).not.toHaveBeenCalled();
+    expect(addToast).not.toHaveBeenCalledWith('success', 'Markdown 已导入并保存');
   });
 });

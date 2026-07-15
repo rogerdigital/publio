@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Upload } from 'lucide-react';
 import { createDraft } from '@/lib/drafts/client';
 import { parseMarkdownImport } from '@/lib/drafts/importExport';
@@ -13,13 +13,27 @@ interface MarkdownImportButtonProps {
 
 export default function MarkdownImportButton({ className, onImported }: MarkdownImportButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const mountedRef = useRef(true);
   const [importing, setImporting] = useState(false);
-  const isDirty = useSaveStatusStore((state) => state.isDirty);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget;
     const file = input.files?.[0];
     if (!file) return;
+
+    const { isDirty, saveStatus } = useSaveStatusStore.getState();
+    if (saveStatus === 'saving') {
+      useToastStore.getState().addToast('error', '正在保存当前稿件，请稍后再导入');
+      input.value = '';
+      return;
+    }
 
     if (isDirty && !window.confirm('当前稿件尚未保存。导入后将切换到新稿件，是否继续？')) {
       input.value = '';
@@ -28,16 +42,23 @@ export default function MarkdownImportButton({ className, onImported }: Markdown
 
     setImporting(true);
     try {
-      const parsed = parseMarkdownImport(file.name, await file.text());
+      const raw = await file.text();
+      if (!mountedRef.current) return;
+      const parsed = parseMarkdownImport(file.name, raw);
       const draft = await createDraft({ ...parsed, source: 'import' });
+      if (!mountedRef.current) return;
       onImported(draft);
+      if (!mountedRef.current) return;
       useToastStore.getState().addToast('success', 'Markdown 已导入并保存');
     } catch (error) {
+      if (!mountedRef.current) return;
       const message = error instanceof Error && error.message ? error.message : 'Markdown 导入失败';
       useToastStore.getState().addToast('error', message);
     } finally {
-      input.value = '';
-      setImporting(false);
+      if (mountedRef.current) {
+        input.value = '';
+        setImporting(false);
+      }
     }
   }
 

@@ -5,6 +5,11 @@ interface ParsedMarkdownImport {
   content: string;
 }
 
+interface MarkdownH1 {
+  index: number;
+  title: string;
+}
+
 function unquoteTitle(value: string): string {
   const trimmed = value.trim();
   const quote = trimmed[0];
@@ -16,6 +21,52 @@ function unquoteTitle(value: string): string {
   return trimmed;
 }
 
+function trimBlankLines(lines: string[]): string[] {
+  while (lines[0]?.trim() === '') lines.shift();
+  while (lines.at(-1)?.trim() === '') lines.pop();
+
+  return lines;
+}
+
+function splitTrimmedMarkdown(raw: string): string[] {
+  return trimBlankLines(
+    raw
+      .replace(/^\uFEFF/, '')
+      .replace(/\r\n?/g, '\n')
+      .split('\n'),
+  );
+}
+
+function findFirstMarkdownH1(lines: string[]): MarkdownH1 | undefined {
+  let fence: { marker: '`' | '~'; length: number } | undefined;
+
+  for (const [index, line] of lines.entries()) {
+    if (fence) {
+      const closing = line.match(/^ {0,3}(`{3,}|~{3,})\s*$/);
+      if (closing && closing[1][0] === fence.marker && closing[1].length >= fence.length) {
+        fence = undefined;
+      }
+      continue;
+    }
+
+    if (line.startsWith('\t') || line.startsWith('    ')) continue;
+
+    const opening = line.match(/^ {0,3}(`{3,}|~{3,})/);
+    if (opening) {
+      fence = {
+        marker: opening[1][0] as '`' | '~',
+        length: opening[1].length,
+      };
+      continue;
+    }
+
+    const heading = line.match(/^ {0,3}#\s+(.+?)\s*$/);
+    if (heading) return { index, title: heading[1].trim() };
+  }
+
+  return undefined;
+}
+
 /**
  * 读取本地 Markdown 文件，提取可直接创建稿件的标题与正文。
  */
@@ -24,11 +75,7 @@ export function parseMarkdownImport(filename: string, raw: string): ParsedMarkdo
     throw new Error('请选择 Markdown 文件');
   }
 
-  const lines = raw
-    .replace(/^\uFEFF/, '')
-    .replace(/\r\n?/g, '\n')
-    .trim()
-    .split('\n');
+  const lines = splitTrimmedMarkdown(raw);
   let frontmatterTitle: string | undefined;
 
   if (lines[0] === '---') {
@@ -47,15 +94,14 @@ export function parseMarkdownImport(filename: string, raw: string): ParsedMarkdo
     }
   }
 
-  const h1Index = lines.findIndex((line) => /^#\s+\S/.test(line));
-  const h1Title = h1Index >= 0 ? lines[h1Index].replace(/^#\s+/, '').trim() : '';
-  const title = (frontmatterTitle || h1Title || filename.slice(0, -3)).trim();
+  const h1 = findFirstMarkdownH1(lines);
+  const title = (frontmatterTitle || h1?.title || filename.slice(0, -3)).trim();
 
-  if (!frontmatterTitle && h1Index >= 0) {
-    lines.splice(h1Index, 1);
+  if (!frontmatterTitle && h1) {
+    lines.splice(h1.index, 1);
   }
 
-  const content = lines.join('\n').trim();
+  const content = trimBlankLines(lines).join('\n');
   if (!content) {
     throw new Error('Markdown 文件没有正文内容');
   }
