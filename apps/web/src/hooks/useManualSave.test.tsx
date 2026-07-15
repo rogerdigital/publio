@@ -300,6 +300,158 @@ describe('useManualSave', () => {
     });
   });
 
+  it('flushes newer edits after an older keepalive response completes', async () => {
+    const firstFlush = deferred<Response>();
+    const secondFlush = deferred<Response>();
+    const keepaliveFetch = vi
+      .fn()
+      .mockReturnValueOnce(firstFlush.promise)
+      .mockReturnValueOnce(secondFlush.promise)
+      .mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal('fetch', keepaliveFetch);
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    const { rerender } = renderHook(
+      ({ content }) =>
+        useManualSave({
+          title: 'Draft A',
+          content,
+          draftId: 'draft-a',
+          onDraftCreated: vi.fn(),
+        }),
+      { initialProps: { content: 'Original content' } },
+    );
+
+    rerender({ content: 'Edit A1' });
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+    expect(keepaliveFetch).toHaveBeenNthCalledWith(1, '/api/drafts/draft-a', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Draft A', content: 'Edit A1' }),
+      keepalive: true,
+    });
+
+    rerender({ content: 'Edit A2' });
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+    expect(keepaliveFetch).toHaveBeenNthCalledWith(2, '/api/drafts/draft-a', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Draft A', content: 'Edit A2' }),
+      keepalive: true,
+    });
+
+    await act(async () => {
+      firstFlush.resolve(new Response(null, { status: 204 }));
+      await firstFlush.promise;
+      await Promise.resolve();
+    });
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+
+    expect(keepaliveFetch).toHaveBeenNthCalledWith(3, '/api/drafts/draft-a', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Draft A', content: 'Edit A2' }),
+      keepalive: true,
+    });
+  });
+
+  it('does not let an old session keepalive response suppress the new session flush', async () => {
+    const oldFlush = deferred<Response>();
+    const keepaliveFetch = vi
+      .fn()
+      .mockReturnValueOnce(oldFlush.promise)
+      .mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal('fetch', keepaliveFetch);
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    const { result, rerender } = renderHook(
+      ({ title, content, draftId }) =>
+        useManualSave({ title, content, draftId, onDraftCreated: vi.fn() }),
+      {
+        initialProps: {
+          title: 'Draft A',
+          content: 'Original A',
+          draftId: 'draft-a' as string | null,
+        },
+      },
+    );
+
+    rerender({ title: 'Draft A', content: 'Edit A1', draftId: 'draft-a' });
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+    expect(keepaliveFetch).toHaveBeenCalledTimes(1);
+
+    act(() => result.current.invalidateSession());
+    rerender({ title: 'Draft B', content: 'Original B', draftId: 'draft-b' });
+    act(() => result.current.syncSnapshot({ title: 'Draft B', content: 'Original B' }));
+    rerender({ title: 'Draft B', content: 'Edit B1', draftId: 'draft-b' });
+
+    await act(async () => {
+      oldFlush.resolve(new Response(null, { status: 204 }));
+      await oldFlush.promise;
+      await Promise.resolve();
+    });
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+
+    expect(keepaliveFetch).toHaveBeenNthCalledWith(2, '/api/drafts/draft-b', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Draft B', content: 'Edit B1' }),
+      keepalive: true,
+    });
+  });
+
+  it('retries a dirty keepalive snapshot after a non-success response', async () => {
+    const keepaliveFetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 500 }))
+      .mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal('fetch', keepaliveFetch);
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    const { rerender } = renderHook(
+      ({ content }) =>
+        useManualSave({
+          title: 'Draft A',
+          content,
+          draftId: 'draft-a',
+          onDraftCreated: vi.fn(),
+        }),
+      { initialProps: { content: 'Original content' } },
+    );
+
+    rerender({ content: 'Edit A1' });
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+    await waitFor(() => expect(keepaliveFetch).toHaveBeenCalledTimes(1));
+    await act(async () => Promise.resolve());
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+
+    expect(keepaliveFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('retries a dirty keepalive snapshot after a network error', async () => {
+    const keepaliveFetch = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('network unavailable'))
+      .mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal('fetch', keepaliveFetch);
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    const { rerender } = renderHook(
+      ({ content }) =>
+        useManualSave({
+          title: 'Draft A',
+          content,
+          draftId: 'draft-a',
+          onDraftCreated: vi.fn(),
+        }),
+      { initialProps: { content: 'Original content' } },
+    );
+
+    rerender({ content: 'Edit A1' });
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+    await waitFor(() => expect(keepaliveFetch).toHaveBeenCalledTimes(1));
+    await act(async () => Promise.resolve());
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+
+    expect(keepaliveFetch).toHaveBeenCalledTimes(2);
+  });
+
   it('marks an unchanged successful save as saved and clean', async () => {
     vi.mocked(updateDraft).mockResolvedValue(savedDraft);
     const { result } = renderHook(() =>

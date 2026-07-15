@@ -187,12 +187,14 @@ export function useManualSave({
     if (!dirtyRef.current) return;
     const currentTitle = titleRef.current;
     const currentContent = contentRef.current;
+    const requestedDraftId = draftIdRef.current;
+    const session = sessionGenerationRef.current;
     // 空校验：标题与内容必须都非空。
     if (!currentTitle.trim() || !currentContent.trim()) return;
 
     const payload = JSON.stringify({ title: currentTitle, content: currentContent });
-    const url = draftIdRef.current ? `/api/drafts/${draftIdRef.current}` : '/api/drafts';
-    const method = draftIdRef.current ? 'PATCH' : 'POST';
+    const url = requestedDraftId ? `/api/drafts/${requestedDraftId}` : '/api/drafts';
+    const method = requestedDraftId ? 'PATCH' : 'POST';
 
     // keepalive 让请求在页面卸载后仍由浏览器发出。
     void fetch(url, {
@@ -200,10 +202,23 @@ export function useManualSave({
       headers: { 'Content-Type': 'application/json' },
       body: payload,
       keepalive: true,
-    }).then(() => {
-      // 标记已保存，防止 visibilitychange 与 beforeunload 重复发请求。
-      dirtyRef.current = false;
-    });
+    })
+      .then((response) => {
+        if (
+          !response.ok ||
+          sessionGenerationRef.current !== session ||
+          draftIdRef.current !== requestedDraftId ||
+          titleRef.current !== currentTitle ||
+          contentRef.current !== currentContent
+        ) {
+          return;
+        }
+        // 仅当前会话、当前快照成功落盘后清 dirty，防止 late response 覆盖新编辑。
+        dirtyRef.current = false;
+      })
+      .catch(() => {
+        // 页面卸载期间无法可靠呈现错误；保留 dirty 供下一次事件重试。
+      });
   }, []);
 
   // 兜底保存监听：beforeunload + visibilitychange。读 ref，监听器只注册一次。
