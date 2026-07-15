@@ -83,9 +83,16 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
   const [editingPlatform, setEditingPlatform] = useState<PlatformId | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
+  const [regeneratingPlatforms, setRegeneratingPlatforms] = useState<
+    Partial<Record<PlatformId, boolean>>
+  >({});
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const requestGenerationRef = useRef(0);
   const requestControllerRef = useRef<AbortController | null>(null);
+  const regenerationLifecycleRef = useRef(0);
+  const regenerationOperationRef = useRef<Partial<Record<PlatformId, number>>>({});
+  const regenerationControllerRef = useRef<Partial<Record<PlatformId, AbortController>>>({});
+  const regeneratingPlatformsRef = useRef<Set<PlatformId>>(new Set());
   const activeDraftIdRef = useRef(currentDraftId);
 
   const invalidateVariantRequest = useCallback(() => {
@@ -94,12 +101,23 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
     requestControllerRef.current = null;
   }, []);
 
+  const invalidateRegenerationRequests = useCallback(() => {
+    regenerationLifecycleRef.current += 1;
+    for (const controller of Object.values(regenerationControllerRef.current)) {
+      controller?.abort();
+    }
+    regenerationControllerRef.current = {};
+    regeneratingPlatformsRef.current.clear();
+  }, []);
+
   useLayoutEffect(() => {
     activeDraftIdRef.current = currentDraftId;
     invalidateVariantRequest();
+    invalidateRegenerationRequests();
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = undefined;
     setVariants({});
+    setRegeneratingPlatforms({});
     setEditingPlatform(null);
     setEditTitle('');
     setEditContent('');
@@ -107,14 +125,17 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
 
     return () => {
       invalidateVariantRequest();
+      invalidateRegenerationRequests();
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [currentDraftId, invalidateVariantRequest, resetVariantIds]);
+  }, [currentDraftId, invalidateRegenerationRequests, invalidateVariantRequest, resetVariantIds]);
 
   const fetchVariants = useCallback(async () => {
     const requestedDraftId = currentDraftId;
     if (!requestedDraftId || activeDraftIdRef.current !== requestedDraftId) return;
 
+    invalidateRegenerationRequests();
+    setRegeneratingPlatforms({});
     requestControllerRef.current?.abort();
     const controller = new AbortController();
     const generation = requestGenerationRef.current + 1;
@@ -156,7 +177,7 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
     } finally {
       if (requestControllerRef.current === controller) requestControllerRef.current = null;
     }
-  }, [currentDraftId, resetVariantIds, setVariantId]);
+  }, [currentDraftId, invalidateRegenerationRequests, resetVariantIds, setVariantId]);
 
   useEffect(() => {
     void fetchVariants();
@@ -166,6 +187,7 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
     async (platform: PlatformId) => {
       const requestedDraftId = currentDraftId;
       if (!requestedDraftId || activeDraftIdRef.current !== requestedDraftId) return;
+      if (regeneratingPlatformsRef.current.has(platform)) return;
       const currentVariant = variants[platform];
       if (
         currentVariant &&
@@ -174,14 +196,34 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
       ) {
         return;
       }
-      const res = await fetch(`/api/drafts/${requestedDraftId}/variants`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ platforms: [platform], force: true }),
-      });
-      if (res.ok && activeDraftIdRef.current === requestedDraftId) {
+
+      invalidateVariantRequest();
+      const lifecycle = regenerationLifecycleRef.current;
+      const operation = (regenerationOperationRef.current[platform] ?? 0) + 1;
+      regenerationOperationRef.current[platform] = operation;
+      regenerationControllerRef.current[platform]?.abort();
+      const controller = new AbortController();
+      regenerationControllerRef.current[platform] = controller;
+      regeneratingPlatformsRef.current.add(platform);
+      setRegeneratingPlatforms((current) => ({ ...current, [platform]: true }));
+
+      const isCurrentOperation = () =>
+        regenerationLifecycleRef.current === lifecycle &&
+        regenerationOperationRef.current[platform] === operation &&
+        regenerationControllerRef.current[platform] === controller &&
+        activeDraftIdRef.current === requestedDraftId &&
+        !controller.signal.aborted;
+
+      try {
+        const res = await fetch(`/api/drafts/${requestedDraftId}/variants`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ platforms: [platform], force: true }),
+          signal: controller.signal,
+        });
+        if (!res.ok || !isCurrentOperation()) return;
         const data = await res.json();
-        if (activeDraftIdRef.current !== requestedDraftId) return;
+        if (!isCurrentOperation()) return;
         const v = data.variants?.[0] as PlatformVariant | undefined;
         if (v) {
           setVariantId(platform, v.id);
@@ -201,9 +243,22 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
             },
           }));
         }
+      } catch {
+        // 稿件切换或新数据请求会主动中止过期的重新生成。
+      } finally {
+        if (regenerationControllerRef.current[platform] === controller) {
+          delete regenerationControllerRef.current[platform];
+          regeneratingPlatformsRef.current.delete(platform);
+          setRegeneratingPlatforms((current) => {
+            if (!current[platform]) return current;
+            const next = { ...current };
+            delete next[platform];
+            return next;
+          });
+        }
       }
     },
-    [currentDraftId, variants, setVariantId],
+    [currentDraftId, invalidateVariantRequest, variants, setVariantId],
   );
 
   const startEdit = useCallback(
@@ -421,6 +476,7 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
                         type="button"
                         className={styles.actionBtn}
                         onClick={() => handleResync(platform)}
+                        disabled={regeneratingPlatforms[platform] === true}
                         title="从主稿重新同步"
                       >
                         <RefreshCw size={10} /> 同步

@@ -174,11 +174,19 @@ describe('PublishChecklist draft switching', () => {
     expect(screen.getByDisplayValue('new content')).toBeTruthy();
   });
 
-  it('ignores a forced replacement response after switching drafts', async () => {
+  it('ignores an old forced replacement after switching from A to B and back to A', async () => {
     const replacementResponse = deferred<Response>();
+    let oldDraftReads = 0;
     const fetchMock = vi.fn((url: string, init?: { method?: string }) => {
       if (url === '/api/drafts/old-draft/variants' && !init?.method) {
-        return Promise.resolve(responseWith([variant('old-draft', 'old-variant', 'old content')]));
+        oldDraftReads += 1;
+        return Promise.resolve(
+          responseWith([
+            oldDraftReads === 1
+              ? variant('old-draft', 'old-variant', 'old content')
+              : variant('old-draft', 'current-old-variant', 'current old content'),
+          ]),
+        );
       }
       if (url === '/api/drafts/old-draft/variants' && init?.method === 'POST') {
         return replacementResponse.promise;
@@ -203,6 +211,9 @@ describe('PublishChecklist draft switching', () => {
     act(() => usePublishStore.getState().setCurrentDraftId('new-draft'));
     await waitFor(() => expect(screen.getByDisplayValue('new content')).toBeTruthy());
 
+    act(() => usePublishStore.getState().setCurrentDraftId('old-draft'));
+    await waitFor(() => expect(screen.getByDisplayValue('current old content')).toBeTruthy());
+
     replacementResponse.resolve(
       responseWith([variant('old-draft', 'replacement-variant', 'replacement content')]),
     );
@@ -211,9 +222,9 @@ describe('PublishChecklist draft switching', () => {
       await Promise.resolve();
     });
 
-    expect(usePublishStore.getState().variantIds.wechat).toBe('new-variant');
+    expect(usePublishStore.getState().variantIds.wechat).toBe('current-old-variant');
     expect(screen.queryByDisplayValue('replacement content')).toBeNull();
-    expect(screen.getByDisplayValue('new content')).toBeTruthy();
+    expect(screen.getByDisplayValue('current old content')).toBeTruthy();
   });
 });
 
@@ -318,5 +329,28 @@ describe('PublishChecklist stale variant replacement', () => {
       JSON.stringify({ platforms: ['wechat'], force: true }),
     );
     expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PATCH')).toBe(false);
+  });
+
+  it('submits at most one replacement per platform while it is pending', async () => {
+    const pendingReplacement = deferred<Response>();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(responseWith([variant('draft-1', 'variant-1', 'old content')]))
+      .mockImplementation(() => pendingReplacement.promise);
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<PublishChecklist />);
+    const syncButton = await screen.findByRole('button', { name: '同步' });
+
+    fireEvent.click(syncButton);
+    fireEvent.click(syncButton);
+
+    expect(fetchMock.mock.calls.filter(([, init]) => init?.method === 'POST')).toHaveLength(1);
+    expect(syncButton.hasAttribute('disabled')).toBe(true);
+
+    pendingReplacement.resolve(
+      responseWith([variant('draft-1', 'replacement', 'replacement content')]),
+    );
+    await waitFor(() => expect(screen.getByDisplayValue('replacement content')).toBeTruthy());
   });
 });
