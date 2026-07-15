@@ -161,7 +161,7 @@ export function useManualSave({
    * （组件即将卸载/已卸载）。成功后立即置 dirty=false 避免重复触发。
    */
   const flushSave = useCallback(() => {
-    if (!dirtyRef.current || useSaveStatusStore.getState().isSaving) return;
+    if (!dirtyRef.current) return;
     const currentTitle = titleRef.current;
     const currentContent = contentRef.current;
     // 空校验：标题与内容必须都非空。

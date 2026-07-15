@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ensureDraft, updateDraft } from '@/lib/drafts/client';
 import type { ContentDraft } from '@/lib/drafts/types';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
@@ -37,6 +37,11 @@ describe('useManualSave', () => {
     vi.clearAllMocks();
     useSaveStatusStore.setState({ isDirty: false, isSaving: false, saveStatus: 'idle' });
     useToastStore.setState({ toasts: [] });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('keeps edits made during a pending save dirty after the request succeeds', async () => {
@@ -78,6 +83,58 @@ describe('useManualSave', () => {
     expect(useToastStore.getState().toasts).not.toContainEqual(
       expect.objectContaining({ message: '草稿已保存' }),
     );
+  });
+
+  it('flushes the latest edits when the page hides during a pending manual save', async () => {
+    const pendingSave = deferred<ContentDraft>();
+    vi.mocked(ensureDraft).mockReturnValue(pendingSave.promise);
+    const keepaliveFetch = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal('fetch', keepaliveFetch);
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    const { result, rerender } = renderHook(
+      ({ content }) =>
+        useManualSave({
+          title: 'Draft A',
+          content,
+          draftId: null,
+          onDraftCreated: vi.fn(),
+        }),
+      { initialProps: { content: 'Original content' } },
+    );
+
+    const savePromise = result.current.save();
+    await waitFor(() => expect(ensureDraft).toHaveBeenCalledTimes(1));
+    expect(ensureDraft).toHaveBeenCalledWith({
+      title: 'Draft A',
+      content: 'Original content',
+      source: 'manual',
+    });
+
+    rerender({ content: 'Latest content' });
+    await waitFor(() => expect(useSaveStatusStore.getState().isDirty).toBe(true));
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+
+    expect(keepaliveFetch).toHaveBeenCalledWith('/api/drafts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Draft A', content: 'Latest content' }),
+      keepalive: true,
+    });
+    expect(useSaveStatusStore.getState()).toMatchObject({
+      isSaving: true,
+      isDirty: true,
+      saveStatus: 'idle',
+    });
+
+    await act(async () => {
+      pendingSave.resolve(savedDraft);
+      await savePromise;
+    });
+    expect(useSaveStatusStore.getState()).toMatchObject({
+      isSaving: false,
+      isDirty: true,
+      saveStatus: 'idle',
+    });
   });
 
   it('marks an unchanged successful save as saved and clean', async () => {
