@@ -52,6 +52,21 @@ interface VariantCardData {
   changeSummary?: string;
 }
 
+function toVariantCardData(variant: PlatformVariant): VariantCardData {
+  return {
+    id: variant.id,
+    platform: variant.platform,
+    title: variant.title,
+    content: variant.content,
+    status: variant.status,
+    generatedByAgent: variant.generatedByAgent,
+    manuallyEdited: variant.manuallyEdited,
+    sourceDraftRevision: variant.sourceDraftRevision,
+    stale: variant.stale,
+    changeSummary: variant.changeSummary,
+  };
+}
+
 interface PublishChecklistProps {
   agentEnabled?: boolean;
 }
@@ -86,13 +101,23 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
   const [regeneratingPlatforms, setRegeneratingPlatforms] = useState<
     Partial<Record<PlatformId, boolean>>
   >({});
+  const [mutatingPlatforms, setMutatingPlatforms] = useState<Partial<Record<PlatformId, boolean>>>(
+    {},
+  );
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const editTitleRef = useRef('');
+  const editContentRef = useRef('');
   const requestGenerationRef = useRef(0);
   const requestControllerRef = useRef<AbortController | null>(null);
   const regenerationLifecycleRef = useRef(0);
   const regenerationOperationRef = useRef<Partial<Record<PlatformId, number>>>({});
   const regenerationControllerRef = useRef<Partial<Record<PlatformId, AbortController>>>({});
   const regeneratingPlatformsRef = useRef<Set<PlatformId>>(new Set());
+  const mutationSequenceRef = useRef<Partial<Record<PlatformId, number>>>({});
+  const activeMutationRef = useRef<Partial<Record<PlatformId, number>>>({});
+  const mutatingPlatformsRef = useRef<Set<PlatformId>>(new Set());
+  const manualSaveGenerationRef = useRef<Partial<Record<PlatformId, number>>>({});
+  const manualSaveControllerRef = useRef<Partial<Record<PlatformId, AbortController>>>({});
   const activeDraftIdRef = useRef(currentDraftId);
 
   const invalidateVariantRequest = useCallback(() => {
@@ -110,14 +135,74 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
     regeneratingPlatformsRef.current.clear();
   }, []);
 
+  const invalidateVariantMutations = useCallback(() => {
+    for (const controller of Object.values(manualSaveControllerRef.current)) {
+      controller?.abort();
+    }
+    manualSaveControllerRef.current = {};
+    activeMutationRef.current = {};
+    mutatingPlatformsRef.current.clear();
+  }, []);
+
+  const beginVariantMutation = useCallback(
+    (platform: PlatformId): number | null => {
+      if (
+        mutatingPlatformsRef.current.has(platform) ||
+        regeneratingPlatformsRef.current.has(platform)
+      ) {
+        return null;
+      }
+
+      invalidateVariantRequest();
+      const operation = (mutationSequenceRef.current[platform] ?? 0) + 1;
+      mutationSequenceRef.current[platform] = operation;
+      activeMutationRef.current[platform] = operation;
+      mutatingPlatformsRef.current.add(platform);
+      setMutatingPlatforms((current) => ({ ...current, [platform]: true }));
+      return operation;
+    },
+    [invalidateVariantRequest],
+  );
+
+  const applyVariantMutation = useCallback(
+    (platform: PlatformId, variant: PlatformVariant, operation: number): boolean => {
+      if (
+        activeMutationRef.current[platform] !== operation ||
+        activeDraftIdRef.current !== variant.draftId ||
+        variant.platform !== platform
+      ) {
+        return false;
+      }
+
+      setVariantId(platform, variant.id);
+      setVariants((current) => ({ ...current, [platform]: toVariantCardData(variant) }));
+      return true;
+    },
+    [setVariantId],
+  );
+
+  const endVariantMutation = useCallback((platform: PlatformId, operation: number) => {
+    if (activeMutationRef.current[platform] !== operation) return;
+    delete activeMutationRef.current[platform];
+    mutatingPlatformsRef.current.delete(platform);
+    setMutatingPlatforms((current) => {
+      if (!current[platform]) return current;
+      const next = { ...current };
+      delete next[platform];
+      return next;
+    });
+  }, []);
+
   useLayoutEffect(() => {
     activeDraftIdRef.current = currentDraftId;
     invalidateVariantRequest();
     invalidateRegenerationRequests();
+    invalidateVariantMutations();
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = undefined;
     setVariants({});
     setRegeneratingPlatforms({});
+    setMutatingPlatforms({});
     setEditingPlatform(null);
     setEditTitle('');
     setEditContent('');
@@ -126,16 +211,25 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
     return () => {
       invalidateVariantRequest();
       invalidateRegenerationRequests();
+      invalidateVariantMutations();
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [currentDraftId, invalidateRegenerationRequests, invalidateVariantRequest, resetVariantIds]);
+  }, [
+    currentDraftId,
+    invalidateRegenerationRequests,
+    invalidateVariantMutations,
+    invalidateVariantRequest,
+    resetVariantIds,
+  ]);
 
   const fetchVariants = useCallback(async () => {
     const requestedDraftId = currentDraftId;
     if (!requestedDraftId || activeDraftIdRef.current !== requestedDraftId) return;
 
     invalidateRegenerationRequests();
+    invalidateVariantMutations();
     setRegeneratingPlatforms({});
+    setMutatingPlatforms({});
     requestControllerRef.current?.abort();
     const controller = new AbortController();
     const generation = requestGenerationRef.current + 1;
@@ -157,18 +251,7 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
       const map: Record<string, VariantCardData> = {};
       resetVariantIds();
       for (const v of data.variants as PlatformVariant[]) {
-        map[v.platform] = {
-          id: v.id,
-          platform: v.platform,
-          title: v.title,
-          content: v.content,
-          status: v.status,
-          generatedByAgent: v.generatedByAgent,
-          manuallyEdited: v.manuallyEdited,
-          sourceDraftRevision: v.sourceDraftRevision,
-          stale: v.stale,
-          changeSummary: v.changeSummary,
-        };
+        map[v.platform] = toVariantCardData(v);
         setVariantId(v.platform, v.id);
       }
       setVariants(map);
@@ -177,7 +260,13 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
     } finally {
       if (requestControllerRef.current === controller) requestControllerRef.current = null;
     }
-  }, [currentDraftId, invalidateRegenerationRequests, resetVariantIds, setVariantId]);
+  }, [
+    currentDraftId,
+    invalidateRegenerationRequests,
+    invalidateVariantMutations,
+    resetVariantIds,
+    setVariantId,
+  ]);
 
   useEffect(() => {
     void fetchVariants();
@@ -187,7 +276,12 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
     async (platform: PlatformId) => {
       const requestedDraftId = currentDraftId;
       if (!requestedDraftId || activeDraftIdRef.current !== requestedDraftId) return;
-      if (regeneratingPlatformsRef.current.has(platform)) return;
+      if (
+        regeneratingPlatformsRef.current.has(platform) ||
+        mutatingPlatformsRef.current.has(platform)
+      ) {
+        return;
+      }
       const currentVariant = variants[platform];
       if (
         currentVariant &&
@@ -227,21 +321,7 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
         const v = data.variants?.[0] as PlatformVariant | undefined;
         if (v) {
           setVariantId(platform, v.id);
-          setVariants((current) => ({
-            ...current,
-            [platform]: {
-              id: v.id,
-              platform: v.platform,
-              title: v.title,
-              content: v.content,
-              status: v.status,
-              generatedByAgent: v.generatedByAgent,
-              manuallyEdited: v.manuallyEdited,
-              sourceDraftRevision: v.sourceDraftRevision,
-              stale: v.stale,
-              changeSummary: v.changeSummary,
-            },
-          }));
+          setVariants((current) => ({ ...current, [platform]: toVariantCardData(v) }));
         }
       } catch {
         // 稿件切换或新数据请求会主动中止过期的重新生成。
@@ -265,49 +345,101 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
     (platform: PlatformId) => {
       const v = variants[platform];
       if (!v) return;
+      const operation = beginVariantMutation(platform);
+      if (operation === null) return;
       setEditingPlatform(platform);
       setEditTitle(v.title);
       setEditContent(v.content);
+      editTitleRef.current = v.title;
+      editContentRef.current = v.content;
     },
-    [variants],
+    [beginVariantMutation, variants],
   );
 
   const saveEdit = useCallback(
-    async (platform: PlatformId) => {
+    async (platform: PlatformId, generation: number) => {
       const requestedDraftId = currentDraftId;
       const variantId = variantIds[platform];
-      if (!variantId || !requestedDraftId || activeDraftIdRef.current !== requestedDraftId) return;
-      await fetch(`/api/platform-variants/${variantId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: editTitle,
-          content: editContent,
-        }),
-      });
-      if (activeDraftIdRef.current !== requestedDraftId) return;
-      setEditingPlatform(null);
-      void fetchVariants();
+      const operation = activeMutationRef.current[platform];
+      if (
+        !variantId ||
+        !requestedDraftId ||
+        operation === undefined ||
+        activeDraftIdRef.current !== requestedDraftId ||
+        manualSaveGenerationRef.current[platform] !== generation
+      ) {
+        return;
+      }
+
+      manualSaveControllerRef.current[platform]?.abort();
+      const controller = new AbortController();
+      manualSaveControllerRef.current[platform] = controller;
+      const isCurrentSave = () =>
+        activeMutationRef.current[platform] === operation &&
+        manualSaveGenerationRef.current[platform] === generation &&
+        manualSaveControllerRef.current[platform] === controller &&
+        activeDraftIdRef.current === requestedDraftId &&
+        !controller.signal.aborted;
+
+      try {
+        const response = await fetch(`/api/platform-variants/${variantId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: editTitleRef.current,
+            content: editContentRef.current,
+          }),
+          signal: controller.signal,
+        });
+        if (!response.ok || !isCurrentSave()) return;
+        const data = await response.json();
+        if (!isCurrentSave()) return;
+        const savedVariant = data.variant as PlatformVariant | undefined;
+        if (!savedVariant || !applyVariantMutation(platform, savedVariant, operation)) return;
+
+        setEditingPlatform(null);
+        endVariantMutation(platform, operation);
+      } catch {
+        // 新输入或稿件切换会主动中止过期保存；失败时保留编辑状态。
+      } finally {
+        if (manualSaveControllerRef.current[platform] === controller) {
+          delete manualSaveControllerRef.current[platform];
+        }
+      }
     },
-    [currentDraftId, variantIds, editTitle, editContent, fetchVariants],
+    [applyVariantMutation, currentDraftId, endVariantMutation, variantIds],
+  );
+
+  const scheduleManualSave = useCallback(
+    (platform: PlatformId) => {
+      manualSaveControllerRef.current[platform]?.abort();
+      const generation = (manualSaveGenerationRef.current[platform] ?? 0) + 1;
+      manualSaveGenerationRef.current[platform] = generation;
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        debounceRef.current = undefined;
+        void saveEdit(platform, generation);
+      }, 800);
+    },
+    [saveEdit],
   );
 
   const handleEditContentChange = useCallback(
     (platform: PlatformId, value: string) => {
       setEditContent(value);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => saveEdit(platform), 800);
+      editContentRef.current = value;
+      scheduleManualSave(platform);
     },
-    [saveEdit],
+    [scheduleManualSave],
   );
 
   const handleEditTitleChange = useCallback(
     (platform: PlatformId, value: string) => {
       setEditTitle(value);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => saveEdit(platform), 800);
+      editTitleRef.current = value;
+      scheduleManualSave(platform);
     },
-    [saveEdit],
+    [scheduleManualSave],
   );
 
   // --- 就绪状态（决定徽章）---
@@ -366,6 +498,10 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
               const validation = validateForPlatform(displayTitle, displayContent, platform);
               const hasVariant = !!currentDraftId && !!variant;
               const freshnessLabel = variant ? getVariantFreshnessLabel(variant) : null;
+              const isPlatformBusy =
+                regeneratingPlatforms[platform] === true ||
+                mutatingPlatforms[platform] === true ||
+                isEditing;
 
               return (
                 <div key={platform} className={styles.variantCard}>
@@ -476,18 +612,26 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
                         type="button"
                         className={styles.actionBtn}
                         onClick={() => handleResync(platform)}
-                        disabled={regeneratingPlatforms[platform] === true}
+                        disabled={isPlatformBusy}
                         title="从主稿重新同步"
                       >
                         <RefreshCw size={10} /> 同步
                       </button>
                     )}
-                    <PlatformAdaptButton platform={platform} agentEnabled={agentEnabled} />
+                    <PlatformAdaptButton
+                      platform={platform}
+                      agentEnabled={agentEnabled}
+                      disabled={isPlatformBusy}
+                      onMutationStart={beginVariantMutation}
+                      onVariantSaved={applyVariantMutation}
+                      onMutationEnd={endVariantMutation}
+                    />
                     {hasVariant && !isEditing && (
                       <button
                         type="button"
                         className={styles.actionBtn}
                         onClick={() => startEdit(platform)}
+                        disabled={isPlatformBusy}
                         title="编辑渠道版本"
                       >
                         <Pencil size={10} /> 编辑

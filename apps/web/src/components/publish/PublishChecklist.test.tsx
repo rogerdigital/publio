@@ -353,4 +353,136 @@ describe('PublishChecklist stale variant replacement', () => {
     );
     await waitFor(() => expect(screen.getByDisplayValue('replacement content')).toBeTruthy());
   });
+
+  it('blocks forced replacement as soon as manual editing starts', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(responseWith([variant('draft-1', 'variant-1', 'old content')]))
+      .mockResolvedValue(responseWith([]));
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<PublishChecklist />);
+    fireEvent.click(await screen.findByDisplayValue('old content'));
+
+    const syncButton = screen.getByRole('button', { name: '同步' });
+    expect(syncButton.hasAttribute('disabled')).toBe(true);
+    fireEvent.click(syncButton);
+    expect(fetchMock.mock.calls.filter(([, init]) => init?.method === 'POST')).toHaveLength(0);
+  });
+
+  it('confirms after a manual PATCH returns a protected variant snapshot', async () => {
+    const manuallyEdited = variant('draft-1', 'variant-1', 'manual content', {
+      status: 'edited',
+      manuallyEdited: true,
+    });
+    let draftReads = 0;
+    const fetchMock = vi.fn((url: string, init?: { method?: string }) => {
+      if (url === '/api/drafts/draft-1/variants' && !init?.method) {
+        draftReads += 1;
+        return Promise.resolve(
+          responseWith([
+            draftReads === 1
+              ? variant('draft-1', 'variant-1', 'old content')
+              : variant('draft-1', 'variant-1', 'old server snapshot'),
+          ]),
+        );
+      }
+      if (url === '/api/platform-variants/variant-1' && init?.method === 'PATCH') {
+        return Promise.resolve({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ variant: manuallyEdited }),
+        } as unknown as Response);
+      }
+      if (url === '/api/drafts/draft-1/variants' && init?.method === 'POST') {
+        return Promise.resolve(responseWith([]));
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    const confirmMock = vi.fn().mockReturnValue(false);
+    vi.stubGlobal('fetch', fetchMock);
+    vi.stubGlobal('confirm', confirmMock);
+
+    render(<PublishChecklist />);
+    fireEvent.click(await screen.findByDisplayValue('old content'));
+    fireEvent.change(screen.getByDisplayValue('old content'), {
+      target: { value: 'manual content' },
+    });
+
+    await waitFor(
+      () =>
+        expect(
+          fetchMock.mock.calls.some(
+            ([url, init]) => url === '/api/platform-variants/variant-1' && init?.method === 'PATCH',
+          ),
+        ).toBe(true),
+      { timeout: 1_500 },
+    );
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: '同步' }).hasAttribute('disabled')).toBe(false),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '同步' }));
+
+    expect(confirmMock).toHaveBeenCalledWith(
+      '重新生成会覆盖这个渠道版本的人工或 AI 修改，是否继续？',
+    );
+    expect(fetchMock.mock.calls.filter(([, init]) => init?.method === 'POST')).toHaveLength(0);
+  });
+
+  it('ignores a late manual PATCH after newer editor input is saved', async () => {
+    const firstSave = deferred<Response>();
+    const secondSave = deferred<Response>();
+    let patchCount = 0;
+    const fetchMock = vi.fn((url: string, init?: { method?: string }) => {
+      if (url === '/api/drafts/draft-1/variants' && !init?.method) {
+        return Promise.resolve(responseWith([variant('draft-1', 'variant-1', 'old content')]));
+      }
+      if (url === '/api/platform-variants/variant-1' && init?.method === 'PATCH') {
+        patchCount += 1;
+        return patchCount === 1 ? firstSave.promise : secondSave.promise;
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<PublishChecklist />);
+    fireEvent.click(await screen.findByDisplayValue('old content'));
+    fireEvent.change(screen.getByDisplayValue('old content'), {
+      target: { value: 'first content' },
+    });
+    await waitFor(() => expect(patchCount).toBe(1), { timeout: 1_500 });
+
+    fireEvent.change(screen.getByDisplayValue('first content'), {
+      target: { value: 'second content' },
+    });
+    await waitFor(() => expect(patchCount).toBe(2), { timeout: 1_500 });
+
+    secondSave.resolve({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        variant: variant('draft-1', 'variant-1', 'second content', {
+          status: 'edited',
+          manuallyEdited: true,
+        }),
+      }),
+    } as unknown as Response);
+    await waitFor(() => expect(screen.getByDisplayValue('second content')).toBeTruthy());
+
+    firstSave.resolve({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        variant: variant('draft-1', 'variant-1', 'first content', {
+          status: 'edited',
+          manuallyEdited: true,
+        }),
+      }),
+    } as unknown as Response);
+    await act(async () => {
+      await firstSave.promise;
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByDisplayValue('first content')).toBeNull();
+    expect(screen.getByDisplayValue('second content')).toBeTruthy();
+  });
 });
