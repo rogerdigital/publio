@@ -94,6 +94,7 @@ describe('createPlatformVariantStore freshness', () => {
     });
     const store = createStore([ruleVariant, editedVariant]);
 
+    store.markVariantsStale('draft-1', 2);
     const variants = store.syncVariantsFromDraft(
       'draft-1',
       'Current title',
@@ -116,6 +117,32 @@ describe('createPlatformVariantStore freshness', () => {
       sourceDraftRevision: 1,
       stale: true,
       updatedAt: updatedTimestamp,
+    });
+  });
+
+  it('preserves stale freshness when syncing protected content from an older draft revision', () => {
+    const editedVariant = createVariant({
+      id: 'variant-edited',
+      platform: 'wechat',
+      content: 'Edited content',
+      status: 'edited',
+      manuallyEdited: true,
+    });
+    const store = createStore([editedVariant]);
+
+    expect(store.markVariantsStale('draft-1', 2)[0]?.stale).toBe(true);
+    const [variant] = store.syncVariantsFromDraft(
+      'draft-1',
+      'Older title',
+      'Older content',
+      ['wechat'],
+      { sourceDraftRevision: 1 },
+    );
+
+    expect(variant).toMatchObject({
+      content: 'Edited content',
+      sourceDraftRevision: 1,
+      stale: true,
     });
   });
 

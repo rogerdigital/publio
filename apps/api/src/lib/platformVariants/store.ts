@@ -171,7 +171,6 @@ export function createPlatformVariantStore(options: PlatformVariantStoreOptions 
           if (protectedContent && !options.replaceProtected) {
             const updated: PlatformVariant = {
               ...existing,
-              stale: existing.sourceDraftRevision < sourceDraftRevision,
               updatedAt: timestamp,
             };
             variants.set(existing.id, updated);
