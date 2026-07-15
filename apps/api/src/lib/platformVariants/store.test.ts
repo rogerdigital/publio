@@ -146,6 +146,31 @@ describe('createPlatformVariantStore freshness', () => {
     });
   });
 
+  it('marks protected content stale when syncing from a newer draft revision', () => {
+    const editedVariant = createVariant({
+      id: 'variant-edited',
+      platform: 'wechat',
+      content: 'Edited content',
+      status: 'edited',
+      manuallyEdited: true,
+    });
+    const store = createStore([editedVariant]);
+
+    const [variant] = store.syncVariantsFromDraft(
+      'draft-1',
+      'Current title',
+      'Current content',
+      ['wechat'],
+      { sourceDraftRevision: 2 },
+    );
+
+    expect(variant).toMatchObject({
+      content: 'Edited content',
+      sourceDraftRevision: 1,
+      stale: true,
+    });
+  });
+
   it('replaces protected content when explicitly requested', () => {
     const editedVariant = createVariant({
       id: 'variant-edited',
