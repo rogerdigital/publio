@@ -145,4 +145,56 @@ describe('draft variant revision routes', () => {
       expect.objectContaining({ sourceDraftRevision: 1, stale: false }),
     ]);
   });
+
+  it('syncs variants from the latest draft after a delayed request body', async () => {
+    const draft = await createDraft();
+    let signalBodyRead!: () => void;
+    let releaseBody!: () => void;
+    const bodyRead = new Promise<void>((resolve) => {
+      signalBodyRead = resolve;
+    });
+    const bodyReleased = new Promise<void>((resolve) => {
+      releaseBody = resolve;
+    });
+    const requestBody = new ReadableStream<Uint8Array>({
+      async pull(controller) {
+        signalBodyRead();
+        await bodyReleased;
+        controller.enqueue(new TextEncoder().encode(JSON.stringify({ platforms: ['wechat'] })));
+        controller.close();
+      },
+    });
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: requestBody,
+      duplex: 'half',
+    };
+    const request = new Request(`http://localhost/api/drafts/${draft.id}/variants`, requestOptions);
+
+    const syncPromise = app.request(request);
+    await bodyRead;
+    const patchBody = await patchDraft(draft.id, { content: 'Revision 2 content' });
+    expect(patchBody.draft.revision).toBe(2);
+    releaseBody();
+
+    const syncResponse = await syncPromise;
+    expect(syncResponse.status).toBe(201);
+    expect(await syncResponse.json()).toMatchObject({
+      variants: [
+        {
+          content: 'Revision 2 content',
+          sourceDraftRevision: 2,
+          stale: false,
+        },
+      ],
+    });
+    expect(await getVariants(draft.id)).toEqual([
+      expect.objectContaining({
+        content: 'Revision 2 content',
+        sourceDraftRevision: 2,
+        stale: false,
+      }),
+    ]);
+  });
 });

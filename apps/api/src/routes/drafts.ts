@@ -111,14 +111,13 @@ draftsRoutes.get('/:id/variants', (c) => {
 draftsRoutes.post('/:id/variants', async (c) => {
   try {
     const id = c.req.param('id');
-    const draft = getDraftRegistry().getDraft(id);
-    if (!draft) return apiError(c, '稿件不存在', 404);
-
     const body = await c.req.json();
     const platforms: PlatformId[] = Array.isArray(body.platforms)
       ? body.platforms.filter((p: unknown) => isPlatformId(p))
       : VALID_PLATFORMS;
     const replaceProtected = body.force === true;
+    const draft = getDraftRegistry().getDraft(id);
+    if (!draft) return apiError(c, '稿件不存在', 404);
 
     const variants = getPlatformVariantRegistry().syncVariantsFromDraft(
       id,
