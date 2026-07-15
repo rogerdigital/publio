@@ -8,6 +8,7 @@ import * as layoutStyles from '@/app/styles/layout.css';
 
 const MarkdownEditor = lazy(() => import('@/components/editor/MarkdownEditor'));
 import RecentDraftBar from '@/components/editor/RecentDraftBar';
+import MarkdownImportButton from '@/components/editor/MarkdownImportButton';
 import PublishChecklist from '@/components/publish/PublishChecklist';
 import TemplatePicker from '@/components/editor/TemplatePicker';
 import MediaLibrary from '@/components/editor/MediaLibrary';
@@ -16,6 +17,7 @@ const PublishProgressOverlay = lazy(() => import('@/components/publish/PublishPr
 const AgentPanel = lazy(() => import('@/components/agent/AgentPanel'));
 import * as publishStyles from '@/components/publish/publish.css';
 import { fetchDraftById } from '@/lib/drafts/client';
+import type { ContentDraft } from '@/lib/drafts/types';
 import { getCachedHomePageChromeData, loadHomePageChromeData } from '@/lib/navigationDataCache';
 import { useManualSave } from '@/hooks/useManualSave';
 import * as styles from './page.css';
@@ -28,6 +30,7 @@ function HomePageContent() {
   const setTitle = usePublishStore((s) => s.setTitle);
   const setContent = usePublishStore((s) => s.setContent);
   const reset = usePublishStore((s) => s.reset);
+  const resetVariantIds = usePublishStore((s) => s.resetVariantIds);
   const currentDraftId = usePublishStore((s) => s.currentDraftId);
   const setCurrentDraftId = usePublishStore((s) => s.setCurrentDraftId);
   const activeTab = usePublishStore((s) => s.activeTab);
@@ -75,6 +78,22 @@ function HomePageContent() {
     draftId: currentDraftId,
     onDraftCreated: handleDraftCreated,
   });
+
+  const handleDraftImported = useCallback(
+    (draft: ContentDraft) => {
+      loadedDraftIdRef.current = draft.id;
+      setTitle(draft.title);
+      setContent(draft.content);
+      setCurrentDraftId(draft.id);
+      reset();
+      resetVariantIds();
+      syncSnapshot({ title: draft.title, content: draft.content });
+      setDraftLoadError('');
+      setMoreMenuOpen(false);
+      navigate(`/?draftId=${draft.id}`, { replace: true });
+    },
+    [navigate, reset, resetVariantIds, setContent, setCurrentDraftId, setTitle, syncSnapshot],
+  );
 
   const handleNewDraft = useCallback(() => {
     setTitle('');
@@ -175,6 +194,10 @@ function HomePageContent() {
                 <>
                   <div className={styles.moreMenuBackdrop} onClick={() => setMoreMenuOpen(false)} />
                   <div className={styles.moreMenu}>
+                    <MarkdownImportButton
+                      className={styles.moreMenuItem}
+                      onImported={handleDraftImported}
+                    />
                     <TemplatePicker
                       currentTitle={title}
                       currentContent={content}
