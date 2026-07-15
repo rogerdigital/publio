@@ -12,6 +12,7 @@ export interface ContentDraft {
   source: DraftSource;
   platforms?: PlatformId[];
   tags?: string[];
+  revision: number;
   createdAt: string;
   updatedAt: string;
 }
