@@ -2,13 +2,13 @@ import { Hono } from 'hono';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { resetDraftRegistryForTests } from '@/lib/drafts/registry';
-import {
-  getPlatformVariantRegistry,
-  resetPlatformVariantRegistryForTests,
-} from '@/lib/platformVariants/registry';
+import { resetPlatformVariantRegistryForTests } from '@/lib/platformVariants/registry';
 import { draftsRoutes } from '@/routes/drafts';
+import { platformVariantsRoutes } from '@/routes/platformVariants';
 
-const app = new Hono().route('/api/drafts', draftsRoutes);
+const app = new Hono()
+  .route('/api/drafts', draftsRoutes)
+  .route('/api/platform-variants', platformVariantsRoutes);
 
 async function createDraft() {
   const response = await app.request('/api/drafts', {
@@ -81,15 +81,28 @@ describe('draft variant revision routes', () => {
   it('preserves protected stale content until a forced sync replaces it atomically', async () => {
     const draft = await createDraft();
     const [syncedVariant] = await syncWechat(draft.id);
-    const variantStore = getPlatformVariantRegistry();
 
-    variantStore.updateVariant(syncedVariant.id, { content: 'Manual platform content' });
+    const editResponse = await app.request(`/api/platform-variants/${syncedVariant.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: 'Manual body' }),
+    });
+    expect(editResponse.status).toBe(200);
+    expect(await editResponse.json()).toMatchObject({
+      ok: true,
+      variant: {
+        content: 'Manual body',
+        manuallyEdited: true,
+        sourceDraftRevision: 1,
+      },
+    });
 
     const patchBody = await patchDraft(draft.id, { content: 'Revised draft content' });
     expect(patchBody.draft.revision).toBe(2);
     expect(await getVariants(draft.id)).toEqual([
       expect.objectContaining({
-        content: 'Manual platform content',
+        content: 'Manual body',
+        manuallyEdited: true,
         sourceDraftRevision: 1,
         stale: true,
       }),
@@ -97,7 +110,8 @@ describe('draft variant revision routes', () => {
 
     expect(await syncWechat(draft.id)).toEqual([
       expect.objectContaining({
-        content: 'Manual platform content',
+        content: 'Manual body',
+        manuallyEdited: true,
         sourceDraftRevision: 1,
         stale: true,
       }),
