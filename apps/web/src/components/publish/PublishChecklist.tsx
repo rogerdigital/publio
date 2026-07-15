@@ -278,7 +278,8 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
       if (!requestedDraftId || activeDraftIdRef.current !== requestedDraftId) return;
       if (
         regeneratingPlatformsRef.current.has(platform) ||
-        mutatingPlatformsRef.current.has(platform)
+        mutatingPlatformsRef.current.has(platform) ||
+        editingPlatform === platform
       ) {
         return;
       }
@@ -338,22 +339,37 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
         }
       }
     },
-    [currentDraftId, invalidateVariantRequest, variants, setVariantId],
+    [currentDraftId, editingPlatform, invalidateVariantRequest, variants, setVariantId],
   );
 
   const startEdit = useCallback(
     (platform: PlatformId) => {
       const v = variants[platform];
-      if (!v) return;
-      const operation = beginVariantMutation(platform);
-      if (operation === null) return;
+      if (
+        !v ||
+        mutatingPlatformsRef.current.has(platform) ||
+        regeneratingPlatformsRef.current.has(platform)
+      ) {
+        return;
+      }
+
+      if (editingPlatform !== null && editingPlatform !== platform) {
+        if (activeMutationRef.current[editingPlatform] !== undefined) return;
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = undefined;
+        manualSaveControllerRef.current[editingPlatform]?.abort();
+        delete manualSaveControllerRef.current[editingPlatform];
+        manualSaveGenerationRef.current[editingPlatform] =
+          (manualSaveGenerationRef.current[editingPlatform] ?? 0) + 1;
+      }
+
       setEditingPlatform(platform);
       setEditTitle(v.title);
       setEditContent(v.content);
       editTitleRef.current = v.title;
       editContentRef.current = v.content;
     },
-    [beginVariantMutation, variants],
+    [editingPlatform, variants],
   );
 
   const saveEdit = useCallback(
@@ -424,22 +440,33 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
     [saveEdit],
   );
 
+  const ensureManualEditMutation = useCallback(
+    (platform: PlatformId): boolean => {
+      if (editingPlatform !== platform) return false;
+      if (activeMutationRef.current[platform] !== undefined) return true;
+      return beginVariantMutation(platform) !== null;
+    },
+    [beginVariantMutation, editingPlatform],
+  );
+
   const handleEditContentChange = useCallback(
     (platform: PlatformId, value: string) => {
+      if (!ensureManualEditMutation(platform)) return;
       setEditContent(value);
       editContentRef.current = value;
       scheduleManualSave(platform);
     },
-    [scheduleManualSave],
+    [ensureManualEditMutation, scheduleManualSave],
   );
 
   const handleEditTitleChange = useCallback(
     (platform: PlatformId, value: string) => {
+      if (!ensureManualEditMutation(platform)) return;
       setEditTitle(value);
       editTitleRef.current = value;
       scheduleManualSave(platform);
     },
-    [scheduleManualSave],
+    [ensureManualEditMutation, scheduleManualSave],
   );
 
   // --- 就绪状态（决定徽章）---
@@ -502,6 +529,10 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
                 regeneratingPlatforms[platform] === true ||
                 mutatingPlatforms[platform] === true ||
                 isEditing;
+              const isOtherEditorLocked =
+                editingPlatform !== null &&
+                editingPlatform !== platform &&
+                mutatingPlatforms[editingPlatform] === true;
 
               return (
                 <div key={platform} className={styles.variantCard}>
@@ -580,7 +611,11 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
                         value={displayContent}
                         readOnly
                         onClick={() => startEdit(platform)}
-                        style={{ cursor: 'pointer', minHeight: '60px' }}
+                        aria-disabled={isOtherEditorLocked}
+                        style={{
+                          cursor: isOtherEditorLocked ? 'not-allowed' : 'pointer',
+                          minHeight: '60px',
+                        }}
                       />
                     )
                   )}
@@ -631,7 +666,7 @@ export default function PublishChecklist({ agentEnabled = false }: PublishCheckl
                         type="button"
                         className={styles.actionBtn}
                         onClick={() => startEdit(platform)}
-                        disabled={isPlatformBusy}
+                        disabled={isPlatformBusy || isOtherEditorLocked}
                         title="编辑渠道版本"
                       >
                         <Pencil size={10} /> 编辑

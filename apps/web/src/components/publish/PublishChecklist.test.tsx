@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { adaptContentForPlatforms } from '@/lib/platformAdapters/adaptContent';
 import type { PlatformVariant } from '@/lib/platformVariants/types';
@@ -484,5 +484,109 @@ describe('PublishChecklist stale variant replacement', () => {
 
     expect(screen.queryByDisplayValue('first content')).toBeNull();
     expect(screen.getByDisplayValue('second content')).toBeTruthy();
+  });
+});
+
+describe('PublishChecklist cross-platform manual editing', () => {
+  beforeEach(() => {
+    usePublishStore.setState({
+      title: 'Main title',
+      content: 'Main content',
+      currentDraftId: 'draft-1',
+      platforms: { wechat: true, xiaohongshu: false, zhihu: true, x: false },
+      platformDrafts: adaptContentForPlatforms({
+        title: 'Main title',
+        content: 'Main content',
+        platforms: ['wechat', 'xiaohongshu', 'zhihu', 'x'],
+      }),
+      variantIds: { wechat: null, xiaohongshu: null, zhihu: null, x: null },
+      overallStatus: 'idle',
+      results: [],
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('keeps a pending WeChat edit isolated when Zhihu is clicked', async () => {
+    const pendingSave = deferred<Response>();
+    let patchBody: string | undefined;
+    const variants = [
+      variant('draft-1', 'wechat-variant', 'wechat content'),
+      variant('draft-1', 'zhihu-variant', 'zhihu content', {
+        platform: 'zhihu',
+        title: 'Zhihu title',
+      }),
+    ];
+    const fetchMock = vi.fn((url: string, init?: { method?: string; body?: string }) => {
+      if (url === '/api/drafts/draft-1/variants' && !init?.method) {
+        return Promise.resolve(responseWith(variants));
+      }
+      if (url === '/api/platform-variants/wechat-variant' && init?.method === 'PATCH') {
+        patchBody = init.body;
+        return pendingSave.promise;
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<PublishChecklist />);
+    fireEvent.click(await screen.findByDisplayValue('wechat content'));
+    fireEvent.change(screen.getByDisplayValue('wechat content'), {
+      target: { value: 'wechat pending edit' },
+    });
+    fireEvent.click(screen.getByDisplayValue('zhihu content'));
+
+    await waitFor(() => expect(patchBody).toBeDefined(), { timeout: 1_500 });
+    expect(JSON.parse(patchBody ?? '{}')).toMatchObject({ content: 'wechat pending edit' });
+    const zhihuContent = screen.getByDisplayValue('zhihu content');
+    expect(zhihuContent.hasAttribute('readonly')).toBe(true);
+    const zhihuCard = zhihuContent.parentElement;
+    expect(zhihuCard).not.toBeNull();
+    expect(within(zhihuCard!).getByRole('button', { name: '同步' }).hasAttribute('disabled')).toBe(
+      false,
+    );
+
+    pendingSave.resolve({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        variant: variant('draft-1', 'wechat-variant', 'wechat pending edit', {
+          status: 'edited',
+          manuallyEdited: true,
+        }),
+      }),
+    } as unknown as Response);
+    await waitFor(() => expect(screen.getByDisplayValue('wechat pending edit')).toBeTruthy());
+    expect(screen.getByDisplayValue('zhihu content').hasAttribute('readonly')).toBe(true);
+  });
+
+  it('switches an untouched editor without leaving either platform locked', async () => {
+    const variants = [
+      variant('draft-1', 'wechat-variant', 'wechat content'),
+      variant('draft-1', 'zhihu-variant', 'zhihu content', {
+        platform: 'zhihu',
+        title: 'Zhihu title',
+      }),
+    ];
+    const fetchMock = vi.fn().mockResolvedValue(responseWith(variants));
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<PublishChecklist />);
+    fireEvent.click(await screen.findByDisplayValue('wechat content'));
+    fireEvent.click(screen.getByDisplayValue('zhihu content'));
+
+    expect(screen.getByDisplayValue('zhihu content').hasAttribute('readonly')).toBe(false);
+    const wechatCard = screen.getByDisplayValue('wechat content').parentElement;
+    expect(wechatCard).not.toBeNull();
+    expect(within(wechatCard!).getByRole('button', { name: '同步' }).hasAttribute('disabled')).toBe(
+      false,
+    );
+    expect(within(wechatCard!).getByRole('button', { name: '编辑' }).hasAttribute('disabled')).toBe(
+      false,
+    );
+    expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PATCH')).toBe(false);
   });
 });
