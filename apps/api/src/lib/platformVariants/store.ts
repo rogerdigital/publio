@@ -28,6 +28,17 @@ function sortByUpdatedAtDesc(a: PlatformVariant, b: PlatformVariant) {
   return Date.parse(b.updatedAt) - Date.parse(a.updatedAt);
 }
 
+function normalizeVariant(variant: PlatformVariant): PlatformVariant {
+  return {
+    ...variant,
+    sourceDraftRevision:
+      Number.isInteger(variant.sourceDraftRevision) && variant.sourceDraftRevision > 0
+        ? variant.sourceDraftRevision
+        : 1,
+    stale: variant.stale === true,
+  };
+}
+
 export function createPlatformVariantStore(options: PlatformVariantStoreOptions = {}) {
   const createId = options.createId ?? createDefaultId;
   const now = options.now ?? createTimestamp;
@@ -35,7 +46,9 @@ export function createPlatformVariantStore(options: PlatformVariantStoreOptions 
   const initialVariants = storagePath
     ? readJsonFileCollection<PlatformVariant>(storagePath)
     : (options.initialVariants ?? []);
-  const variants = new Map<string, PlatformVariant>(initialVariants.map((v) => [v.id, v]));
+  const variants = new Map<string, PlatformVariant>(
+    initialVariants.map((variant) => [variant.id, normalizeVariant(variant)]),
+  );
 
   function persist() {
     if (!storagePath) return;
@@ -54,6 +67,8 @@ export function createPlatformVariantStore(options: PlatformVariantStoreOptions 
         status: 'synced',
         generatedByAgent: input.generatedByAgent ?? false,
         manuallyEdited: false,
+        sourceDraftRevision: input.sourceDraftRevision,
+        stale: false,
         lastSyncedFromDraftAt: timestamp,
         createdAt: timestamp,
         updatedAt: timestamp,
@@ -110,25 +125,57 @@ export function createPlatformVariantStore(options: PlatformVariantStoreOptions 
         .sort(sortByUpdatedAtDesc);
     },
 
+    markVariantsStale(draftId: string, currentDraftRevision: number): PlatformVariant[] {
+      const timestamp = now();
+      const changed: PlatformVariant[] = [];
+
+      for (const variant of variants.values()) {
+        if (
+          variant.draftId !== draftId ||
+          variant.sourceDraftRevision >= currentDraftRevision ||
+          variant.stale
+        ) {
+          continue;
+        }
+
+        const updated: PlatformVariant = {
+          ...variant,
+          stale: true,
+          updatedAt: timestamp,
+        };
+        variants.set(variant.id, updated);
+        changed.push(updated);
+      }
+
+      if (changed.length > 0) persist();
+      return changed;
+    },
+
     syncVariantsFromDraft(
       draftId: string,
       title: string,
       content: string,
       platforms: PlatformId[],
+      options: { sourceDraftRevision?: number; replaceProtected?: boolean } = {},
     ): PlatformVariant[] {
       const timestamp = now();
+      const sourceDraftRevision = options.sourceDraftRevision ?? 1;
       const results: PlatformVariant[] = [];
 
       for (const platform of platforms) {
         const existing = this.getVariantByDraftAndPlatform(draftId, platform);
 
         if (existing) {
-          if (existing.manuallyEdited) {
-            results.push(existing);
-            continue;
-          }
-          if (existing.status !== 'synced') {
-            results.push(existing);
+          const protectedContent =
+            existing.manuallyEdited || existing.generatedByAgent || existing.status !== 'synced';
+          if (protectedContent && !options.replaceProtected) {
+            const updated: PlatformVariant = {
+              ...existing,
+              stale: existing.sourceDraftRevision < sourceDraftRevision,
+              updatedAt: timestamp,
+            };
+            variants.set(existing.id, updated);
+            results.push(updated);
             continue;
           }
 
@@ -136,6 +183,12 @@ export function createPlatformVariantStore(options: PlatformVariantStoreOptions 
             ...existing,
             title,
             content,
+            status: 'synced',
+            generatedByAgent: false,
+            manuallyEdited: false,
+            changeSummary: undefined,
+            sourceDraftRevision,
+            stale: false,
             lastSyncedFromDraftAt: timestamp,
             updatedAt: timestamp,
           };
@@ -151,6 +204,8 @@ export function createPlatformVariantStore(options: PlatformVariantStoreOptions 
             status: 'synced',
             generatedByAgent: false,
             manuallyEdited: false,
+            sourceDraftRevision,
+            stale: false,
             lastSyncedFromDraftAt: timestamp,
             createdAt: timestamp,
             updatedAt: timestamp,

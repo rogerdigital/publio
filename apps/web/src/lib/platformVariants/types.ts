@@ -11,6 +11,8 @@ export interface PlatformVariant {
   status: VariantStatus;
   generatedByAgent: boolean;
   manuallyEdited: boolean;
+  sourceDraftRevision: number;
+  stale: boolean;
   changeSummary?: string;
   lastSyncedFromDraftAt?: string;
   createdAt: string;
@@ -22,6 +24,7 @@ export interface CreatePlatformVariantInput {
   platform: PlatformId;
   title: string;
   content: string;
+  sourceDraftRevision: number;
   generatedByAgent?: boolean;
 }
 
