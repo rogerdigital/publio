@@ -62,6 +62,10 @@ draftsRoutes.get('/:id', (c) => {
 draftsRoutes.patch('/:id', async (c) => {
   try {
     const id = c.req.param('id');
+    const draftRegistry = getDraftRegistry();
+    const current = draftRegistry.getDraft(id);
+    if (!current) return apiError(c, '稿件不存在', 404);
+
     const body = await c.req.json();
     const input: Record<string, unknown> = {};
     if (typeof body.title === 'string') {
@@ -79,8 +83,11 @@ draftsRoutes.patch('/:id', async (c) => {
       input.tags = body.tags.filter((t: unknown) => typeof t === 'string').slice(0, 20);
     }
 
-    const draft = getDraftRegistry().updateDraft(id, input as UpdateDraftInput);
+    const draft = draftRegistry.updateDraft(id, input as UpdateDraftInput);
     if (!draft) return apiError(c, '稿件不存在', 404);
+    if (draft.revision !== current.revision) {
+      getPlatformVariantRegistry().markVariantsStale(id, draft.revision);
+    }
     return apiResponse(c, { draft });
   } catch (error) {
     return apiError(c, error instanceof Error ? error.message : '更新稿件失败', 500);
@@ -104,19 +111,20 @@ draftsRoutes.get('/:id/variants', (c) => {
 draftsRoutes.post('/:id/variants', async (c) => {
   try {
     const id = c.req.param('id');
-    const draft = getDraftRegistry().getDraft(id);
-    if (!draft) return apiError(c, '稿件不存在', 404);
-
     const body = await c.req.json();
     const platforms: PlatformId[] = Array.isArray(body.platforms)
       ? body.platforms.filter((p: unknown) => isPlatformId(p))
       : VALID_PLATFORMS;
+    const replaceProtected = body.force === true;
+    const draft = getDraftRegistry().getDraft(id);
+    if (!draft) return apiError(c, '稿件不存在', 404);
 
     const variants = getPlatformVariantRegistry().syncVariantsFromDraft(
       id,
       draft.title,
       draft.content,
       platforms,
+      { sourceDraftRevision: draft.revision, replaceProtected },
     );
     return apiResponse(c, { variants }, 201);
   } catch (error) {

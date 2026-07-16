@@ -10,7 +10,7 @@
 
 > A focused writing and multi-platform publishing tool for individual creators. Write once, adapt per platform.
 
-- **Writing desk** — Markdown editing, live preview, manual save with close/crash fallback, version history, templates, and image uploads.
+- **Writing desk** — Markdown editing with live preview and .md import, immersive full-screen mode, manual save with best-effort save when closing or moving the page to the background, revision-aware platform variants, templates, and a media library.
 - **Draft library** — Manage drafts, publish state, and platform variants.
 - **Multi-platform publishing** — Publish to WeChat, Xiaohongshu, Zhihu, and X (Twitter) with progress tracking.
 - **Optional AI assistance** — Rewrite, title suggestions, and platform adaptation; AI entry points are hidden when unconfigured.
@@ -48,7 +48,7 @@ Open http://localhost:3000. Configure platform credentials and AI agent in Setti
 
 ### Writing Desk
 
-Markdown editor with live preview, immersive full-screen mode, manual save (with a fallback that runs if the page closes or crashes before saving), version history restore, content templates, and a media library.
+Markdown editor with live preview, .md import, immersive full-screen mode, manual save with best-effort save when closing or moving the page to the background, content templates, and a media library. Platform variants track the main-draft revision, so main-draft updates do not silently overwrite manual or AI edits.
 
 ### AI Assistance
 

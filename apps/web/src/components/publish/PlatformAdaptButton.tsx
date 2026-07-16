@@ -1,13 +1,18 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Sparkles, Undo2, Loader2 } from 'lucide-react';
 import { usePublishStore } from '@/stores/publishStore';
 import type { PlatformId } from '@/types';
 import type { AgentStreamEvent } from '@/lib/agent/types';
+import type { PlatformVariant } from '@/lib/platformVariants/types';
 import * as styles from './publish.css';
 
 interface PlatformAdaptButtonProps {
   platform: PlatformId;
   agentEnabled: boolean;
+  disabled?: boolean;
+  onMutationStart?: (platform: PlatformId) => number | null;
+  onVariantSaved?: (platform: PlatformId, variant: PlatformVariant, operation: number) => boolean;
+  onMutationEnd?: (platform: PlatformId, operation: number) => void;
 }
 
 async function saveVariant(
@@ -16,8 +21,8 @@ async function saveVariant(
   changeSummary: string,
   draftId: string | null,
   variantId: string | null,
-  setVariantId: (platform: PlatformId, id: string | null) => void,
-) {
+  signal: AbortSignal,
+): Promise<PlatformVariant | null> {
   const patchBody = {
     content: adaptedContent,
     status: 'adapted',
@@ -27,33 +32,49 @@ async function saveVariant(
   };
 
   if (variantId) {
-    await fetch(`/api/platform-variants/${variantId}`, {
+    const response = await fetch(`/api/platform-variants/${variantId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patchBody),
+      signal,
     });
+    if (!response.ok) return null;
+    const data = await response.json();
+    return (data.variant as PlatformVariant | undefined) ?? null;
   } else if (draftId) {
     const res = await fetch(`/api/drafts/${draftId}/variants`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ platforms: [platform] }),
+      signal,
     });
-    if (res.ok) {
-      const data = await res.json();
-      const created = data.variants?.[0];
-      if (created) {
-        setVariantId(platform, created.id);
-        await fetch(`/api/platform-variants/${created.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(patchBody),
-        });
-      }
-    }
+    if (!res.ok) return null;
+    const data = await res.json();
+    const created = data.variants?.[0] as PlatformVariant | undefined;
+    if (!created) return null;
+
+    const patchResponse = await fetch(`/api/platform-variants/${created.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patchBody),
+      signal,
+    });
+    if (!patchResponse.ok) return null;
+    const patchData = await patchResponse.json();
+    return (patchData.variant as PlatformVariant | undefined) ?? null;
   }
+
+  return null;
 }
 
-export default function PlatformAdaptButton({ platform, agentEnabled }: PlatformAdaptButtonProps) {
+export default function PlatformAdaptButton({
+  platform,
+  agentEnabled,
+  disabled = false,
+  onMutationStart,
+  onVariantSaved,
+  onMutationEnd,
+}: PlatformAdaptButtonProps) {
   const {
     title,
     content,
@@ -70,8 +91,18 @@ export default function PlatformAdaptButton({ platform, agentEnabled }: Platform
   const draft = platformDrafts[platform];
   const isAdapted = draft?.aiAdapted === true;
 
+  useEffect(
+    () => () => {
+      abortRef.current?.abort();
+    },
+    [currentDraftId],
+  );
+
   const handleAdapt = useCallback(async () => {
-    if (!content.trim()) return;
+    if (!content.trim() || disabled) return;
+
+    const operation = onMutationStart?.(platform) ?? null;
+    if (onMutationStart && operation === null) return;
 
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -138,23 +169,45 @@ export default function PlatformAdaptButton({ platform, agentEnabled }: Platform
           }
         }
 
-        setAIAdaptedContent(platform, adaptedContent);
-        saveVariant(
+        const savedVariant = await saveVariant(
           platform,
           adaptedContent,
           changeSummary,
           currentDraftId,
           variantIds[platform],
-          setVariantId,
+          controller.signal,
         );
+        if (!savedVariant || controller.signal.aborted) return;
+
+        const accepted =
+          operation === null || !onVariantSaved
+            ? true
+            : onVariantSaved(platform, savedVariant, operation);
+        if (!accepted) return;
+
+        setVariantId(platform, savedVariant.id);
+        setAIAdaptedContent(platform, adaptedContent);
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
     } finally {
       setAdapting(false);
       abortRef.current = null;
+      if (operation !== null) onMutationEnd?.(platform, operation);
     }
-  }, [title, content, platform, setAIAdaptedContent, currentDraftId, variantIds, setVariantId]);
+  }, [
+    title,
+    content,
+    platform,
+    disabled,
+    onMutationStart,
+    currentDraftId,
+    variantIds,
+    onVariantSaved,
+    setVariantId,
+    setAIAdaptedContent,
+    onMutationEnd,
+  ]);
 
   const handleRevert = useCallback(() => {
     revertAIDraft(platform);
@@ -181,7 +234,7 @@ export default function PlatformAdaptButton({ platform, agentEnabled }: Platform
       type="button"
       className={styles.adaptButton}
       onClick={handleAdapt}
-      disabled={adapting || !content.trim()}
+      disabled={disabled || adapting || !content.trim()}
       title="用 AI 优化此平台内容"
     >
       {adapting ? <Loader2 size={11} className={styles.spinIcon} /> : <Sparkles size={11} />}

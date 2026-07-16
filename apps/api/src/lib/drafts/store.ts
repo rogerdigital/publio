@@ -28,6 +28,13 @@ function sortByUpdatedAtDesc(left: ContentDraft, right: ContentDraft) {
   return Date.parse(right.updatedAt) - Date.parse(left.updatedAt);
 }
 
+function normalizeDraft(draft: ContentDraft): ContentDraft {
+  return {
+    ...draft,
+    revision: Number.isInteger(draft.revision) && draft.revision > 0 ? draft.revision : 1,
+  };
+}
+
 export function createDraftStore(options: DraftStoreOptions = {}) {
   const createId = options.createId ?? createDefaultId;
   const now = options.now ?? createTimestamp;
@@ -35,7 +42,9 @@ export function createDraftStore(options: DraftStoreOptions = {}) {
   const initialDrafts = storagePath
     ? readJsonFileCollection<ContentDraft>(storagePath)
     : (options.initialDrafts ?? []);
-  const drafts = new Map<string, ContentDraft>(initialDrafts.map((draft) => [draft.id, draft]));
+  const drafts = new Map<string, ContentDraft>(
+    initialDrafts.map((draft) => normalizeDraft(draft)).map((draft) => [draft.id, draft]),
+  );
 
   function persistDrafts() {
     if (!storagePath) return;
@@ -53,6 +62,7 @@ export function createDraftStore(options: DraftStoreOptions = {}) {
         source: input.source,
         ...(input.platforms ? { platforms: input.platforms } : {}),
         ...(input.tags ? { tags: input.tags } : {}),
+        revision: 1,
         createdAt: timestamp,
         updatedAt: timestamp,
       };
@@ -70,9 +80,14 @@ export function createDraftStore(options: DraftStoreOptions = {}) {
       const current = drafts.get(id);
       if (!current) return null;
 
+      const contentChanged =
+        (input.title !== undefined && input.title !== current.title) ||
+        (input.content !== undefined && input.content !== current.content);
+
       const updated: ContentDraft = {
         ...current,
         ...input,
+        revision: contentChanged ? current.revision + 1 : current.revision,
         updatedAt: now(),
       };
 
